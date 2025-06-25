@@ -1,3 +1,4 @@
+import '@/app/'
 
 export default function RootLayout({ children }) {
   console.log(children)
