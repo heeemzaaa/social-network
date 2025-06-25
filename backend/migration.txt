@@ -1,0 +1,25 @@
+// there are 2 ways to install the go-migrate for the project : 
+1- versioned 
+* for production al2asdi9a2 
+* more stable but there are a lot of details to go through before installation and through the process of the installation 
+2- Unversionned 
+* used here 
+commands 
+cd backend/
+// i used the versioned of installing the go-migrate (7itash akhit version katrequire go1.23.10 o 7na f zone khdamin go1.22.3)
+go install -tags 'sqlite3' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.17.0 
+// after successfully installing it, it remains inaccessible when migrate command is executed 
+// 
+// makansh avaialabe f env variables so added 
+3- fix the problem of env variables 
+export GOPATH=$HOME/go
+export PATH=$GOPATH/bin:$PATH
+export GOBIN=$GOPATH/bin
+4- Run the command to create the migrations 
+migrate create -ext sql -dir database/migrations -seq create_users_table
+
+
+links from the documentation 
+https://github.com/golang-migrate/migrate/tree/master/cmd/migrate#with-go-toolchain
+
+check them out!!
