@@ -1,0 +1,19 @@
+
+button {
+    all: unset;
+    padding: 8px 24px;
+    font-weight: var(--font-weight-semibold);
+    border-radius:  var(--border-radius-md);
+    display: flex;
+    justify-content: center;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-dark);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-dark);
+}
