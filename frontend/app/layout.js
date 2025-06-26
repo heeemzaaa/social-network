@@ -1,3 +1,4 @@
+import './global.css'
 
 export default function RootLayout({ children }) {
   console.log(children)
