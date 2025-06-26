@@ -1,3 +1,18 @@
 nav {
 
 }
+
+.ProfileContainer {
+    width: 20%;
+    height: 70%;
+    border-radius: var(--border-radius-lg);
+    z-index: 1000;
+}
+
+.ProfileImg {
+
+}
+
+.ProfileData {
+
+}
