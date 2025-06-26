@@ -6,7 +6,11 @@ export default function Home() {
     lastName: "Elkhawlani",
     email: "hamza@gmail.com",
     dateOfBirth: "20-09-2000",
-    nickname: "heeemzaaa"
+    nickname: "heeemzaaa",
+    followers: 153,
+    following: 147,
+    posts: 52,
+    groups: 18
   }
   return (
     <>
