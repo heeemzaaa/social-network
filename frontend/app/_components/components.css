@@ -6,6 +6,7 @@ button {
     border-radius:  var(--border-radius-md);
     display: flex;
     justify-content: center;
+    cursor: pointer;
 }
 
 .btn-primary {
@@ -16,4 +17,11 @@ button {
 .btn-secondary {
     background-color: var(--color-secondary);
     color: var(--color-dark);
+}
+
+.btn-danger {
+    background-color: var(--color-red);
+}
+.btn-success {
+    background-color: var(--color-green);
 }

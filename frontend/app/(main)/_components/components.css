@@ -1,3 +1,33 @@
 nav {
+    display: flex;
+    flex-direction: column;
+}
 
+.link {
+    padding: 1rem .5rem; 
+    font-weight: var(--font-weight-bold);
+}
+
+.link:hover {
+    background-color: var(--color-dark-gray);
+}
+
+
+.link-active {
+    padding-left: calc(.5rem + 5px);
+    color: var(--color-primary);
+    position: relative;
+}
+
+.link-active::after {
+    position: absolute;
+    content: "";
+    left: 0;
+    top: 0;
+    width: 5px;
+    height: 100%;
+    background-color: var(--color-primary);
+    z-index: 2;
+    box-shadow: 10px 1px 20px 2px var(--color-primary),
+    8px 1px 10px 0px var(--color-primary);
 }
