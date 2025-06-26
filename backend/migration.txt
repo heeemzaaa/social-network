@@ -15,9 +15,13 @@ go install -tags 'sqlite3' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.1
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$PATH
 export GOBIN=$GOPATH/bin
-4- Run the command to create the migrations 
-migrate create -ext sql -dir database/migrations -seq create_users_table
 
+5- run to prevent hadakshi li lfu9 kaml just run source install.sh 
+4- Run the command to create the migrations 
+cd backend 
+migrate create -ext sql -dir database/migrations -seq create_users_table
+OR 
+migrate create -ext sql -dir backend/database/migrations -seq create_users_table
 
 links from the documentation 
 https://github.com/golang-migrate/migrate/tree/master/cmd/migrate#with-go-toolchain
