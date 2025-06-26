@@ -22,6 +22,7 @@ func InitDB(nameDB string) (*Database, error) {
 	if err != nil {
 		return nil, err
 	}
+	db.Ping()
 	return &Database{db}, nil
 }
 
