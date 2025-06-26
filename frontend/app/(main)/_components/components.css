@@ -1,3 +1,4 @@
+
 nav {
     display: flex;
     flex-direction: column;
@@ -6,6 +7,11 @@ nav {
 .link {
     padding: 1rem .5rem; 
     font-weight: var(--font-weight-bold);
+    letter-spacing: 1px;
+    display: flex;
+    align-items: end;
+    gap: 8px;
+    transition: all ease-in .2s;
 }
 
 .link:hover {
@@ -17,6 +23,7 @@ nav {
     padding-left: calc(.5rem + 5px);
     color: var(--color-primary);
     position: relative;
+    overflow: hidden;
 }
 
 .link-active::after {
@@ -28,6 +35,24 @@ nav {
     height: 100%;
     background-color: var(--color-primary);
     z-index: 2;
-    box-shadow: 10px 1px 20px 2px var(--color-primary),
-    8px 1px 10px 0px var(--color-primary);
+    box-shadow: 2px 0px 20px 3px var(--color-primary);
+     /* filter: drop-shadow(10px 10px 200px $tod-tri) drop-shadow(-10px -10px 50px $tod-tri) */
+}
+
+.red {
+    background-color: red;
+}
+
+/* header component style */
+
+.popover-content {
+    position: absolute;
+    top: 100%;
+    right: -25%;
+    margin-top: 4px;
+    padding: var(--size-md);
+    display: flex;
+    flex-direction: column;
+    width: max-content;
+    border-radius: var(--border-radius-lg);
 }

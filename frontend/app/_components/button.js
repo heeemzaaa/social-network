@@ -2,10 +2,10 @@ import React from 'react'
 import './components.css'
 
 
-export default function Button({children, variant = "btn-primary", onClick}) {
+export default function Button({children, variant = "btn-primary", onClick}, ref) {
 
    return (
-    <button onClick={onClick} className={variant}>
+    <button ref={ref} onClick={onClick} className={variant}>
       {children}
     </button>
   );
