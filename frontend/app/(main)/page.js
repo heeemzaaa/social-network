@@ -1,7 +1,7 @@
 import InfosDiv from "./_components/user_info";
 
 export default function Home() {
-  const userInfos =  {
+  const userInfos = {
     firstName: "Hamza",
     lastName: "Elkhawlani",
     email: "hamza@gmail.com",
@@ -13,9 +13,9 @@ export default function Home() {
     groups: 18
   }
   return (
-    <>
-      <InfosDiv {...userInfos}/>
-    </>
+    <main className="home_page_section">
+      <InfosDiv {...userInfos} />
+    </main>
   );
 }
 

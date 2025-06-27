@@ -3,7 +3,7 @@ import "./components.css"
 export default function InfosDiv({ firstName, lastName, email, dateOfBirth, nickname, followers, following, posts, groups }) {
   return (
     <section className="profileLeftSection h-full">
-      <div className="ProfileContainer p2" style={{ backgroundImage: `url(https://www.portraitprofessionnel.fr/wp-content/uploads/2020/02/portrait-professionnel-corporate-4.jpg)` }} >
+      <div className="ProfileContainer p2" style={{ backgroundImage: `url(/no-profile.png)` }} >
         <div className="ProfileData p2 flex-col gap-1">
           <p><span className="font-bold">First Name:</span> {firstName}</p>
           <p><span className="font-bold">Last Name:</span> {lastName}</p>

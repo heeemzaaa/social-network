@@ -407,7 +407,6 @@ body {
 }
 
 header {
-  grid-column-start: 2;
   background-color: var(--color-secondary);
   color: var(--color-dark);
   padding: 1rem;
@@ -417,7 +416,7 @@ header {
 }
 
 aside {
-  grid-row: 1/4;
+  grid-row: 1/3;
   height: 100%;
   display: flex;
   flex-direction: column;
