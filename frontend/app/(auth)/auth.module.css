@@ -5,7 +5,9 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    position: relative;
+    z-index: 1;
+    background: var(--glass-background);
+    box-shadow: var(--shadow-light-lg);
 }
 
 .formGrp {
@@ -24,7 +26,9 @@
 .input {
     all: unset;
     padding: .5rem;
-    border: solid 1px;
+    outline: solid 1px var(--color-white);
+    font-size: var(--font-size-sm);
+    border-radius: var(--border-radius-sm);
 }
 
 .input:focus {
@@ -35,33 +39,11 @@
 .form>button {
     justify-content: center;
     transition: all .2s;
+    margin-top: 1rem ;
 }
 
 .form>button:hover {
     box-shadow: var(--shadow-primary-sm);
     border: solid 1px var(--color-secondary);
     transform: translate(-1px, -1px);
-}
-
-.form::after {
-    content: "";
-    top: 0;
-    left: 0;
-    width: 100px;
-    height: 100px;
-    position: absolute;
-    border-radius: var(--border-radius-full);
-    background-color: var(--color-primary);
-    z-index: -5;
-}
-.form::before {
-    position: absolute;
-    content: "";
-    bottom: 0;
-    right: 0;
-    width: 100px;
-    height: 100px;
-    border-radius: var(--border-radius-full);
-    background-color: var(--color-primary);
-    z-index: -5;
 }

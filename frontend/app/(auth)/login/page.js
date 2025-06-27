@@ -9,18 +9,17 @@ export default function Login() {
       <Logo />
       <form className={`${styles.form} glass-bg`}>
         <div className={`${styles.formGrp}`}>
-          <label> 
+          <label htmlFor='username'> 
             <HiMiniUser/>
             <span>
             User Name:
             </span>
-            
             </label>
-          <input className={`${styles.input}`} name='userName' type='text' placeholder='User Name ...'/>
+          <input className={`${styles.input}`} id='username' name='username' type='text' placeholder='User Name ...'/>
           <span className='field-error'></span>
         </div>
         <div className={`${styles.formGrp}`}>
-          <label for='password'>
+          <label htmlFor='password'>
             <HiLockClosed/>
             <span>
             Password:  
