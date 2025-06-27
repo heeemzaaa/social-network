@@ -14,19 +14,19 @@ export default function InfosDiv({ firstName, lastName, email, dateOfBirth, nick
       </div>
 
       <div className="UserFollowers p2">
-        <div className="followers p1">
+        <div className="followers p2">
           <p className="font-bold">Followers</p><p>{followers}</p>
         </div>
 
-        <div className="following p1">
+        <div className="following p2">
           <p className="font-bold">Following</p><p>{following}</p>
         </div>
 
-        <div className="posts p1">
+        <div className="posts p2">
           <p className="font-bold">Posts</p><p>{posts}</p>
         </div>
 
-        <div className="groups p1">
+        <div className="groups p2">
           <p className="font-bold">Groups</p><p>{groups}</p>
         </div>
       </div>
