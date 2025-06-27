@@ -1,5 +1,7 @@
 nav {}
 
+
+/* this part is for the left section of the user infos */
 .profileLeftSection {
     width: 350px;
 }
@@ -13,6 +15,8 @@ nav {}
     height: 70%;
     border-radius: var(--border-radius-lg);
     background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 
@@ -43,13 +47,34 @@ nav {}
     gap: 10px;
 }
 
-.UserFollowers > div  {
+.UserFollowers>div {
     width: calc(50% - 10px);
     background-color: var(--color-white);
     display: flex;
-    flex-direction: column ;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     border-radius: var(--border-radius-lg);
 }
 
+/* Now this side is for the about user part in the profile page */
+.about_me_container {
+    border-radius: var(--border-radius-lg);
+    background-color: var(--color-white);
+    box-shadow: var(--shadow-md);
+    color: var(--color-dark);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: max-content;
+}
+
+.about_me_container>span {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-lg);
+}
+
+.about_me_container>p {
+    text-align: justify;
+}
