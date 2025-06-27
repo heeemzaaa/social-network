@@ -8,3 +8,5 @@ export PATH=$GOPATH/bin:$PATH
 export GOBIN=$GOPATH/bin
 
 # to run this and have effects we should use source install.sh 
+
+cd Desktop/social-network

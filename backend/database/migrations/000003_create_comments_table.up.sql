@@ -1,0 +1,12 @@
+PRAGMA foreign_keys = ON;
+
+
+CREATE TABLE IF NOT EXISTS comments (
+    commentID TEXT PRIMARY KEY,
+    postID TEXT NOT NULL,
+    userID TEXT NOT NULL,
+    content TEXT NOT NULL ,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (postID) REFERENCES posts(postID) ON DELETE CASCADE,
+    FOREIGN KEY (userID) REFERENCES users(userID) ON DELETE CASCADE
+);
