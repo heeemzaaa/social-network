@@ -1,8 +1,11 @@
+PRAGMA foreign_keys = ON;
+
+
 CREATE TABLE IF NOT EXISTS posts (
-    postID INTEGER PRIMARY KEY AUTOINCREMENT,
-    userID INTEGER NOT NULL, 
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    title VARCHAR(255) NOT NULL,
+    postID TEXT PRIMARY KEY,
+    userID TEXT NOT NULL, 
     content TEXT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    privacy TEXT NOT NULL DEFAULT 'public' CHECK IN ('public', 'private', 'almost private')
     FOREIGN KEY (userID) REFERENCES users(userID) ON DELETE CASCADE 
 );
