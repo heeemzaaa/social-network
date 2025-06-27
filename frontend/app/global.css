@@ -1,6 +1,6 @@
 :root {
-  --color-dark: #1E201F;
-  --color-primary: #C7DB7A;
+  --color-dark: #1E201F ;
+ --color-primary : #C7DB7A;
   --color-secondary: #E3E0D4;
   --color-white: #fff;
   --color-green: #00673D;
@@ -54,18 +54,12 @@
   --z-index-modal: 100;
 
   /* Glassmorphism Effect */
-  --glass-background: rgba(255, 255, 255, 0.1);
-  /* Semi-transparent white */
-  --glass-background-dark: rgba(30, 32, 31, 0.2);
-  /* Semi-transparent dark */
-  --glass-blur: blur(10px);
-  /* Standard blur effect */
-  --glass-border: 1px solid rgba(255, 255, 255, 0.589);
-  /* Subtle border */
-  --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  /* Soft shadow */
-  --glass-backdrop-filter: blur(10px);
-  /* Enhanced blur with saturation */
+  --glass-background: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+  --glass-background-dark: rgba(30, 32, 31, 0.2); /* Semi-transparent dark */
+  --glass-blur: blur(10px); /* Standard blur effect */
+  --glass-border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+  --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  --glass-backdrop-filter: blur(10px) saturate(180%); /* Enhanced blur with saturation */
 }
 
 * {
@@ -510,6 +504,7 @@ main {
   background-color: var(--color-secondary);
   color: var(--color-dark);
   margin: 0 1rem 1rem;
+  padding: 2rem;
   border-bottom-left-radius: var(--border-radius-xl);
   border-bottom-right-radius: var(--border-radius-xl);
 }

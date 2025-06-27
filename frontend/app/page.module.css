@@ -1,44 +1,10 @@
-.html,
-.body {
-  max-width: 100vw;
-  height: 100%;
-  overflow-x: hidden;
-}
 
-.body {
-  color: var(--color-white);
-  background: var(--color-dark);
+
+.layout {
   display: grid;
-  grid-template-columns: max-content 1fr;
-  grid-template-rows: max-content 1fr;
+  
 }
 
-.header {
-  grid-column-start: 2;
-  background-color: var(--color-secondary);
-  color: var(--color-dark);
-  padding: 1rem;
-  margin: 1rem 1rem 0;
-  border-top-left-radius: var(--border-radius-xl);
-  border-top-right-radius: var(--border-radius-xl);
-}
-
-.aside {
-  grid-row: 1/4;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 2rem;
-}
-
-.main {
-  background-color: var(--color-secondary);
-  color: var(--color-dark);
-  margin: 0 1rem 1rem;
-  border-bottom-left-radius: var(--border-radius-xl);
-  border-bottom-right-radius: var(--border-radius-xl);
-}
 
 
 /* Enable hover only on non-touch devices */
