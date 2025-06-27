@@ -2,14 +2,12 @@ import React from 'react'
 import Header from './_components/header'
 import Navigation from './_components/navigation'
 
-export default function MainLayout({children}) {
+export default function MainLayout({ children }) {
   return (
     <>
       <Header />
       <Navigation />
-      <main>
-        {children}
-      </main>
+      {children}
     </>
   )
 }
