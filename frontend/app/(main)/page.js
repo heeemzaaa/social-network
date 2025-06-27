@@ -13,7 +13,7 @@ export default function Home() {
     groups: 18
   }
   return (
-    <main className="home_page_section">
+    <main className="home_page_section p4">
       <InfosDiv {...userInfos} />
     </main>
   );

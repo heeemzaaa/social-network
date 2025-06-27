@@ -1,0 +1,17 @@
+.user_groups_place {
+    background-color: var(--glass-background);
+    border: 1px solid var(--color-white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 450px;
+}
+
+.user_groups_choosing > div {
+    width: 45%;
+    background-color: var(--color-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top-left-radius: var(--border-radius-lg);
+    border-top-right-radius: var(--border-radius-lg);
+}

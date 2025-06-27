@@ -25,7 +25,7 @@ export default async function Profile({ params }) {
               I'm here to be real and connect with others. Let's grow, laugh, and learn together!`
   }
   return (
-    <main className='profile_page_section flex h-full p2 gap-4'>
+    <main className='profile_page_section flex h-full p4 gap-4'>
       <InfosDiv {...userInfos} />
       <AboutUser {...aboutUser} />
     </main>
