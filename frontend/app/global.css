@@ -268,10 +268,6 @@ a {
   gap: 2rem;
 }
 
-.gap-5 {
-  gap: 5rem
-}
-
 /* Shadows */
 .shadow-sm {
   box-shadow: var(--shadow-sm);
