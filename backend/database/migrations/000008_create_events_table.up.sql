@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS group_events (
     groupID TEXT NOT NULL,
     title  TEXT NOT NULL ,
     description NOT NULL,
+    eventTime TEXT NOT NULL,
     FOREIGN KEY (groupID) REFERENCES groups(groupID)
 );
