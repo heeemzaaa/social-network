@@ -509,18 +509,20 @@ main {
   border-bottom-right-radius: var(--border-radius-xl);
 }
 
-
-
-
-
-
-
 .login,.register {
   grid-row: 1/4;
   grid-column: 1/4;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
   gap: 2rem;
+}
+
+
+.field-error {
+  font-size: var(--font-size-sm); 
+  font-weight:  var(--font-weight-semibold);
+  color: var(--color-red);
+  opacity: .9;
 }
