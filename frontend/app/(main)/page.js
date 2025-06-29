@@ -1,4 +1,8 @@
+"use client"
+
+import { useEffect } from "react";
 import InfosDiv from "./_components/user_info";
+import { getPosts } from "../api/post/route";
 
 export default function Home() {
   const userInfos = {
@@ -12,6 +16,12 @@ export default function Home() {
     posts: 52,
     groups: 18
   }
+
+  // useEffect( async ()=>{ 
+  //   let data = await getPosts()
+  //   console.log(data)
+  // },[]) 
+
   return (
     <main className="home_page_section">
       <InfosDiv {...userInfos} />

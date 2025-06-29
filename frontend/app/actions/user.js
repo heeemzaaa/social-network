@@ -9,18 +9,19 @@ export async function loginUser(prevState, formData) {
         message: null
     }
 
+
+
     const username = formData.get("username")?.trim()
     const password = formData.get("password")?.trim()
 
     if (!username) state.errors.username = "Field can't be empty"
     if (!password) state.errors.password = "Field can't be empty"
 
-
     if (Object.keys(state.errors).length > 0) {
         return state
-    }
+    }   
 
-    // here i can send data to backend 
+    // console.log(username, password)
 
     redirect("/")
 }

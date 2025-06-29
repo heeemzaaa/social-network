@@ -2,17 +2,16 @@
 import styles from "../auth.module.css"
 import { HiMiniUser, HiLockClosed } from "react-icons/hi2";
 import { loginUser } from '@/app/actions/user';
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useState } from "react";
 import SubmitButton from "@/app/_components/subimtButton";
-
-let loginData = {
-    username: "",
-    password: ""
-}
 
 export default function LoginForm() {
     const [state, action] = useActionState(loginUser, {});
-    const [data, setData] = useState(loginData)
+    const [data, setData] = useState({
+        username: "",
+        password: ""
+    })
+
     return (
         <form action={action} className={`${styles.form} glass-bg`}>
             <div className={`${styles.formGrp}`}>
