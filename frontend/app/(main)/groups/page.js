@@ -2,7 +2,9 @@
 
 import Button from '@/app/_components/button'
 import { HiOutlinePlus } from "react-icons/hi";
-import { CreateGroup } from "./_components/create_group"
+import styles from  "./group.module.css"
+import { CreateGroup } from "./_components/createGroup"
+import  {CardList, myItems} from "./_components/cardLists"
 import { useState, useEffect, useRef } from 'react';
 
 
@@ -12,35 +14,44 @@ export default function Groups() {
 
 
   function HandleShowMenu() {
-    console.log(menu, "heere");
+    console.log(menu, "before");
     showMenu(!menu)
+    console.log(menu, "after");
   }
 
-   const myElementRef = useRef(null);
+  // const myElementRef = useRef(null);
 
-      useEffect(() => {
-        const element = myElementRef.current; 
-        console.log("heere inside the useeffect", element);
-       
+  // useEffect(() => {
+  //   const element = myElementRef.current;
+  //   console.log("hnaaaaaa", myElementRef.current);
+  //   if (element) {
+  //     const handleClick = () => {
+  //       HandleShowMenu()
+  //     };
 
-        if (element) {
-          const handleClick = () => {
-            HandleShowMenu()
-          };
-
-          element.addEventListener('click', handleClick);
-          return () => {
-            element.removeEventListener('click', handleClick);
-          };
-        }
-      }, []); 
+  //     element.addEventListener('click', handleClick);
+  //     return () => {
+  //       element.removeEventListener('click', handleClick);
+  //     };
+  //   }
+  // }, []);
   return (
-    <main >
-      <Button className="align-center" onClick={HandleShowMenu}>
-        <HiOutlinePlus />create group</Button>
-      {menu && <CreateGroup ref={myElementRef} />}
-
-
+    <main>
+      <div className={`${styles.container_1}`}>
+        <CardList  title={"My groups"} items={myItems} />
+      </div>
+      <div className={`${styles.container_2}`}>
+        <div className={`${styles.create_bouton}`}>
+          <Button className="justify-end" onClick={HandleShowMenu}>
+            <HiOutlinePlus />
+            create group
+          </Button>
+          {menu && <CreateGroup />}
+        </div>
+        <div className={`${styles.groups_unjoined}`}>
+          
+        </div>
+      </div>
     </main>
   )
 }

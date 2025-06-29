@@ -1,8 +1,6 @@
-import styles from "./group.module.css"
+import styles from "../group.module.css"
 import Button from '@/app/_components/button'
 import { HiMiniPencilSquare, HiOutlinePencil } from "react-icons/hi2";
-
-
 
 
 export  function CreateGroup() {
