@@ -12,9 +12,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border-top-left-radius: var(--border-radius-lg);
-    border-top-right-radius: var(--border-radius-lg);
     padding: 1rem;
+}
+
+.user_groups_choosing>button:nth-child(1) {
+    border-radius: var(--border-radius-lg) 0 0 0;
+}
+
+.user_groups_choosing>button:nth-child(2) {
+    border-radius: 0 var(--border-radius-lg) 0 0;
+
 }
 
 .chat_place {
