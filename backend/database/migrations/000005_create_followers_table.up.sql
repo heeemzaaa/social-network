@@ -12,4 +12,3 @@ CREATE TABLE IF NOT EXISTS followers(
 );
 
 
-CREATE UNIQUE INDEX idx_followers_unique ON followers(userID, followerID);
