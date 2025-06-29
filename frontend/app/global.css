@@ -91,6 +91,22 @@ a {
   padding: 2rem;
 }
 
+.pi1 {
+  padding-inline: 0.5rem;
+}
+
+.pi2 {
+  padding-inline: 1rem;
+}
+
+.pi3 {
+  padding-inline: 1.5rem;
+}
+
+.pi4 {
+  padding-inline: 2rem;
+}
+
 .m1 {
   margin: 0.5rem;
 }
