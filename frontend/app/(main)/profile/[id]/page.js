@@ -1,6 +1,9 @@
 import React from 'react'
 import InfosDiv from '../../_components/user_info';
 import AboutUser from '../../_components/about_user';
+import { FaUserEdit } from "react-icons/fa";
+import Button from '@/app/_components/button';
+
 
 export default async function Profile({ params }) {
   let { id } = await params
@@ -26,7 +29,11 @@ export default async function Profile({ params }) {
   }
   return (
     <main className='profile_page_section flex h-full p4 gap-4'>
-      <InfosDiv {...userInfos} />
+      <InfosDiv {...userInfos}>
+        <Button variant={'btn-icon glass-bg'} >
+          <FaUserEdit size={'24px'} color={'white'}/>
+          </Button>
+      </InfosDiv >
       <AboutUser {...aboutUser} />
     </main>
   );

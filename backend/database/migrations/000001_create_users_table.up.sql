@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     firstName VARCHAR(50) NOT NULL,
     lastName VARCHAR(50) NOT NULL,
     password VARCHAR(50) NOT NULL, 
-    birthDate TEXT  NOT NULL,a
+    birthDate TEXT  NOT NULL,
     nickname VARCHAR(30) UNIQUE,
     avatarPath TEXT,
     aboutMe TEXT,

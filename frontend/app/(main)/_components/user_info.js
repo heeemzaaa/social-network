@@ -1,9 +1,10 @@
 import "./components.css"
 
-export default function InfosDiv({ firstName, lastName, email, dateOfBirth, nickname, followers, following, posts, groups }) {
+export default function InfosDiv({ firstName, lastName, email, dateOfBirth, nickname, followers, following, posts, groups , children}) {
   return (
     <section className="profileLeftSection h-full">
       <div className="ProfileContainer p2" style={{ backgroundImage: `url(/no-profile.png)` }} >
+      {children}
         <div className="ProfileData p2 flex-col gap-1">
           <p><span className="font-bold">First Name:</span> {firstName}</p>
           <p><span className="font-bold">Last Name:</span> {lastName}</p>
