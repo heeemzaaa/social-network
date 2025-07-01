@@ -11,6 +11,7 @@ type Group struct {
 	GroupCreatorId uuid.UUID `json:"group_creator_id"`
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
+	ImagePath      string    `json:"image_path"`
 	Members        []User
 	Posts          []Post
 	Events         []Event
@@ -42,4 +43,9 @@ type Comment struct {
 	Content    string    `json:"content"`
 	TotalLikes int       `json:"total_likes"`
 	Liked      int       `json:"liked"`
+}
+
+type ErrGroup struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
