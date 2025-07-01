@@ -15,11 +15,27 @@ func NewProfileRepository(db *sql.DB) *ProfileRepository {
 	return &ProfileRepository{db: db}
 }
 
+//here I will get the userID based based on the sessionID to pass it to other functions
+func (repo *ProfileRepository) GetID(sessionID string) (string, error) {
+	var userID string
+	query := `SELECT userID from sessions WHERE sessionID = ?`
+	err := repo.db.QueryRow(query, sessionID).Scan(&userID)
+	if err != nil {
+		log.Println("Error getting the userID from the database:" , err)
+		return "" , fmt.Errorf("error getting the userID from the database: %v" , err)
+	}
+	return userID, nil
+}
+
 // here I will check if the user has the authorization to access my profile
 // is the user getting the profile is me ?
 // is my account private, if yes , is he a follower?
 // is my account public ?
 func (repo *ProfileRepository) CheckProfileAccess(userID string, authUserID string) (bool, error) {
+	if userID == authUserID {
+		return true, nil
+	}
+
 	var visibility string
 	query := `SELECT visibility FROM users WHERE userID = ?`
 	err := repo.db.QueryRow(query, userID).Scan(&visibility)
@@ -37,7 +53,7 @@ func (repo *ProfileRepository) CheckProfileAccess(userID string, authUserID stri
 		var isFollower int
 		query = `
 		SELECT EXISTS 
-		(SELECT 1 FROM followers WHERE userID = ? AND followerID = ?)
+		(SELECT 1 FROM followers WHERE userID = ? AND followerID = ? LIMIT 1)
 		`
 		err := repo.db.QueryRow(query, userID, authUserID).Scan(&isFollower)
 		if err != nil {
