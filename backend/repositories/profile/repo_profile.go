@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+
 	"social-network/backend/models"
 )
 
@@ -15,16 +16,145 @@ func NewProfileRepository(db *sql.DB) *ProfileRepository {
 	return &ProfileRepository{db: db}
 }
 
-//here I will get the userID based based on the sessionID to pass it to other functions
+// here I will get the userID based based on the sessionID to pass it to other functions
 func (repo *ProfileRepository) GetID(sessionID string) (string, error) {
 	var userID string
 	query := `SELECT userID from sessions WHERE sessionID = ?`
 	err := repo.db.QueryRow(query, sessionID).Scan(&userID)
 	if err != nil {
-		log.Println("Error getting the userID from the database:" , err)
-		return "" , fmt.Errorf("error getting the userID from the database: %v" , err)
+		log.Println("Error getting the userID from the database:", err)
+		return "", fmt.Errorf("error getting the userID from the database: %v", err)
 	}
 	return userID, nil
+}
+
+// here I will check if the user is following the profile or not
+func (repo *ProfileRepository) IsFollower(userID string, authUserID string) (bool, error) {
+	var exist int
+	query := `SELECT EXIST
+		(SELECT 1 FROM followers WHERE userID = ? AND followerID = ? LIMIT 1)
+	`
+
+	err := repo.db.QueryRow(query, userID, authUserID).Scan(&exist)
+	if err != nil {
+		log.Printf("Error checking if the user following the chosing profile: %v", err)
+		return false, fmt.Errorf("%v", err)
+	}
+
+	return exist == 1, nil
+}
+
+// here I will check if the user have a private profile or a public one
+func (repo *ProfileRepository) Visibility(userID string) (string, error) {
+	var visibility string
+	query := `SELECT visibility FROM users WHERE userID = ?`
+	err := repo.db.QueryRow(query, userID).Scan(&visibility)
+	if err != nil {
+		return "", fmt.Errorf("error fetching user visibility: %v", err)
+	}
+	return visibility, nil
+}
+
+// here I will insert the follow request if the user has a public account
+func (repo *ProfileRepository) FollowDone(userID string, authUserID string) error {
+	query := `INSERT INTO followers (userID, followerID) VALUES(?,?) `
+	_, err := repo.db.Exec(query, userID, authUserID)
+	if err != nil {
+		return fmt.Errorf("error inserting the data into the followers table:%v", err)
+	}
+	return nil
+}
+
+// here I will just insert the request into the table of the followrequests
+func (repo *ProfileRepository) FollowPrivate(userID string, authUserID string) error {
+	query := `INSERT INTO follow_requests (userID, requestorID) VALUES(?,?) `
+	_, err := repo.db.Exec(query, userID, authUserID)
+	if err != nil {
+		return fmt.Errorf("error inserting the data into the follow_requests table:%v", err)
+	}
+	return nil
+}
+
+func (repo *ProfileRepository) DeleteRequest(userID string, authUserID string) error {
+	query := `DELETE FROM follow_requests WHERE userID = ? AND requestorID = ?`
+	_, err := repo.db.Exec(query, userID, authUserID)
+	if err != nil {
+		return fmt.Errorf("error deleting the data into the follow_requests table: %v", err)
+	}
+	return nil
+}
+
+// if the user accepted the follow request
+// I will delete it from the table and add him to the following list
+func (repo *ProfileRepository) AcceptedRequest(userID string, authUserID string) error {
+	err := repo.DeleteRequest(userID, authUserID)
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
+
+	err = repo.FollowDone(userID, authUserID)
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
+
+	return nil
+}
+
+// here I will just delete it from the table of the follow requests
+func (repo *ProfileRepository) RejectedRequest(userID string, authUserID string) error {
+	err := repo.DeleteRequest(userID, authUserID)
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
+
+	return nil
+}
+
+// here we unfollow the user chosen , we delete it from the table of followers
+func (repo *ProfileRepository) Unfollow(userID string, authUserID string) error {
+	query := `DELETE FROM followers WHERE userID = ? AND followerID = ?`
+	_, err := repo.db.Exec(query, userID, authUserID)
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
+	return nil
+}
+
+// here we accept all the requests where the userID 
+// change its visibility to public only
+func (repo *ProfileRepository) AcceptAllrequest(userID string) error {
+	var users []models.User
+	query := `SELECT requestorID FROM follow_requests WHERE userID = ?`
+	rows, err := repo.db.Query(query, userID)
+	if err != nil {
+		return fmt.Errorf("%v" , err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user models.User
+		err := rows.Scan(&user.ID)
+		if err != nil {
+			return fmt.Errorf("%v", err)
+		}
+		users = append(users, user)
+	}
+
+	for _ , user := range users {
+		query := `INSERT INTO followers (userID, followerID) VALUES(?,?)`
+		_ , err := repo.db.Exec(query , userID, user.ID)
+		if err != nil {
+			return fmt.Errorf("%v" , err)
+		}
+	}
+
+	query = `DELETE FROM follow_requests WHERE userID = ?`
+	_ , err = repo.db.Exec(query, userID)
+	if err != nil {
+		return fmt.Errorf("%v" , err)
+	}
+
+	return nil
 }
 
 // here I will check if the user has the authorization to access my profile
@@ -36,13 +166,10 @@ func (repo *ProfileRepository) CheckProfileAccess(userID string, authUserID stri
 		return true, nil
 	}
 
-	var visibility string
-	query := `SELECT visibility FROM users WHERE userID = ?`
-	err := repo.db.QueryRow(query, userID).Scan(&visibility)
+	visibility, err := repo.Visibility(userID)
 	if err != nil {
-		return false, fmt.Errorf("error fetching user visibility: %v", err)
+		return false, fmt.Errorf("%v", err)
 	}
-
 	// If profile is public, good to go
 	if visibility == "public" {
 		return true, nil
@@ -50,16 +177,12 @@ func (repo *ProfileRepository) CheckProfileAccess(userID string, authUserID stri
 
 	// If profile is private, ncheckiw wach follower
 	if visibility == "private" {
-		var isFollower int
-		query = `
-		SELECT EXISTS 
-		(SELECT 1 FROM followers WHERE userID = ? AND followerID = ? LIMIT 1)
-		`
-		err := repo.db.QueryRow(query, userID, authUserID).Scan(&isFollower)
+		var isFollower bool
+		isFollower, err := repo.IsFollower(userID, authUserID)
 		if err != nil {
-			return false, fmt.Errorf("error checking follower status: %v", err)
+			return false, fmt.Errorf("%v", err)
 		}
-		return isFollower == 1, nil
+		return isFollower, nil
 	}
 
 	return false, fmt.Errorf("invalid visibility status: %s", visibility)
@@ -204,4 +327,23 @@ func (repo *ProfileRepository) GetFollowing(profileID string) (*[]models.User, e
 // here I will update anything in the user data
 func (repo *ProfileRepository) UpdateProfileData(user *models.User) (*models.User, error) {
 	return nil, nil
+}
+
+// here I will update the visibility of a private status
+func (repo *ProfileRepository) ToPublicAccount(userID string) error {
+	query := `UPDATE users SET visibility = ? WHERE userID = ?`
+	_, err := repo.db.Exec(query, "public", userID)
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
+	return nil
+}
+
+func (repo *ProfileRepository) ToPrivateAccount(userID string) error {
+	query := `UPDATE users SET visibility = ? WHERE userID = ?`
+	_, err := repo.db.Exec(query, "private", userID)
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
+	return nil
 }
