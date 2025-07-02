@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"strconv"
 
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
@@ -13,50 +12,30 @@ import (
 	"github.com/google/uuid"
 )
 
-type GroupHanlder struct {
+type GroupIDHanlder struct {
 	gservice *gservice.GroupService
 }
 
-func NewGroupHandler(service *gservice.GroupService) *GroupHanlder {
+func NewGroupIDHandler(service *gservice.GroupService) *GroupHanlder {
 	return &GroupHanlder{gservice: service}
 }
 
-func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) {
+// if the user has already joined the group : unauthorized important case
+func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Request) {
 	userIDVal := r.Context().Value("userID")
-	userID, ok := userIDVal.(string)
+	userID, ok := userIDVal.(uuid.UUID)
 	if !ok {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}
-	filter := r.URL.Query().Get("filter")
-	offset, errOffset := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
-	if errOffset != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect Offset Format!"})
-		return
-	}
-	if !utils.isValidFilter(filter) {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect filter by field!!"})
-		return
-	}
-	Ghandler.gservice.GetGroups(filter, offset, userID)
-}
-
-func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	userID, ok := userIDVal.(string)
-	if !ok {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
-		return
-	}
-	var group_to_create *models.Group
-	err := json.NewDecoder(r.Body).Decode(&group_to_create)
+	var group_to_join *models.Group
+	err := json.NewDecoder(r.Body).Decode(&group_to_join)
 	if err != nil {
 		if err == io.EOF {
 			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
-				Message: models.ErrGroup{
-					Title:       "empty title field!",
-					Description: "empty description field!",
+				Message: models.ErrJoinGroup{
+					GroupId: "empty group_id field!",
 				},
 			})
 			return
@@ -68,10 +47,29 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 		})
 		return
 	}
+   
+	gIdHanlder.gservice.GoinGroup(group_to_join , userID.String())
+    
 
-	group_to_create.GroupCreatorId = userID.(uuid.UUID)
-	Ghandler.gservice.AddGroup(group_to_create)
+
+
 }
 
-func (Ghandler *GroupHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// always get the groupInfo (general info like if the number of users and name and description)
+func (gIdHanlder *GroupIDHanlder) GetGroupInfo(w http.ResponseWriter, r *http.Request) {
+}
+
+func (gIdHanlder *GroupIDHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	switch r.Method {
+	case http.MethodGet:
+		gIdHanlder.GetGroupInfo(w, r)
+		return
+	case http.MethodPost:
+		gIdHanlder.JoinGroup(w, r)
+		return
+	default:
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
+		return
+	}
 }
