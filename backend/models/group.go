@@ -45,7 +45,14 @@ type Comment struct {
 	Liked      int       `json:"liked"`
 }
 
+// when trying to  create a group
 type ErrGroup struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
+}
+
+//  when trying to join a group
+
+type ErrJoinGroup struct {
+	GroupId string `json:"group_id"`
 }

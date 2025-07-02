@@ -12,6 +12,6 @@ func WriteJsonErrors(w http.ResponseWriter, errJson models.ErrorJson) {
 	json.NewEncoder(w).Encode(errJson)
 }
 
-func isValidFilter(filter string) bool {
+func IsValidFilter(filter string) bool {
 	return filter == "owned" || filter == "availabe" || filter == "joined"
 }
