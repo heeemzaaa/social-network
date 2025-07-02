@@ -140,11 +140,7 @@ func (s *ProfileService) Follow(userID string, authSessionID string) *models.Err
 }
 
 // here we will handle the case of an accepted request
-func (s *ProfileService) AcceptedRequest(userID string, authSessionID string) *models.ErrorJson {
-	authUserID, err := s.repo.GetID(authSessionID)
-	if err != nil {
-		return &models.ErrorJson{Status: 401, Message: fmt.Sprintf("%v", err)}
-	}
+func (s *ProfileService) AcceptedRequest(userID string, authUserID string) *models.ErrorJson {
 	
 	isFollower, errFollowers := s.IsFollower(userID, authUserID)
 	if errFollowers != nil {
@@ -155,7 +151,7 @@ func (s *ProfileService) AcceptedRequest(userID string, authSessionID string) *m
 		return &models.ErrorJson{Status: 401, Message: "The user is already following you !"}
 	}
 
-	err = s.repo.AcceptedRequest(userID, authUserID)
+	err := s.repo.AcceptedRequest(userID, authUserID)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
@@ -163,12 +159,7 @@ func (s *ProfileService) AcceptedRequest(userID string, authSessionID string) *m
 }
 
 // here we will handle the case of a refused request
-func (s *ProfileService) RejectedRequest(userID string, authSessionID string) *models.ErrorJson {
-	authUserID, err := s.repo.GetID(authSessionID)
-	if err != nil {
-		return &models.ErrorJson{Status: 401, Message: fmt.Sprintf("%v", err)}
-	}
-	
+func (s *ProfileService) RejectedRequest(userID string, authUserID string) *models.ErrorJson {
 	isFollower, errFollowers := s.IsFollower(userID, authUserID)
 	if errFollowers != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", errFollowers)}
@@ -178,7 +169,7 @@ func (s *ProfileService) RejectedRequest(userID string, authSessionID string) *m
 		return &models.ErrorJson{Status: 401, Message: "The user is already following you !"}
 	}
 
-	err = s.repo.RejectedRequest(userID, authUserID)
+	err := s.repo.RejectedRequest(userID, authUserID)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}

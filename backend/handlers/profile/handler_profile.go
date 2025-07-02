@@ -98,6 +98,48 @@ func (PrHandler *ProfileHandler) Follow(w http.ResponseWriter, r *http.Request) 
 	h.WriteDataBack(w, "Done")
 }
 
+// POST api/profile/id/accepted
+func (PrHandler *ProfileHandler) AcceptedRequest(w http.ResponseWriter, r *http.Request, profileID string) {
+	type RequestBody struct {
+		Requestor string `json:"requestor_id"`
+	}
+
+	var request RequestBody
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		h.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		return
+	}
+
+	errRequest := PrHandler.service.AcceptedRequest(profileID, request.Requestor)
+	if errRequest != nil {
+		h.WriteJsonErrors(w, *errRequest)
+		return
+	}
+	h.WriteDataBack(w, "done")
+}
+
+// POST api/profile/id/rejected
+func (PrHandler *ProfileHandler) RejectedRequest(w http.ResponseWriter, r *http.Request, profileID string) {
+	type RequestBody struct {
+		Requestor string `json:"requestor_id"`
+	}
+
+	var request RequestBody
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		h.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		return
+	}
+
+	errRequest := PrHandler.service.RejectedRequest(profileID, request.Requestor)
+	if errRequest != nil {
+		h.WriteJsonErrors(w, *errRequest)
+		return
+	}
+	h.WriteDataBack(w, "done")
+}
+
 // POST api/profile/id/unfollow
 func (PrHandler *ProfileHandler) Unfollow(w http.ResponseWriter, r *http.Request) {
 	authSessionID, errSession := GetSessionID(r)
