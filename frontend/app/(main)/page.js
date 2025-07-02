@@ -1,8 +1,11 @@
-"use client"
+// frontend/app/(main)/page.js 
 
-import { useEffect } from "react";
+"use client"
 import InfosDiv from "./_components/user_info";
-import { getPosts } from "../api/post/route";
+import PostsContainer from "./_components/posts/posts_container";
+import { useEffect, useState } from "react";
+import Loading from "./loading";
+import { fetchPosts } from "./_lib/posts";
 
 export default function Home() {
   const userInfos = {
@@ -17,16 +20,40 @@ export default function Home() {
     groups: 18
   }
 
-  // useEffect( async ()=>{ 
-  //   let data = await getPosts()
-  //   console.log(data)
-  // },[]) 
+  const [posts, setPosts] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  // using the golang api directely
+  // useEffect( () => {
+  //   console.log("use Effect runs");
+  //   let LoadPosts = async () => {
+  //     let response = await fetch("http://localhost:8080/api/posts")
+  //     let data = await response.json()
+  //     setPosts(data)
+  //     setLoading(false)
+  //   }
+  //   LoadPosts()
+  // }, []);
+
+
+
+  useEffect( () => {
+    console.log("use Effect runs");
+    let LoadPosts = async () => {
+      let data = await fetchPosts()
+      setPosts(data)
+      setLoading(false)
+    }
+    LoadPosts()
+  }, []);
+
+
+
 
   return (
-    <main className="home_page_section">
+    <main className='home-page'>
       <InfosDiv {...userInfos} />
+      {loading ? <Loading /> :  <PostsContainer posts={posts} />}
     </main>
   );
 }
-
-

@@ -533,3 +533,10 @@ main {
   color: var(--color-red);
   opacity: .9;
 }
+
+.home_page {
+  border: solid red ;
+  display: flex;
+  overflow: hidden;
+  justify-content: space-between;
+}

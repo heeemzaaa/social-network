@@ -5,10 +5,10 @@ import Link from 'next/link';
 
 export default function Login() {
   return (
-    <div className='login '>
+    <div className='login'>
       <Logo />
-      <LoginForm/>
-      <span>Don't have an account ?  <Link href={"/register"}> Register </Link></span>
+      <LoginForm />
+      <span>Don&apost have an account ?  <Link href={"/register"}> Register </Link></span>
     </div>
   )
 }

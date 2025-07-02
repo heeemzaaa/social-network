@@ -1,11 +1,6 @@
-
-
-.layout {
-  display: grid;
-  
+.home_page {
+  border: solid red;
 }
-
-
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
