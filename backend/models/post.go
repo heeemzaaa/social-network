@@ -6,17 +6,16 @@ type Post struct {
 	Id            int       `json:"id,omitempty"`
 	UserId        int       `json:"user_id,omitempty"`
 	Username      string    `json:"user_name,omitempty"`
-	Content       string    `json:"content"`
+	Content       string    `json:"content,omitempty"`
 	CreatedAt     time.Time `json:"created_at,omitempty"`
-	TotalComments int       `json:"total_comments"`
-	TotalLikes    int       `json:"total_likes"`
-	Liked         int       `json:"liked"`
+	TotalComments int       `json:"total_comments,omitempty"`
+	TotalLikes    int       `json:"total_likes,omitempty"`
+	Liked         int       `json:"liked,omitempty"`
 }
 
 func NewPost() *Post {
 	return &Post{}
 }
-
 type Reaction struct {
 	Id           int    `json:"id,omitempty"`
 	EntityTypeId int    `json:"entity_type_id,omitempty"`
