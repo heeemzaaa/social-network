@@ -175,8 +175,8 @@ func (PrHandler *ProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Re
 	}
 
 	type RequestBody struct {
-		ProfileID string `json:"profile_id"`
-		WantedStatus  string `json:"wanted_status"`
+		ProfileID    string `json:"profile_id"`
+		WantedStatus string `json:"wanted_status"`
 	}
 
 	var request RequestBody
@@ -202,22 +202,20 @@ func (PrHandler *ProfileHandler) UpdateProfileData(w http.ResponseWriter, r *htt
 
 // global handler
 func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	
+	w.Header().Set("Content-Type", "application/json")
+
 	splittedPath := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-
-	fmt.Println(r.PathValue("id"))
-	fmt.Println(splittedPath)
-
 	if len(splittedPath) < 3 {
 		h.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Path not found"})
 		return
 	}
 
-	profileID := splittedPath[2]
+	profileID := r.PathValue("id")
 	request := ""
 	if len(splittedPath) > 3 {
 		request = splittedPath[3]
 	}
+
 	switch r.Method {
 
 	case http.MethodGet:
