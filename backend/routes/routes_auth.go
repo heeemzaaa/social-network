@@ -1,18 +1,19 @@
 package routes
 
 import (
+	"database/sql"
 	"net/http"
 
-	"social-network/backend/handlers/auth"
+	ha "social-network/backend/handlers/auth"
+	ra "social-network/backend/repositories/auth"
+	sa "social-network/backend/services/auth"
 )
 
-func SetAuthRoutes(
-	AuthHandler *auth.AuthHandler,
-) *http.ServeMux {
-	mux := http.NewServeMux()
-	mux.Handle("/auth/login", AuthHandler)
-	mux.Handle("/auth/register", AuthHandler)
-	mux.Handle("/auth/is_logged_in", AuthHandler)
-	mux.Handle("/auth/logout", AuthHandler)
+func SetAuthRoutes(mux *http.ServeMux, db *sql.DB) *http.ServeMux {
+	authRepo := ra.NewAuthRepository(db)
+	authService := sa.NewAuthServer(authRepo)
+	AuthHandler := ha.NewAuthHandler(authService)
+
+	mux.Handle("/auth/", AuthHandler)
 	return mux
 }

@@ -1,8 +1,10 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 
+	"social-network/backend/handlers"
 	"social-network/backend/models"
 	"social-network/backend/services/auth"
 )
@@ -17,12 +19,12 @@ func NewMiddleWare(handler http.Handler, service *auth.AuthService) *Middleware 
 }
 
 // could be returning a boolean but to see again
-func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *models.ErrorJson) {
+func (m *Middleware) GetUserSession(r *http.Request) (*models.Session, *models.ErrorJson) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 401, Message: "ERROR!! Unauthorized Access"}
 	}
-	session, errJson := m.service.GetSessionByTokenEnsureAuth(cookie.Value)
+	session, errJson := m.service.GetSession(cookie.Value)
 	if errJson != nil {
 		return nil, errJson
 	}
@@ -31,9 +33,19 @@ func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *m
 
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-Type", "application/json")
-	_, err := m.GetAuthUserEnsureAuth(r)
-	if err != nil {
+	path := r.URL.Path
+
+	session, err := m.GetUserSession(r)
+	if (path == "/auth/login" || path == "/auth/register") && err == nil {
+		handlers.WriteJsonErrors(w, models.ErrorJson{Status: 403, Message: "User has a session!! Access Forbiden"})
 		return
+	} else {
+		if err != nil {
+			handlers.WriteJsonErrors(w, *err)
+			return
+		}
 	}
-	m.MiddlewareHanlder.ServeHTTP(w, r)
+
+	ctx := context.WithValue(r.Context(), "userID", session.UserId)
+	m.MiddlewareHanlder.ServeHTTP(w, r.WithContext(ctx))
 }

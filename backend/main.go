@@ -8,23 +8,20 @@ import (
 	database "social-network/backend/database/sqlite"
 	"social-network/backend/handlers"
 	"social-network/backend/middleware"
-	"social-network/backend/models"
+	"social-network/backend/routes"
 )
 
 func main() {
-	_, err := database.InitDB("./database/forum.db")
+	db, err := database.InitDB("./database/forum.db")
 	if err != nil {
 		panic(err)
 	}
 
 	http.HandleFunc("/api/posts", middleware.CorsMiddleware(handlers.GetPostsHandler))
-	http.HandleFunc("/api/test", func(w http.ResponseWriter, r *http.Request) {
-		test := &models.Test{Message: "this is a test"}
-		// this is for decoding the request body
-		// err := json.NewDecoder(r.Body).Decode(&post)
-		WriteDataBack(w, test)
-	})
 
+
+	mux := http.NewServeMux()
+	routes.SetAuthRoutes(mux, db)
 	fmt.Println("server is running in : http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
 }

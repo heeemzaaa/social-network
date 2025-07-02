@@ -16,14 +16,27 @@ func NewAuthRepository(db *sql.DB) *AuthRepository {
 	return &AuthRepository{db: db}
 }
 
-func (repo *AuthRepository) GetSessionbyTokenEnsureAuth(token string) (*models.Session, *models.ErrorJson) {
-	session := models.Session{}
+func (appRep *AuthRepository) IsLoggedInUser(token string) (*models.IsLoggedIn, *models.ErrorJson) {
+	user_data := &models.IsLoggedIn{}
+	query := `
+	SELECT users.userID, users.nickname
+    FROM users INNER JOIN sessions ON users.userID = sessions.userID 
+    WHERE sessionToken = ? `
+	if err := appRep.db.QueryRow(query, token).Scan(&user_data.Id, &user_data.Nickname); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, &models.ErrorJson{Status: 401, Message: "ERROR!! Unauthorized Access"}
+		}
+	}
+	return user_data, nil
+}
 
-	query := `SELECT sessions.userID, sessions.sessionToken , users.nickname 
-	FROM sessions INNER JOIN users ON users.userID = sessions.userID
+func (repo *AuthRepository) GetSession(token string) (*models.Session, *models.ErrorJson) {
+	session := models.Session{}
+	query := `SELECT sessions.userID, sessions.sessionToken
+	FROM sessions RIGHT JOIN users ON users.userID = sessions.userID
 	WHERE sessionToken = ?`
 
-	row := repo.db.QueryRow(query, token).Scan(&session.UserId, &session.Token, &session.Username)
+	row := repo.db.QueryRow(query, token).Scan(&session.UserId, &session.Token)
 	if row == sql.ErrNoRows {
 		return nil, &models.ErrorJson{Status: 401, Message: " Unauthorized Access"}
 	}

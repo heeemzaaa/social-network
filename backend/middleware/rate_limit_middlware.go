@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"real-time-forum/backend/models"
 	"sync"
 	"time"
+
+	"social-network/backend/handlers"
+	"social-network/backend/models"
 )
 
 type UserInfo struct {
@@ -56,7 +58,7 @@ func (rl *RateLimitMiddleWare) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		} else {
 			if clientInfo.Count >= rl.MaxRequests {
 				fmt.Println("", clientInfo.Count)
-				WriteJsonErrors(w, models.ErrorJson{
+				handlers.WriteJsonErrors(w, models.ErrorJson{
 					Status:  http.StatusTooManyRequests,
 					Message: "ERROR!! Too many Requests",
 				})
