@@ -9,6 +9,6 @@ func SetProfileRoutes(
 	ProfileHandler *profile.ProfileHandler,
 ) *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.Handle("/api/profile/", ProfileHandler)
+	mux.Handle("/api/profile/{id}", ProfileHandler)
 	return mux
 }

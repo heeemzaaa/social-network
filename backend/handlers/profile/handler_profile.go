@@ -176,7 +176,7 @@ func (PrHandler *ProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Re
 
 	type RequestBody struct {
 		ProfileID string `json:"profile_id"`
-		ToStatus  string `json:"to_status"`
+		WantedStatus  string `json:"wanted_status"`
 	}
 
 	var request RequestBody
@@ -186,7 +186,7 @@ func (PrHandler *ProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	errUpdate := PrHandler.service.UpdatePrivacy(request.ProfileID, authSessionID, request.ToStatus)
+	errUpdate := PrHandler.service.UpdatePrivacy(request.ProfileID, authSessionID, request.WantedStatus)
 	if errUpdate != nil {
 		h.WriteJsonErrors(w, *errUpdate)
 		return
@@ -200,8 +200,12 @@ func (PrHandler *ProfileHandler) UpdateProfileData(w http.ResponseWriter, r *htt
 	fmt.Println("UpdateProfileData")
 }
 
+// global handler
 func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	
 	splittedPath := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+
+	fmt.Println(r.PathValue("id"))
 	fmt.Println(splittedPath)
 
 	if len(splittedPath) < 3 {
