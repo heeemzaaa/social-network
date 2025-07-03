@@ -9,7 +9,7 @@ const initialData = {
     password: "",
     firstname: "",
     lastname: "",
-    dateOfBirth: "",
+    birthdate: "",
     avatar: "",
     nickname: "",
     aboutMe: ""
@@ -51,16 +51,16 @@ export default function RegisterForm() {
                     </div>
 
                     <div className={styles.formGrp}>
-                        <label htmlFor="dateOfBirth">Date of Birth:</label>
+                        <label htmlFor="birthdate">Date of Birth:</label>
                         <input
                             className={styles.input}
                             type="date"
-                            name="dateOfBirth"
-                            id="dateOfBirth"
-                            value={data.dateOfBirth}
-                            onChange={(e) => setData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                            name="birthdate"
+                            id="birthdate"
+                            value={data.birthdate}
+                            onChange={(e) => setData(prev => ({ ...prev, birthdate: e.target.value }))}
                         />
-                        {state.errors?.dateOfBirth && <span className="field-error">{state.errors.dateOfBirth}</span>}
+                        {state.errors?.birthdate && <span className="field-error">{state.errors.birthdate}</span>}
 
                     </div>
                     <div className={styles.formGrp}>

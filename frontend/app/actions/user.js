@@ -1,6 +1,6 @@
 "use server"
 
-// import { redirect } from "next/navigation"
+import { redirect } from "next/navigation"
 
 export async function loginUser(prevState, formData) {
     console.info("heeeeere", formData)
@@ -46,6 +46,8 @@ export async function loginUser(prevState, formData) {
 }
 
 export async function registerUser(prevState, formData) {
+    // console.log("inside the register server action: ", formData)
+
     const state = {
         errors: {},
         error: null,
@@ -56,10 +58,11 @@ export async function registerUser(prevState, formData) {
     const password = formData.get("password")?.trim();
     const firstname = formData.get("firstname")?.trim();
     const lastname = formData.get("lastname")?.trim();
-    const dateOfBirth = formData.get("dateOfBirth")?.trim();
+    const birthdate = formData.get("birthdate")?.trim();
     const nickname = formData.get("nickname")?.trim() || null;
     const aboutMe = formData.get("aboutMe")?.trim() || null;
-    const avatar = formData.get("avatar"); // can be a File or null
+    const avatar = formData.get("avatar");
+    // console.log(avatar)
 
     if (!email) {
         state.errors.email = "Email is required";
@@ -75,12 +78,12 @@ export async function registerUser(prevState, formData) {
 
     if (!firstname) state.errors.firstname = "First name is required";
     if (!lastname) state.errors.lastname = "Last name is required";
-    if (!dateOfBirth) {
-        state.errors.dateOfBirth = "Date of birth is required";
+    if (!birthdate) {
+        state.errors.birthdate = "Date of birth is required";
     } else {
-        const dob = new Date(dateOfBirth);
+        const dob = new Date(birthdate);
         if (isNaN(dob.getTime())) {
-            state.errors.dateOfBirth = "Invalid date";
+            state.errors.birthdate = "Invalid date";
         }
     }
 
@@ -92,6 +95,30 @@ export async function registerUser(prevState, formData) {
         };
     }
 
-    // here i can send data to backend
-    // redirect("/")
+    const newFormData = new FormData()
+    newFormData.append('data', JSON.stringify(
+        { firstname, lastname, birthdate, email, password, nickname, aboutMe }
+    ))
+    newFormData.append('profile_img', avatar)
+
+    try {
+        const res = await fetch(`http://localhost:3000/api/auth/register`, {
+            method: "POST",
+            body: newFormData
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+            state.error = data.error || "Login failed";
+            return state;
+        }
+        state.message = data.message || "register successful";
+        redirect("/"); // Redirect on success
+    } catch (error) {
+        if (error.message === "NEXT_REDIRECT") {
+            throw error;
+        }
+        state.error = "An unexpected error occurred";
+        return state;
+    }
 }

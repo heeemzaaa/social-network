@@ -26,7 +26,6 @@ func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
 	autPostPaths := []string{"/api/auth/login", "/api/auth/register", "/api/auth/logout"}
-
 	switch method {
 	case http.MethodPost:
 		switch path {
@@ -40,27 +39,34 @@ func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			auth.logout(w, r)
 			return
 		default:
-			handlers.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found."})
+			if path == "/api/auth/islogged" {
+				handlers.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method Not Allowed."})
+			} else {
+				handlers.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found."})
+			}
 			return
 		}
 	case http.MethodGet:
 		if slices.Contains(autPostPaths, path) {
-			handlers.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method Not Allowed!!"})
+			handlers.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method Not Allowed."})
 			return
 		}
 		if path != "/api/auth/islogged" {
+			fmt.Println("heeeee")
 			handlers.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found."})
 			return
 		}
 		auth.isLoggedIn(w, r)
 	default:
-		handlers.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method Not Allowed!!"})
+		handlers.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method Not Allowed."})
 		return
 	}
 }
 
 func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Inside the is logged in handler")
+
+	handlers.WriteDataBack(w, "user is logged in")
 }
 
 func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
@@ -95,39 +101,70 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	handlers.WriteDataBack(w, "user logged in successfuly")
 }
 
-func (handler *AuthHandler) register(w http.ResponseWriter, r *http.Request) {
+func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("inside the register handler.")
 	user := &models.User{}
-	// fmt.Println("login: ", login)
-	err := json.NewDecoder(r.Body).Decode(&user)
+	data := r.FormValue("data")
 
-	if (err == io.EOF || *user == models.User{}) {
-		handlers.WriteJsonErrors(w, models.ErrorJson{
-			Status: 400,
-			Message: models.User{
-				FirstName: "login field can't be empty",
-				LastName:  "password field can't be empty",
-				BirthDate: "login field can't be empty",
-				Email:     "password field can't be empty",
-				Password:  "password field can't be empty",
-			},
-		})
-		return
-	}
+	err := json.Unmarshal([]byte(data), &user)
 	if err != nil {
-
-		fmt.Println("error decoding")
-		handlers.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v 1", err)})
-		return
+		fmt.Println("Error while decoding the the register request body: ", err)
+		if (err == io.EOF || *user == models.User{}) {
+			handlers.WriteJsonErrors(w, models.ErrorJson{
+				Status: 400,
+				Message: models.User{
+					FirstName: "login field can't be empty",
+					LastName:  "password field can't be empty",
+					BirthDate: "login field can't be empty",
+					Email:     "password field can't be empty",
+					Password:  "password field can't be empty",
+				},
+			})
+			return
+		}
 	}
+	r.ParseMultipartForm()
+	fmt.Printf("user: %v\n", user)
 
-	// errJson := handler.service.Login(login)
+	// file, handler, err := r.FormFile("profile_img")
+	// if err != nil {
+	// 	fmt.Println("Error Retrieving the File")
+	// 	fmt.Println(err)
+	// 	return
+	// }
+
+	// defer file.Close()
+	// fmt.Printf("Uploaded File: %+v\n", handler.Filename)
+	// fmt.Printf("File Size: %+v\n", handler.Size)
+	// fmt.Printf("MIME Header: %+v\n", handler.Header)
+	// fmt.Printf("handler: %v\n", handler)
+
+	// fmt.Printf("user data: %v\n", user)
+	// err := json.NewDecoder(r.Body).Decode(&user)
+	// if err != nil {
+	// 	fmt.Println("error while decoding the the register request body: ", err)
+	// 	if (err == io.EOF || *user == models.User{}) {
+	// 		handlers.WriteJsonErrors(w, models.ErrorJson{
+	// 			Status: 400,
+	// 			Message: models.User{
+	// 				FirstName: "login field can't be empty",
+	// 				LastName:  "password field can't be empty",
+	// 				BirthDate: "login field can't be empty",
+	// 				Email:     "password field can't be empty",
+	// 				Password:  "password field can't be empty",
+	// 			},
+	// 		})
+	// 		return
+	// 	}
+	// }
+
+	// errJson := handler.service.Register(user)
 	// if errJson != nil {
 	// 	handlers.WriteJsonErrors(w, *errJson)
 	// 	return
 	// }
 
-	handlers.WriteDataBack(w, user)
+	handlers.WriteDataBack(w, "still under dev")
 }
 
 func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {

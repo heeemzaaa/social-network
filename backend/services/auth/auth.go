@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"fmt"
+
 	"social-network/backend/models"
 	"social-network/backend/repositories/auth"
 )
@@ -26,7 +28,9 @@ func (s *AuthService) Login(login *models.Login) *models.ErrorJson {
 	return nil
 }
 
-func (s *AuthService) Register(register *models.Login) *models.ErrorJson {
+func (s *AuthService) Register(user *models.User) *models.ErrorJson {
+	fmt.Println("inside the register service: ", user)
+
 	return nil
 }
 
