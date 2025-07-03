@@ -31,7 +31,7 @@ func (repo *ProfileRepository) GetID(sessionID string) (string, error) {
 // here I will check if the user is following the profile or not
 func (repo *ProfileRepository) IsFollower(userID string, authUserID string) (bool, error) {
 	var exist int
-	query := `SELECT EXIST
+	query := `SELECT EXISTS
 		(SELECT 1 FROM followers WHERE userID = ? AND followerID = ? LIMIT 1)
 	`
 
@@ -120,14 +120,14 @@ func (repo *ProfileRepository) Unfollow(userID string, authUserID string) error 
 	return nil
 }
 
-// here we accept all the requests where the userID 
+// here we accept all the requests where the userID
 // change its visibility to public only
 func (repo *ProfileRepository) AcceptAllrequest(userID string) error {
 	var users []models.User
 	query := `SELECT requestorID FROM follow_requests WHERE userID = ?`
 	rows, err := repo.db.Query(query, userID)
 	if err != nil {
-		return fmt.Errorf("%v" , err)
+		return fmt.Errorf("%v", err)
 	}
 	defer rows.Close()
 
@@ -140,18 +140,18 @@ func (repo *ProfileRepository) AcceptAllrequest(userID string) error {
 		users = append(users, user)
 	}
 
-	for _ , user := range users {
+	for _, user := range users {
 		query := `INSERT INTO followers (userID, followerID) VALUES(?,?)`
-		_ , err := repo.db.Exec(query , userID, user.ID)
+		_, err := repo.db.Exec(query, userID, user.ID)
 		if err != nil {
-			return fmt.Errorf("%v" , err)
+			return fmt.Errorf("%v", err)
 		}
 	}
 
 	query = `DELETE FROM follow_requests WHERE userID = ?`
-	_ , err = repo.db.Exec(query, userID)
+	_, err = repo.db.Exec(query, userID)
 	if err != nil {
-		return fmt.Errorf("%v" , err)
+		return fmt.Errorf("%v", err)
 	}
 
 	return nil
@@ -171,12 +171,12 @@ func (repo *ProfileRepository) CheckProfileAccess(userID string, authUserID stri
 		return false, fmt.Errorf("%v", err)
 	}
 	// If profile is public, good to go
-	if visibility == "public" {
+	if visibility == models.VisibilityPublic {
 		return true, nil
 	}
 
 	// If profile is private, ncheckiw wach follower
-	if visibility == "private" {
+	if visibility == models.VisibilityPrivate {
 		var isFollower bool
 		isFollower, err := repo.IsFollower(userID, authUserID)
 		if err != nil {
@@ -215,16 +215,21 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 
 	// user with access , all the data
 	query = `
-        SELECT
-            email, firstName, lastName, birthDate, nickname, avatarPath, aboutMe,
-            (SELECT COUNT(*) FROM posts WHERE userID = ?) AS post_count,
-            (SELECT COUNT(*) FROM followers WHERE userID = ?) AS follower_count,
-            (SELECT COUNT(*) FROM followers WHERE followerID = ?) AS following_count,
-            (SELECT COUNT(*) FROM groups WHERE userID = ?) AS group_count
-        FROM users
-        WHERE userID = ?
-    `
-	err := repo.db.QueryRow(query, profileID, profileID, profileID, profileID, profileID).Scan(
+		SELECT 
+    		u.email, u.firstName, u.lastName, u.birthDate, u.nickname, u.avatarPath, u.aboutMe,
+    		COUNT(DISTINCT p.postID) AS post_count,
+    		COUNT(DISTINCT f.followerID) AS follower_count,
+    		COUNT(DISTINCT fl.userID) AS following_count,
+    		COUNT(DISTINCT g.groupID) AS group_count
+		FROM users u
+			LEFT JOIN posts p ON u.userID = p.userID
+			LEFT JOIN followers f ON u.userID = f.userID
+			LEFT JOIN followers fl ON u.userID = fl.followerID
+			LEFT JOIN groups g ON u.userID = g.userID
+		WHERE u.userID = ?
+		GROUP BY u.userID
+	`
+	err := repo.db.QueryRow(query, profileID).Scan(
 		&profile.User.Email,
 		&profile.User.FirstName,
 		&profile.User.LastName,
@@ -332,7 +337,7 @@ func (repo *ProfileRepository) UpdateProfileData(user *models.User) (*models.Use
 // here I will update the visibility of a private status
 func (repo *ProfileRepository) ToPublicAccount(userID string) error {
 	query := `UPDATE users SET visibility = ? WHERE userID = ?`
-	_, err := repo.db.Exec(query, "public", userID)
+	_, err := repo.db.Exec(query, models.VisibilityPublic, userID)
 	if err != nil {
 		return fmt.Errorf("%v", err)
 	}
@@ -341,7 +346,7 @@ func (repo *ProfileRepository) ToPublicAccount(userID string) error {
 
 func (repo *ProfileRepository) ToPrivateAccount(userID string) error {
 	query := `UPDATE users SET visibility = ? WHERE userID = ?`
-	_, err := repo.db.Exec(query, "private", userID)
+	_, err := repo.db.Exec(query, models.VisibilityPrivate, userID)
 	if err != nil {
 		return fmt.Errorf("%v", err)
 	}

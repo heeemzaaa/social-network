@@ -10,3 +10,8 @@ type Profile struct {
 	IsFollower        bool `json:"is_follower,omitempty"`
 	IsPrivate         bool `json:"is_private,omitempty"`
 }
+
+const (
+	VisibilityPublic  = "public"
+	VisibilityPrivate = "private"
+)
