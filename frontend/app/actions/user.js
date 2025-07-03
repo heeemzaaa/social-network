@@ -1,29 +1,48 @@
 "use server"
 
-import { redirect } from "next/navigation"
+// import { redirect } from "next/navigation"
 
 export async function loginUser(prevState, formData) {
+    console.info("heeeeere", formData)
     const state = {
         errors: {},
         error: null,
         message: null
     }
 
-
-
-    const username = formData.get("username")?.trim()
+    const login = formData.get("login")?.trim()
     const password = formData.get("password")?.trim()
 
-    if (!username) state.errors.username = "Field can't be empty"
+    if (!login) state.errors.login = "Field can't be empty"
     if (!password) state.errors.password = "Field can't be empty"
 
     if (Object.keys(state.errors).length > 0) {
         return state
-    }   
+    }
 
-    // console.log(username, password)
+    try {
+        const res = await fetch(`http://localhost:3000/api/auth/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify() // Send credentials
+        });
 
-    redirect("/")
+        const data = await res.json();
+        if (!res.ok) {
+            state.error = data.error || "Login failed";
+            return state;
+        }
+
+        // Assuming the backend returns a success message or token
+        state.message = data.message || "Login successful";
+        redirect("/"); // Redirect on success
+    } catch (error) {
+        console.log("asdfsdfasdfasfdasf")
+        state.error = "An unexpected error occurred";
+        return state;
+    }
 }
 
 export async function registerUser(prevState, formData) {
@@ -33,14 +52,13 @@ export async function registerUser(prevState, formData) {
         message: null
     }
 
-
-    const email = formData.get("email")?.toString().trim();
-    const password = formData.get("password")?.toString().trim();
-    const firstname = formData.get("firstname")?.toString().trim();
-    const lastname = formData.get("lastname")?.toString().trim();
-    const dateOfBirth = formData.get("dateOfBirth")?.toString().trim();
-    const nickname = formData.get("nickname")?.toString().trim() || null;
-    const aboutMe = formData.get("aboutMe")?.toString().trim() || null;
+    const email = formData.get("email")?.trim();
+    const password = formData.get("password")?.trim();
+    const firstname = formData.get("firstname")?.trim();
+    const lastname = formData.get("lastname")?.trim();
+    const dateOfBirth = formData.get("dateOfBirth")?.trim();
+    const nickname = formData.get("nickname")?.trim() || null;
+    const aboutMe = formData.get("aboutMe")?.trim() || null;
     const avatar = formData.get("avatar"); // can be a File or null
 
     if (!email) {
@@ -75,5 +93,5 @@ export async function registerUser(prevState, formData) {
     }
 
     // here i can send data to backend
-    redirect("/")
+    // redirect("/")
 }

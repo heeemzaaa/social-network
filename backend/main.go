@@ -18,12 +18,10 @@ func main() {
 	}
 
 	http.HandleFunc("/api/posts", middleware.CorsMiddleware(handlers.GetPostsHandler))
+	mux := routes.SetRoutes(db.Database) 
 
-
-	mux := http.NewServeMux()
-	routes.SetAuthRoutes(mux, db)
 	fmt.Println("server is running in : http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8080", mux)
 }
 
 func WriteDataBack(w http.ResponseWriter, data any) {

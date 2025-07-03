@@ -47,7 +47,7 @@ func (repo *AuthRepository) DeleteSession(session models.Session) *models.ErrorJ
 	query := `DELETE FROM sessions WHERE sessionToken = ?`
 	_, err := repo.db.Exec(query, session.Token)
 	if err != nil {
-		return models.NewErrorJson(500, fmt.Sprintf("%v", err))
+		return models.NewErrorJson(500, fmt.Sprintf("%v", err), nil)
 	}
 	return nil
 }

@@ -14,6 +14,6 @@ func SetAuthRoutes(mux *http.ServeMux, db *sql.DB) *http.ServeMux {
 	authService := sa.NewAuthServer(authRepo)
 	AuthHandler := ha.NewAuthHandler(authService)
 
-	mux.Handle("/auth/", AuthHandler)
+	mux.Handle("/api/auth/", AuthHandler)
 	return mux
 }

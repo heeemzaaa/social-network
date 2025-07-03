@@ -18,7 +18,6 @@ const initialData = {
 export default function RegisterForm() {
     const [state, action] = useActionState(registerUser, {});
     const [data, setData] = useState(initialData);
-
     return (
         <form noValidate action={action} className={`${styles.form} glass-bg`}>
             <div className="flex gap-3">
@@ -134,7 +133,6 @@ export default function RegisterForm() {
             </div>
             {state.error && <span className="field-error">{state.error}</span>}
             {state.message && <span className="field-success">{state.message}</span>}
-
             <SubmitButton />
         </form>
     );

@@ -8,28 +8,30 @@ import SubmitButton from "@/app/_components/subimtButton";
 export default function LoginForm() {
     const [state, action] = useActionState(loginUser, {});
     const [data, setData] = useState({
-        username: "",
+        login: "",
         password: ""
     })
+    
+    console.log(state)
 
     return (
         <form action={action} className={`${styles.form} glass-bg`}>
             <div className={`${styles.formGrp}`}>
-                <label htmlFor='username'>
+                <label htmlFor='login'>
                     <HiMiniUser />
                     <span>
                         User Name:
                     </span>
                 </label>
                 <input className={`${styles.input}`}
-                    id='username'
-                    name='username'
+                    id='login'
+                    name='login'
                     type='text'
                     placeholder='User Name ...'
-                    value={data.username}
-                    onChange={(e) => setData(prev => ({ ...prev, username: e.target.value }))}
+                    value={data.login}
+                    onChange={(e) => setData(prev => ({ ...prev, login: e.target.value }))}
                 />
-                {state.errors?.username && <span className='field-error'> {state.errors.username} </span>}
+                {state.errors?.login && <span className='field-error'> {state.errors.login} </span>}
             </div>
             <div className={`${styles.formGrp}`}>
                 <label htmlFor='password'>
@@ -41,15 +43,15 @@ export default function LoginForm() {
                 <input className={`${styles.input}`}
                     id='password'
                     name='password'
-                    type='text'
+                    type='password'
                     placeholder='Password ...'
                     value={data.password}
                     onChange={(e) => setData(prev => ({ ...prev, password: e.target.value }))}
                 />
                 {state.errors?.password && <span className='field-error'> {state.errors.password} </span>}
             </div>
-            {state.error && <span className='field-error'> {state.errors} </span>}
-            {state.message && <span className='field-error'> {state.message} </span>}
+            {state.error && <span className='field-error'> {state.error} </span>}
+            {state.message && <span className='field-success'> {state.message} </span>}
             <SubmitButton className='btn-primary' />
         </form>
     )

@@ -5,10 +5,10 @@ import (
 	"net/http"
 )
 
-func SetRoutes(db sql.DB) *http.ServeMux {
+func SetRoutes(db *sql.DB) *http.ServeMux {
 	mux := http.NewServeMux()
-
-	SetAuthRoutes(db)
+	
+	mux  = SetAuthRoutes(mux, db)
 
 	return mux
 }

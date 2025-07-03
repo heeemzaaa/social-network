@@ -1,6 +1,15 @@
 package models
 
-import "github.com/google/uuid"
+type User struct {
+	Id        string `json:"id,omitempty"`
+	FirstName string `json:"firstname,omitempty"`
+	LastName  string `json:"lastname,omitempty"`
+	BirthDate string `json:"birthdate,omitempty"`
+	Email     string `json:"email,omitempty"`
+	Password  string `json:"password,omitempty"`
+	UserName  string `json:"nickname,omitempty"`
+	AboutMe   string `json:"about_me,omitempty"`
+}
 
 type Login struct {
 	LoginField string `json:"login"`
@@ -12,10 +21,10 @@ func NewLogin() *Login {
 }
 
 type Session struct {
-	Id       int       `json:"id,omitempty"`
-	Token    string    `json:"token"`
+	Id       int    `json:"id,omitempty"`
+	Token    string `json:"token"`
 	UserId   string `json:"user_id"`
-	Username string    `json:"username,omitempty"`
+	Username string `json:"username,omitempty"`
 }
 
 func NewSession() *Session {
