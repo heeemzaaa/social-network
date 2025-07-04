@@ -39,10 +39,30 @@ func (s *ProfileService) GetProfileData(profileID string, autSessionID string) (
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", accessErr)}
 	}
 
-	profile, err := s.repo.GetProfileData(profileID, access)
+	AuthUserID, err := s.repo.GetID(autSessionID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 401, Message: fmt.Sprintf("%v", err)}
+	}
+
+	profile, err = s.repo.GetProfileData(profileID, access)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
+
+	if profileID == AuthUserID {
+		profile.IsMyProfile = true
+	}
+
+	profile.IsFollower, err = s.repo.IsFollower(profileID, AuthUserID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+
+	profile.Visibility, err = s.repo.Visibility(profileID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+
 	return profile, nil
 }
 

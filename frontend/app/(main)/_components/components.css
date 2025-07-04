@@ -66,8 +66,8 @@ nav {
 .ProfileContainer {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: start;
+    justify-content: end;
+    align-items: center;
     width: 350px;
     min-width: max-content;
     height: 70%;
@@ -93,7 +93,7 @@ nav {
     z-index: 10000;
 }
 
-.UserFollowers {
+.UserNumbers {
     border-radius: 16px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(6.3px);
@@ -107,7 +107,7 @@ nav {
     gap: 10px;
 }
 
-.UserFollowers>div {
+.UserNumbers>div {
     width: calc(50% - 10px);
     background-color: var(--color-white);
     display: flex;

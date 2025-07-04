@@ -210,6 +210,7 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 			log.Printf("RowScanError in backend/repositories/profile/repo_profile.go/GetProfileData: %v", err)
 			return nil, fmt.Errorf("RowScanError: failed to scan user profile: %w", err)
 		}
+		profile.User.ID = profileID
 		return &profile, nil
 	}
 
@@ -249,6 +250,7 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 		log.Printf("RowScanError in backend/repositories/profile/repo_profile.go/GetProfileData: %v", err)
 		return nil, fmt.Errorf("RowScanError: failed to scan user profile and counts: %w", err)
 	}
+	profile.User.ID = profileID
 	return &profile, nil
 }
 
