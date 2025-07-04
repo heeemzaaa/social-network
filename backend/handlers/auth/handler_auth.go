@@ -70,7 +70,6 @@ func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("inside the login handler.")
 	login := &models.Login{}
 	// fmt.Println("login: ", login)
 	err := json.NewDecoder(r.Body).Decode(&login)
@@ -102,10 +101,10 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("inside the register handler.")
+	// fmt.Println("inside the register handler.")
 	user := &models.User{}
-	data := r.FormValue("data")
 
+	data := r.FormValue("data")
 	err := json.Unmarshal([]byte(data), &user)
 	if err != nil {
 		fmt.Println("Error while decoding the the register request body: ", err)
@@ -123,48 +122,42 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 			return
 		}
 	}
-	r.ParseMultipartForm()
-	fmt.Printf("user: %v\n", user)
 
-	// file, handler, err := r.FormFile("profile_img")
-	// if err != nil {
-	// 	fmt.Println("Error Retrieving the File")
-	// 	fmt.Println(err)
-	// 	return
-	// }
+	file, handler, _ := r.FormFile("profile_img")
+	user.ProfileImage = handler.Filename
+	user.ProfileImgSize = handler.Size
 
-	// defer file.Close()
-	// fmt.Printf("Uploaded File: %+v\n", handler.Filename)
-	// fmt.Printf("File Size: %+v\n", handler.Size)
-	// fmt.Printf("MIME Header: %+v\n", handler.Header)
-	// fmt.Printf("handler: %v\n", handler)
+	defer file.Close()
 
-	// fmt.Printf("user data: %v\n", user)
-	// err := json.NewDecoder(r.Body).Decode(&user)
-	// if err != nil {
-	// 	fmt.Println("error while decoding the the register request body: ", err)
-	// 	if (err == io.EOF || *user == models.User{}) {
-	// 		handlers.WriteJsonErrors(w, models.ErrorJson{
-	// 			Status: 400,
-	// 			Message: models.User{
-	// 				FirstName: "login field can't be empty",
-	// 				LastName:  "password field can't be empty",
-	// 				BirthDate: "login field can't be empty",
-	// 				Email:     "password field can't be empty",
-	// 				Password:  "password field can't be empty",
-	// 			},
-	// 		})
-	// 		return
-	// 	}
-	// }
+	errJson := authHandler.service.Register(user, file)
+	if errJson != nil {
+		handlers.WriteJsonErrors(w, *errJson)
+		return
+	}
 
-	// errJson := handler.service.Register(user)
-	// if errJson != nil {
-	// 	handlers.WriteJsonErrors(w, *errJson)
-	// 	return
-	// }
+	userData, errJson := authHandler.service.GetUser(&models.Login{LoginField: user.Email})
+	fmt.Printf("userData: %v\n", userData)
 
-	handlers.WriteDataBack(w, "still under dev")
+	if errJson != nil {
+		handlers.WriteJsonErrors(w, *errJson)
+		return
+	}
+	// fmt.Printf("userData: %v\n", userData)
+	// var login = models.Login{LoginField: user.Nickname}
+	session, err_ := authHandler.service.SetUserSession(userData)
+	if err_ != nil {
+		handlers.WriteJsonErrors(w, *err_)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    "session",
+		Value:   session.Token,
+		Expires: session.ExpDate,
+		Path:    "/",
+	})
+	// we don't need to write back the data for the repsonse ( sentitive data ;)
+	handlers.WriteDataBack(w, "User registered seccussfully")
 }
 
 func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
