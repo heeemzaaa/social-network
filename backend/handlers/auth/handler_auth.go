@@ -64,9 +64,28 @@ func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Inside the is logged in handler")
+	islogged := &models.IsLoggedIn{}
+	if r.Method != http.MethodGet {
+		handlers.WriteJsonErrors(w, *models.NewErrorJson(405, "Method Not Allowed", nil))
+		return
+	}
 
-	handlers.WriteDataBack(w, "user is logged in")
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		islogged.IsLoggedIn = false
+		handlers.WriteDataBack(w, islogged)
+		return
+	}
+
+	islogged, errJson := handler.service.IsLoggedInUser(cookie.Value)
+
+	if errJson != nil {
+		islogged.IsLoggedIn = false
+		handlers.WriteDataBack(w, islogged)
+		return
+	}
+	islogged.IsLoggedIn = true
+	handlers.WriteDataBack(w, islogged)
 }
 
 func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {

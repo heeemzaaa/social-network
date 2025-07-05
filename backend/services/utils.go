@@ -26,7 +26,6 @@ func CreateFile(subFolder, imageName string) (*os.File, error) {
 	// Create the full folder path: uploads/subFolder
 	fullFolderPath := filepath.Join("uploads", subFolder)
 
-	// Ensure the directory and its parents exist
 	if err := os.MkdirAll(fullFolderPath, 0o755); err != nil {
 		return nil, err
 	}

@@ -32,17 +32,19 @@ func (repo *AuthRepository) CreateUser(user *models.User) *models.ErrorJson {
 func (repo *AuthRepository) IsLoggedInUser(token string) (*models.IsLoggedIn, *models.ErrorJson) {
 	user_data := &models.IsLoggedIn{}
 	query := `
-	SELECT users.userID, users.nickname
-    FROM users INNER JOIN sessions ON users.userID = sessions.userID 
-    WHERE sessionToken = ? `
-	if err := repo.db.QueryRow(query, token).Scan(&user_data.Id, &user_data.Nickname); err != nil {
+	SELECT "true"
+    FROM sessions
+    WHERE sessionToken = ?
+	limit 1`
+	if err := repo.db.QueryRow(query, token).Scan(bool(user_data.IsLoggedIn)); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, &models.ErrorJson{Status: 401, Message: "ERROR!! Unauthorized Access"}
 		}
+		fmt.Printf("err: %v\n", err)
 	}
+	fmt.Printf("user_data: %v\n", user_data)
 	return user_data, nil
 }
-
 
 func (repo *AuthRepository) DeleteSession(session models.Session) *models.ErrorJson {
 	query := `DELETE FROM sessions WHERE sessionToken = ?`
@@ -132,4 +134,16 @@ func (repo *AuthRepository) UpdateSession(session *models.Session, new_session *
 		return models.NewErrorJson(500, fmt.Sprintf("%v", err), nil)
 	}
 	return nil
+}
+
+func (repo *AuthRepository) GetSessionbyTokenEnsureAuth(token string) (*models.Session, *models.ErrorJson) {
+	session := models.Session{}
+	query := `SELECT sessions.userID, sessions.sessionToken , sessions.expiresAt, users.nickname 
+	FROM sessions INNER JOIN users ON users.userID = sessions.userID
+	WHERE sessionToken = ?`
+	row := repo.db.QueryRow(query, token).Scan(&session.UserId, &session.Token, &session.ExpDate, &session.Username)
+	if row == sql.ErrNoRows {
+		return nil, &models.ErrorJson{Status: 401, Message: " Unauthorized Access"}
+	}
+	return &session, nil
 }

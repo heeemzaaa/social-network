@@ -12,8 +12,8 @@ type User struct {
 	Nickname       string `json:"nickname,omitempty"`
 	AboutMe        string `json:"about_me,omitempty"`
 	ProfileImage   string `json:"avatar,omitempty"`
-	Visibility     string
-	ProfileImgSize int64
+	Visibility     string `json:"visibility,omitempty"`
+	ProfileImgSize int64  `json:"img_size,omitempty"`
 }
 
 func NewUser() *User {
@@ -32,7 +32,7 @@ func NewLogin() *Login {
 type Session struct {
 	Id       int       `json:"id,omitempty"`
 	Token    string    `json:"token"`
-	UserId   int       `json:"user_id"`
+	UserId   string    `json:"user_id"`
 	Username string    `json:"username,omitempty"`
 	ExpDate  time.Time `json:"expiration_date,omitempty"`
 }
@@ -42,9 +42,7 @@ func NewSession() *Session {
 }
 
 type IsLoggedIn struct {
-	IsLoggedIn bool   `json:"is_logged_in"`
-	Id         int    `json:"id,omitempty"`
-	Nickname   string `json:"nickname,omitempty"`
+	IsLoggedIn bool `json:"is_logged_in"`
 }
 
 func NewIsLoggedIn() *IsLoggedIn {

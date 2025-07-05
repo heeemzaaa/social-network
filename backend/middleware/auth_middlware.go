@@ -18,13 +18,14 @@ func NewMiddleWare(handler http.Handler, service *auth.AuthService) *Middleware 
 }
 
 // could be returning a boolean but to see again
-func (m *Middleware) GetUserSession(r *http.Request) (*models.Session, *models.ErrorJson) {
+func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *models.ErrorJson) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 401, Message: "ERROR!! Unauthorized Access"}
 	}
-	session, errJson := m.service.GetSession(cookie.Value)
-	if errJson != nil {
+	// check if the value of the cookie is correct and if not expired!!!
+	session, errJson := m.service.GetSessionByTokenEnsureAuth(cookie.Value)
+	if errJson != nil || auth.IsSessionExpired(session.ExpDate) {
 		return nil, errJson
 	}
 	return session, nil

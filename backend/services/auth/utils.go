@@ -135,3 +135,7 @@ func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
+
+func IsSessionExpired(expDate time.Time) bool {
+	return expDate.Before(time.Now())
+}
