@@ -12,6 +12,7 @@ type Group struct {
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
 	ImagePath      string    `json:"image_path"`
+	ImageEncoded   string    `json:"image_encoded"`
 	Members        []User
 	Posts          []Post
 	Events         []Event
