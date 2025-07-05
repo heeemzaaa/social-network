@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type User struct {
 	ID         string `json:"id,omitempty"`
 	Email      string `json:"email,omitempty"`
@@ -11,4 +13,12 @@ type User struct {
 	AboutMe    string `json:"about_me,omitempty"`
 	Visibility string `json:"visibility,omitempty"`
 	Password   string `json:"password,omitempty"`
+}
+
+type Session struct {
+	Id       int       `json:"id,omitempty"`
+	Token    string    `json:"token"`
+	UserId   int       `json:"user_id"`
+	Username string    `json:"username,omitempty"`
+	ExpDate  time.Time `json:"expiration_date,omitempty"`
 }
