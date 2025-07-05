@@ -49,14 +49,12 @@ func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Reque
 	}
    
 	gIdHanlder.gservice.GoinGroup(group_to_join , userID.String())
-    
-
-
 
 }
 
 // always get the groupInfo (general info like if the number of users and name and description)
 func (gIdHanlder *GroupIDHanlder) GetGroupInfo(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func (gIdHanlder *GroupIDHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {

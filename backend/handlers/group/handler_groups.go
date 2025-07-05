@@ -38,7 +38,7 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect filter by field!!"})
 		return
 	}
-	Ghandler.gservice.GetGroups(filter, offset,userID.String())
+	Ghandler.gservice.GetGroups(filter, offset, userID.String())
 }
 
 func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request) {
@@ -70,6 +70,10 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 	}
 
 	group_to_create.GroupCreatorId = userID
+	// handle the image encoding in the phase that comes before the adding process
+	if group_to_create.ImageEncoded != "" {
+	}
+
 	Ghandler.gservice.AddGroup(group_to_create)
 }
 
