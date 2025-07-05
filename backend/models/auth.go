@@ -12,8 +12,8 @@ type User struct {
 	Nickname       string `json:"nickname,omitempty"`
 	AboutMe        string `json:"about_me,omitempty"`
 	ProfileImage   string `json:"avatar,omitempty"`
-	Visibility     string `json:"omitempty"`
-	ProfileImgSize int64  `json:"omitempty"`
+	Visibility     string
+	ProfileImgSize int64
 }
 
 func NewUser() *User {

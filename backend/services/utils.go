@@ -1,25 +1,25 @@
 package services
 
 import (
-	"fmt"
+	"mime/multipart"
 	"os"
 	"path/filepath"
 )
 
 // image uplaod helper functions
 
-func UploadImage(folder, imageName string) error {
-	if _, err := os.Stat("uploads"); os.IsNotExist(err) {
-		os.Mkdir("uploads", 0o755)
-	}
-
-	// Build the file path and create it
-	dst, err := os.Create(filepath.Join("uploads", imageName))
+func UploadImage(image multipart.File, imageName string) (imgPath string, err error) {
+	dst, err := CreateFile("profile", imageName)
 	if err != nil {
-		return err
+		return "", err
 	}
-	fmt.Printf("dst: %v\n", dst)
-	return err
+	defer dst.Close()
+
+	// Copy the uploaded file to the destination file
+	if _, err := dst.ReadFrom(image); err != nil {
+		return "", err
+	}
+	return dst.Name(), nil
 }
 
 func CreateFile(subFolder, imageName string) (*os.File, error) {

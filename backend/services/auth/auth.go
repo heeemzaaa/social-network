@@ -4,7 +4,9 @@ package auth
 import (
 	"fmt"
 	"mime/multipart"
+	"os"
 	"reflect"
+	"strings"
 	"time"
 
 	"social-network/backend/models"
@@ -30,9 +32,37 @@ func (s *AuthService) IsLoggedInUser(token string) (*models.IsLoggedIn, *models.
 	return isLoggedIn, nil
 }
 
-func (s *AuthService) Login(login *models.Login) *models.ErrorJson {
-	// check for valid credentials
-	return nil
+func (s *AuthService) Login(login *models.Login) (*models.User, *models.ErrorJson) {
+	LoginERR := models.Login{}
+
+	if strings.TrimSpace(login.LoginField) == "" {
+		LoginERR.LoginField = "empty login field!"
+	}
+	if strings.TrimSpace(login.Password) == "" {
+		LoginERR.Password = "empty password field!"
+	}
+	//
+	if LoginERR != (models.Login{}) {
+		return nil, &models.ErrorJson{Status: 400, Message: LoginERR}
+	}
+
+	// we need to check also if the user has the 401 error
+	// check if the password and the login are wrong both
+	user, err := s.repo.GetUser(login)
+	if err != nil {
+		switch err.Status {
+		case 401:
+			return nil, err
+
+		default:
+			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		}
+	}
+	// if only the password
+	if !CheckPasswordHash(login.Password, user.Password) {
+		return nil, models.NewErrorJson(401, "Invalid login credentials.", nil)
+	}
+	return user, nil
 }
 
 func (s *AuthService) Logout(session *models.Session) *models.ErrorJson {
@@ -42,59 +72,40 @@ func (s *AuthService) Logout(session *models.Session) *models.ErrorJson {
 	return nil
 }
 
-func (s *AuthService) GetSession(token string) (*models.Session, *models.ErrorJson) {
-	session, err := s.repo.GetSession(token)
-	if err != nil {
-		return nil, err
-	}
-	return session, nil
-}
-
 func (s *AuthService) Register(user *models.User, file multipart.File) *models.ErrorJson {
-	// fmt.Println("inside the register service: ", user)
+	fmt.Printf("user: %v\n", user)
 	jsonError := &models.ErrorJson{}
-	fmt.Printf("initial jsonError: %v\n", jsonError)
 
 	// data validation
 	s.validateUserData(user, jsonError)
-	fmt.Printf("jsonError: %v\n", jsonError)
 	if !reflect.DeepEqual(*jsonError, models.ErrorJson{}) {
-		fmt.Println("errors while validating user data")
 		jsonError.Status = 400
 		return jsonError
 	}
 	user.Id = uuid.New().String()
 
-	dst, err := services.CreateFile("profile", user.ProfileImage)
-	if err != nil {
-		fmt.Println("error creating file : ", err.Error())
-		jsonError.Status = 500
-		jsonError.Error = "Error saving profile image"
-	}
-	defer dst.Close()
+	// Image handling:
+	ImgName := user.Id + "." + strings.Split(user.ProfileImage, ".")[1]
 
-	// Copy the uploaded file to the destination file
-	if _, err := dst.ReadFrom(file); err != nil {
+	imgPath, err := services.UploadImage(file, ImgName)
+	if err != nil {
 		fmt.Println("error reading file : ", err.Error())
 		jsonError.Status = 500
 		jsonError.Error = "Error saving profile image: " + err.Error()
 	}
+	user.ProfileImage = imgPath
 
-	if !reflect.DeepEqual(*jsonError, models.ErrorJson{}) {
-		fmt.Println("heeeere")
-		jsonError.Status = 500
-		return jsonError
-	}
 	hash, err := HashPassword(user.Password)
 
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v just to verify 1", err)}
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v just to verify", err)}
 	} else {
 		user.Password = hash
 	}
 
 	errJson := s.repo.CreateUser(user)
 	if errJson != nil {
+		os.Remove(imgPath)
 		return errJson
 	}
 
@@ -108,31 +119,32 @@ func (s *AuthService) validateUserData(user *models.User, jsonError *models.Erro
 
 	if user.FirstName == "" {
 		userErrorJson.FirstName = "first name is required"
+	} else {
+		userErrorJson.FirstName = isValidName(user.FirstName)
 	}
 
-	// if user.FirstName != "" {
-	// 	userErrorJson.FirstName = "first name is required"
-	// }
+	fmt.Printf("userErrorJson: %v\n", userErrorJson)
 
 	if user.LastName == "" {
 		userErrorJson.LastName = "last name is required"
+	} else {
+		userErrorJson.LastName = isValidName(user.LastName)
 	}
 
-	if user.BirthDate == "" {
-		userErrorJson.BirthDate = "birth date is required"
-	}
+	userErrorJson.BirthDate = isValidBirthDate(user.BirthDate)
+	userErrorJson.Email = s.isValidEmail(user.Email)
+	userErrorJson.Password = isValidPwd(user.Password)
 
-	if user.Email == "" {
-		userErrorJson.Email = "email is required"
-	}
-
-	if user.Password == "" {
-		userErrorJson.Password = "password is required"
-	}
+	// optianal user data
+	userErrorJson.Nickname = s.isValidNickname(user.Nickname)
+	userErrorJson.AboutMe = isValidAboutme(user.AboutMe)
+	userErrorJson.ProfileImage = isValidImg(user.ProfileImage, user.ProfileImgSize)
 
 	// Add more validation as needed (e.g., email format, password strength)
 	if !reflect.DeepEqual(userErrorJson, models.User{}) {
 		jsonError.Message = userErrorJson
+	} else {
+		fmt.Println("validation is clear", userErrorJson)
 	}
 }
 
@@ -155,3 +167,41 @@ func (s *AuthService) SetUserSession(user *models.User) (*models.Session, *model
 	return session, nil
 }
 
+func (s *AuthService) CreateOrUpdateSession(user *models.User) (*models.Session, *models.ErrorJson) {
+	session, errJson := s.GetSessionByUserId(user.Id)
+	if errJson != nil {
+		return nil, errJson
+	}
+	if session != nil {
+		new_session, errJSON := s.UpdateUserSession(session)
+		if errJSON != nil {
+			return nil, errJSON
+		}
+		return new_session, nil
+
+	} else {
+		new_session, errJSON := s.SetUserSession(user)
+		if errJSON != nil {
+			return nil, errJSON
+		}
+		return new_session, nil
+	}
+}
+
+func (s *AuthService) GetSessionByUserId(user_id string) (*models.Session, *models.ErrorJson) {
+	session, err := s.repo.GetUserSessionByUserId(user_id)
+	if err != nil {
+		return nil, err
+	}
+	return session, nil
+}
+
+func (s *AuthService) UpdateUserSession(session *models.Session) (*models.Session, *models.ErrorJson) {
+	new_session := models.NewSession()
+	new_session.Token = uuid.NewString()
+	new_session.ExpDate = time.Now().Add(24 * time.Hour)
+	if err := s.repo.UpdateSession(session, new_session); err != nil {
+		return nil, err
+	}
+	return new_session, nil
+}
