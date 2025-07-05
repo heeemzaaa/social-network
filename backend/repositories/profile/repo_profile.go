@@ -28,6 +28,7 @@ func (repo *ProfileRepository) GetID(sessionID string) (string, error) {
 	return userID, nil
 }
 
+
 // here I will check if the user is following the profile or not
 func (repo *ProfileRepository) IsFollower(userID string, authUserID string) (bool, error) {
 	var exist int

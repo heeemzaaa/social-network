@@ -24,4 +24,3 @@ func (repo *GroupRepository) GetAvailableGroups() {
 
 func (repo *GroupRepository) GetGroupById() {
 }
-
