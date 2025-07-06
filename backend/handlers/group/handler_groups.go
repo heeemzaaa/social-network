@@ -1,6 +1,7 @@
 package group
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -85,11 +86,12 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 		fmt.Println("err", errToUUID)
 	}
 	// handle the image encoding in the phase that comes before the adding process
-	errUploadImg := HanldeUploadImage(w, r, "group")
+	path, errUploadImg := HanldeUploadImage(w, r, "group")
 	if errUploadImg != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
 	}
+	fmt.Println("path", path)
 
 	group_to_create.GroupCreatorId = groupCreatorId
 	group, errJson := Ghandler.gservice.AddGroup(group_to_create)
@@ -100,22 +102,33 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 	utils.WriteDataBack(w, group)
 }
 
-func HanldeUploadImage(w http.ResponseWriter, r *http.Request, fileName string) *models.ErrorJson {
+func HanldeUploadImage(w http.ResponseWriter, r *http.Request, fileName string) (string, *models.ErrorJson) {
 	file, header, err := r.FormFile(fileName)
 	if err != nil {
 		if err == http.ErrMissingFile || err == io.EOF {
-			return &models.ErrorJson{Status: 400, Message: "Error!! Missing file"}
+			return "", &models.ErrorJson{Status: 400, Message: "Error!! Missing file"}
 		}
 	}
 	defer file.Close()
 
 	mimeType := header.Header.Get("Content-Type")
 	if !utils.IsValidImageType(mimeType) {
-		return &models.ErrorJson{Status: 400, Message: "Error!! Only PNG, JPEG and GIF images are allowed"}
+		return "", &models.ErrorJson{Status: 400, Message: "Error!! Only PNG, JPEG and GIF images are allowed"}
 	}
-	// fmt.Println("header", header)
-	
-	return nil
+	buf := bytes.NewBuffer(nil)
+	written, err := io.Copy(buf, file)
+	if err != nil {
+		return "", &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	if written == 0 {
+		return "", &models.ErrorJson{Status: 400, Message: "No content is being detected!!"}
+	}
+	path, errJson := utils.CreateDirectoryForUploads("groups", mimeType, buf.Bytes())
+	if errJson != nil {
+		return "", &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+	}
+
+	return path, nil
 }
 
 func (Ghandler *GroupHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
