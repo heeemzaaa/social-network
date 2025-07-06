@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"social-network/backend/handlers"
 	"social-network/backend/models"
+	"social-network/backend/utils"
 )
 
 type UserInfo struct {
@@ -58,7 +58,7 @@ func (rl *RateLimitMiddleWare) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		} else {
 			if clientInfo.Count >= rl.MaxRequests {
 				fmt.Println("", clientInfo.Count)
-				handlers.WriteJsonErrors(w, models.ErrorJson{
+				utils.WriteJsonErrors(w, models.ErrorJson{
 					Status:  http.StatusTooManyRequests,
 					Message: "ERROR!! Too many Requests",
 				})

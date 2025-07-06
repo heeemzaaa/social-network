@@ -1,9 +1,12 @@
 package routes
 
 import (
+	"database/sql"
 	"net/http"
 
 	group "social-network/backend/handlers/group"
+	gRepo "social-network/backend/repositories/group"
+	gService "social-network/backend/services/group"
 )
 
 // ##### routes i have to implement to all the users #####
@@ -23,12 +26,11 @@ import (
 // POST /groups/{id}/posts/{post_id}/comments  (add a comment to a specific post of a specific group)
 /***********************************************************/
 
-func SetGroupRoutes(
-	GroupHandler *group.GroupHanlder,
-	GroupIDHandler *group.GroupIDHanlder,
-) *http.ServeMux {
-	mux := http.NewServeMux()
-	mux.Handle("/api/groups", GroupHandler)
+func SetGroupRoutes(mux *http.ServeMux, db *sql.DB) {
+	groupRepo := gRepo.NewGroupRepository(db)
+	groupService := gService.NewGroupService(groupRepo)
+	GroupHandler := group.NewGroupHandler(groupService)
+	GroupIDHandler := group.NewGroupIDHandler(groupService)
+	mux.Handle("/api/groups/", GroupHandler)
 	mux.Handle("/api/groups/{id}", GroupIDHandler)
-	return mux
 }

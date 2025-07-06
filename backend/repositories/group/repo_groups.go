@@ -14,7 +14,7 @@ type GroupRepository struct {
 }
 
 // NewPostRepository creates a new repository
-func NewAppRepository(db *sql.DB) *GroupRepository {
+func NewGroupRepository(db *sql.DB) *GroupRepository {
 	return &GroupRepository{db: db}
 }
 

@@ -77,10 +77,10 @@ func (s *AuthService) Register(user *models.User, file multipart.File) *models.E
 		return jsonError
 	}
 
-	user.Id = uuid.New().String()
+	user.Id = uuid.New()
 	// Image handling:
 	if user.ProfileImage != "" {
-		ImgName := user.Id + "." + strings.Split(user.ProfileImage, ".")[1]
+		ImgName := user.Id.String()+ "." + strings.Split(user.ProfileImage, ".")[1]
 
 		imgPath, err := services.UploadImage(file, ImgName)
 		if err != nil {
@@ -160,7 +160,7 @@ func (s *AuthService) SetUserSession(user *models.User) (*models.Session, *model
 }
 
 func (s *AuthService) CreateOrUpdateSession(user *models.User) (*models.Session, *models.ErrorJson) {
-	session, errJson := s.GetSessionByUserId(user.Id)
+	session, errJson := s.GetSessionByUserId(user.Id.String())
 	if errJson != nil {
 		return nil, errJson
 	}

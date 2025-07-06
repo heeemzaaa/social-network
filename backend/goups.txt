@@ -1,0 +1,16 @@
+{"firstname":"ayoub",
+"lastname":"nachti",
+"birthdate":"1990-08-15",
+"email":"ayoub@gamil.com",
+"password":"Pa$$w0rd",
+"nickname":"darkmethoss",
+"about_me":"i am ayoub and i am a fullstack developer"}
+
+
+
+
+
+{
+	"title" : "girly group",
+	"description": "group dedicated only to girls who are the best creature in this world! and Fuck boys"
+}

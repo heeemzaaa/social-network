@@ -12,6 +12,11 @@ func WriteJsonErrors(w http.ResponseWriter, errJson models.ErrorJson) {
 	json.NewEncoder(w).Encode(errJson)
 }
 
-func IsValidFilter(filter string) bool {
-	return filter == "owned" || filter == "availabe" || filter == "joined"
+func WriteDataBack(w http.ResponseWriter, data any) {
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(&data)
+}
+
+func IsValidImageType(mimeType string) bool {
+	return mimeType == "image/jpeg" || mimeType == "image/png" || mimeType == "gif"
 }

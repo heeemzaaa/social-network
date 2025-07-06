@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"net/http"
 
-	"social-network/backend/handlers"
 	"social-network/backend/models"
 	"social-network/backend/services/auth"
+	"social-network/backend/utils"
 )
 
 type Middleware struct {
 	MiddlewareHanlder http.Handler
-	service           *auth.AuthService
+	service           any
 }
 
-func NewMiddleWare(handler http.Handler, service *auth.AuthService) *Middleware {
+func NewMiddleWare(handler http.Handler, service any) *Middleware {
 	return &Middleware{handler, service}
 }
 
@@ -26,7 +26,7 @@ func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *m
 		return nil, &models.ErrorJson{Status: 401, Message: "ERROR!! Unauthorized Access"}
 	}
 	// check if the value of the cookie is correct and if not expired!!!
-	session, errJson := m.service.GetSessionByTokenEnsureAuth(cookie.Value)
+	session, errJson := m.service.(*auth.AuthService).GetSessionByTokenEnsureAuth(cookie.Value)
 	if errJson != nil || auth.IsSessionExpired(session.ExpDate) {
 		return nil, errJson
 	}
@@ -36,14 +36,18 @@ func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *m
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-Type", "application/json")
 	path := r.URL.Path
-
+    fmt.Println("path", path)
 	session, err := m.GetAuthUserEnsureAuth(r)
+	fmt.Println("err", err)
 	if (path == "/api/auth/login" || path == "/api/auth/register") && err == nil {
-		handlers.WriteJsonErrors(w, models.ErrorJson{Status: 403, Message: "User has a session!! Access Forbiden"})
+		
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 403, Message: "User has a session!! Access Forbiden"})
 		return
 	} else {
+		fmt.Println("how!!!!!")
 		if err != nil {
-			handlers.WriteJsonErrors(w, *err)
+			fmt.Println("salaaaam", err.Status, err.Message)
+			utils.WriteJsonErrors(w, *err)
 			return
 		}
 	}

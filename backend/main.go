@@ -18,9 +18,7 @@ func main() {
 
 	// just for testing
 	http.HandleFunc("/api/posts", middleware.CorsMiddleware(handlers.GetPostsHandler))
-
 	mux := routes.SetRoutes(db.Database)
-
 	fmt.Println("server is running in : http://localhost:8080")
 	http.ListenAndServe(":8080", mux)
 }

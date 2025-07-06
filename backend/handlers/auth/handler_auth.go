@@ -8,7 +8,7 @@ import (
 	"slices"
 	"time"
 
-	"social-network/backend/handlers"
+	"social-network/backend/utils"
 	"social-network/backend/models"
 	"social-network/backend/services/auth"
 )
@@ -41,25 +41,25 @@ func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		default:
 			if path == "/api/auth/islogged" {
-				handlers.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method Not Allowed."})
+				utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method Not Allowed."})
 			} else {
-				handlers.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found."})
+				utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found."})
 			}
 			return
 		}
 	case http.MethodGet:
 		if slices.Contains(autPostPaths, path) {
-			handlers.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method Not Allowed."})
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method Not Allowed."})
 			return
 		}
 		if path != "/api/auth/islogged" {
 			fmt.Println("heeeee")
-			handlers.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found."})
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found."})
 			return
 		}
 		auth.isLoggedIn(w, r)
 	default:
-		handlers.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method Not Allowed."})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method Not Allowed."})
 		return
 	}
 }
@@ -67,14 +67,14 @@ func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
 	islogged := &models.IsLoggedIn{}
 	if r.Method != http.MethodGet {
-		handlers.WriteJsonErrors(w, *models.NewErrorJson(405, "Method Not Allowed", nil))
+		utils.WriteJsonErrors(w, *models.NewErrorJson(405, "Method Not Allowed", nil))
 		return
 	}
 
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		islogged.IsLoggedIn = false
-		handlers.WriteDataBack(w, islogged)
+		utils.WriteDataBack(w, islogged)
 		return
 	}
 
@@ -82,11 +82,11 @@ func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
 
 	if errJson != nil {
 		islogged.IsLoggedIn = false
-		handlers.WriteDataBack(w, islogged)
+		utils.WriteDataBack(w, islogged)
 		return
 	}
 	islogged.IsLoggedIn = true
-	handlers.WriteDataBack(w, islogged)
+	utils.WriteDataBack(w, islogged)
 }
 
 func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
@@ -95,7 +95,7 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == io.EOF {
 			// case if the body sent if empty
-			handlers.WriteJsonErrors(w, models.ErrorJson{
+			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
 				Message: models.Login{
 					LoginField: "field is required",
@@ -104,19 +104,19 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
-		handlers.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v 1", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v 1", err)})
 		return
 	}
 
 	user, errJson := handler.service.Login(login)
 	if errJson != nil {
-		handlers.WriteJsonErrors(w, *errJson)
+		utils.WriteJsonErrors(w, *errJson)
 		return
 	}
 
 	session, errJSON := handler.service.CreateOrUpdateSession(user)
 	if errJSON != nil {
-		handlers.WriteJsonErrors(w, models.ErrorJson{
+		utils.WriteJsonErrors(w, models.ErrorJson{
 			Status:  errJSON.Status,
 			Message: errJSON.Message,
 		})
@@ -130,7 +130,7 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		Path:    "/",
 	})
 
-	handlers.WriteDataBack(w, "user logged in successfuly")
+	utils.WriteDataBack(w, "user logged in successfuly")
 }
 
 func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request) {
@@ -141,7 +141,7 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		fmt.Println("Error while decoding the the register request body: ", err)
 		if err == io.EOF || *user == (models.User{}) {
-			handlers.WriteJsonErrors(w, models.ErrorJson{
+			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
 				Message: models.User{
 					FirstName: "login field can't be empty",
@@ -168,7 +168,7 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 
 	errJson := authHandler.service.Register(user, file)
 	if errJson != nil {
-		handlers.WriteJsonErrors(w, *errJson)
+		utils.WriteJsonErrors(w, *errJson)
 		return
 	}
 
@@ -176,13 +176,13 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	fmt.Printf("userData: %v\n", userData)
 
 	if errJson != nil {
-		handlers.WriteJsonErrors(w, *errJson)
+		utils.WriteJsonErrors(w, *errJson)
 		return
 	}
 
 	session, err_ := authHandler.service.SetUserSession(userData)
 	if err_ != nil {
-		handlers.WriteJsonErrors(w, *err_)
+		utils.WriteJsonErrors(w, *err_)
 		return
 	}
 
@@ -193,7 +193,7 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 		Path:    "/",
 	})
 
-	handlers.WriteDataBack(w, "User registered seccussfully")
+	utils.WriteDataBack(w, "User registered seccussfully")
 }
 
 func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
@@ -201,11 +201,11 @@ func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie("session")
 	session, errJson := handler.service.GetSessionByTokenEnsureAuth(cookie.Value)
 	if errJson != nil {
-		handlers.WriteJsonErrors(w, *models.NewErrorJson(errJson.Status, "", errJson.Message))
+		utils.WriteJsonErrors(w, *models.NewErrorJson(errJson.Status, "", errJson.Message))
 		return
 	}
 	if err := handler.service.Logout(session); err != nil {
-		handlers.WriteJsonErrors(w, *models.NewErrorJson(err.Status, "", err.Message))
+		utils.WriteJsonErrors(w, *models.NewErrorJson(err.Status, "", err.Message))
 		return
 	}
 	http.SetCookie(w, &http.Cookie{

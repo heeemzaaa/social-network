@@ -12,7 +12,7 @@ type Group struct {
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
 	ImagePath      string    `json:"image_path"`
-	ImageEncoded   string    `json:"image_encoded"`
+	Image          string    `json:"image"`
 	Members        []User
 	Posts          []Post
 	Events         []Event
@@ -35,5 +35,3 @@ type ErrGroup struct {
 type ErrJoinGroup struct {
 	GroupId string `json:"group_id"`
 }
-
-
