@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"regexp"
 	"slices"
 	"strings"
@@ -110,6 +111,7 @@ func isValidAboutme(aboutme string) string {
 }
 
 func isValidImg(imgName string, size int64) string {
+	fmt.Printf("imgName: %v\n", imgName)
 	if imgName == "" {
 		return ""
 	}

@@ -156,8 +156,9 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	}
 
 	file, handler, err := r.FormFile("profile_img")
-	if err != nil {
-		// No file uploaded, set defaults for optional image
+	fmt.Printf("file: %v\nhandler: %v\nerr: %v\n", file, handler, err)
+	if err != nil || file != nil {
+		fmt.Println("No file uploaded, set defaults for optional image")
 		user.ProfileImage = ""
 		user.ProfileImgSize = 0
 	} else {
@@ -165,6 +166,8 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 		user.ProfileImgSize = handler.Size
 		defer file.Close()
 	}
+
+	fmt.Printf("user inside the service: %v\n", user)
 
 	errJson := authHandler.service.Register(user, file)
 	if errJson != nil {
