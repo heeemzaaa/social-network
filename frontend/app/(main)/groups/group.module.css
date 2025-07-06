@@ -1,0 +1,73 @@
+.form {
+    padding: 2rem;
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 1;
+    background: var(--glass-background);
+    box-shadow: var(--shadow-light-lg);
+    margin: auto;
+}
+
+.formGrp {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.formGrp>label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: bold;
+}
+
+.input {
+    all: unset;
+    padding: .5rem;
+    outline: solid 1px var(--color-white);
+    font-size: var(--font-size-sm);
+    border-radius: var(--border-radius-sm);
+}
+
+.input:focus {
+    outline: solid 1px var(--color-primary);
+    border-radius: var(--border-radius-sm);
+}
+
+.form>button {
+    justify-content: center;
+    transition: all .2s;
+    margin-top: 1rem;
+}
+
+.form>button:hover {
+    box-shadow: var(--shadow-primary-sm);
+    border: solid 1px var(--color-secondary);
+    transform: translate(-1px, -1px);
+}
+
+.group-form {
+    grid-row: 2/4;
+    grid-column: 3/4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.create_bouton {
+    
+}
+
+
+.container_1{
+
+}
+
+.container_2{
+
+}
