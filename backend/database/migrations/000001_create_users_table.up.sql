@@ -3,11 +3,10 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS users (
     userID TEXT PRIMARY KEY ,
     email VARCHAR(255) NOT NULL UNIQUE,
-    gender TEXT NOT NULL DEFAULT 'male' CHECK (gender IN ('male','female')),
     firstName VARCHAR(50) NOT NULL,
     lastName VARCHAR(50) NOT NULL,
     password VARCHAR(50) NOT NULL, 
-    birthDate TEXT  NOT NULL,a
+    birthDate TEXT  NOT NULL,
     nickname VARCHAR(30) UNIQUE,
     avatarPath TEXT,
     aboutMe TEXT,

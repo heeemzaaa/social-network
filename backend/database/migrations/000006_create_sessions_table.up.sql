@@ -1,9 +1,9 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS sessions (
-    sessionID TEXT PRIMARY KEY,
+    sessionID INTEGER PRIMARY KEY AUTOINCREMENT,
     userID  TEXT NOT NULL,
     sessionToken VARCHAR(200) NOT NULL UNIQUE,
     expiresAt DATETIME,
     FOREIGN KEY (userID) REFERENCES users(userID) ON DELETE CASCADE
-); 
+);
