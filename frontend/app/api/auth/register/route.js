@@ -9,12 +9,7 @@ export async function POST(request) {
             body: formData // Forward the request body
         });
         
-        const data = await res.json();
-        if (!res.ok) {
-            console.log("data: ", data)
-            throw new Error(`API request failed with status ${res.status}`);
-        }
-        return Response.json(data);
+        return res
     } catch (error) {
         return Response.json(
             { error: error.message },
