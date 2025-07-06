@@ -16,9 +16,10 @@ type User struct {
 }
 
 type Session struct {
-	Id       int       `json:"id,omitempty"`
-	Token    string    `json:"token"`
-	UserId   int       `json:"user_id"`
-	Username string    `json:"username,omitempty"`
-	ExpDate  time.Time `json:"expiration_date,omitempty"`
+	Id        int       `json:"id,omitempty"`
+	Token     string    `json:"token"`
+	UserId    string    `json:"user_id"`
+	FirstName string    `json:"first_name,omitempty"`
+	LastName  string    `json:"last_name,omitempty"`
+	ExpDate   time.Time `json:"expiration_date,omitempty"`
 }

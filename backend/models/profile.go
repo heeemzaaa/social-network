@@ -11,7 +11,3 @@ type Profile struct {
 	Visibility        string `json:"visibility,omitempty"`
 }
 
-const (
-	VisibilityPublic  = "public"
-	VisibilityPrivate = "private"
-)

@@ -128,12 +128,12 @@ func (s *ProfileService) Follow(userID string, authSessionID string) *models.Err
 	}
 
 	switch visibility {
-	case models.VisibilityPrivate:
+	case "private":
 		err := s.repo.FollowPrivate(userID, authUserID)
 		if err != nil {
 			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}
-	case models.VisibilityPublic:
+	case "public":
 		err := s.repo.FollowDone(userID, authUserID)
 		if err != nil {
 			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
@@ -216,7 +216,7 @@ func (s *ProfileService) UpdatePrivacy(userID string, authSessionID string, want
 		return &models.ErrorJson{Status: 401, Message: "You can't update another user's profile"}
 	}
 
-	if wantedStatus == "" || (wantedStatus != models.VisibilityPublic && wantedStatus != models.VisibilityPrivate) {
+	if wantedStatus == "" || (wantedStatus != "public" && wantedStatus != "private") {
 		return &models.ErrorJson{Status: 400, Message: "Invalid data !"}
 	}
 
@@ -230,7 +230,7 @@ func (s *ProfileService) UpdatePrivacy(userID string, authSessionID string, want
 	}
 
 	switch wantedStatus {
-	case models.VisibilityPublic:
+	case "public":
 		err := s.repo.ToPublicAccount(userID)
 		if err != nil {
 			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
@@ -240,7 +240,7 @@ func (s *ProfileService) UpdatePrivacy(userID string, authSessionID string, want
 		if err != nil {
 			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}
-	case models.VisibilityPrivate:
+	case "private":
 		err := s.repo.ToPrivateAccount(userID)
 		if err != nil {
 			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}

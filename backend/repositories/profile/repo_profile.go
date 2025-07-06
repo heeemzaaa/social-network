@@ -76,6 +76,7 @@ func (repo *ProfileRepository) FollowPrivate(userID string, authUserID string) e
 	return nil
 }
 
+// delete the request works in both cases , accept and decline
 func (repo *ProfileRepository) DeleteRequest(userID string, authUserID string) error {
 	query := `DELETE FROM follow_requests WHERE userID = ? AND requestorID = ?`
 	_, err := repo.db.Exec(query, userID, authUserID)
@@ -172,12 +173,12 @@ func (repo *ProfileRepository) CheckProfileAccess(userID string, authUserID stri
 		return false, fmt.Errorf("%v", err)
 	}
 	// If profile is public, good to go
-	if visibility == models.VisibilityPublic {
+	if visibility == "public" {
 		return true, nil
 	}
 
 	// If profile is private, ncheckiw wach follower
-	if visibility == models.VisibilityPrivate {
+	if visibility == "private" {
 		var isFollower bool
 		isFollower, err := repo.IsFollower(userID, authUserID)
 		if err != nil {
@@ -340,16 +341,17 @@ func (repo *ProfileRepository) UpdateProfileData(user *models.User) (*models.Use
 // here I will update the visibility of a private status
 func (repo *ProfileRepository) ToPublicAccount(userID string) error {
 	query := `UPDATE users SET visibility = ? WHERE userID = ?`
-	_, err := repo.db.Exec(query, models.VisibilityPublic, userID)
+	_, err := repo.db.Exec(query, "public", userID)
 	if err != nil {
 		return fmt.Errorf("%v", err)
 	}
 	return nil
 }
 
+// change the visibility to private 
 func (repo *ProfileRepository) ToPrivateAccount(userID string) error {
 	query := `UPDATE users SET visibility = ? WHERE userID = ?`
-	_, err := repo.db.Exec(query, models.VisibilityPrivate, userID)
+	_, err := repo.db.Exec(query, "private", userID)
 	if err != nil {
 		return fmt.Errorf("%v", err)
 	}
