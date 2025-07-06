@@ -117,8 +117,6 @@ func (s *AuthService) validateUserData(user *models.User) *models.ErrorJson {
 		userErrorJson.FirstName = isValidName(user.FirstName)
 	}
 
-	fmt.Printf("userErrorJson: %v\n", userErrorJson)
-
 	if user.LastName == "" {
 		userErrorJson.LastName = "last name is required"
 	} else {

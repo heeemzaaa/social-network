@@ -33,7 +33,6 @@ export default function RegisterForm() {
                             onChange={(e) => setData(prev => ({ ...prev, firstname: e.target.value }))}
                         />
                         {state.errors?.firstname && <span className="field-error">{state.errors.firstname}</span>}
-
                     </div>
 
                     <div className={styles.formGrp}>

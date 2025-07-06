@@ -61,8 +61,7 @@ export async function registerUser(prevState, formData) {
     const birthdate = formData.get("birthdate")?.trim();
     const nickname = formData.get("nickname")?.trim() || null;
     const aboutMe = formData.get("aboutMe")?.trim() || null;
-    const avatar = formData.get("avatar");
-    // console.log(avatar)
+    const avatar = formData.get("avatar") ;
 
     if (!email) {
         state.errors.email = "Email is required";

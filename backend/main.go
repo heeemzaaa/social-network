@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -17,15 +16,11 @@ func main() {
 		panic(err)
 	}
 
+	// just for testing
 	http.HandleFunc("/api/posts", middleware.CorsMiddleware(handlers.GetPostsHandler))
-	mux := routes.SetRoutes(db.Database) 
+
+	mux := routes.SetRoutes(db.Database)
 
 	fmt.Println("server is running in : http://localhost:8080")
 	http.ListenAndServe(":8080", mux)
-}
-
-func WriteDataBack(w http.ResponseWriter, data any) {
-	fmt.Printf("data: %v\n", data)
-	w.WriteHeader(200)
-	json.NewEncoder(w).Encode(&data)
 }

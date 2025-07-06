@@ -114,14 +114,14 @@ func isValidImg(imgName string, size int64) string {
 		return ""
 	}
 
-	validExtensions := []string{"png", "jpeg", "jpg", "svg"}
+	validExtensions := []string{"png", "jpeg", "jpg", "svg", "gif"}
 	imageExtensions := strings.Split(imgName, ".")[1]
 	if !slices.Contains(validExtensions, imageExtensions) {
-		return "profile image must be a .png, .jpeg, .jpg, or .svg file"
+		return "profile image must be a .png, .jpeg, .jpg, .svg or .gif file"
 	}
 
-	if size > 5*1024*1024 {
-		return "profile image must be 5MB or smaller"
+	if size > 3*1024*1024 {
+		return "profile image must be 3MB or smaller"
 	}
 	return ""
 }
