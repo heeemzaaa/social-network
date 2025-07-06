@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"slices"
+	"time"
 
 	"social-network/backend/handlers"
 	"social-network/backend/models"
@@ -133,13 +134,13 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request) {
-	user := &models.User{}
+	user := models.NewUser()
 
 	data := r.FormValue("data")
 	err := json.Unmarshal([]byte(data), &user)
 	if err != nil {
 		fmt.Println("Error while decoding the the register request body: ", err)
-		if (err == io.EOF || *user == models.User{}) {
+		if err == io.EOF || *user == (models.User{}) {
 			handlers.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
 				Message: models.User{
@@ -154,11 +155,16 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	file, handler, _ := r.FormFile("profile_img")
-	user.ProfileImage = handler.Filename
-	user.ProfileImgSize = handler.Size
-
-	defer file.Close()
+	file, handler, err := r.FormFile("profile_img")
+	if err != nil {
+		// No file uploaded, set defaults for optional image
+		user.ProfileImage = ""
+		user.ProfileImgSize = 0
+	} else {
+		user.ProfileImage = handler.Filename
+		user.ProfileImgSize = handler.Size
+		defer file.Close()
+	}
 
 	errJson := authHandler.service.Register(user, file)
 	if errJson != nil {
@@ -191,5 +197,24 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 }
 
 func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Inside the logout handler")
+	// delete from the database before
+	cookie, _ := r.Cookie("session")
+	session, errJson := handler.service.GetSessionByTokenEnsureAuth(cookie.Value)
+	if errJson != nil {
+		handlers.WriteJsonErrors(w, *models.NewErrorJson(errJson.Status, "", errJson.Message))
+		return
+	}
+	if err := handler.service.Logout(session); err != nil {
+		handlers.WriteJsonErrors(w, *models.NewErrorJson(err.Status, "", err.Message))
+		return
+	}
+	http.SetCookie(w, &http.Cookie{
+		Name:    "session",
+		Value:   "",
+		MaxAge:  -1,
+		Expires: time.Unix(0, 0),
+		Path:    "/",
+	})
+
+	w.WriteHeader(http.StatusNoContent)
 }

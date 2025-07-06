@@ -76,16 +76,18 @@ func (s *AuthService) Register(user *models.User, file multipart.File) *models.E
 	if jsonError != nil {
 		return jsonError
 	}
-	
+
 	user.Id = uuid.New().String()
 	// Image handling:
-	ImgName := user.Id + "." + strings.Split(user.ProfileImage, ".")[1]
+	if user.ProfileImage != "" {
+		ImgName := user.Id + "." + strings.Split(user.ProfileImage, ".")[1]
 
-	imgPath, err := services.UploadImage(file, ImgName)
-	if err != nil {
-		return models.NewErrorJson(500, "Error saving profile image", nil)
+		imgPath, err := services.UploadImage(file, ImgName)
+		if err != nil {
+			return models.NewErrorJson(500, "Error saving profile image", nil)
+		}
+		user.ProfileImage = imgPath
 	}
-	user.ProfileImage = imgPath
 
 	hash, err := HashPassword(user.Password)
 
@@ -97,7 +99,7 @@ func (s *AuthService) Register(user *models.User, file multipart.File) *models.E
 
 	errJson := s.repo.CreateUser(user)
 	if errJson != nil {
-		os.Remove(imgPath)
+		os.Remove(user.ProfileImage)
 		return errJson
 	}
 

@@ -2,8 +2,10 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
+	"social-network/backend/handlers"
 	"social-network/backend/models"
 	"social-network/backend/services/auth"
 )
@@ -33,19 +35,20 @@ func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *m
 
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-Type", "application/json")
-	// path := r.URL.Path
+	path := r.URL.Path
 
-	// _, err := m.GetUserSession(r)
-	// if (path == "/auth/login" || path == "/auth/register") && err == nil {
-	// 	handlers.WriteJsonErrors(w, models.ErrorJson{Status: 403, Message: "User has a session!! Access Forbiden"})
-	// 	return
-	// } else {
-	// 	if err != nil {
-	// 		handlers.WriteJsonErrors(w, *err)
-	// 		return
-	// 	}
-	// }
+	session, err := m.GetAuthUserEnsureAuth(r)
+	if (path == "/api/auth/login" || path == "/api/auth/register") && err == nil {
+		handlers.WriteJsonErrors(w, models.ErrorJson{Status: 403, Message: "User has a session!! Access Forbiden"})
+		return
+	} else {
+		if err != nil {
+			handlers.WriteJsonErrors(w, *err)
+			return
+		}
+	}
 
-	ctx := context.WithValue(r.Context(), "userID", "123456")
+	fmt.Printf("session.UserId: %v\n", session.UserId)
+	ctx := context.WithValue(r.Context(), "userID", session.UserId)
 	m.MiddlewareHanlder.ServeHTTP(w, r.WithContext(ctx))
 }
