@@ -163,9 +163,8 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	} else {
 		user.ProfileImage = handler.Filename
 		user.ProfileImgSize = handler.Size
+		defer file.Close()
 	}
-
-	defer file.Close()
 
 	fmt.Printf("user inside the service: %v\n", user)
 
