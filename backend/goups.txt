@@ -6,11 +6,17 @@
 "nickname":"jong-oum",
 "about_me":"i am oumayma and i am a fullstack developer"}
 
-
-
-
-
 {
 	"title" : "girly group",
 	"description": "group dedicated only to girls who are the best creature in this world! and Fuck boys"
 }
+
+
+
+{"firstname":"fatima",
+"lastname":"ljamila",
+"birthdate":"1999-09-05",
+"email":"fatima@gmail.com",
+"password":"Pa$$w0rd",
+"nickname":"fati-zahra",
+"about_me":"i am fatima and i am a fullstack developer"}

@@ -23,5 +23,5 @@ func ValidateDesc(desc string) error {
 }
 
 func IsValidFilter(filter string) bool {
-	return filter == "owned" || filter == "availabe" || filter == "joined"
+	return filter == "owned" || filter == "available" || filter == "joined"
 }

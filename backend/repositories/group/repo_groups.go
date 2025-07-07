@@ -19,12 +19,28 @@ func NewGroupRepository(db *sql.DB) *GroupRepository {
 }
 
 func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *models.ErrorJson) {
-	groupID := uuid.New().String()
-	query := `INSERT INTO groups (groupID, groupCreatorID,title,imagePath,description)
+	groupID := uuid.New()
+	query := `INSERT INTO groups 
+	(groupID, groupCreatorID,title,imagePath,description)
 	VALUES (?,?,?,?,?)`
-	_, err := repo.db.Exec(query, groupID, group.GroupCreatorId, group.Title, group.ImagePath, group.Description)
+
+	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(groupID, group.GroupCreatorId,
+		group.Title, group.ImagePath, group.Description)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 2", err)}
+	}
+	// group.GroupId, err := uuid.Parse(groupID)
+	// if err!= nil {
+
+	// }
+	group.GroupId = &groupID
+	if errJson := repo.JoinGroup(group, group.GroupCreatorId.String()); errJson != nil {
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
 	}
 
 	return group, nil

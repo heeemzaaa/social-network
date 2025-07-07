@@ -26,16 +26,13 @@ func NewGroupHandler(service *gservice.GroupService) *GroupHanlder {
 	return &GroupHanlder{gservice: service}
 }
 
-
-
-
 func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
-		return
-	}
+	// userIDVal := r.Context().Value("userID")
+	// userID, ok := userIDVal.(uuid.UUID)
+	// if !ok {
+	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+	// 	return
+	// }
 	filter := r.URL.Query().Get("filter")
 	offset, errOffset := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
 	if errOffset != nil {
@@ -46,7 +43,7 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect filter by field!!"})
 		return
 	}
-	groups, errJson := Ghandler.gservice.GetGroups(filter, offset, userID.String())
+	groups, errJson := Ghandler.gservice.GetGroups(filter, offset, "fa37b66e-128d-4eed-aba5-08592dbbd949")
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
@@ -84,13 +81,13 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 
 		utils.WriteJsonErrors(w, models.ErrorJson{
 			Status:  400,
-			Message: "an error occured while trying to decode the json!",
+			Message: "an error occured while trying to decode the json! lhiih",
 		})
 		return
 	}
 	// hard coded till ayoub finishes the context thing
 
-	groupCreatorId, errToUUID := uuid.Parse("25f9ba66-80aa-42c1-960d-c22e7757d91a")
+	groupCreatorId, errToUUID := uuid.Parse("fa37b66e-128d-4eed-aba5-08592dbbd949")
 	if errToUUID != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", errToUUID)})
 		return
@@ -102,7 +99,7 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	group_to_create.GroupCreatorId = groupCreatorId
+	group_to_create.GroupCreatorId = &groupCreatorId
 	// handle the path if the path is empty
 	fmt.Println("path", path)
 	if path != "" {
@@ -149,6 +146,7 @@ func HanldeUploadImage(r *http.Request, fileName string) (string, *models.ErrorJ
 
 func (Ghandler *GroupHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "appplication/json")
+	fmt.Println("inside the groups handler")
 	switch r.Method {
 	case http.MethodGet:
 		Ghandler.GetGroups(w, r)

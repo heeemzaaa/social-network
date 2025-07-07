@@ -7,5 +7,4 @@ CREATE TABLE IF NOT EXISTS groups (
     imagePath TEXT,
     description  VARCHAR(1000) NOT NULL,
     FOREIGN KEY (groupCreatorID) REFERENCES users(userID)
-
 );

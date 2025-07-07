@@ -7,8 +7,8 @@ import (
 )
 
 type Group struct {
-	GroupId        uuid.UUID `json:"group_id,omitempty"`
-	GroupCreatorId uuid.UUID `json:"group_creator_id,omitempty"`
+	GroupId        *uuid.UUID `json:"group_id,omitempty"`
+	GroupCreatorId *uuid.UUID `json:"group_creator_id,omitempty"`
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
 	ImagePath      string    `json:"image_path,omitempty"`

@@ -10,11 +10,11 @@ import (
 )
 
 // ##### routes i have to implement to all the users #####
-// POST /groups/  create a group
-// GET /groups?filter=owned
-// GET  /groups?filter=availabe
-// GET /groups?filter=joined
-// POST /groups/{id}   join a specific group
+// POST /groups/  create a group done
+// GET /groups?filter=owned   done 
+// GET  /groups?filter=availabe done 
+// GET /groups?filter=joined done 
+// POST /groups/{id}   join a specific group done 
 // GET /groups/{id}  get the general info of a specific group (title description and so on )
 //  ##### routes i have to implement to all the user who is a member of a specific group  #####
 // GET /groups/{id}/posts  (get the posts of a specific group)
@@ -32,6 +32,6 @@ func SetGroupRoutes(mux *http.ServeMux, db *sql.DB) {
 	groupService := gService.NewGroupService(groupRepo)
 	GroupHandler := group.NewGroupHandler(groupService)
 	GroupIDHandler := group.NewGroupIDHandler(groupService)
+	mux.Handle("/api/groups/{group_id}/", GroupIDHandler)
 	mux.Handle("/api/groups/", GroupHandler)
-	mux.Handle("/api/groups/{group_id}", GroupIDHandler)
 }

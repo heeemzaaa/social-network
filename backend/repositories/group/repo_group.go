@@ -12,6 +12,7 @@ import (
 // (groupID, userID ) had l combinaison khssha tkun unique
 // to detect if a user aleady a part of group and returns a 403
 func (repo *GroupRepository) JoinGroup(group *models.Group, userId string) *models.ErrorJson {
+	fmt.Println("group", group)
 	query := `
 	INSERT INTO group_membership (groupID, userID)
 	VALUES (?, ?)
@@ -24,13 +25,13 @@ func (repo *GroupRepository) JoinGroup(group *models.Group, userId string) *mode
 			}
 		}
 
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 3", err)}
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(group.GroupId, userId)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 4", err)}
 	}
 	return nil
 }
@@ -41,6 +42,7 @@ func (repo *GroupRepository) JoinGroup(group *models.Group, userId string) *mode
 // the number of posts created !!
 func (repo *GroupRepository) GetGroupDetails(groupId string) (*models.Group, *models.ErrorJson) {
 	var groupDetails *models.Group
+
      
 
 
