@@ -55,7 +55,10 @@ func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("session.UserId: %v\n", session.UserId)
-	ctx := context.WithValue(r.Context(), "userID", session.UserId)
-	m.MiddlewareHanlder.ServeHTTP(w, r.WithContext(ctx))
+	if session != nil {
+		ctx := context.WithValue(r.Context(), "userID", session.UserId)
+		m.MiddlewareHanlder.ServeHTTP(w, r.WithContext(ctx))
+	} else {
+		m.MiddlewareHanlder.ServeHTTP(w, r)
+	}
 }
