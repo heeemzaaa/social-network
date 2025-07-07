@@ -34,18 +34,25 @@ func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *m
 }
 
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("content-Type", "application/json")
+	fmt.Println("inside auth middlware")
 	path := r.URL.Path
-
 	session, err := m.GetAuthUserEnsureAuth(r)
-	if (path == "/api/auth/login" || path == "/api/auth/register") && err == nil {
-		handlers.WriteJsonErrors(w, models.ErrorJson{Status: 403, Message: "User has a session!! Access Forbiden"})
-		return
-	} else {
-		if err != nil {
-			handlers.WriteJsonErrors(w, *err)
+	fmt.Printf("session: %v\n", session)
+	if path == "/api/auth/login" || path == "/api/auth/register" {
+		if err == nil {
+			// Already has a session, prevent login/register again
+			handlers.WriteJsonErrors(w, models.ErrorJson{Status: 403, Message: "User already logged in. Access forbidden"})
 			return
 		}
+
+		// Allow access to login/register if no session
+		m.MiddlewareHanlder.ServeHTTP(w, r)
+		return
+	}
+
+	if err != nil && path != "/api/auth/islogged" {
+		handlers.WriteJsonErrors(w, *err)
+		return
 	}
 
 	fmt.Printf("session.UserId: %v\n", session.UserId)
