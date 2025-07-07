@@ -11,5 +11,3 @@ CREATE TABLE IF NOT EXISTS group_posts (
     PRIMARY KEY (postID, groupID, userID)
 );
 
-
-

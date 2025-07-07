@@ -1,4 +1,7 @@
 
+
+/* navigation style */
+
 nav {
     display: flex;
     flex-direction: column;
@@ -39,9 +42,6 @@ nav {
      /* filter: drop-shadow(10px 10px 200px $tod-tri) drop-shadow(-10px -10px 50px $tod-tri) */
 }
 
-.red {
-    background-color: red;
-}
 
 /* header component style */
 
@@ -90,7 +90,7 @@ nav {
     width: 100%;
     border-radius: var(--border-radius-lg);
     color: var(--color-white);
-    z-index: 10000;
+    /* z-index: 10000; */
 }
 
 .UserNumbers {
@@ -159,4 +159,54 @@ nav {
     var(--color-dark) 50%,
     var(--color-white) 100%
   );
+}
+
+/* avatar styles */
+
+.avatar {
+    width : 50px ;
+    height: 50px ;
+    border-radius: var(--border-radius-full);
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 10%;
+    background-color: red;
+}
+
+
+/* post card style */
+.post-card-container {
+    position: relative;
+    border: solid red;
+    width: 100%;
+    max-width: 650px;
+    padding: 1rem;
+    padding-left: 20%;
+    margin-left: auto !important;
+}
+
+.post-card-header {
+
+}
+
+.post-card-content {
+
+}
+
+.post-card-content-text { 
+
+}
+
+.post-card-content-img {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: fill;
+    position: absolute;
+    width:  20%;  
+    height:  50%;
+    top: 0;
+    overflow: hidden;
+    img {
+        width: 100%;
+    }
 }

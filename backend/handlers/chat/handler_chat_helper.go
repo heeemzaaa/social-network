@@ -11,6 +11,7 @@ import (
 )
 
 type ClientList map[string][]*Client
+type GroupMembers map[string][]string // her I will handle kola user o l connections dyalo kamlin key: groupID, value: slice of user IDs
 
 type OnlineUsers struct {
 	Type string        `json:"type"`
@@ -47,8 +48,8 @@ func NewClient(conn *websocket.Conn, server *ChatServer, session *models.Session
 
 func (server *ChatServer) AddClient(client *Client) {
 	server.Lock()
-	server.clients[client.userId] = append(server.clients[client.userId], client)
-	defer server.Unlock()
+	server.client[client.userId] = append(server.client[client.userId], client)
+	server.Unlock()
 }
 
 func (server *ChatServer) RemoveClient(client *Client, logged_out bool) {
@@ -56,19 +57,19 @@ func (server *ChatServer) RemoveClient(client *Client, logged_out bool) {
 	defer server.Unlock()
 	switch logged_out {
 	case true:
-		if connections, ok := server.clients[client.userId]; ok {
+		if connections, ok := server.client[client.userId]; ok {
 			for _, conn := range connections {
 				conn.connection.Close()
 			}
-			deleteConnection(server.clients, client.userId, client)
+			deleteConnection(server.client, client.userId, client)
 			go server.BroadCastOnlineStatus()
 		}
-		delete(server.clients, client.userId)
+		delete(server.client, client.userId)
 		go server.BroadCastOnlineStatus()
 	case false:
-		if _, ok := server.clients[client.userId]; ok {
+		if _, ok := server.client[client.userId]; ok {
 			client.connection.Close()
-			deleteConnection(server.clients, client.userId, client)
+			deleteConnection(server.client, client.userId, client)
 			go server.BroadCastOnlineStatus()
 		}
 	}
@@ -84,10 +85,10 @@ func (client *Client) ReadMessages() {
 			if err == io.ErrUnexpectedEOF {
 				client.ErrorJson <- &models.ErrorJson{
 					Message: models.MessageErr{
-						Message:    " empty message field",
-						ReceiverID: " empty receiver_id field",
-						Type:       " empty type field",
-						CreatedAt:  " empty createdAt field",
+						Content:   " empty message field",
+						TargetID:  " empty receiver_id field",
+						Type:      " empty type field",
+						CreatedAt: " empty createdAt field",
 					},
 				}
 				continue
@@ -112,13 +113,12 @@ func (client *Client) ReadMessages() {
 		}
 
 		client.Message <- message_validated
-		client.BroadCastTheMessage(message_validated)
+		client.BroadCastThePrivateMessage(message_validated)
 	}
 	defer client.chatServer.RemoveClient(client, logged_out)
 }
 
 // i used the channels buy not sure if this is the correct way to handle this
-
 func (client *Client) WriteMessages() {
 	defer client.chatServer.RemoveClient(client, false)
 
@@ -143,29 +143,24 @@ func (client *Client) WriteMessages() {
 	}
 }
 
-func (sender *Client) BroadCastTheMessage(message *models.Message) {
-	// braodcast to the connections dyal sender
+// broadcast the message in the case of private message
+func (sender *Client) BroadCastThePrivateMessage(message *models.Message) {
+	// broadcast to the connections dyal sender and the receiver
 	sender.chatServer.Lock()
 	defer sender.chatServer.Unlock()
 
 	switch message.Type {
 	case "message":
-		for _, conn := range sender.chatServer.clients[sender.userId] {
+		for _, conn := range sender.chatServer.client[sender.userId] {
 			if conn.connection != sender.connection {
 				conn.Message <- message
 			}
 		}
 		// dyal receiver
-		for _, value := range sender.chatServer.clients[message.TargetID] {
+		for _, value := range sender.chatServer.client[message.TargetID] {
 			value.Message <- message
 		}
-	case "read":
-		for _, conn := range sender.chatServer.clients[sender.userId] {
-			if conn.connection != sender.connection {
-				conn.Message <- message
-			}
-		}
-	case "typing":
+	case "group":
 
 	}
 }
@@ -189,13 +184,13 @@ func (server *ChatServer) BroadCastOnlineStatus() {
 	server.Lock()
 	defer server.Unlock()
 	online_users := []models.User{}
-	for _, connections := range server.clients {
+	for _, connections := range server.client {
 		if len(connections) != 0 {
-			online_users = append(online_users, models.User{ID: connections[0].userId, FirstName: connections[0].FirstName, LastName: connections[0].LastName})
+			online_users = append(online_users, models.User{Id: connections[0].userId, FirstName: connections[0].FirstName, LastName: connections[0].LastName})
 		}
 	}
 
-	for _, connections := range server.clients {
+	for _, connections := range server.client {
 		for _, conn := range connections {
 			conn.Online <- &OnlineUsers{
 				Type: "online",

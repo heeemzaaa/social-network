@@ -12,7 +12,7 @@ type Message struct {
 
 type MessageErr struct {
 	Content    string `json:"content"`
-	ReceiverID string `json:"receiver_id"`
+	TargetID string `json:"receiver_id"`
 	Type       string `json:"type"`
 	CreatedAt  string `json:"created_at"`
 }

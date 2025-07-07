@@ -13,7 +13,8 @@ import (
 
 type ChatServer struct {
 	service  *chat.ChatService
-	clients  ClientList
+	client  ClientList
+	members GroupMembers
 	upgrader websocket.Upgrader
 	sync.RWMutex
 }
@@ -22,7 +23,8 @@ type ChatServer struct {
 func NewChatServer(service *chat.ChatService) *ChatServer {
 	return &ChatServer{
 		service: service,
-		clients: make(ClientList),
+		client: make(ClientList),
+		members: make(GroupMembers),
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -34,10 +36,10 @@ func (server *ChatServer) ChatServerHandler(w http.ResponseWriter, r *http.Reque
 	connection, err := server.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		if isHandshakeError(err) {
-			h.WriteJsonErrors(w, *models.NewErrorJson(400, "ERROR!! There is something wrong with request Upgrade"))
+			h.WriteJsonErrors(w, *models.NewErrorJson(400, "", "ERROR!! There is something wrong with request Upgrade"))
 			return
 		}
-		h.WriteJsonErrors(w, *models.NewErrorJson(500, "ERROR!! Internal Server Error"))
+		h.WriteJsonErrors(w, *models.NewErrorJson(500, "", "ERROR!! Internal Server Error"))
 		return
 	}
 	// Cookie is guaranteed by auth middleware; safe to ignore error here
@@ -61,7 +63,7 @@ func (server *ChatServer) ChatServerHandler(w http.ResponseWriter, r *http.Reque
 func (server *ChatServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodGet {
-		h.WriteJsonErrors(w, *models.NewErrorJson(405, "ERROR!! Method Not Allowed!"))
+		h.WriteJsonErrors(w, *models.NewErrorJson(405, "", "ERROR!! Method Not Allowed!"))
 		return
 	}
 	switch r.URL.Path {

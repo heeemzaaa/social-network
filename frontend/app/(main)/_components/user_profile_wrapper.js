@@ -5,7 +5,7 @@ import InfosDiv from "./user_info"
 import AboutUser from "./about_user"
 import { FaUserEdit, FaLockOpen, FaLock } from "react-icons/fa"
 import { RiUserFollowFill, RiUserUnfollowFill } from "react-icons/ri"
-import Button from "./button"
+import Button from "@/app/_components/button"
 
 export default function UserProfileWrapper({ params }) {
   const [userInfos, setUserInfos] = useState(null)

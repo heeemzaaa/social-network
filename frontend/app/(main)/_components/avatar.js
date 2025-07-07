@@ -1,10 +1,12 @@
 import Image from 'next/image'
 import React from 'react'
 
-export default function Avatar({path}) {
+export default function Avatar() {
+
+
   return (
-    <div className='avatar'>
-        <Image src={path}></Image>
+    <div className='avatar' style={{background:"url(/avatar.png)"}}>
+      {/* <img src={`/avatar.png`} /> */}
     </div>
   )
 }

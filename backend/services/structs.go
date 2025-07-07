@@ -10,3 +10,6 @@ type AppService struct {
 func NewAppService(repository *repository.AppRepository) *AppService {
 	return &AppService{repository: repository}
 }
+
+
+

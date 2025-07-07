@@ -1,3 +1,4 @@
+import { useState } from "react"
 import "./components.css"
 
 export default function InfosDiv({ userInfos, children }) {
@@ -91,6 +92,7 @@ export default function InfosDiv({ userInfos, children }) {
           <p className="font-bold">Groups</p><p>{userInfos.groups}</p>
         </div>
       </div>
-    </section>
+    </section> 
+    
   )
 }

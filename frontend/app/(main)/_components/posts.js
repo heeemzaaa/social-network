@@ -1,5 +1,4 @@
 
-
 export default function post() {
     return (
         <div className="postContainer flex">

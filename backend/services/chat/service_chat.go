@@ -4,6 +4,7 @@ import (
 	"social-network/backend/models"
 	"social-network/backend/repositories/chat"
 	"strings"
+	"time"
 )
 
 type ChatService struct {
@@ -27,7 +28,7 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 	trimmedMsg := strings.TrimSpace(message.Content)
 	type_message := strings.ToLower(strings.TrimSpace(message.Type))
 
-	if type_message != "message" && type_message != "read" {
+	if type_message != "message" && type_message != "group" {
 		errMessage.Type = "wrong type of message"
 	}
 
@@ -37,19 +38,20 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 	if len(trimmedMsg) > 1000 {
 		errMessage.Content = "message body too large!"
 	}
-	// hna I will need to check if the userID match with some of my users
-	// if username, _ := service.repo.GetUserNameById(message.TargetID); username == "" {
-	// 	errMessage.ReceiverID = "The receiver specified does dot exist!!"
-	// }
-
-	// if message.CreatedAt.IsZero() {
-	// 	errMessage.CreatedAt = "the date is not set up!"
-	// }
-
-	if errMessage.Content != "" || errMessage.ReceiverID != "" || errMessage.Type != "" || errMessage.CreatedAt != "" {
-		return nil, &models.ErrorJson{Status: 400, Message: errMessage}
+	//hna I will need to check if the userID match with some of my users
+	firstName, lastName, err := service.repo.GetFullNameById(message.TargetID)
+	if firstName == "" && lastName == "" {
+		errMessage.TargetID = "The receiver specified does dot exist!!"
+		return nil, err
 	}
 
+	
+	if errMessage.Content != "" || errMessage.TargetID != "" || errMessage.Type != "" {
+		return nil, &models.ErrorJson{Status: 400, Message: errMessage}
+	}
+	
+	message.CreatedAt = time.Now().String()
+	
 	// We can go on and insert the message in the database
 	switch strings.ToLower(message.Type) {
 	case "message":
@@ -59,23 +61,8 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 		}
 		message_created.Type = type_message
 		return message_created, nil
-	case "read":
-		service.EditReadStatus(message.SenderID, message.TargetID)
-		return message, nil
-	case "typing":
+	case "group":
 
 	}
-
-	// so in this case we only need to update the database (the message exists already)
-	// if message.Type == "read" {
-	// }
 	return nil, nil
-}
-
-// from the unread to the read status
-func (service *ChatService) EditReadStatus(sender_id, target_id string) *models.ErrorJson {
-	if err := service.repo.EditReadStatus(sender_id, target_id); err != nil {
-		return err
-	}
-	return nil
 }

@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"social-network/backend/models"
+
+	"github.com/google/uuid"
 )
 
 type ChatRepository struct {
@@ -28,17 +30,18 @@ func (repo *ChatRepository) GetSessionbyTokenEnsureAuth(token string) (*models.S
 
 func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message, *models.ErrorJson) {
 	message_created := &models.Message{}
-	query := `INSERT INTO messages (senderID,receiverID,message, createdAt) 
-	VALUES (?,?,?,?) RETURNING senderID ,receiverID ,message, createdAt;`
+	message.ID = uuid.New().String()
+	query := `INSERT INTO messages (id, sender_id,target_id, type, content, created_at) 
+	VALUES (?,?,?,?,?,?) RETURNING sender_id ,target_id ,content, created_at;`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, models.NewErrorJson(500, fmt.Sprintf("%v", err))
+		return nil, models.NewErrorJson(500, "", fmt.Sprintf("%v", err))
 	}
 	defer stmt.Close()
-	if err = stmt.QueryRow(message.SenderID, message.TargetID, message.Content, message.CreatedAt).Scan(
+	if err = stmt.QueryRow(message.ID, message.SenderID, message.TargetID,message.Type, message.Content, message.CreatedAt).Scan(
 		&message_created.SenderID, &message_created.TargetID,
 		&message_created.Content, &message_created.CreatedAt); err != nil {
-		return nil, models.NewErrorJson(500, fmt.Sprintf("%v 1", err))
+		return nil, models.NewErrorJson(500, "", fmt.Sprintf("%v 1", err))
 	}
 	return message_created, nil
 }
@@ -52,7 +55,7 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id string, offset int,
 	case 0:
 		query = `
 			SELECT
-				s.fisrtName, s.lastName AS sender,
+				s.firstName, s.lastName AS sender,
 				r.firstName, r.lastName AS receiver,
 				messages.content,
 				messages.created_at,
@@ -61,31 +64,31 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id string, offset int,
 				messages INNER JOIN users s
 				ON messages.sender_id = s.userID 
 				JOIN users r ON 
-				messages.receiverID = r.userID
+				messages.target_id = r.userID
 			WHERE
 				sender_id IN (?, ?)
-				AND receiverID IN (?, ?)
+				AND target_id IN (?, ?)
 			ORDER BY  messages.createdAt DESC
 			LIMIT
 				10;`
 	default:
 		query = `
 			SELECT
-				s.nickname AS sender,
-				r.nickname AS receiver,
-				messages.message,
-				messages.createdAt,
-				messages.messageID
+				s.firstName, s.lastName AS sender,
+				r.firstName, r.lastName AS receiver,
+				messages.id
+				messages.content,
+				messages.created_at,
 			FROM
 				messages INNER JOIN users s
-				ON messages.senderID = s.userID 
+				ON messages.sender_id = s.userID 
 				JOIN users r ON 
-				messages.receiverID = r.userID
+				messages.target_id = r.userID
 			WHERE
-				senderID IN (?, ?)
-				AND receiverID IN (?, ?)
-				AND messages.messageID < ?
-			ORDER BY  messages.createdAt DESC
+				sender_id IN (?, ?)
+				AND target_id IN (?, ?)
+				AND messages.id < ?
+			ORDER BY  messages.created_at DESC
 			LIMIT
 				10;`
 
@@ -108,18 +111,18 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id string, offset int,
 	return messages, nil
 }
 
-func (repo *ChatRepository) EditReadStatus(sender_id, target_id string) *models.ErrorJson {
-	query := `
-	UPDATE messages
-	SET
-		readStatus = 1
-	WHERE
-		senderID = ?
-		AND receiverID = ?
-	`
-	_, err := repo.db.Exec(query, target_id, sender_id)
+// here I will get the full name of the receiver
+func (repo *ChatRepository) GetFullNameById(targetID string) (string, string, *models.ErrorJson) {
+	var fisrtName, lastName string
+	
+	query := `SELECT firstName, lastName FROM users WHERE userID = ?`
+	err := repo.db.QueryRow(query, targetID).Scan(&fisrtName, &lastName)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return "", "", &models.ErrorJson{Status: 500, Error: "" , Message: fmt.Sprintf("%v", err)}
 	}
-	return nil
+	return fisrtName,lastName, nil
+}
+
+func (repo *ChatRepository) GetMembersOfGroup(groupID string) ([]string, *models.ErrorJson) {
+	return nil,nil
 }
