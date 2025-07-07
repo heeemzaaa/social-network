@@ -1,14 +1,17 @@
 package routes
 
 import (
+	"database/sql"
 	"net/http"
-	"social-network/backend/handlers/profile"
+	r "social-network/backend/repositories/profile"
+	s "social-network/backend/services/profile"
+	h "social-network/backend/handlers/profile"
 )
 
-func SetProfileRoutes(
-	ProfileHandler *profile.ProfileHandler,
-) *http.ServeMux {
-	mux := http.NewServeMux()
-	mux.Handle("/api/profile/{id}/", ProfileHandler)
+func SetProfileRoutes(mux *http.ServeMux, db *sql.DB) *http.ServeMux {
+	repo := r.NewProfileRepository(db)
+	service := s.NewProfileService(repo)
+	handler := h.NewProfileHandler(service)
+	mux.Handle("/api/profile/{id}/", handler)
 	return mux
 }

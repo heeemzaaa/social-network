@@ -74,7 +74,8 @@ export default function InfosDiv({ userInfos, children }) {
           <p><span className="font-bold">Last Name:</span> {userInfos.lastName}</p>
           <p><span className="font-bold">Email:</span> {userInfos.email}</p>
           <p><span className="font-bold">Date of Birth:</span> {userInfos.dateOfBirth}</p>
-          <p><span className="font-bold">Nickname:</span> {userInfos.nickname}</p>
+          {userInfos.nickname && <p><span className="font-bold">Nickname:</span> {userInfos.nickname}</p>}
+          
         </div>
       </div>
 

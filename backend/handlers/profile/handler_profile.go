@@ -203,7 +203,7 @@ func (PrHandler *ProfileHandler) UpdateProfileData(w http.ResponseWriter, r *htt
 // global handler
 func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
+	fmt.Println(r.URL.Path)
 	splittedPath := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	if len(splittedPath) < 3 {
 		h.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Path not found"})

@@ -19,6 +19,7 @@ func NewProfileService(repo *pr.ProfileRepository) *ProfileService {
 func (s *ProfileService) CheckProfileAccess(profileID string, autSessionID string) (bool, *models.ErrorJson) {
 	AuthUserID, err := s.repo.GetID(autSessionID)
 	if err != nil {
+		fmt.Println("hona")
 		return false, &models.ErrorJson{Status: 401, Message: fmt.Sprintf("%v", err)}
 	}
 
@@ -41,6 +42,7 @@ func (s *ProfileService) GetProfileData(profileID string, autSessionID string) (
 
 	AuthUserID, err := s.repo.GetID(autSessionID)
 	if err != nil {
+		fmt.Println("hamza")
 		return nil, &models.ErrorJson{Status: 401, Message: fmt.Sprintf("%v", err)}
 	}
 
@@ -110,6 +112,7 @@ func (s *ProfileService) Follow(userID string, authSessionID string) *models.Err
 
 	authUserID, err := s.repo.GetID(authSessionID)
 	if err != nil {
+		fmt.Println("ayoub")
 		return &models.ErrorJson{Status: 401, Message: fmt.Sprintf("%v", err)}
 	}
 
@@ -191,6 +194,7 @@ func (s *ProfileService) Unfollow(userID string, authSessionID string) *models.E
 
 	authUserID, err := s.repo.GetID(authSessionID)
 	if err != nil {
+		fmt.Println("youssef")
 		return &models.ErrorJson{Status: 401, Message: fmt.Sprintf("%v", err)}
 	}
 

@@ -16,11 +16,11 @@ func NewProfileRepository(db *sql.DB) *ProfileRepository {
 	return &ProfileRepository{db: db}
 }
 
-// here I will get the userID based based on the sessionID to pass it to other functions
-func (repo *ProfileRepository) GetID(sessionID string) (string, error) {
+// here I will get the userID based based on the sessionToken to pass it to other functions
+func (repo *ProfileRepository) GetID(sessionToken string) (string, error) {
 	var userID string
-	query := `SELECT userID from sessions WHERE sessionID = ?`
-	err := repo.db.QueryRow(query, sessionID).Scan(&userID)
+	query := `SELECT userID from sessions WHERE sessionToken = ?`
+	err := repo.db.QueryRow(query, sessionToken).Scan(&userID)
 	if err != nil {
 		log.Println("Error getting the userID from the database:", err)
 		return "", fmt.Errorf("error getting the userID from the database: %v", err)
@@ -47,6 +47,7 @@ func (repo *ProfileRepository) IsFollower(userID string, authUserID string) (boo
 
 // here I will check if the user have a private profile or a public one
 func (repo *ProfileRepository) Visibility(userID string) (string, error) {
+	fmt.Println(userID)
 	var visibility string
 	query := `SELECT visibility FROM users WHERE userID = ?`
 	err := repo.db.QueryRow(query, userID).Scan(&visibility)
@@ -228,7 +229,7 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 			LEFT JOIN posts p ON u.userID = p.userID
 			LEFT JOIN followers f ON u.userID = f.userID
 			LEFT JOIN followers fl ON u.userID = fl.followerID
-			LEFT JOIN groups g ON u.userID = g.userID
+			LEFT JOIN group_membership g ON u.userID = g.userID
 		WHERE u.userID = ?
 		GROUP BY u.userID
 	`
