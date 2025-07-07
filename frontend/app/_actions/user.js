@@ -23,9 +23,6 @@ export async function loginUser(prevState, formData) {
     try {
         const res = await fetch(`http://localhost:3000/api/auth/login`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
             body: JSON.stringify() // Send credentials
         });
 
@@ -34,7 +31,6 @@ export async function loginUser(prevState, formData) {
             state.error = data.error || "Login failed";
             return state;
         }
-
         // Assuming the backend returns a success message or token
         state.message = data.message || "Login successful";
         redirect("/"); // Redirect on success
@@ -45,9 +41,11 @@ export async function loginUser(prevState, formData) {
     }
 }
 
-export async function registerUser(prevState, formData) {
-    // console.log("inside the register server action: ", formData)
 
+export async function registerUser(prevState, formData) {
+    // validates form data
+    // handle the diffrent parts of the form ( one for the image file, and the other for user fields inputs)
+    // send formData to the register api and handle the response
     const state = {
         errors: {},
         error: null,
@@ -61,11 +59,13 @@ export async function registerUser(prevState, formData) {
     const birthdate = formData.get("birthdate")?.trim();
     const nickname = formData.get("nickname")?.trim() || null;
     const aboutMe = formData.get("aboutMe")?.trim() || null;
-    const avatar = formData.get("avatar") ;
+    const avatar = formData.get("avatar") || null;
+
+    console.log("this the user avatr: ", avatar)
 
     if (!email) {
         state.errors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
         state.errors.email = "Invalid email format";
     }
 
@@ -105,18 +105,20 @@ export async function registerUser(prevState, formData) {
             method: "POST",
             body: newFormData
         });
-
         const data = await res.json();
         if (!res.ok) {
-            state.error = data.error || "Login failed";
+            console.log("data", data)
+            let state = {
+                ...prevState,
+                error: data.error || "Registeration failed",
+                errors: data.errors || null
+            }
+            console.log("state", state)
             return state;
         }
         state.message = data.message || "register successful";
         redirect("/"); // Redirect on success
     } catch (error) {
-        if (error.message === "NEXT_REDIRECT") {
-            throw error;
-        }
         state.error = "An unexpected error occurred";
         return state;
     }

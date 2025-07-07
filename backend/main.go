@@ -16,11 +16,9 @@ func main() {
 		panic(err)
 	}
 
-	// just for testing
-	http.HandleFunc("/api/posts", middleware.CorsMiddleware(handlers.GetPostsHandler))
-
 	mux := routes.SetRoutes(db.Database)
+	mux.HandleFunc("/api/posts", handlers.GetPostsHandler)
 
 	fmt.Println("server is running in : http://localhost:8080")
-	http.ListenAndServe(":8080", mux)
+	http.ListenAndServe(":8080", middleware.NewCorsMiddlerware(mux))
 }
