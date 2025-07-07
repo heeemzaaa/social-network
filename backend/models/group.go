@@ -7,15 +7,15 @@ import (
 )
 
 type Group struct {
-	GroupId        uuid.UUID `json:"group_id"`
-	GroupCreatorId uuid.UUID `json:"group_creator_id"`
+	GroupId        uuid.UUID `json:"group_id,omitempty"`
+	GroupCreatorId uuid.UUID `json:"group_creator_id,omitempty"`
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
-	ImagePath      string    `json:"image_path"`
-	Image          string    `json:"image"`
-	Members        []User
-	Posts          []Post
-	Events         []Event
+	ImagePath      string    `json:"image_path,omitempty"`
+	Image          string    `json:"image,omitempty"`
+	Members        []User    `json:"members,omitempty"`
+	Posts          []Post    `json:"posts,omitempty"`
+	Events         []Event   `json:"events,omitempty"`
 }
 
 type Event struct {

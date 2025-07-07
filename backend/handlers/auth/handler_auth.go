@@ -155,7 +155,7 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	file, handler, err := r.FormFile("profile_img")
+	file, handler, err := r.FormFile("profile")
 	if err != nil {
 		// No file uploaded, set defaults for optional image
 		user.ProfileImage = ""

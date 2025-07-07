@@ -12,6 +12,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// for the one group only
+
 type GroupIDHanlder struct {
 	gservice *gservice.GroupService
 }
@@ -47,13 +49,20 @@ func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Reque
 		})
 		return
 	}
-   
-	gIdHanlder.gservice.GoinGroup(group_to_join , userID.String())
 
+	gIdHanlder.gservice.JoinGroup(group_to_join, userID.String())
 }
 
 // always get the groupInfo (general info like if the number of users and name and description)
 func (gIdHanlder *GroupIDHanlder) GetGroupInfo(w http.ResponseWriter, r *http.Request) {
+	userIDVal := r.Context().Value("userID")
+	userID, ok := userIDVal.(uuid.UUID)
+	if !ok {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		return
+	}
+	r.PathValue("groupd_id")
+	var groupDetails *models.Group
 
 }
 

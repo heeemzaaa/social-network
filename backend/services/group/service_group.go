@@ -4,7 +4,8 @@ import (
 	"social-network/backend/models"
 )
 
-func (gServicde *GroupService) GoinGroup(group *models.Group, userId string) {
+func (gService *GroupService) JoinGroup(group *models.Group, userId string) {
+	gService.grepo.JoinGroup(group , userId)
 }
 
 

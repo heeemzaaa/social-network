@@ -1,10 +1,10 @@
-{"firstname":"ayoub",
-"lastname":"nachti",
-"birthdate":"1990-08-15",
-"email":"ayoub@gamil.com",
+{"firstname":"oumayma",
+"lastname":"ljamila",
+"birthdate":"1999-09-05",
+"email":"oumayma@gmail.com",
 "password":"Pa$$w0rd",
-"nickname":"darkmethoss",
-"about_me":"i am ayoub and i am a fullstack developer"}
+"nickname":"jong-oum",
+"about_me":"i am oumayma and i am a fullstack developer"}
 
 
 

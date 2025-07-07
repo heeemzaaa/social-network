@@ -15,6 +15,12 @@ import (
 	"github.com/google/uuid"
 )
 
+
+// Not the latest version yet just zrbt 3liha 
+// need to come back at night
+
+
+
 type GroupHanlder struct {
 	gservice *gservice.GroupService
 }
@@ -52,7 +58,6 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 }
 
 func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("hnaaaa")
 	// userIDVal := r.Context().Value("userID")
 	// userID, ok := userIDVal.(uuid.UUID)
 	// if !ok {
@@ -80,20 +85,28 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 		})
 		return
 	}
+	// hard coded till ayoub finishes the context thing
 
-	groupCreatorId, errToUUID := uuid.FromBytes([]byte("25f9ba66-80aa-42c1-960d-c22e7757d91a"))
+	groupCreatorId, errToUUID := uuid.Parse("25f9ba66-80aa-42c1-960d-c22e7757d91a")
 	if errToUUID != nil {
-		fmt.Println("err", errToUUID)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", errToUUID)})
+		return
 	}
 	// handle the image encoding in the phase that comes before the adding process
-	path, errUploadImg := HanldeUploadImage(w, r, "group")
+	path, errUploadImg := HanldeUploadImage(r, "group")
 	if errUploadImg != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
 	}
-	fmt.Println("path", path)
 
 	group_to_create.GroupCreatorId = groupCreatorId
+	// handle the path if the path is empty
+	fmt.Println("path", path)
+	if path != "" {
+		group_to_create.ImagePath = path
+	} else {
+		path = "static/uploads/groups/default/default.jpg" // assign a default page of the groups
+	}
 	group, errJson := Ghandler.gservice.AddGroup(group_to_create)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
@@ -102,7 +115,7 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 	utils.WriteDataBack(w, group)
 }
 
-func HanldeUploadImage(w http.ResponseWriter, r *http.Request, fileName string) (string, *models.ErrorJson) {
+func HanldeUploadImage(r *http.Request, fileName string) (string, *models.ErrorJson) {
 	file, header, err := r.FormFile(fileName)
 	if err != nil {
 		if err == http.ErrMissingFile || err == io.EOF {
@@ -133,7 +146,6 @@ func HanldeUploadImage(w http.ResponseWriter, r *http.Request, fileName string) 
 
 func (Ghandler *GroupHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "appplication/json")
-	fmt.Println("inside the serveHttp func")
 	switch r.Method {
 	case http.MethodGet:
 		Ghandler.GetGroups(w, r)
