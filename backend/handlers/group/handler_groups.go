@@ -15,11 +15,8 @@ import (
 	"github.com/google/uuid"
 )
 
-
-// Not the latest version yet just zrbt 3liha 
+// Not the latest version yet just zrbt 3liha
 // need to come back at night
-
-
 
 type GroupHanlder struct {
 	gservice *gservice.GroupService
@@ -28,6 +25,9 @@ type GroupHanlder struct {
 func NewGroupHandler(service *gservice.GroupService) *GroupHanlder {
 	return &GroupHanlder{gservice: service}
 }
+
+
+
 
 func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) {
 	userIDVal := r.Context().Value("userID")
@@ -56,6 +56,9 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 }
+
+// tested
+// but needs the context to be there to test out other things
 
 func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	// userIDVal := r.Context().Value("userID")

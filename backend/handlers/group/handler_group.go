@@ -2,6 +2,7 @@ package group
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -50,20 +51,32 @@ func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	gIdHanlder.gservice.JoinGroup(group_to_join, userID.String())
+	if errJson := gIdHanlder.gservice.JoinGroup(group_to_join, userID.String()); errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		return
+	}
 }
 
 // always get the groupInfo (general info like if the number of users and name and description)
 func (gIdHanlder *GroupIDHanlder) GetGroupInfo(w http.ResponseWriter, r *http.Request) {
 	userIDVal := r.Context().Value("userID")
-	userID, ok := userIDVal.(uuid.UUID)
+	_, ok := userIDVal.(uuid.UUID)
 	if !ok {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}
-	r.PathValue("groupd_id")
-	var groupDetails *models.Group
+	groupId := r.PathValue("groupd_id")
 
+	groupDetails, errJson := gIdHanlder.gservice.GetGroupInfo(groupId)
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(groupDetails); err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)})
+		return
+	}
 }
 
 func (gIdHanlder *GroupIDHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {

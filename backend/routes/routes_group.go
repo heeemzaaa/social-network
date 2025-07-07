@@ -33,5 +33,5 @@ func SetGroupRoutes(mux *http.ServeMux, db *sql.DB) {
 	GroupHandler := group.NewGroupHandler(groupService)
 	GroupIDHandler := group.NewGroupIDHandler(groupService)
 	mux.Handle("/api/groups/", GroupHandler)
-	mux.Handle("/api/groups/{gr}", GroupIDHandler)
+	mux.Handle("/api/groups/{group_id}", GroupIDHandler)
 }
