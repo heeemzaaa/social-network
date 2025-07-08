@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"social-network/backend/handlers"
@@ -34,10 +33,8 @@ func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *m
 }
 
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("inside auth middlware")
 	path := r.URL.Path
 	session, err := m.GetAuthUserEnsureAuth(r)
-	fmt.Printf("session: %v\n", session)
 	if path == "/api/auth/login" || path == "/api/auth/register" {
 		if err == nil {
 			// Already has a session, prevent login/register again
