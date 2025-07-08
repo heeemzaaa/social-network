@@ -21,7 +21,7 @@ export async function loginUser(prevState, formData) {
     }
 
     try {
-        const res = await fetch(`http://localhost:3000/api/auth/login`, {
+        const res = await fetch(`http://localhost:8080/api/auth/login`, {
             method: "POST",
             body: JSON.stringify() // Send credentials
         });
@@ -35,7 +35,7 @@ export async function loginUser(prevState, formData) {
         state.message = data.message || "Login successful";
         redirect("/"); // Redirect on success
     } catch (error) {
-        console.log("asdfsdfasdfasfdasf")
+        console.error
         state.error = "An unexpected error occurred";
         return state;
     }
@@ -99,11 +99,11 @@ export async function registerUser(prevState, formData) {
         { firstname, lastname, birthdate, email, password, nickname, aboutMe }
     ))
     newFormData.append('profile_img', avatar)
-
     try {
-        const res = await fetch(`http://localhost:3000/api/auth/register`, {
+        const res = await fetch(`http://localhost:8080/api/auth/register`, {
             method: "POST",
-            body: newFormData
+            body: newFormData,
+            credentials: 'include'
         });
         const data = await res.json();
         if (!res.ok) {
@@ -117,9 +117,9 @@ export async function registerUser(prevState, formData) {
             return state;
         }
         state.message = data.message || "register successful";
-        redirect("/"); // Redirect on success
+        redirect('/')
     } catch (error) {
-        state.error = "An unexpected error occurred";
+        state.error = "An unexpected error occurred: " + error ;
         return state;
     }
 }

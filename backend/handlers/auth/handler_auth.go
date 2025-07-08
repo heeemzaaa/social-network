@@ -125,10 +125,11 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session",
-		Value:   session.Token,
-		Expires: session.ExpDate,
-		Path:    "/",
+		Name:     "session",
+		Value:    session.Token,
+		Expires:  session.ExpDate,
+		Path:     "/",
+		HttpOnly: true,
 	})
 
 	handlers.WriteDataBack(w, "user logged in successfuly")
@@ -189,11 +190,15 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	fmt.Printf("waaaaaaaaaaaaaaaaaaa session: %v\n", session)
+
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session",
-		Value:   session.Token,
-		Expires: session.ExpDate,
-		Path:    "/",
+		Name:     "session",
+		Value:    session.Token,
+		Expires:  session.ExpDate,
+		SameSite: http.SameSiteNoneMode,
+		HttpOnly: true,
+		Path:     "/",
 	})
 
 	handlers.WriteDataBack(w, "User registered seccussfully")
@@ -212,11 +217,12 @@ func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session",
-		Value:   "",
-		MaxAge:  -1,
-		Expires: time.Unix(0, 0),
-		Path:    "/",
+		Name:     "session",
+		Value:    "",
+		MaxAge:   -1,
+		Expires:  time.Unix(0, 0),
+		Path:     "/",
+		HttpOnly: true,
 	})
 
 	w.WriteHeader(http.StatusNoContent)
