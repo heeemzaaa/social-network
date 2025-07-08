@@ -14,7 +14,6 @@ import (
 type ChatServer struct {
 	service  *chat.ChatService
 	client  ClientList
-	members GroupMembers
 	upgrader websocket.Upgrader
 	sync.RWMutex
 }
@@ -24,7 +23,6 @@ func NewChatServer(service *chat.ChatService) *ChatServer {
 	return &ChatServer{
 		service: service,
 		client: make(ClientList),
-		members: make(GroupMembers),
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,

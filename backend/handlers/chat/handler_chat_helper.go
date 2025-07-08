@@ -20,15 +20,12 @@ type OnlineUsers struct {
 
 type Client struct {
 	session    *models.Session
-	userId     string
 	service    *chat.ChatService
 	connection *websocket.Conn
 	chatServer *ChatServer
 	Message    chan *models.Message
 	ErrorJson  chan *models.ErrorJson
 	Online     chan *OnlineUsers
-	FirstName  string
-	LastName   string
 }
 
 func NewClient(conn *websocket.Conn, server *ChatServer, session *models.Session) *Client {
@@ -40,15 +37,12 @@ func NewClient(conn *websocket.Conn, server *ChatServer, session *models.Session
 		Message:    make(chan *models.Message),
 		ErrorJson:  make(chan *models.ErrorJson),
 		Online:     make(chan *OnlineUsers),
-		userId:     session.UserId,
-		FirstName:  session.FirstName,
-		LastName:   session.LastName,
 	}
 }
 
 func (server *ChatServer) AddClient(client *Client) {
 	server.Lock()
-	server.client[client.userId] = append(server.client[client.userId], client)
+	server.client[client.session.UserId] = append(server.client[client.session.UserId], client)
 	server.Unlock()
 }
 
@@ -57,19 +51,19 @@ func (server *ChatServer) RemoveClient(client *Client, logged_out bool) {
 	defer server.Unlock()
 	switch logged_out {
 	case true:
-		if connections, ok := server.client[client.userId]; ok {
+		if connections, ok := server.client[client.session.UserId]; ok {
 			for _, conn := range connections {
 				conn.connection.Close()
 			}
-			deleteConnection(server.client, client.userId, client)
+			deleteConnection(server.client, client.session.UserId, client)
 			go server.BroadCastOnlineStatus()
 		}
-		delete(server.client, client.userId)
+		delete(server.client, client.session.UserId)
 		go server.BroadCastOnlineStatus()
 	case false:
-		if _, ok := server.client[client.userId]; ok {
+		if _, ok := server.client[client.session.UserId]; ok {
 			client.connection.Close()
-			deleteConnection(server.client, client.userId, client)
+			deleteConnection(server.client, client.session.UserId, client)
 			go server.BroadCastOnlineStatus()
 		}
 	}
@@ -104,7 +98,7 @@ func (client *Client) ReadMessages() {
 			}
 		}
 
-		message.SenderID = client.userId
+		message.SenderID = client.session.UserId
 
 		message_validated, errJson := client.chatServer.service.ValidateMessage(message)
 		if errJson != nil {
@@ -113,7 +107,7 @@ func (client *Client) ReadMessages() {
 		}
 
 		client.Message <- message_validated
-		client.BroadCastThePrivateMessage(message_validated)
+		client.BroadCastTheMessage(message_validated)
 	}
 	defer client.chatServer.RemoveClient(client, logged_out)
 }
@@ -144,24 +138,45 @@ func (client *Client) WriteMessages() {
 }
 
 // broadcast the message in the case of private message
-func (sender *Client) BroadCastThePrivateMessage(message *models.Message) {
+func (user *Client) BroadCastTheMessage(message *models.Message) {
 	// broadcast to the connections dyal sender and the receiver
-	sender.chatServer.Lock()
-	defer sender.chatServer.Unlock()
+	user.chatServer.Lock()
+	defer user.chatServer.Unlock()
 
 	switch message.Type {
 	case "message":
-		for _, conn := range sender.chatServer.client[sender.userId] {
-			if conn.connection != sender.connection {
+		for _, conn := range user.chatServer.client[user.session.UserId] {
+			if conn.connection != user.connection {
 				conn.Message <- message
 			}
 		}
 		// dyal receiver
-		for _, value := range sender.chatServer.client[message.TargetID] {
+		for _, value := range user.chatServer.client[message.TargetID] {
 			value.Message <- message
 		}
 	case "group":
+		members , err :=  user.service.GetMembersOfGroup(message.TargetID)
+		if err != nil {
+			return
+		}
+		// seft l senders connections
+		for _, conn := range user.chatServer.client[user.session.UserId] {
+			if conn.connection != user.connection {
+				conn.Message <- message
+			}
+		}
 
+		// receivers hna
+		for _ , member := range members {
+			if member == message.SenderID {
+				continue
+			}
+			for _ , conn := range user.chatServer.client[member] {
+				if conn.connection != user.connection {
+					conn.Message <- message
+				}
+			}
+		}
 	}
 }
 
@@ -186,7 +201,7 @@ func (server *ChatServer) BroadCastOnlineStatus() {
 	online_users := []models.User{}
 	for _, connections := range server.client {
 		if len(connections) != 0 {
-			online_users = append(online_users, models.User{Id: connections[0].userId, FirstName: connections[0].FirstName, LastName: connections[0].LastName})
+			online_users = append(online_users, models.User{Id: connections[0].session.UserId, FirstName: connections[0].session.FirstName, LastName: connections[0].session.LastName})
 		}
 	}
 
