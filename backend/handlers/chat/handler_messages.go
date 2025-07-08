@@ -33,7 +33,7 @@ func (messages *MessagesHandler) GetMessages(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	exists , errJson := messages.service.CheckExistance(type_, target_id)
+	exists, errJson := messages.service.CheckExistance(type_, target_id)
 	if errJson != nil {
 		h.WriteJsonErrors(w, *errJson)
 		return
@@ -49,7 +49,7 @@ func (messages *MessagesHandler) GetMessages(w http.ResponseWriter, r *http.Requ
 		h.WriteJsonErrors(w, *errJson)
 		return
 	}
-	
+
 	mesages, errJson := messages.service.GetMessages(sender_id, target_id, offset, type_)
 	if errJson != nil {
 		h.WriteJsonErrors(w, *models.NewErrorJson(errJson.Status, "", errJson.Message))
@@ -64,11 +64,10 @@ func (messages *MessagesHandler) GetMessages(w http.ResponseWriter, r *http.Requ
 
 func (messages *MessagesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	switch r.Method {
-	case http.MethodGet:
-		messages.GetMessages(w, r)
-	default:
+
+	if r.Method != http.MethodGet {
 		h.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!!"})
 		return
 	}
+	messages.GetMessages(w, r)
 }

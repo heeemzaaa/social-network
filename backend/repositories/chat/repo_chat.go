@@ -16,7 +16,7 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 	return &ChatRepository{db: db}
 }
 
-// here I will get the session Id by the token given by the browser to check the auth 
+// here I will get the session Id by the token given by the browser to check the auth
 func (repo *ChatRepository) GetSessionbyTokenEnsureAuth(token string) (*models.Session, *models.ErrorJson) {
 	session := models.Session{}
 	query := `SELECT sessions.userID, sessions.sessionToken , sessions.expiresAt, users.firstName, users.lastName 
@@ -29,8 +29,20 @@ func (repo *ChatRepository) GetSessionbyTokenEnsureAuth(token string) (*models.S
 	return &session, nil
 }
 
+// get the userID from the session , we will need it also
+func (repo *ChatRepository) GetUserIdFromSession(sessionID string) (string, *models.ErrorJson) {
+	var userID string
+	query := `SELECT userID FROM sessions WHERE sessionToken = ?`
+	errQuery := repo.db.QueryRow(query, sessionID).Scan(&userID)
+	if errQuery != nil {
+		return "", &models.ErrorJson{Status: 500, Error: "", Message: fmt.Sprintf("%v", errQuery)}
+	}
+
+	return userID, nil
+}
+
 // add the message , I think in the case of inserting a message ,
-// I think the group and user here have the same logic 
+// I think the group and user here have the same logic
 // still need to check this
 func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message, *models.ErrorJson) {
 	message_created := &models.Message{}
@@ -157,17 +169,6 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id string, offset int,
 
 }
 
-// here I will get the full name of the receiver, check inside the case of private message
-func (repo *ChatRepository) GetFullNameById(targetID string) (string, string, *models.ErrorJson) {
-	var fisrtName, lastName string
-	query := `SELECT firstName, lastName FROM users WHERE userID = ?`
-	err := repo.db.QueryRow(query, targetID).Scan(&fisrtName, &lastName)
-	if err != nil {
-		return "", "", &models.ErrorJson{Status: 500, Error: "", Message: fmt.Sprintf("%v", err)}
-	}
-	return fisrtName, lastName, nil
-}
-
 // check if the id givven is a member inside the group givven
 func (repo *ChatRepository) IsMember(userID, groupID string) (bool, *models.ErrorJson) {
 	var exists bool
@@ -203,7 +204,6 @@ func (repo *ChatRepository) GetMembersOfGroup(groupID string) ([]string, *models
 	return users, nil
 }
 
-
 // check if the user exist, I will need this a lot hhh
 func (repo *ChatRepository) UserExists(userID string) (bool, *models.ErrorJson) {
 	var exists bool
@@ -228,14 +228,4 @@ func (repo *ChatRepository) GroupExists(groupID string) (bool, *models.ErrorJson
 	return exists, nil
 }
 
-// get the userID from the session , we will need it also
-func (repo *ChatRepository) GetUserIdFromSession(sessionID string) (string, *models.ErrorJson) {
-	var userID string
-	query := `SELECT userID FROM sessions WHERE sessionToken = ?`
-	errQuery := repo.db.QueryRow(query, sessionID).Scan(&userID)
-	if errQuery != nil {
-		return "", &models.ErrorJson{Status: 500, Error: "", Message: fmt.Sprintf("%v", errQuery)}
-	}
 
-	return userID, nil
-}

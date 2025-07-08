@@ -37,6 +37,7 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 	if trimmedMsg == "" {
 		errMessage.Content = "empty message Body"
 	}
+
 	if len(trimmedMsg) > 1000 {
 		errMessage.Content = "message body too large!"
 	}
@@ -113,6 +114,7 @@ func (service *ChatService) UserExists(targetID string) (bool, *models.ErrorJson
 	return exists, nil
 }
 
+// check if the group exist or not , to procced
 func (service *ChatService) GroupExists(targetID string) (bool, *models.ErrorJson) {
 	exists, err := service.repo.GroupExists(targetID)
 	if err != nil {
@@ -145,6 +147,7 @@ func (service *ChatService) GetUserIdFromSession(r *http.Request) (string, *mode
 	return userID, nil
 }
 
+// check the existance of the target whether its a groupID or userID
 func (service *ChatService) CheckExistance(type_, target_id string) (bool, *models.ErrorJson) {
 	switch type_ {
 	case "private":
