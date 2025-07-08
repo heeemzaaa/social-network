@@ -65,6 +65,7 @@ func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("inside is logged in handler")
 	islogged := &models.IsLoggedIn{}
 	if r.Method != http.MethodGet {
 		handlers.WriteJsonErrors(w, *models.NewErrorJson(405, "Method Not Allowed", nil))
