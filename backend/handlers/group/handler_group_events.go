@@ -25,7 +25,7 @@ func NewGroupEventHandler(service *gservice.GroupService) *GroupEventHandler {
 
 func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *http.Request) {
 }
-
+// we'll be working with exists to check if a user is member before proceeding in any action!!
 func (gEventHandler *GroupEventHandler) GetGroupEvents(w http.ResponseWriter, r *http.Request) {
 	userIDVal := r.Context().Value("userID")
 	userID, errParse := uuid.Parse(userIDVal.(string))

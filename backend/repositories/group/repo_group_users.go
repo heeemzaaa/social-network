@@ -6,15 +6,20 @@ import (
 	"social-network/backend/models"
 )
 
+// SELECT EXISTS(SELECT 1 FROM users WHERE userID = ?);
 func (gRepo *GroupRepository) IsMemberGroup(groupId, userId string) (bool, *models.ErrorJson) {
+	var exists bool
 	query := ` 
-		SELECT 1 FROM  group_membership
-		WHERE groupID = ? AND userID = ?;
+		SELECT EXISTS(SELECT 1 FROM  group_membership
+		WHERE groupID = ? AND userID = ?);
      `
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
 		return false, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()
-	err = stmt.QueryRow(groupId, userId).Scan()
+	if err = stmt.QueryRow(groupId, userId).Scan(&exists); err != nil {
+		return false, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
+	}
+	return exists, nil
 }
