@@ -27,12 +27,13 @@ func NewGroupIDHandler(service *gservice.GroupService) *GroupIDHanlder {
 
 // if the user has already joined the group : unauthorized important case
 func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Request) {
-	// userIDVal := r.Context().Value("userID")
-	// userID, ok := userIDVal.(uuid.UUID)
-	// if !ok {
-	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
-	// 	return
-	// }
+	userIDVal := r.Context().Value("userID")
+	fmt.Println("userId", userIDVal)
+	userID, ok := userIDVal.(uuid.UUID)
+	if !ok {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		return
+	}
 	var group_to_join *models.Group
 	err := json.NewDecoder(r.Body).Decode(&group_to_join)
 	if err != nil {
@@ -53,7 +54,7 @@ func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if errJson := gIdHanlder.gservice.JoinGroup(group_to_join, "c95e60d2-3a86-4ec8-8120-8c9f85fbc172"); errJson != nil {
+	if errJson := gIdHanlder.gservice.JoinGroup(group_to_join, userID.String()); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
 	}
@@ -67,7 +68,7 @@ func (gIdHanlder *GroupIDHanlder) GetGroupInfo(w http.ResponseWriter, r *http.Re
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}
-	groupId := r.PathValue("groupd_id")
+	groupId := r.PathValue("group_id")
 
 	groupDetails, errJson := gIdHanlder.gservice.GetGroupInfo(groupId)
 	if errJson != nil {
@@ -83,7 +84,6 @@ func (gIdHanlder *GroupIDHanlder) GetGroupInfo(w http.ResponseWriter, r *http.Re
 
 func (gIdHanlder *GroupIDHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Println("hnaaaa inside the group id handler!!!!")
 	switch r.Method {
 	case http.MethodGet:
 		gIdHanlder.GetGroupInfo(w, r)

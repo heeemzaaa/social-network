@@ -1,19 +1,19 @@
 package group
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
 	"social-network/backend/utils"
+
+	"github.com/google/uuid"
 )
-
-
 
 /***   /api/groups/{group_id}/events/    ***/
 // here we'll be also querying if the user logged in is interested or not in the event!!!
-
-
 
 type GroupEventHandler struct {
 	gservice *gservice.GroupService
@@ -27,6 +27,19 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 }
 
 func (gEventHandler *GroupEventHandler) GetGroupEvents(w http.ResponseWriter, r *http.Request) {
+	userIDVal := r.Context().Value("userID")
+	userID, errParse := uuid.Parse(userIDVal.(string))
+	if errParse != nil {
+		fmt.Println("errors", errParse)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		return
+	}
+	offset, errOffset := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
+	if errOffset != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect Offset Format!"})
+		return
+	}
+
 }
 
 func (gEventHandler *GroupEventHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

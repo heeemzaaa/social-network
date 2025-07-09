@@ -53,7 +53,6 @@ func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if path != "/api/auth/islogged" {
-			fmt.Println("heeeee")
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found."})
 			return
 		}
@@ -65,7 +64,6 @@ func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("inside is logged in handler")
 	islogged := &models.IsLoggedIn{}
 	if r.Method != http.MethodGet {
 		utils.WriteJsonErrors(w, *models.NewErrorJson(405, "Method Not Allowed", nil))
@@ -105,7 +103,7 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v 1", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v 123", err)})
 		return
 	}
 
@@ -190,7 +188,6 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	fmt.Printf("waaaaaaaaaaaaaaaaaaa session: %v\n", session)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session",

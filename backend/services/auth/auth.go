@@ -105,8 +105,6 @@ func (s *AuthService) Register(user *models.User, file multipart.File) *models.E
 }
 
 func (s *AuthService) validateUserData(user *models.User, file multipart.File) *models.ErrorJson {
-	fmt.Println("inside the user data validation function :| ")
-
 	userErrorJson := models.User{}
 
 	if user.FirstName == "" {
