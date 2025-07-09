@@ -65,6 +65,7 @@ func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("inside is logged in handler")
 	islogged := &models.IsLoggedIn{}
 	if r.Method != http.MethodGet {
 		utils.WriteJsonErrors(w, *models.NewErrorJson(405, "Method Not Allowed", nil))
@@ -124,10 +125,11 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session",
-		Value:   session.Token,
-		Expires: session.ExpDate,
-		Path:    "/",
+		Name:     "session",
+		Value:    session.Token,
+		Expires:  session.ExpDate,
+		Path:     "/",
+		HttpOnly: true,
 	})
 
 	utils.WriteDataBack(w, "user logged in successfuly")
@@ -135,7 +137,6 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 
 func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request) {
 	user := models.NewUser()
-
 	data := r.FormValue("data")
 	err := json.Unmarshal([]byte(data), &user)
 	if err != nil {
@@ -157,12 +158,15 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 
 	file, handler, err := r.FormFile("profile")
 	if err != nil {
-		// No file uploaded, set defaults for optional image
-		user.ProfileImage = ""
-		user.ProfileImgSize = 0
+		if err == http.ErrMissingFile {
+			fmt.Println("No file uploaded, set defaults for optional image", file)
+			user.ProfileImage = ""
+			user.ProfileImgSize = 0
+		}
 	} else {
 		user.ProfileImage = handler.Filename
 		user.ProfileImgSize = handler.Size
+		fmt.Println("file headers", handler.Header)
 		defer file.Close()
 	}
 
@@ -186,11 +190,15 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	fmt.Printf("waaaaaaaaaaaaaaaaaaa session: %v\n", session)
+
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session",
-		Value:   session.Token,
-		Expires: session.ExpDate,
-		Path:    "/",
+		Name:     "session",
+		Value:    session.Token,
+		Expires:  session.ExpDate,
+		SameSite: http.SameSiteNoneMode,
+		HttpOnly: true,
+		Path:     "/",
 	})
 
 	utils.WriteDataBack(w, "User registered seccussfully")
@@ -209,11 +217,12 @@ func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session",
-		Value:   "",
-		MaxAge:  -1,
-		Expires: time.Unix(0, 0),
-		Path:    "/",
+		Name:     "session",
+		Value:    "",
+		MaxAge:   -1,
+		Expires:  time.Unix(0, 0),
+		Path:     "/",
+		HttpOnly: true,
 	})
 
 	w.WriteHeader(http.StatusNoContent)

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"mime/multipart"
 	"os"
-	"reflect"
 	"strings"
 	"time"
 
@@ -69,10 +68,10 @@ func (s *AuthService) Logout(session *models.Session) *models.ErrorJson {
 }
 
 func (s *AuthService) Register(user *models.User, file multipart.File) *models.ErrorJson {
-	fmt.Printf("user: %v\n", user)
+	fmt.Printf("inside the register service.\n user: %v\n file: %v\n", user, file)
 
 	// data validation
-	jsonError := s.validateUserData(user)
+	jsonError := s.validateUserData(user, file)
 	if jsonError != nil {
 		return jsonError
 	}
@@ -80,8 +79,7 @@ func (s *AuthService) Register(user *models.User, file multipart.File) *models.E
 	user.Id = uuid.New()
 	// Image handling:
 	if user.ProfileImage != "" {
-		ImgName := user.Id.String()+ "." + strings.Split(user.ProfileImage, ".")[1]
-
+		ImgName := user.Id.String() + "." + strings.Split(user.ProfileImage, ".")[1]
 		imgPath, err := services.UploadImage(file, ImgName)
 		if err != nil {
 			return models.NewErrorJson(500, "Error saving profile image", nil)
@@ -106,7 +104,7 @@ func (s *AuthService) Register(user *models.User, file multipart.File) *models.E
 	return nil
 }
 
-func (s *AuthService) validateUserData(user *models.User) *models.ErrorJson {
+func (s *AuthService) validateUserData(user *models.User, file multipart.File) *models.ErrorJson {
 	fmt.Println("inside the user data validation function :| ")
 
 	userErrorJson := models.User{}
@@ -130,10 +128,12 @@ func (s *AuthService) validateUserData(user *models.User) *models.ErrorJson {
 	// optianal user data
 	userErrorJson.Nickname = s.isValidNickname(user.Nickname)
 	userErrorJson.AboutMe = isValidAboutme(user.AboutMe)
-	userErrorJson.ProfileImage = isValidImg(user.ProfileImage, user.ProfileImgSize)
+	if file != nil {
+		fmt.Println("there is a file")
+		userErrorJson.ProfileImage = isValidImg(file)
+	}
 
-	// Add more validation as needed (e.g., email format, password strength)
-	if !reflect.DeepEqual(userErrorJson, models.User{}) {
+	if userErrorJson != (models.User{}) {
 		return &models.ErrorJson{Status: 400, Message: userErrorJson}
 	}
 
