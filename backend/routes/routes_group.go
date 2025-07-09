@@ -11,10 +11,10 @@ import (
 
 // ##### routes i have to implement to all the users #####
 // POST /groups/  create a group done
-// GET /groups?filter=owned   done 
-// GET  /groups?filter=availabe done 
-// GET /groups?filter=joined done 
-// POST /groups/{id}   join a specific group done 
+// GET /groups?filter=owned   done
+// GET  /groups?filter=availabe done
+// GET /groups?filter=joined done
+// POST /groups/{id}   join a specific group done
 // GET /groups/{id}  get the general info of a specific group (title description and so on )
 //  ##### routes i have to implement to all the user who is a member of a specific group  #####
 // GET /groups/{id}/posts  (get the posts of a specific group)
@@ -26,12 +26,23 @@ import (
 // GET /groups/{id}/posts/{post_id}/comments (get the comments of a specific post of specific group)
 // POST /groups/{id}/posts/{post_id}/comments  (add a comment to a specific post of a specific group)
 /***********************************************************/
+// GET /api/groups/{group_id}/events/{event-id}/  (get the details of a specific event of a specific group)
+// POST /api/groups/{group_id}/events/{event-id}/ (add a event to a specific group)
+/**********************************************************/
 
 func SetGroupRoutes(mux *http.ServeMux, db *sql.DB) {
 	groupRepo := gRepo.NewGroupRepository(db)
 	groupService := gService.NewGroupService(groupRepo)
 	GroupHandler := group.NewGroupHandler(groupService)
 	GroupIDHandler := group.NewGroupIDHandler(groupService)
+	GroupEventHandler := group.NewGroupEventHandler(groupService)
+	GroupPostHandler := group.NewGroupPostHandler(groupService)
+	GroupCommentHandler := group.NewGroupCommentHandler(groupService)
+	GroupEventIDHandler := group.NewGroupEventIDHandler(groupService)
+	mux.Handle("/api/groups/{group_id}/events/{event-id}/", GroupEventIDHandler)
+	mux.Handle("/api/groups/{group_id}/posts/{post_id}/comments/", GroupCommentHandler)
+	mux.Handle("/api/groups/{group_id}/posts/", GroupPostHandler)
+	mux.Handle("/api/groups/{group_id}/events/", GroupEventHandler)
 	mux.Handle("/api/groups/{group_id}/", GroupIDHandler)
 	mux.Handle("/api/groups/", GroupHandler)
 }

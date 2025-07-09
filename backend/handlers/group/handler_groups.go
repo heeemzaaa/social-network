@@ -18,6 +18,10 @@ import (
 // Not the latest version yet just zrbt 3liha
 // need to come back at night
 
+
+/***   /api/groups/   ***/
+
+
 type GroupHanlder struct {
 	gservice *gservice.GroupService
 }

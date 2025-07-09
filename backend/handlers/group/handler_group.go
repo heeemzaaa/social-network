@@ -15,6 +15,8 @@ import (
 
 // for the one group only
 
+/***  /api/groups/{group_id}/   ***/
+
 type GroupIDHanlder struct {
 	gservice *gservice.GroupService
 }
