@@ -112,7 +112,6 @@ func isValidAboutme(aboutme string) string {
 }
 
 func isValidImg(file multipart.File) string {
-	fmt.Println("=======> validate image.")
 	const maxImgSize = 3 << 20
 
 	// Read up to 512 bytes for MIME detection
@@ -157,7 +156,11 @@ func HashPassword(password string) (string, error) {
 }
 
 func CheckPasswordHash(password, hash string) bool {
+	fmt.Printf("error here: \npassword = %v \nhash = %v\n", password, hash)
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	if err != nil {
+		fmt.Println("error comparing the password and the hash", err)
+	}
 	return err == nil
 }
 

@@ -17,9 +17,7 @@ export default function RootLayout({ children }) {
         console.log("Outside Clicked. ");
       }
     };
-
     window.addEventListener("mousedown", handleOutSideClick);
-
     return () => {
       window.removeEventListener("mousedown", handleOutSideClick);
     };
@@ -27,7 +25,7 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en" className={geist.className}>
-      <body  ref={ref}>
+      <body ref={ref}>
         {children}
       </body>
     </html>

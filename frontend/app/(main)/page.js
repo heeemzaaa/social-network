@@ -6,6 +6,7 @@ import PostsContainer from "./_components/posts/posts_container";
 import { useEffect, useState } from "react";
 import Loading from "./loading";
 import { fetchPosts } from "./_lib/posts";
+import { resolve } from "styled-jsx/css";
 
 export default function Home() {
   const userInfos = {
@@ -40,15 +41,13 @@ export default function Home() {
   useEffect( () => {
     console.log("use Effect runs");
     let LoadPosts = async () => {
-      let data = await fetchPosts()
-      setPosts(data)
+      let posts = await fetchPosts() 
+      console.log(posts)
+      setPosts(posts)
       setLoading(false)
     }
     LoadPosts()
   }, []);
-
-
-
 
   return (
     <main className='home-page'>
