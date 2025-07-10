@@ -8,16 +8,8 @@ export async function POST(request) {
             },
             body: JSON.stringify(requestBody) // Forward the request body
         });
-        if (!res.ok) {
-            throw new Error(`API request failed with status ${res.status}`);
-        }
-        const data = await res.json();
-        return Response.json(data);
+        return res
     } catch (error) {
-        console.error("Error in API route:", error.message);
-        return Response.json(
-            { error: error.message },
-            { status: error.status || 500 }
-        );
+        console.error("Error in login API route:", error.message);
     }
 }

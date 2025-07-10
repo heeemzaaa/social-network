@@ -4,6 +4,8 @@ import { HiMiniUser, HiLockClosed } from "react-icons/hi2";
 import { loginUser } from '@/app/_actions/user';
 import { useActionState, useState } from "react";
 import SubmitButton from "@/app/_components/subimtButton";
+import { redirect } from "next/navigation"
+
 
 export default function LoginForm() {
     const [state, action] = useActionState(loginUser, {});
@@ -11,6 +13,8 @@ export default function LoginForm() {
         login: "",
         password: ""
     })
+
+    if (state.message) redirect("/")
 
     return (
         <form action={action} className={`${styles.form} glass-bg`}>

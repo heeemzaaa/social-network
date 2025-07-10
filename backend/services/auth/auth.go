@@ -32,16 +32,16 @@ func (s *AuthService) IsLoggedInUser(token string) (*models.IsLoggedIn, *models.
 }
 
 func (s *AuthService) Login(login *models.Login) (*models.User, *models.ErrorJson) {
-	LoginERR := models.Login{}
+	loginErr := models.Login{}
 
 	if strings.TrimSpace(login.LoginField) == "" {
-		LoginERR.LoginField = "empty login field!"
+		loginErr.LoginField = "empty login field!"
 	}
 	if strings.TrimSpace(login.Password) == "" {
-		LoginERR.Password = "empty password field!"
+		loginErr.Password = "empty password field!"
 	}
-	if LoginERR != (models.Login{}) {
-		return nil, &models.ErrorJson{Status: 400, Message: LoginERR}
+	if loginErr != (models.Login{}) {
+		return nil, &models.ErrorJson{Status: 400, Message: loginErr}
 	}
 
 	user, err := s.repo.GetUser(login)
@@ -50,9 +50,11 @@ func (s *AuthService) Login(login *models.Login) (*models.User, *models.ErrorJso
 		case 401:
 			return nil, err
 		default:
-			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("asfdasdf %v", err)}
+			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("asfdasdf %v", err)}
 		}
 	}
+
+	fmt.Printf("User: %v\n Login: %v\n", user, login)
 
 	if !CheckPasswordHash(login.Password, user.Password) {
 		return nil, models.NewErrorJson(401, "Invalid login credentials.", nil)
@@ -68,7 +70,7 @@ func (s *AuthService) Logout(session *models.Session) *models.ErrorJson {
 }
 
 func (s *AuthService) Register(user *models.User, file multipart.File) *models.ErrorJson {
-	fmt.Printf("inside the register service.\n user: %v\n file: %v\n", user, file)
+	fmt.Printf("===> Inside the register service.\n - user: %v\n - file: %v\n", user, file)
 
 	// data validation
 	jsonError := s.validateUserData(user, file)
@@ -105,8 +107,6 @@ func (s *AuthService) Register(user *models.User, file multipart.File) *models.E
 }
 
 func (s *AuthService) validateUserData(user *models.User, file multipart.File) *models.ErrorJson {
-	fmt.Println("inside the user data validation function :| ")
-
 	userErrorJson := models.User{}
 
 	if user.FirstName == "" {
@@ -129,7 +129,6 @@ func (s *AuthService) validateUserData(user *models.User, file multipart.File) *
 	userErrorJson.Nickname = s.isValidNickname(user.Nickname)
 	userErrorJson.AboutMe = isValidAboutme(user.AboutMe)
 	if file != nil {
-		fmt.Println("there is a file")
 		userErrorJson.ProfileImage = isValidImg(file)
 	}
 

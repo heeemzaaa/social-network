@@ -22,7 +22,7 @@ func NewMiddleWare(handler http.Handler, service *auth.AuthService) *Middleware 
 func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *models.ErrorJson) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 401, Message: "ERROR!! Unauthorized Access"}
+		return nil, &models.ErrorJson{Status: 401, Error: "Unauthorized Access"}
 	}
 	// check if the value of the cookie is correct and if not expired!!!
 	session, errJson := m.service.GetSessionByTokenEnsureAuth(cookie.Value)

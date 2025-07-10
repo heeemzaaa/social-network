@@ -54,6 +54,7 @@ func (repo *AuthRepository) DeleteSession(session models.Session) *models.ErrorJ
 }
 
 func (repo *AuthRepository) GetUser(login *models.Login) (*models.User, *models.ErrorJson) {
+	fmt.Printf("login: %v\n", login)
 	user := models.NewUser()
 	query := `SELECT userID, nickname, password 
 	FROM users where nickname=? OR email = ? `
@@ -67,10 +68,7 @@ func (repo *AuthRepository) GetUser(login *models.Login) (*models.User, *models.
 	if err == sql.ErrNoRows {
 		return nil, &models.ErrorJson{
 			Status: 401,
-			Message: models.Login{
-				LoginField: "invalid login credentials!",
-				Password:   "invalid login credentials!",
-			},
+			Error:  "invalid credentials!",
 		}
 	}
 	return user, nil
