@@ -34,10 +34,7 @@ func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *m
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 2", err)}
 	}
-	// group.GroupId, err := uuid.Parse(groupID)
-	// if err!= nil {
 
-	// }
 	group.GroupId = &groupID
 	if errJson := repo.JoinGroup(group, group.GroupCreatorId.String()); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}

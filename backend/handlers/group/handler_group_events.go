@@ -1,6 +1,7 @@
 package group
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -24,9 +25,21 @@ func NewGroupEventHandler(service *gservice.GroupService) *GroupEventHandler {
 }
 
 func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *http.Request) {
+	groupId := r.PathValue("group_id")
+	userIDVal := r.Context().Value("userID")
+	userID, errParse := uuid.Parse(userIDVal.(string))
+	if errParse != nil {
+		fmt.Println("errors", errParse)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		return
+	}
+
+	
 }
+
 // we'll be working with exists to check if a user is member before proceeding in any action!!
 func (gEventHandler *GroupEventHandler) GetGroupEvents(w http.ResponseWriter, r *http.Request) {
+	groupId := r.PathValue("group_id")
 	userIDVal := r.Context().Value("userID")
 	userID, errParse := uuid.Parse(userIDVal.(string))
 	if errParse != nil {
@@ -40,6 +53,16 @@ func (gEventHandler *GroupEventHandler) GetGroupEvents(w http.ResponseWriter, r 
 		return
 	}
 
+	events, errJson := gEventHandler.gservice.GetGroupEvents(groupId, userID.String(), offset)
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(events); err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)})
+		return
+	}
 }
 
 func (gEventHandler *GroupEventHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

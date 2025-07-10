@@ -20,12 +20,6 @@ func (gServicde *GroupService) AddGroup(group *models.Group) (*models.Group, *mo
 	errGroup := models.ErrGroup{}
 	trimmedTitle := strings.TrimSpace(group.Title)
 	trimmedDesc := strings.TrimSpace(group.Description)
-	if trimmedTitle == "" {
-		errGroup.Title = "empty title field"
-	}
-	if trimmedDesc == "" {
-		errGroup.Title = "empty description field"
-	}
 	if err := utils.ValidateTitle(trimmedTitle); err != nil {
 		errGroup.Title = err.Error()
 	}
