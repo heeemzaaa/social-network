@@ -64,82 +64,55 @@ func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message
 
 // the one logged in trying to see the messages will not be got from the query
 // sender and receiver and the offset and limit als
-func (repo *ChatRepository) GetMessages(sender_id, target_id string, offset int, type_ string) ([]models.Message, *models.ErrorJson) {
+func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, type_ string) ([]models.Message, *models.ErrorJson) {
 	var messages []models.Message
 	var query string
 	var args []any
 
 	switch type_ {
 	case "private":
-		switch offset {
-		case 0:
-			query = `
+		query = `
 		SELECT
 			s.firstName || ' ' || s.lastName AS sender_name,
 			r.firstName || ' ' || r.lastName AS receiver_name,
-			messages.content,
-			messages.created_at,
-			messages.id
-		FROM messages
-		INNER JOIN users s ON messages.sender_id = s.userID
-		INNER JOIN users r ON messages.target_id = r.userID
-		WHERE messages.type = 'private' AND
-		      messages.sender_id IN (?, ?) AND
-		      messages.target_id IN (?, ?)
-		ORDER BY messages.created_at DESC
-		LIMIT 10;`
-			args = append(args, sender_id, target_id, sender_id, target_id)
+			m.content,
+			m.created_at,
+			m.id
+		FROM messages m
+		INNER JOIN users s ON m.sender_id = s.userID
+		INNER JOIN users r ON m.target_id = r.userID
+		WHERE m.type = 'private'
+		  AND m.sender_id IN (?, ?)
+		  AND m.target_id IN (?, ?)
+		`
+		args = append(args, sender_id, target_id, sender_id, target_id)
 
-		default:
-			query = `
-		SELECT
-			s.firstName || ' ' || s.lastName AS sender_name,
-			r.firstName || ' ' || r.lastName AS receiver_name,
-			messages.content,
-			messages.created_at,
-			messages.id
-		FROM messages
-		INNER JOIN users s ON messages.sender_id = s.userID
-		INNER JOIN users r ON messages.target_id = r.userID
-		WHERE messages.type = 'private' AND
-		      messages.sender_id IN (?, ?) AND
-		      messages.target_id IN (?, ?) AND
-		      messages.id < ?
-		ORDER BY messages.created_at DESC
-		LIMIT 10;`
-			args = append(args, sender_id, target_id, sender_id, target_id, offset)
+		if lastMessageTime != "" {
+			query += " AND m.created_at < ?"
+			args = append(args, lastMessageTime)
 		}
+
+		query += " ORDER BY m.created_at DESC LIMIT 10"
 
 	case "group":
-		switch offset {
-		case 0:
-			query = `
+		query = `
 		SELECT
 			s.firstName || ' ' || s.lastName AS sender_name,
-			messages.content,
-			messages.created_at,
-			messages.id
-		FROM messages
-		INNER JOIN users s ON messages.sender_id = s.userID
-		WHERE messages.type = 'group' AND messages.target_id = ?
-		ORDER BY messages.created_at DESC
-		LIMIT 10;`
-			args = append(args, target_id)
+			m.content,
+			m.created_at,
+			m.id
+		FROM messages m
+		INNER JOIN users s ON m.sender_id = s.userID
+		WHERE m.type = 'group' AND m.target_id = ?
+		`
+		args = append(args, target_id)
 
-		default:
-			query = `
-		SELECT
-			s.firstName || ' ' || s.lastName AS sender_name,
-			messages.content,
-			messages.created_at,
-			messages.id
-		FROM messages
-		INNER JOIN users s ON messages.sender_id = s.userID
-		WHERE messages.type = 'group' AND messages.target_id = ? AND messages.id < ?
-		ORDER BY messages.created_at DESC
-		LIMIT 10;`
-			args = append(args, target_id, offset)
+		if lastMessageTime != "" {
+			query += " AND m.created_at < ?"
+			args = append(args, lastMessageTime)
 		}
+
+		query += " ORDER BY m.created_at DESC LIMIT 10"
 	}
 
 	rows, err := repo.db.Query(query, args...)
@@ -150,13 +123,12 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id string, offset int,
 
 	for rows.Next() {
 		var message models.Message
-		switch type_ {
-		case "private":
+		if type_ == "private" {
 			err := rows.Scan(&message.SenderName, &message.ReceiverName, &message.Content, &message.CreatedAt, &message.ID)
 			if err != nil {
 				return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 			}
-		case "group":
+		} else {
 			err := rows.Scan(&message.SenderName, &message.Content, &message.CreatedAt, &message.ID)
 			if err != nil {
 				return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
@@ -166,7 +138,6 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id string, offset int,
 	}
 
 	return messages, nil
-
 }
 
 // check if the id givven is a member inside the group givven

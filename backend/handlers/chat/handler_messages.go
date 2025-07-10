@@ -7,7 +7,6 @@ import (
 	h "social-network/backend/handlers"
 	"social-network/backend/models"
 	"social-network/backend/services/chat"
-	"strconv"
 )
 
 type MessagesHandler struct {
@@ -20,11 +19,7 @@ func NewMessagesHandler(service *chat.ChatService) *MessagesHandler {
 
 // do we need to check the id of the receiver (if it exists in the database )
 func (messages *MessagesHandler) GetMessages(w http.ResponseWriter, r *http.Request) {
-	offset, errConvoff := strconv.Atoi(r.URL.Query().Get("offset"))
-	if errConvoff != nil {
-		h.WriteJsonErrors(w, *models.NewErrorJson(400, "", "Incorrect Format offset"))
-		return
-	}
+	lastMessageTime := r.URL.Query().Get("last")
 	target_id := r.URL.Query().Get("target_id")
 
 	type_ := r.URL.Query().Get("type")
@@ -50,7 +45,7 @@ func (messages *MessagesHandler) GetMessages(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	mesages, errJson := messages.service.GetMessages(sender_id, target_id, offset, type_)
+	mesages, errJson := messages.service.GetMessages(sender_id, target_id, lastMessageTime, type_)
 	if errJson != nil {
 		h.WriteJsonErrors(w, *models.NewErrorJson(errJson.Status, "", errJson.Message))
 		return

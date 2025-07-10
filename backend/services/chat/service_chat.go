@@ -97,8 +97,8 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 }
 
 // get the messages between specific users
-func (service *ChatService) GetMessages(sender_id, target_id string, offset int, type_ string) ([]models.Message, *models.ErrorJson) {
-	messages, errJson := service.repo.GetMessages(sender_id, target_id, offset, type_)
+func (service *ChatService) GetMessages(sender_id, target_id, lastMessageTime, type_ string) ([]models.Message, *models.ErrorJson) {
+	messages, errJson := service.repo.GetMessages(sender_id, target_id, lastMessageTime, type_)
 	if errJson != nil {
 		return nil, errJson
 	}
