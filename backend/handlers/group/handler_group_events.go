@@ -16,7 +16,7 @@ import (
 
 /***   /api/groups/{group_id}/events/    ***/
 // here we'll be also querying if the user logged in is interested or not in the event!!!
-
+// not tested yet 
 type GroupEventHandler struct {
 	gService *gservice.GroupService
 }

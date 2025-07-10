@@ -16,6 +16,7 @@ import (
 )
 
 /***    /api/groups/{group_id}/posts/    ***/
+// not tested yet
 
 type GroupPostHandler struct {
 	gService *gservice.GroupService
@@ -43,17 +44,16 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 
 	data := r.FormValue("data")
 	if err := json.Unmarshal([]byte(data), &post); err != nil {
-		if err != nil {
-			if err == io.EOF {
-				utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: &models.PostGroupErr{
-					Content: "empty Content field!",
-				}})
-				return
-			}
-			// which status code to return
-			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		if err == io.EOF {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: &models.PostGroupErr{
+				Content: "empty Content field!",
+			}})
 			return
 		}
+		// which status code to return
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		return
+
 	}
 
 	// handle the image encoding in the phase that comes before the adding process
@@ -62,7 +62,7 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
 	}
-	post.UserId, post.GroupId,post.ImagePath = &userID,&groupID ,path
+	post.UserId, post.GroupId, post.ImagePath = &userID, &groupID, path
 	// even if the userid is given wrong we insert the correct one
 	postCreated, err_ := gPostHandler.gService.AddPost(post)
 	if err_ != nil {

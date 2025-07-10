@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS group_posts (
     groupID TEXT NOT NULL,
     userID TEXT NOT NULL,
     content TEXT NOT NULL, 
-    imageContent TEXT,
+    imagePath TEXT,
     createdAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (groupID) REFERENCES groups(groupID),
     FOREIGN KEY (userID)  REFERENCES users(userID),

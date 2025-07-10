@@ -20,3 +20,12 @@
 "password":"Pa$$w0rd",
 "nickname":"fati-zahra",
 "about_me":"i am fatima and i am a fullstack developer"}
+
+
+
+
+// to do 
+
+1- finish all the routes  
+2- implement all the reactions 
+3- frontend 

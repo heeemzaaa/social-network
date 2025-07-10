@@ -5,17 +5,22 @@ import (
 	"fmt"
 
 	"social-network/backend/models"
+
+	"github.com/google/uuid"
 )
 
 func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGroup, *models.ErrorJson) {
 	post_created := &models.PostGroup{}
-	query := `INSERT INTO posts(userID, content) VALUES (?, ?, ?) RETURNING postID , content ,createdAt`
+	postId := uuid.New()
+	query := `INSERT INTO posts(postID, groupID, userID, content, imagePath) 
+	VALUES (?, ?, ?, ?, ?) 
+	RETURNING postID , content ,createdAt`
 	stmt, err := grepo.db.Prepare(query)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	err = stmt.QueryRow(post.UserId, post.Content).Scan(&post_created.Id,
+	err = stmt.QueryRow(postId, post.GroupId, post.UserId, post.Content, post.ImagePath).Scan(&post_created.Id,
 		&post_created.Content, &post_created.CreatedAt)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
@@ -27,16 +32,11 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
 // all the posts
 // add the offset and the limit after
 func (grepo *GroupRepository) GetPosts(user_id string, offset int) ([]models.PostGroup, *models.ErrorJson) {
-	var where string
-	if offset == 0 {
-		where = ""
-	} else {
-		where = `WHERE posts.postID < ?`
-	}
 
 	var posts []models.PostGroup
-
-	query := fmt.Sprintf(`
+    // query needs an update because the reactions table does not exist 
+	// also the tables names are not correct 
+	query := `
 	with
     cte_likes as (
         select
@@ -75,11 +75,11 @@ func (grepo *GroupRepository) GetPosts(user_id string, offset int) ([]models.Pos
 		LEFT JOIN cte_comments ON cte_comments.postID = posts.postID
 		LEFT JOIN reactions ON reactions.entityID = posts.postID 
 		AND reactions.userID = ? AND reactions.reaction = 1 AND reactions.entityTypeID = 1
-	  %v
 	ORDER BY
 		posts.createdAt DESC
-		LIMIT 10;
-	`, where)
+		LIMIT 20  OFFSET  ? ;`
+
+		
 	rows, err := grepo.db.Query(query, user_id, offset)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}

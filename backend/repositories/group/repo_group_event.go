@@ -55,3 +55,10 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 
 	return event, nil
 }
+
+func (gRepo *GroupRepository) GetEventDetails(eventId, userId, groupId string) (*models.Event, *models.ErrorJson) {
+	query:= ``
+
+
+	return &models.Event{}, nil 
+}
