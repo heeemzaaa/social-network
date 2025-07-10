@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"social-network/backend/models"
@@ -22,15 +24,16 @@ func WriteDataBack(w http.ResponseWriter, data any) {
 
 // validate the image Type
 func IsValidImageType(mimeType string) bool {
-	return mimeType == "image/jpeg" || mimeType == "image/png" || mimeType == "gif"
+	return mimeType == "image/jpeg" || mimeType == "image/png" || mimeType == "image/gif"
 }
 
 // function that creates the directory for the files for the groups and profiles and so on
 
 func CreateDirectoryForUploads(subDirectoryName, mimeType string, data []byte) (string, *models.ErrorJson) {
-	err := os.MkdirAll("static/uploads/"+subDirectoryName, 0o755)
+	baseDir := "static/uploads/"
+	err := os.MkdirAll(filepath.Join(baseDir, subDirectoryName), 0o755)
 	if err != nil {
-		return "", &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return "", &models.ErrorJson{Status: 500, Message: "Failed to create the directory"}
 	}
 	ext := ".jpg"
 	switch mimeType {
@@ -40,10 +43,16 @@ func CreateDirectoryForUploads(subDirectoryName, mimeType string, data []byte) (
 		ext = ".gif"
 	}
 
-	filename := fmt.Sprintf("static/uploads/%s/%d%s", subDirectoryName, time.Now().UnixNano(), ext)
-	err = os.WriteFile(filename, data, 0o644)
+	filename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+	path := filepath.Join(baseDir, subDirectoryName, filename)
+	err = os.WriteFile(path, data, 0o644)
 	if err != nil {
-		return "", &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return "", &models.ErrorJson{Status: 500, Message: "Failed to write data into the file"}
 	}
-	return filename, nil
+
+	// Return relative path for use in frontend / API
+	relativePath := strings.TrimPrefix(path, "static/")
+	relativePath = "/" + strings.ReplaceAll(relativePath, "\\", "/") // cross-platform
+
+	return relativePath, nil
 }

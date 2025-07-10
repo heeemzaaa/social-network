@@ -19,6 +19,7 @@ func NewGroupCommentHandler(service *gservice.GroupService) *GroupCommentHandler
 }
 
 func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWriter, r *http.Request) {
+	
 }
 
 func (gCommentHandler *GroupCommentHandler) GetGroupComments(w http.ResponseWriter, r *http.Request) {

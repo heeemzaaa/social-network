@@ -9,14 +9,14 @@ import (
 )
 
 type GroupService struct {
-	grepo *group.GroupRepository
+	gRepo *group.GroupRepository
 }
 
 func NewGroupService(grepo *group.GroupRepository) *GroupService {
-	return &GroupService{grepo: grepo}
+	return &GroupService{gRepo: grepo}
 }
 
-func (gServicde *GroupService) AddGroup(group *models.Group) (*models.Group, *models.ErrorJson) {
+func (gServide *GroupService) AddGroup(group *models.Group) (*models.Group, *models.ErrorJson) {
 	errGroup := models.ErrGroup{}
 	trimmedTitle := strings.TrimSpace(group.Title)
 	trimmedDesc := strings.TrimSpace(group.Description)
@@ -30,7 +30,7 @@ func (gServicde *GroupService) AddGroup(group *models.Group) (*models.Group, *mo
 	if errGroup != (models.ErrGroup{}) {
 		return nil, &models.ErrorJson{Status: 400, Message: errGroup}
 	}
-	group, errJson := gServicde.grepo.CreateGroup(group)
+	group, errJson := gServide.gRepo.CreateGroup(group)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
 	}
@@ -42,11 +42,11 @@ func (gService *GroupService) GetGroups(filter string, offset int64, userID stri
 	var err *models.ErrorJson
 	switch filter {
 	case "owned":
-		groups, err = gService.grepo.GetCreatedGroups(offset, userID)
+		groups, err = gService.gRepo.GetCreatedGroups(offset, userID)
 	case "available":
-		groups, err = gService.grepo.GetAvailableGroups(offset, userID)
+		groups, err = gService.gRepo.GetAvailableGroups(offset, userID)
 	case "joined":
-		groups, err = gService.grepo.GetJoinedGroups(offset, userID)
+		groups, err = gService.gRepo.GetJoinedGroups(offset, userID)
 
 	}
 

@@ -1,7 +1,6 @@
 package group
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,6 +12,7 @@ import (
 	"social-network/backend/utils"
 
 	"github.com/google/uuid"
+
 )
 
 // Not the latest version yet just zrbt 3liha
@@ -89,57 +89,20 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 		})
 		return
 	}
-	// hard coded till ayoub finishes the context thing
 
 	// handle the image encoding in the phase that comes before the adding process
-	path, errUploadImg := HanldeUploadImage(r, "group")
+	path, errUploadImg := utils.HanldeUploadImage(r, "group", "groups", true)
 	if errUploadImg != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
 	}
-
-	group_to_create.GroupCreatorId = &userID
-	// handle the path if the path is empty
-	if path != "" {
-		group_to_create.ImagePath = path
-	} else {
-		path = "static/uploads/groups/default/default.jpg" // assign a default page of the groups
-	}
+	group_to_create.GroupCreatorId, group_to_create.ImagePath = &userID, path
 	group, errJson := Ghandler.gservice.AddGroup(group_to_create)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
 	}
 	utils.WriteDataBack(w, group)
-}
-
-func HanldeUploadImage(r *http.Request, fileName string) (string, *models.ErrorJson) {
-	file, header, err := r.FormFile(fileName)
-	if err != nil {
-		if err == http.ErrMissingFile || err == io.EOF {
-			return "", &models.ErrorJson{Status: 400, Message: "Error!! Missing file"}
-		}
-	}
-	defer file.Close()
-
-	mimeType := header.Header.Get("Content-Type")
-	if !utils.IsValidImageType(mimeType) {
-		return "", &models.ErrorJson{Status: 400, Message: "Error!! Only PNG, JPEG and GIF images are allowed"}
-	}
-	buf := bytes.NewBuffer(nil)
-	written, err := io.Copy(buf, file)
-	if err != nil {
-		return "", &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
-	}
-	if written == 0 {
-		return "", &models.ErrorJson{Status: 400, Message: "No content is being detected!!"}
-	}
-	path, errJson := utils.CreateDirectoryForUploads("groups", mimeType, buf.Bytes())
-	if errJson != nil {
-		return "", &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
-	}
-
-	return path, nil
 }
 
 func (Ghandler *GroupHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {

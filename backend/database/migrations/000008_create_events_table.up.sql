@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS group_events (
     title  VARCHAR(100 ) NOT NULL ,
     description VARCHAR (1000) NOT NULL,
     eventTime TEXT NOT NULL,
+    createdAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (groupID) REFERENCES groups(groupID),
     FOREIGN KEY (eventCreatorID) REFERENCES users(userID)
 );

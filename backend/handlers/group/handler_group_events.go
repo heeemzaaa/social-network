@@ -3,6 +3,7 @@ package group
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -17,15 +18,20 @@ import (
 // here we'll be also querying if the user logged in is interested or not in the event!!!
 
 type GroupEventHandler struct {
-	gservice *gservice.GroupService
+	gService *gservice.GroupService
 }
 
 func NewGroupEventHandler(service *gservice.GroupService) *GroupEventHandler {
-	return &GroupEventHandler{gservice: service}
+	return &GroupEventHandler{gService: service}
 }
 
 func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *http.Request) {
 	groupId := r.PathValue("group_id")
+	groupID, err := uuid.Parse(groupId)
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of groupID value!"})
+		return
+	}
 	userIDVal := r.Context().Value("userID")
 	userID, errParse := uuid.Parse(userIDVal.(string))
 	if errParse != nil {
@@ -33,8 +39,29 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}
-
-	
+	var event *models.Event
+	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+		if err == io.EOF {
+			utils.WriteJsonErrors(w, models.ErrorJson{
+				Status: 400,
+				Message: models.ErrEventGroup{
+					Title:       "title field is empty!",
+					Description: "description field is empty!",
+					EventDate:   "event date is not set up",
+				},
+			})
+			return
+		}
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		return
+	}
+	event.EventCreatorId, event.GroupId = &userID, &groupID
+	event, errJson := gEventHandler.gService.AddGroupEvent(event)
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		return
+	}
+	utils.WriteDataBack(w, event)
 }
 
 // we'll be working with exists to check if a user is member before proceeding in any action!!
@@ -53,7 +80,7 @@ func (gEventHandler *GroupEventHandler) GetGroupEvents(w http.ResponseWriter, r 
 		return
 	}
 
-	events, errJson := gEventHandler.gservice.GetGroupEvents(groupId, userID.String(), offset)
+	events, errJson := gEventHandler.gService.GetGroupEvents(groupId, userID.String(), offset)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return

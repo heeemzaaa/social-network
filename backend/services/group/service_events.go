@@ -20,7 +20,7 @@ func (service *GroupService) GetGroupEvents(groupID, userID string, offset int64
 		return nil, &models.ErrorJson{Status: 403, Message: "ERROR!! Acces Forbidden!"}
 	}
 
-	events, errJson := service.grepo.GetGroupEvents(groupID, offset)
+	events, errJson := service.gRepo.GetGroupEvents(groupID, offset)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
 	}
@@ -30,8 +30,8 @@ func (service *GroupService) GetGroupEvents(groupID, userID string, offset int64
 //  check if the values entered by the user are correct ( waaa tleee3  liya hadshii frassii mumiil)
 // as always we need to check if the user is part of the group before adding an event
 
-func (service *GroupService) AddGroupEvent(event *models.Event, groupID, userID string) (*models.Event, *models.ErrorJson) {
-	exists, errJson := service.IsMemberGroup(groupID, userID)
+func (service *GroupService) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
+	exists, errJson := service.IsMemberGroup(event.GroupId.String(), event.EventCreatorId.String())
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
 	}
@@ -48,14 +48,17 @@ func (service *GroupService) AddGroupEvent(event *models.Event, groupID, userID 
 	if err := utils.ValidateDesc(trimmedDesc); err != nil {
 		errValidation.Description = err.Error()
 	}
-    // check the date of the event (but how ???)
-	if event.EventDate.IsZero() {
-		
+	// check the date of the event (but how ???)
+	if err := utils.ValidateDate(event.EventDate); err != nil {
+		errValidation.EventDate = err.Error()
 	}
 
 	if errValidation != (models.ErrEventGroup{}) {
 		return nil, &models.ErrorJson{Status: 400, Message: errValidation}
 	}
-
-	return service.grepo.AddGroupEvent(event)
+	event, errJson = service.gRepo.AddGroupEvent(event)
+	if errJson != nil {
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+	}
+	return event, nil
 }
