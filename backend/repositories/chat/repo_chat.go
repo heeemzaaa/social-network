@@ -122,6 +122,7 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 	defer rows.Close()
 
 	for rows.Next() {
+		// comment
 		var message models.Message
 		if type_ == "private" {
 			err := rows.Scan(&message.SenderName, &message.ReceiverName, &message.Content, &message.CreatedAt, &message.ID)
