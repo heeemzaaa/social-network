@@ -33,12 +33,12 @@ export async function loginUser(prevState, formData) {
             return state;
         }
         await setCookie(res.headers.get('set-cookie'))
-        return { message: "Login successful" }
     } catch (error) {
         console.error(error)
         state.error = "An unexpected error occurred";
         return state;
     }
+    redirect("/")
 }
 
 // Registers a new user by validating form data, handling file uploads, and sending the data to the register API.
@@ -125,16 +125,14 @@ export async function registerUser(prevState, formData) {
             return state;
         }
         await setCookie(res.headers.get('set-cookie'))
-        return { ...state, message: "User registered successfully" }
     } catch (error) {
         console.log(error)
     }
+    redirect("/")
 }
 
 
 export async function logout() {
-    console.log("===> inside the logout server action.")
-    // console.log("===> Cookies in server action:", cookies().getAll());
     try {
         const sessionCookie = cookies().get("session")?.value;
         const res = await fetch(`http://localhost:3000/api/auth/logout`, {
@@ -142,14 +140,14 @@ export async function logout() {
             credentials: 'include',
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {}
         });
-        console.log("============> reees: ", res.ok, res)
         if (res.ok) {
             let cookieStore = await cookies()
-            redirect("/login")
+            cookieStore.delete("session")
         }
     } catch (error) {
         console.log(error)
     }
+    redirect("/login")
 }
 
 
@@ -169,12 +167,10 @@ export async function setCookie(cookieStr) {
                 result[key] = value;
             }
         } else {
-            // Flags like HttpOnly with no value
             result[trimmed] = true;
         }
     });
 
-    console.log(result);
     const cookieStore = await cookies()
     cookieStore.set({
         name: result.name,
