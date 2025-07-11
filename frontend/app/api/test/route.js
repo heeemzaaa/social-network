@@ -1,11 +1,16 @@
-export async function GET(request) {
-    // console.log(request)
+export async function GET(req, response) {
+    // const cookieHeader = req.headers.cookie || '';
+    // console.log('Test API: Cookies received:', cookieHeader);
     try {
-        const res = await fetch("http://localhost:8080/api/test");
-        if (!res.ok) throw new Error("API request failed", res.status);
-        const data = await res.json();
-        return Response.json(data);
+        const response = await fetch('http://localhost:8080/api/auth/islogged');
+        const data = await response.json();
+        console.log('Test API: API response:', data);
+
+        return Response.json({ status: response.status, data });
+
     } catch (error) {
-        return Response.json({ error: `${error.message}` }, { status: 500 });
+        console.error('Test API: Error:', error);
+        return Response.json({ error: 'Failed to fetch auth status' });
+
     }
 }

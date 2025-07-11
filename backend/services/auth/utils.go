@@ -1,10 +1,12 @@
 package auth
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"mime/multipart"
+	"net/http"
 	"regexp"
-	"slices"
-	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -70,7 +72,6 @@ func isValidPwd(pwd string) string {
 		!regexp.MustCompile(`[!@#$%^&*(),.?":{}|<>]`).MatchString(pwd) {
 		return "password must contain at least one uppercase, one lowercase, one number, and one special character"
 	}
-
 	return ""
 }
 
@@ -110,21 +111,43 @@ func isValidAboutme(aboutme string) string {
 	return ""
 }
 
-func isValidImg(imgName string, size int64) string {
-	fmt.Printf("imgName: %v\n", imgName)
-	if imgName == "" {
-		return ""
+func isValidImg(file multipart.File) string {
+	fmt.Println("=======> validate image.")
+	const maxImgSize = 3 << 20
+
+	// Read up to 512 bytes for MIME detection
+	buffer := make([]byte, 512)
+	n, err := file.Read(buffer)
+	if err != nil && err != io.EOF {
+		return "Could not read uploaded file"
+	}
+	// Trim buffer to actual bytes read
+	buffer = buffer[:n]
+
+	// Reset file cursor for further reading
+	file.Seek(0, io.SeekStart)
+	mime := http.DetectContentType(buffer)
+	fmt.Printf("mime: %v\n", mime)
+	allowed := map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+		"image/gif":  true,
 	}
 
-	validExtensions := []string{"png", "jpeg", "jpg", "svg", "gif"}
-	imageExtensions := strings.Split(imgName, ".")[1]
-	if !slices.Contains(validExtensions, imageExtensions) {
-		return "profile image must be a .png, .jpeg, .jpg, .svg or .gif file"
+	if !allowed[mime] {
+		return "Unsupported file type. Please upload an image (PNG, JPG, JPGE, or GIF)"
 	}
 
-	if size > 3*1024*1024 {
-		return "profile image must be 3MB or smaller"
+	limitedReader := io.LimitReader(file, maxImgSize+1)
+	buf := new(bytes.Buffer)
+	n2, err := buf.ReadFrom(limitedReader)
+	if err != nil {
+		return "Could not read uploaded image"
 	}
+	if n2 > maxImgSize {
+		return "Uploaded image is too large (max 1MB)"
+	}
+
 	return ""
 }
 

@@ -8,7 +8,6 @@ export async function POST(request) {
             },
             body: JSON.stringify(requestBody) // Forward the request body
         });
-
         if (!res.ok) {
             throw new Error(`API request failed with status ${res.status}`);
         }

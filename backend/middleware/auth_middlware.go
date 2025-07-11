@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"social-network/backend/handlers"
@@ -34,21 +33,29 @@ func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *m
 }
 
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("content-Type", "application/json")
 	path := r.URL.Path
-
 	session, err := m.GetAuthUserEnsureAuth(r)
-	if (path == "/api/auth/login" || path == "/api/auth/register") && err == nil {
-		handlers.WriteJsonErrors(w, models.ErrorJson{Status: 403, Message: "User has a session!! Access Forbiden"})
-		return
-	} else {
-		if err != nil {
-			handlers.WriteJsonErrors(w, *err)
+	if path == "/api/auth/login" || path == "/api/auth/register" {
+		if err == nil {
+			// Already has a session, prevent login/register again
+			handlers.WriteJsonErrors(w, models.ErrorJson{Status: 403, Message: "User already logged in. Access forbidden"})
 			return
 		}
+
+		// Allow access to login/register if no session
+		m.MiddlewareHanlder.ServeHTTP(w, r)
+		return
 	}
 
-	fmt.Printf("session.UserId: %v\n", session.UserId)
-	ctx := context.WithValue(r.Context(), "userID", session.UserId)
-	m.MiddlewareHanlder.ServeHTTP(w, r.WithContext(ctx))
+	if err != nil && path != "/api/auth/islogged" {
+		handlers.WriteJsonErrors(w, *err)
+		return
+	}
+
+	if session != nil {
+		ctx := context.WithValue(r.Context(), "userID", session.UserId)
+		m.MiddlewareHanlder.ServeHTTP(w, r.WithContext(ctx))
+	} else {
+		m.MiddlewareHanlder.ServeHTTP(w, r)
+	}
 }

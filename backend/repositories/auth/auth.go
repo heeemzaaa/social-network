@@ -40,7 +40,6 @@ func (repo *AuthRepository) IsLoggedInUser(token string) (*models.IsLoggedIn, *m
 		if err == sql.ErrNoRows {
 			return nil, &models.ErrorJson{Status: 401, Message: "ERROR!! Unauthorized Access"}
 		}
-		fmt.Printf("err: %v\n", err)
 	}
 	return user_data, nil
 }
