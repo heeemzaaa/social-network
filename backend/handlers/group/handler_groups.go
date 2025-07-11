@@ -33,13 +33,13 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	filter := r.URL.Query().Get("filter")
+	if !utils.IsValidFilter(filter) {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect filter by field!!"})
+		return
+	}
 	offset, errOffset := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
 	if errOffset != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect Offset Format!"})
-		return
-	}
-	if !utils.IsValidFilter(filter) {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect filter by field!!"})
 		return
 	}
 	groups, errJson := Ghandler.gService.GetGroups(filter, offset, userID.String())
@@ -79,7 +79,7 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 
 		utils.WriteJsonErrors(w, models.ErrorJson{
 			Status:  400,
-			Message: "an error occured while trying to decode the json!",
+			Message: "ERROR!! Can not Unmarshal the data!",
 		})
 		return
 	}
@@ -100,7 +100,8 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 }
 
 func (Ghandler *GroupHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "appplication/json")
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Println("method", r.Method)
 	switch r.Method {
 	case http.MethodGet:
 		Ghandler.GetGroups(w, r)

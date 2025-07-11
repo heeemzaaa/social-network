@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
-	_ "image/gif"   //  these imports are used for the init function 
+	_ "image/gif" //  these imports are used for the init function
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
@@ -25,10 +25,10 @@ func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string, setDe
 	}
 	file, _, err := r.FormFile(fileName)
 	if err != nil {
-		if err == http.ErrMissingFile || err == io.EOF {
-			return defaultPath, &models.ErrorJson{Status: 400, Message: "Error!! Missing file"}
+		if err == http.ErrMissingFile {
+			return defaultPath, nil
 		}
-		return defaultPath, &models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)}
+		return "", &models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v 111111", err)}
 	}
 
 	defer file.Close()
@@ -37,31 +37,31 @@ func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string, setDe
 	written, err := io.Copy(buf, file)
 	// so the 500 is the more convenient way to handle it
 	if err != nil {
-		return defaultPath, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return "", &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 
 	if written == 0 {
-		return defaultPath, &models.ErrorJson{Status: 400, Message: "No content is being detected!!"}
+		return "", &models.ErrorJson{Status: 400, Message: "No content is being detected!!"}
 	}
 
 	mimeType := http.DetectContentType(buf.Bytes())
 	if !IsValidImageType(mimeType) {
-		return defaultPath, &models.ErrorJson{Status: 400, Message: "Error!! Only PNG, JPEG and GIF images are allowed"}
+		return "", &models.ErrorJson{Status: 400, Message: "Error!! Only PNG, JPEG and GIF images are allowed"}
 	}
 	// the string returned here is the actual format (we can do another check to see if the mimeType is
 	// on harmony with the format but no need !!
 	_, _, err = image.Decode(bytes.NewReader(buf.Bytes()))
 	if err != nil {
-		return defaultPath, &models.ErrorJson{Status: 400, Message: "Error!! Invalid Image Content"}
+		return "", &models.ErrorJson{Status: 400, Message: "Error!! Invalid Image Content"}
 	}
 
 	if len(buf.Bytes()) > (3 * 1024 * 1024) {
-		return defaultPath, &models.ErrorJson{Status: 400, Message: "File too large"}
+		return "", &models.ErrorJson{Status: 400, Message: "File too large"}
 	}
 
 	path, errJson := CreateDirectoryForUploads(subDirectoryName, mimeType, buf.Bytes())
 	if errJson != nil {
-		return defaultPath, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+		return "", &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
 	}
 
 	return path, nil

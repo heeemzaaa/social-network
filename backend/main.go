@@ -6,10 +6,7 @@ import (
 
 	database "social-network/backend/database/sqlite"
 	"social-network/backend/handlers"
-	"social-network/backend/middleware"
-	ra "social-network/backend/repositories/auth"
 	"social-network/backend/routes"
-	"social-network/backend/services/auth"
 )
 
 func main() {
@@ -22,5 +19,5 @@ func main() {
 	mux.HandleFunc("/api/posts", handlers.GetPostsHandler)
 
 	fmt.Println("server is running in : http://localhost:8080")
-	http.ListenAndServe(":8080", middleware.NewMiddleWare(middleware.NewCorsMiddlerware(mux), auth.NewAuthServer(ra.NewAuthRepository(db.Database))))
+	http.ListenAndServe(":8080", mux)
 }
