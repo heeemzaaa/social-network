@@ -31,7 +31,7 @@ func (service *GroupService) GetGroupEvents(groupID, userID string, offset int64
 // as always we need to check if the user is part of the group before adding an event
 
 func (service *GroupService) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
-	exists, errJson := service.IsMemberGroup(event.GroupId.String(), event.EventCreatorId.String())
+	exists, errJson := service.IsMemberGroup(event.GroupId, event.EventCreatorId)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
 	}

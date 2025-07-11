@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// get the event created of a specific group
 func (gRepo *GroupRepository) GetGroupEvents(groupId string, offset int64) ([]models.Event, *models.ErrorJson) {
 	query := `SELECT concat(users.firstName, " " , users.lastName) AS FullName, 
 	group_events.title, group_events.description, group_events.eventTime 
@@ -37,6 +38,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId string, offset int64) ([]mo
 	return events, nil
 }
 
+// add an event in a specific group
 func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
 	eventId := uuid.New()
 	query := `INSERT INTO group_events 
@@ -56,9 +58,15 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 	return event, nil
 }
 
+// Get the details ( the card of a specific event )
+
 func (gRepo *GroupRepository) GetEventDetails(eventId, userId, groupId string) (*models.Event, *models.ErrorJson) {
-	query:= ``
+	
+	return &models.Event{}, nil
+}
 
+// show the interest to a specific event
 
-	return &models.Event{}, nil 
+func (gRepo *GroupRepository) IntersetedOrNot(event *models.Event, userId string) *models.ErrorJson {
+	return nil
 }

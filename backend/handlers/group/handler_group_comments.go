@@ -27,11 +27,8 @@ func NewGroupCommentHandler(service *gservice.GroupService) *GroupCommentHandler
 
 func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWriter, r *http.Request) {
 	var comment *models.CommentGroup
-
-	userIDVal := r.Context().Value("userID")
-	userID, errParse := uuid.Parse(userIDVal.(string))
+	userID, errParse := utils.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		fmt.Println("errors", errParse)
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}
@@ -70,7 +67,7 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
 	}
-	comment.UserId, comment.GroupId, comment.PostId, comment.ImagePath = &userID, &groupID, &postID, path
+	comment.UserId, comment.GroupId, comment.PostId, comment.ImagePath = userID.String(), groupID.String(), postID.String(), path
 	// even if the userid is given wrong we insert the correct one
 	postCreated, err_ := gCommentHandler.gService.AddComment(comment)
 	if err_ != nil {
@@ -81,6 +78,11 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 }
 
 func (gCommentHandler *GroupCommentHandler) GetGroupComments(w http.ResponseWriter, r *http.Request) {
+	_, errParse := utils.GetUserIDFromContext(r.Context())
+	if errParse != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		return
+	}
 }
 
 func (gCommentHandler *GroupCommentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

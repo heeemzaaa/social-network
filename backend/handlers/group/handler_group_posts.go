@@ -11,8 +11,6 @@ import (
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
 	"social-network/backend/utils"
-
-	"github.com/google/uuid"
 )
 
 /***    /api/groups/{group_id}/posts/    ***/
@@ -28,17 +26,14 @@ func NewGroupPostHandler(service *gservice.GroupService) *GroupPostHandler {
 
 func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *http.Request) {
 	var post *models.PostGroup
-	groupId := r.PathValue("group_id")
-	groupID, err := uuid.Parse(groupId)
-	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of groupID value!"})
+	userID, errParse := utils.GetUserIDFromContext(r.Context())
+	if errParse != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}
-	userIDVal := r.Context().Value("userID")
-	userID, errParse := uuid.Parse(userIDVal.(string))
-	if errParse != nil {
-		fmt.Println("errors", errParse)
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+	groupID, err := utils.GetUUIDFromPath(r, "group_id")
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of groupID value!"})
 		return
 	}
 
@@ -62,7 +57,7 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
 	}
-	post.UserId, post.GroupId, post.ImagePath = &userID, &groupID, path
+	post.UserId, post.GroupId, post.ImagePath = userID.String(), groupID.String(), path
 	// even if the userid is given wrong we insert the correct one
 	postCreated, err_ := gPostHandler.gService.AddPost(post)
 	if err_ != nil {
@@ -73,10 +68,8 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 }
 
 func (gPostHandler *GroupPostHandler) GetGroupPosts(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	userID, errParse := uuid.Parse(userIDVal.(string))
+	userID, errParse := utils.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		fmt.Println("errors", errParse)
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}

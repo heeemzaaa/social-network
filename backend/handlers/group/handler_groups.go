@@ -10,9 +10,6 @@ import (
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
 	"social-network/backend/utils"
-
-	"github.com/google/uuid"
-
 )
 
 // Not the latest version yet just zrbt 3liha
@@ -21,18 +18,17 @@ import (
 /***   /api/groups/   ***/
 
 type GroupHanlder struct {
-	gservice *gservice.GroupService
+	gService *gservice.GroupService
 }
 
 func NewGroupHandler(gservice *gservice.GroupService) *GroupHanlder {
-	return &GroupHanlder{gservice: gservice}
+	return &GroupHanlder{gService: gservice}
 }
 
+// we only need the userId and filter based on owned, availabe and created
 func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	userID, errParse := uuid.Parse(userIDVal.(string))
+	userID, errParse := utils.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		fmt.Println("errors", errParse)
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}
@@ -46,7 +42,7 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect filter by field!!"})
 		return
 	}
-	groups, errJson := Ghandler.gservice.GetGroups(filter, offset, userID.String())
+	groups, errJson := Ghandler.gService.GetGroups(filter, offset, userID.String())
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
@@ -61,10 +57,8 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 // but needs the context to be there to test out other things
 
 func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	userID, errParse := uuid.Parse(userIDVal.(string))
+	userID, errParse := utils.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		fmt.Println("errors", errParse)
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}
@@ -96,8 +90,8 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
 	}
-	group_to_create.GroupCreatorId, group_to_create.ImagePath = &userID, path
-	group, errJson := Ghandler.gservice.AddGroup(group_to_create)
+	group_to_create.GroupCreatorId, group_to_create.ImagePath = userID.String(), path
+	group, errJson := Ghandler.gService.AddGroup(group_to_create)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return

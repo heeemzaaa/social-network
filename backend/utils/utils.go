@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,6 +12,8 @@ import (
 	"time"
 
 	"social-network/backend/models"
+
+	"github.com/google/uuid"
 )
 
 func WriteJsonErrors(w http.ResponseWriter, errJson models.ErrorJson) {
@@ -55,4 +59,22 @@ func CreateDirectoryForUploads(subDirectoryName, mimeType string, data []byte) (
 	relativePath = "/" + strings.ReplaceAll(relativePath, "\\", "/") // cross-platform
 
 	return relativePath, nil
+}
+
+func GetUUIDFromPath(r *http.Request, key string) (uuid.UUID, error) {
+	val := r.PathValue(key)
+	return uuid.Parse(val)
+}
+
+func GetUserIDFromContext(ctx context.Context) (uuid.UUID, error) {
+	val := ctx.Value("userID")
+	str, ok := val.(string)
+	if !ok {
+		return uuid.Nil, errors.New("userID not found or invalid")
+	}
+	return uuid.Parse(str)
+}
+
+func NewUUID() string {
+	return uuid.New().String()
 }

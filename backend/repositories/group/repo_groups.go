@@ -5,8 +5,7 @@ import (
 	"fmt"
 
 	"social-network/backend/models"
-
-	"github.com/google/uuid"
+	"social-network/backend/utils"
 )
 
 type GroupRepository struct {
@@ -19,7 +18,7 @@ func NewGroupRepository(db *sql.DB) *GroupRepository {
 }
 
 func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *models.ErrorJson) {
-	groupID := uuid.New()
+	groupID := utils.NewUUID()
 	query := `INSERT INTO groups 
 	(groupID, groupCreatorID,title,imagePath,description)
 	VALUES (?,?,?,?,?)`
@@ -35,8 +34,8 @@ func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *m
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 2", err)}
 	}
 
-	group.GroupId = &groupID
-	if errJson := repo.JoinGroup(group, group.GroupCreatorId.String()); errJson != nil {
+	group.GroupId = groupID
+	if errJson := repo.JoinGroup(group, group.GroupCreatorId); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
 	}
 
@@ -63,7 +62,7 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 	rows, errQuery := stmt.Query(userID, offset)
 	if errQuery != nil {
 		if err == sql.ErrNoRows {
-			return joinedGroups, nil
+			return nil, nil
 		}
 	}
 
@@ -98,7 +97,7 @@ func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]
 	rows, errQuery := stmt.Query(userID, offset)
 	if errQuery != nil {
 		if err == sql.ErrNoRows {
-			return availabeGroups, nil
+			return nil, nil
 		}
 	}
 
@@ -131,7 +130,7 @@ func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]mo
 	rows, errQuery := stmt.Query(userID, offset)
 	if errQuery != nil {
 		if err == sql.ErrNoRows {
-			return createdGroups, nil
+			return nil, nil
 		}
 	}
 

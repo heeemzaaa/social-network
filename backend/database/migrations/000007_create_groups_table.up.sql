@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS groups (
     title  VARCHAR(100) NOT NULL UNIQUE,
     imagePath TEXT,
     description  VARCHAR(1000) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (groupCreatorID) REFERENCES users(userID)
 );

@@ -27,10 +27,8 @@ func NewGroupIDHandler(service *gservice.GroupService) *GroupIDHanlder {
 
 // if the user has already joined the group : unauthorized important case
 func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	fmt.Println("userId", userIDVal)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
+	userID , errParse := utils.GetUserIDFromContext(r.Context())
+	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}

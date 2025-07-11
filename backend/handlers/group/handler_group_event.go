@@ -12,7 +12,7 @@ import (
 )
 
 /***  /api/groups/{group_id}/events/{event-id}/  ***/
-// we'll be needing a kind of toggle like sytem of the reactions 
+// we'll be needing a kind of toggle like sytem of the reactions
 // wttf hadshi bzzzzzf
 type GroupEventIDHandler struct {
 	gService *gservice.GroupService
@@ -45,8 +45,7 @@ func (gEventIDHandler *GroupEventIDHandler) AddInterestIntoEvent(w http.Response
 		return
 	}
 
-
-
+	fmt.Println("", eventID, userID, groupID)
 }
 
 func (gEventIDHandler *GroupEventIDHandler) GetEventDetails(w http.ResponseWriter, r *http.Request) {
@@ -72,9 +71,6 @@ func (gEventIDHandler *GroupEventIDHandler) GetEventDetails(w http.ResponseWrite
 		return
 	}
 	gEventIDHandler.gService.GetEventDetails(eventID.String(), userID.String(), groupID.String())
-
-	
-
 }
 
 func (gEventIDHandler *GroupEventIDHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

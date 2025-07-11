@@ -55,7 +55,7 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
 		return
 	}
-	event.EventCreatorId, event.GroupId = &userID, &groupID
+	event.EventCreatorId, event.GroupId = userID.String(), groupID.String()
 	event, errJson := gEventHandler.gService.AddGroupEvent(event)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
@@ -66,14 +66,12 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 
 // we'll be working with exists to check if a user is member before proceeding in any action!!
 func (gEventHandler *GroupEventHandler) GetGroupEvents(w http.ResponseWriter, r *http.Request) {
-	groupId := r.PathValue("group_id")
-	userIDVal := r.Context().Value("userID")
-	userID, errParse := uuid.Parse(userIDVal.(string))
+	userID , errParse := utils.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		fmt.Println("errors", errParse)
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}
+	groupId := r.PathValue("group_id")
 	offset, errOffset := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
 	if errOffset != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect Offset Format!"})

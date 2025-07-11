@@ -5,8 +5,6 @@ import (
 	"strings"
 
 	"social-network/backend/models"
-
-	"github.com/google/uuid"
 )
 
 // add the offset and the limit thing after
@@ -24,7 +22,7 @@ func (s *GroupService) AddComment(comment *models.CommentGroup) (*models.Comment
 	if strings.TrimSpace(comment.Content) == "" {
 		message.Content = "empty body comment!"
 	}
-	if comment.PostId == &uuid.Nil {
+	if comment.PostId == "" {
 		message.PostId = "Post ID is incorrect or did you mean post_id?"
 	}
 	if message.Content != "" || message.PostId != "" {
