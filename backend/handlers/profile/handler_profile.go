@@ -167,12 +167,8 @@ func (PrHandler *ProfileHandler) Unfollow(w http.ResponseWriter, r *http.Request
 }
 
 // PATCH api/profile/id/update-privacy
-func (PrHandler *ProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Request, profileID string) {
-	authSessionID, errSession := GetSessionID(r)
-	if errSession != nil {
-		h.WriteJsonErrors(w, *errSession)
-		return
-	}
+func (PrHandler *ProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("userID")
 
 	type RequestBody struct {
 		ProfileID    string `json:"profile_id"`
@@ -186,7 +182,7 @@ func (PrHandler *ProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	errUpdate := PrHandler.service.UpdatePrivacy(request.ProfileID, authSessionID, request.WantedStatus)
+	errUpdate := PrHandler.service.UpdatePrivacy(request.ProfileID, userID, request.WantedStatus)
 	if errUpdate != nil {
 		h.WriteJsonErrors(w, *errUpdate)
 		return
@@ -216,6 +212,8 @@ func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		request = splittedPath[3]
 	}
 
+	fmt.Println("pqtch", request, r.Method)
+
 	switch r.Method {
 
 	case http.MethodGet:
@@ -230,15 +228,18 @@ func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 			h.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
 		}
 	case http.MethodPatch:
-		PrHandler.UpdateProfileData(w, r, profileID)
+		switch request {
+		case "update-privacy":
+			PrHandler.UpdatePrivacy(w, r)
+		case "update-profile":
+			PrHandler.UpdateProfileData(w, r, profileID)
+		}
 	case http.MethodPost:
 		switch request {
 		case "follow":
 			PrHandler.Follow(w, r)
 		case "unfollow":
 			PrHandler.Unfollow(w, r)
-		case "update-privacy":
-			PrHandler.UpdatePrivacy(w, r, profileID)
 		default:
 			h.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
 		}

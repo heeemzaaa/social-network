@@ -133,13 +133,14 @@ func (repo *AuthRepository) UpdateSession(session *models.Session, new_session *
 }
 
 func (repo *AuthRepository) GetSessionbyTokenEnsureAuth(token string) (*models.Session, *models.ErrorJson) {
+	fmt.Printf("token: %v\n", token)
 	session := models.Session{}
 	query := `SELECT sessions.userID, sessions.sessionToken , sessions.expiresAt, users.nickname 
 	FROM sessions INNER JOIN users ON users.userID = sessions.userID
-	WHERE sessionToken = ?`
+	WHERE sessions.sessionToken = ?`
 	row := repo.db.QueryRow(query, token).Scan(&session.UserId, &session.Token, &session.ExpDate, &session.Username)
 	if row == sql.ErrNoRows {
-		return nil, &models.ErrorJson{Status: 401, Message: " Unauthorized Access"}
+		return nil, &models.ErrorJson{Status: 401, Message: "hnaaaaaaaaaaa Unauthorized Access"}
 	}
 	return &session, nil
 }

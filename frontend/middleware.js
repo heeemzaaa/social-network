@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 
 export async function middleware(request) {
+    console.log("====> Inside middlware: ", request.headers.get('cookie'))
     try {
         // Fetch authentication status from the external API
         const response = await fetch('http://localhost:8080/api/auth/islogged', {
@@ -20,6 +21,7 @@ export async function middleware(request) {
 
         const data = await response.json();
         const isLoggedIn = data.is_logged_in; // Adjust if API response format differs
+        console.log("is user logged in:  ", isLoggedIn)
         // Handle redirection based on route and authentication status
         if (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register') {
             if (isLoggedIn) {

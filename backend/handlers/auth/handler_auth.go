@@ -72,6 +72,7 @@ func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookie, err := r.Cookie("session")
+	fmt.Printf("cookie: %v\n", cookie)
 	if err != nil {
 		islogged.IsLoggedIn = false
 		handlers.WriteDataBack(w, islogged)
@@ -80,8 +81,9 @@ func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
 
 	islogged, errJson := handler.service.IsLoggedInUser(cookie.Value)
 	if errJson != nil {
-		islogged.IsLoggedIn = false
-		handlers.WriteDataBack(w, islogged)
+		handlers.WriteDataBack(w, models.IsLoggedIn{
+			IsLoggedIn: false,
+		})
 		return
 	}
 

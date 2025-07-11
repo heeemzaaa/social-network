@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"social-network/backend/handlers"
@@ -25,10 +26,14 @@ func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *m
 		return nil, &models.ErrorJson{Status: 401, Error: "Unauthorized Access"}
 	}
 	// check if the value of the cookie is correct and if not expired!!!
+
+	fmt.Printf("cookie.Value: %v\n", cookie.Value)
 	session, errJson := m.service.GetSessionByTokenEnsureAuth(cookie.Value)
+    fmt.Println("errrrrrr", errJson)
 	if errJson != nil || auth.IsSessionExpired(session.ExpDate) {
 		return nil, errJson
 	}
+	fmt.Printf("session: %v\n", session)
 	return session, nil
 }
 

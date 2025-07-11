@@ -215,8 +215,10 @@ func (s *ProfileService) Unfollow(userID string, authSessionID string) *models.E
 }
 
 // here we will handle the logic of updating the privacy of a user
-func (s *ProfileService) UpdatePrivacy(userID string, authSessionID string, wantedStatus string) *models.ErrorJson {
-	if userID != authSessionID {
+func (s *ProfileService) UpdatePrivacy(userID string, requestorID any, wantedStatus string) *models.ErrorJson {
+	fmt.Println("dkhlt hna")
+
+	if userID != requestorID {
 		return &models.ErrorJson{Status: 401, Message: "You can't update another user's profile"}
 	}
 
