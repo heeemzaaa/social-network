@@ -23,6 +23,7 @@ func NewAuthHandler(service *auth.AuthService) *AuthHandler {
 
 func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	fmt.Println("inside serveHttp: ", r.URL.Path)
 	method := r.Method
 	path := r.URL.Path
 
@@ -53,7 +54,6 @@ func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if path != "/api/auth/islogged" {
-			fmt.Println("heeeee")
 			handlers.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found."})
 			return
 		}
@@ -65,7 +65,6 @@ func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("inside is logged in handler")
 	islogged := &models.IsLoggedIn{}
 	if r.Method != http.MethodGet {
 		handlers.WriteJsonErrors(w, *models.NewErrorJson(405, "Method Not Allowed", nil))
@@ -80,12 +79,12 @@ func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	islogged, errJson := handler.service.IsLoggedInUser(cookie.Value)
-
 	if errJson != nil {
 		islogged.IsLoggedIn = false
 		handlers.WriteDataBack(w, islogged)
 		return
 	}
+
 	islogged.IsLoggedIn = true
 	handlers.WriteDataBack(w, islogged)
 }
@@ -95,7 +94,6 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&login)
 	if err != nil {
 		if err == io.EOF {
-			// case if the body sent if empty
 			handlers.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
 				Message: models.Login{
@@ -128,10 +126,12 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		Name:     "session",
 		Value:    session.Token,
 		Expires:  session.ExpDate,
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 		HttpOnly: true,
 	})
 
+	fmt.Println("user logged in successfuly")
 	handlers.WriteDataBack(w, "user logged in successfuly")
 }
 
@@ -140,7 +140,6 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	data := r.FormValue("data")
 	err := json.Unmarshal([]byte(data), &user)
 	if err != nil {
-		fmt.Println("Error while decoding the the register request body: ", err)
 		if err == io.EOF || *user == (models.User{}) {
 			handlers.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
@@ -159,7 +158,7 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	file, handler, err := r.FormFile("profile_img")
 	if err != nil {
 		if err == http.ErrMissingFile {
-			fmt.Println("No file uploaded, set defaults for optional image", file)
+			fmt.Println("- No file uploaded, set defaults for optional image", file)
 			user.ProfileImage = ""
 			user.ProfileImgSize = 0
 		}
@@ -177,8 +176,6 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	}
 
 	userData, errJson := authHandler.service.GetUser(&models.Login{LoginField: user.Email})
-	fmt.Printf("userData: %v\n", userData)
-
 	if errJson != nil {
 		handlers.WriteJsonErrors(w, *errJson)
 		return
@@ -190,14 +187,12 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	fmt.Printf("waaaaaaaaaaaaaaaaaaa session: %v\n", session)
-
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session",
 		Value:    session.Token,
 		Expires:  session.ExpDate,
-		SameSite: http.SameSiteNoneMode,
 		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 	})
 
@@ -205,8 +200,9 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 }
 
 func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
-	// delete from the database before
+	fmt.Println("===> inside logout in handler")
 	cookie, _ := r.Cookie("session")
+	fmt.Printf("cookie: %v\n", cookie)
 	session, errJson := handler.service.GetSessionByTokenEnsureAuth(cookie.Value)
 	if errJson != nil {
 		handlers.WriteJsonErrors(w, *models.NewErrorJson(errJson.Status, "", errJson.Message))
@@ -224,6 +220,5 @@ func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
-
 	w.WriteHeader(http.StatusNoContent)
 }

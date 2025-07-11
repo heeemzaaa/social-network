@@ -50,15 +50,13 @@ export default function Home() {
   useEffect( () => {
     console.log("use Effect runs");
     let LoadPosts = async () => {
-      let data = await fetchPosts()
-      setPosts(data)
+      let posts = await fetchPosts() 
+      console.log(posts)
+      setPosts(posts)
       setLoading(false)
     }
     LoadPosts()
   }, []);
-
-
-
 
   return (
     <main className='home-page'>
