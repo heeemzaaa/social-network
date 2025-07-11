@@ -20,8 +20,6 @@ export default function RegisterForm() {
     const [state, action] = useActionState(registerUser, {});
     const [data, setData] = useState(initialData);
 
-    if (state.message) redirect("/")
-
     return (
         <form noValidate action={action} className={`${styles.form} glass-bg`}>
             <div className="flex gap-3">

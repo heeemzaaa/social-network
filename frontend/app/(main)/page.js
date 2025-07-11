@@ -6,7 +6,6 @@ import PostsContainer from "./_components/posts/posts_container";
 import { useEffect, useState } from "react";
 import Loading from "./loading";
 import { fetchPosts } from "./_lib/posts";
-import { resolve } from "styled-jsx/css";
 
 export default function Home() {
   const userInfos = {

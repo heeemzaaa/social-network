@@ -14,8 +14,6 @@ export default function LoginForm() {
         password: ""
     })
 
-    if (state.message) redirect("/")
-
     return (
         <form action={action} className={`${styles.form} glass-bg`}>
             <div className={`${styles.formGrp}`}>
