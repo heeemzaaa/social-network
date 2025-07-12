@@ -2,7 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useState } from 'react';
-import Modal from '../_components/modal';
+import Modal from '../_components/modal/modal';
 
 const ModalContext = createContext();
 export const useModal = () => {

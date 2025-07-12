@@ -1,0 +1,33 @@
+/* styles/globals.css or components/Tabs.module.css */
+
+.tab-container {
+    /* flex-grow: 1; */
+}
+
+.tab-list {
+    margin-top: 1rem;
+    display: flex;
+    border-bottom: 1px solid #ccc;
+}
+
+.tab-button {
+    padding: 10px 20px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 0px !important;
+}
+
+.tab-button.active {
+    background-color: #eee;
+    border-bottom: 2px solid var(--color-primary);  
+    box-shadow: var(--shadow-md);
+}
+
+.tab-panel {
+    padding: 20px;
+    border: 1px solid #eee;
+    border-top: none;
+    height: 100%;
+}
