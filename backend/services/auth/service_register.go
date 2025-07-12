@@ -38,26 +38,50 @@ func (s *AuthService) Register(user *models.User) *models.ErrorJson {
 
 func (s *AuthService) validateUserData(user *models.User) *models.ErrorJson {
 	userErrorJson := models.User{}
-
 	if strings.TrimSpace(user.FirstName) == "" {
 		userErrorJson.FirstName = "First name is required"
-	} else {
-		userErrorJson.FirstName = isValidName(user.FirstName).Error()
+	}
+
+	if err := isValidName(user.FirstName); err != nil {
+		userErrorJson.FirstName = err.Error()
 	}
 
 	if strings.TrimSpace(user.LastName) == "" {
 		userErrorJson.LastName = "Last name is required"
-	} else {
-		userErrorJson.LastName = isValidName(user.LastName).Error()
 	}
 
-	userErrorJson.BirthDate = isValidBirthDate(user.BirthDate).Error()
-	userErrorJson.Email = s.isValidEmail(user.Email).Error()
-	userErrorJson.Password = isValidPwd(user.Password).Error()
+	if err := isValidName(user.LastName); err != nil {
+		userErrorJson.LastName = err.Error()
+	}
+
+	if err := isValidName(user.LastName); err != nil {
+		userErrorJson.LastName = err.Error()
+	}
+
+	if err := isValidBirthDate(user.BirthDate); err != nil {
+		userErrorJson.LastName = err.Error()
+	}
+
+	if err := isValidBirthDate(user.BirthDate); err != nil {
+		userErrorJson.BirthDate = err.Error()
+	}
+
+	if err := s.isValidEmail(user.Email); err != nil {
+		userErrorJson.Email = err.Error()
+	}
+
+	if err := isValidPwd(user.Password); err != nil {
+		userErrorJson.Password = err.Error()
+	}
 
 	// optianal user data
-	userErrorJson.Nickname = s.isValidNickname(user.Nickname).Error()
-	userErrorJson.AboutMe = isValidAboutme(user.AboutMe).Error()
+	if err := s.isValidNickname(user.Nickname); err != nil {
+		userErrorJson.Nickname = err.Error()
+	}
+
+	if err := isValidAboutme(user.AboutMe); err != nil {
+		userErrorJson.AboutMe = err.Error()
+	}
 
 	if userErrorJson != (models.User{}) {
 		return &models.ErrorJson{Status: 400, Message: userErrorJson}
