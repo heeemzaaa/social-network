@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	"social-network/backend/models"
 )
@@ -27,7 +28,6 @@ func (repo *ProfileRepository) GetID(sessionToken string) (string, error) {
 	}
 	return userID, nil
 }
-
 
 // here I will check if the user is following the profile or not
 func (repo *ProfileRepository) IsFollower(userID string, authUserID string) (bool, error) {
@@ -69,8 +69,9 @@ func (repo *ProfileRepository) FollowDone(userID string, authUserID string) erro
 
 // here I will just insert the request into the table of the followrequests
 func (repo *ProfileRepository) FollowPrivate(userID string, authUserID string) error {
-	query := `INSERT INTO follow_requests (userID, requestorID) VALUES(?,?) `
-	_, err := repo.db.Exec(query, userID, authUserID)
+	sentAt := time.Now().UTC().Format(time.RFC3339)
+	query := `INSERT INTO follow_requests (userID, requestorID, sent_at) VALUES(?, ?, ?) `
+	_, err := repo.db.Exec(query, userID, authUserID, sentAt)
 	if err != nil {
 		return fmt.Errorf("error inserting the data into the follow_requests table:%v", err)
 	}
@@ -349,7 +350,7 @@ func (repo *ProfileRepository) ToPublicAccount(userID string) error {
 	return nil
 }
 
-// change the visibility to private 
+// change the visibility to private
 func (repo *ProfileRepository) ToPrivateAccount(userID string) error {
 	query := `UPDATE users SET visibility = ? WHERE userID = ?`
 	_, err := repo.db.Exec(query, "private", userID)

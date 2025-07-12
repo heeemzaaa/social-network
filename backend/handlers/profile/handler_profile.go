@@ -74,6 +74,7 @@ func (PrHandler *ProfileHandler) GetFollowing(w http.ResponseWriter, r *http.Req
 func (PrHandler *ProfileHandler) Follow(w http.ResponseWriter, r *http.Request) {
 	authSessionID, errSession := GetSessionID(r)
 	if errSession != nil {
+		fmt.Println("hona")
 		h.WriteJsonErrors(w, *errSession)
 		return
 	}

@@ -59,6 +59,13 @@ func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message
 		&message_created.Content, &message_created.CreatedAt); err != nil {
 		return nil, models.NewErrorJson(500, "", fmt.Sprintf("%v 1", err))
 	}
+	var firstName, lastName string
+	query = `SELECT firstName, lastName FROM users WHERE userID = ?`
+	err = repo.db.QueryRow(query, message.SenderID).Scan(&firstName, &lastName)
+	if err != nil {
+		return nil , models.NewErrorJson(500, "", fmt.Sprintf("%v", err))
+	}
+	message_created.SenderName = firstName + " " + lastName
 	return message_created, nil
 }
 
@@ -179,7 +186,7 @@ func (repo *ChatRepository) GetMembersOfGroup(groupID string) ([]string, *models
 // check if the user exist, I will need this a lot hhh
 func (repo *ChatRepository) UserExists(userID string) (bool, *models.ErrorJson) {
 	var exists bool
-
+	fmt.Println(userID)
 	query := `SELECT EXISTS (SELECT 1 FROM users WHERE userID = ? LIMIT 1)`
 	err := repo.db.QueryRow(query, userID).Scan(&exists)
 	if err != nil {

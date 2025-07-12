@@ -112,7 +112,6 @@ func (s *ProfileService) Follow(userID string, authSessionID string) *models.Err
 
 	authUserID, err := s.repo.GetID(authSessionID)
 	if err != nil {
-		fmt.Println("ayoub")
 		return &models.ErrorJson{Status: 401, Message: fmt.Sprintf("%v", err)}
 	}
 
@@ -134,6 +133,7 @@ func (s *ProfileService) Follow(userID string, authSessionID string) *models.Err
 	case "private":
 		err := s.repo.FollowPrivate(userID, authUserID)
 		if err != nil {
+			fmt.Println(11111111111)
 			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}
 	case "public":
@@ -150,7 +150,6 @@ func (s *ProfileService) Follow(userID string, authSessionID string) *models.Err
 
 // here we will handle the case of an accepted request
 func (s *ProfileService) AcceptedRequest(userID string, authUserID string) *models.ErrorJson {
-
 	isFollower, errFollowers := s.repo.IsFollower(userID, authUserID)
 	if errFollowers != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", errFollowers)}
