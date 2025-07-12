@@ -4,8 +4,14 @@
 import React, { createContext, useContext, useState } from 'react';
 import Modal from '../_components/modal';
 
-export const ModalContext = createContext();
-export const useModal = () => useContext(ModalContext);
+const ModalContext = createContext();
+export const useModal = () => {
+    const context = useContext(ModalContext);
+    if (!context) {
+        throw new Error('useModal must be used within a ModalProvider');
+    }
+    return context;
+};
 
 export function ModalProvider({ children }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
