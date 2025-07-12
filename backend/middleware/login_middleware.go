@@ -13,6 +13,7 @@ import (
 // allahu a3laaam
 
 func (LogRegM *LoginRegisterMiddleWare) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-Type", "application/json")
 	err := LogRegM.GetAuthUser(r)
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{
@@ -25,8 +26,8 @@ func (LogRegM *LoginRegisterMiddleWare) ServeHTTP(w http.ResponseWriter, r *http
 	LogRegM.MiddlewareHanlder.ServeHTTP(w, r)
 }
 
-// we need to set the context heeeeere !!!! 
-// and pass the data of the user to it 
+// we need to set the context heeeeere !!!!
+// and pass the data of the user to it
 
 func (LogRegM *LoginRegisterMiddleWare) GetAuthUser(r *http.Request) *models.ErrorJson {
 	cookie, err := r.Cookie("session")
