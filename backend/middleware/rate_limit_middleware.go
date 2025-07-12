@@ -4,35 +4,10 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"sync"
 	"time"
 
 	"social-network/backend/models"
-	"social-network/backend/utils"
 )
-
-type UserInfo struct {
-	UserID      int
-	Count       int
-	LastRequest time.Time
-}
-
-type ClientInfo struct {
-	Count       int
-	LastRequest time.Time
-	sync.Mutex
-}
-
-type RateLimitMiddleWare struct {
-	MiddlewareHanlder http.Handler
-	Users             sync.Map
-	MaxDuration       time.Duration
-	MaxRequests       int
-}
-
-func NewRateLimitMiddleWare(handler http.Handler) *RateLimitMiddleWare {
-	return &RateLimitMiddleWare{handler, sync.Map{}, time.Duration(time.Minute * 1), 500}
-}
 
 func (rl *RateLimitMiddleWare) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -58,7 +33,7 @@ func (rl *RateLimitMiddleWare) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		} else {
 			if clientInfo.Count >= rl.MaxRequests {
 				fmt.Println("", clientInfo.Count)
-				utils.WriteJsonErrors(w, models.ErrorJson{
+				WriteJsonErrors(w, models.ErrorJson{
 					Status:  http.StatusTooManyRequests,
 					Message: "ERROR!! Too many Requests",
 				})

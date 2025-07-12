@@ -50,7 +50,7 @@ func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string, setDe
 	}
 	// the string returned here is the actual format (we can do another check to see if the mimeType is
 	// on harmony with the format but no need !!
-	_, _, err = image.Decode(bytes.NewReader(buf.Bytes()))
+	_,_, err = image.Decode(bytes.NewReader(buf.Bytes()))
 	if err != nil {
 		return "", &models.ErrorJson{Status: 400, Message: "Error!! Invalid Image Content"}
 	}

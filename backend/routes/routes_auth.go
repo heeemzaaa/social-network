@@ -11,7 +11,7 @@ import (
 
 func SetAuthRoutes(mux *http.ServeMux, db *sql.DB) {
 	authRepo := ra.NewAuthRepository(db)
-	authService := sa.NewAuthServer(authRepo)
+	authService := sa.NewAuthService(authRepo)
 	AuthHandler := ha.NewAuthHandler(authService)
 	// mux.Handle("/api/auth/", AuthHandler)
 	mux.Handle("/api/auth/", AuthHandler)

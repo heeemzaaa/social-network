@@ -8,9 +8,8 @@ import (
 	"slices"
 	"time"
 
-	"social-network/backend/utils"
 	"social-network/backend/models"
-	"social-network/backend/services/auth"
+	"social-network/backend/utils"
 )
 
 type AuthHandler struct {
@@ -139,7 +138,7 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	err := json.Unmarshal([]byte(data), &user)
 	if err != nil {
 		fmt.Println("Error while decoding the the register request body: ", err)
-		if err == io.EOF || *user == (models.User{}) {
+		if err == io.EOF {
 			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
 				Message: models.User{
@@ -175,7 +174,7 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	}
 
 	userData, errJson := authHandler.service.GetUser(&models.Login{LoginField: user.Email})
-	fmt.Printf("userData: %v\n", userData)
+	
 
 	if errJson != nil {
 		utils.WriteJsonErrors(w, *errJson)
@@ -187,7 +186,6 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 		utils.WriteJsonErrors(w, *err_)
 		return
 	}
-
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session",

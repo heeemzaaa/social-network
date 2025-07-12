@@ -48,5 +48,5 @@ func SetGroupRoutes(mux *http.ServeMux, db *sql.DB) {
 	mux.Handle("/api/groups/{group_id}/posts/", GroupPostHandler)
 	mux.Handle("/api/groups/{group_id}/events/", GroupEventHandler)
 	mux.Handle("/api/groups/{group_id}/", GroupIDHandler)
-	mux.Handle("/api/group/", GroupHandler)
+	mux.Handle("/api/groups/", GroupHandler)
 }
