@@ -42,3 +42,11 @@ type UserData struct {
 	Id         string `json:"id,omitempty"`
 	Nickname   string `json:"nickname,omitempty"`
 }
+
+type ContextKey struct {
+	Key string
+}
+
+func NewContextKey(key string) *ContextKey {
+	return &ContextKey{Key: key}
+}

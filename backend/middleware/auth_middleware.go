@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
+
 	"social-network/backend/models"
 	"social-network/backend/utils"
 )
@@ -23,10 +25,11 @@ func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *m
 
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-Type", "application/json")
-	_, err := m.GetAuthUserEnsureAuth(r)
+	session, err := m.GetAuthUserEnsureAuth(r)
 	if err != nil {
 		utils.WriteJsonErrors(w, *err)
 		return
 	}
-	m.MiddlewareHanlder.ServeHTTP(w, r)
+	ctx := context.WithValue(r.Context(), models.NewContextKey("userID"), session.UserId)
+	m.MiddlewareHanlder.ServeHTTP(w, r.WithContext(ctx))
 }
