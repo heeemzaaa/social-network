@@ -29,7 +29,7 @@ func NewGroupHandler(gservice *gservice.GroupService) *GroupHanlder {
 func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := utils.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: errParse.Error()})
 		return
 	}
 	filter := r.URL.Query().Get("filter")
@@ -59,7 +59,7 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := utils.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: errParse.Error()})
 		return
 	}
 	var group_to_create *models.Group
