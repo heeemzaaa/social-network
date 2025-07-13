@@ -4,7 +4,7 @@ const initialPostData = {
     title: '',
     content: '',
 };
-
+// type two cases first post for user and post for groups
 export default function CreatePost({ type, postAction }) {
     const [state, action] = useActionState(postAction, {});
     const [data, setData] = useState(initialPostData);
@@ -18,19 +18,20 @@ export default function CreatePost({ type, postAction }) {
 
     return (
         <form action={action} >
-            <input
+            title : <input
                 name="title"
                 value={data.title}
                 onChange={handleChange}
                 placeholder="Title"
                 className="input"
             />
+            <br />
             {state.errors?.title && <span>{state.errors.title}</span>}
-
+            <br />
             <label htmlFor="upload">GIF / IMG</label>
             <input name="img" id="upload" type="file" />
-
-            <textarea
+            <br />
+            content : <textarea
                 name="content"
                 value={data.content}
                 onChange={handleChange}

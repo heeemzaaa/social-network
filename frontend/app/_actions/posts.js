@@ -7,14 +7,17 @@ export async function createPostAction(prevState, formData) {
         errors: {},
         message: null,
     }
-    console.log("post action run by the next server")
-    const data = Object.fromEntries(formData.entries());
 
+    const data = Object.fromEntries(formData.entries());
+    // same as r.form 
     let title = formData.get("title")
-    //   let title = formData.get("title")
+    let content = formData.get("content")
 
     if (title == "") {
         state.errors.title = "title is requied"
+    }
+    if (content == "") {
+        state.errors.title = "contenet is requied"
     }
 
     if (Object.keys(state.errors).length > 0) {
@@ -32,6 +35,6 @@ export async function createPostAction(prevState, formData) {
     }
 
     const createdPost = await response.json();
-
+    console.log(createdPost ,"--")
     return createdPost;
 }
