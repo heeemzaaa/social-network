@@ -8,7 +8,8 @@ import (
 	"social-network/backend/models"
 )
 
-func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
+func NewPostHandler(w http.ResponseWriter, r *http.Request) {
+	
 	fmt.Println("inside the get posts handler.")
 
 	// fake post

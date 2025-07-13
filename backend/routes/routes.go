@@ -3,7 +3,6 @@ package routes
 import (
 	"database/sql"
 	"net/http"
-	
 )
 
 func SetRoutes(db *sql.DB) *http.ServeMux {
@@ -12,8 +11,8 @@ func SetRoutes(db *sql.DB) *http.ServeMux {
 	SetGroupRoutes(mux, db, authService)
 	SetProfileRoutes(mux, db, authService)
 
-	
-	mux = SetPostsRoutes(mux ,db)
+	SetPostsRoutes(mux, db)
+	mux = SetPostsRoutes(mux, db)
 
 	return mux
 }
