@@ -8,8 +8,8 @@ import (
 
 func SetRoutes(db *sql.DB) *http.ServeMux {
 	mux := http.NewServeMux()
-	SetAuthRoutes(mux, db)
-	SetGroupRoutes(mux, db)
+	mux, authService := SetAuthRoutes(mux, db)
+	SetGroupRoutes(mux, db, authService)
 
 	return mux
 }

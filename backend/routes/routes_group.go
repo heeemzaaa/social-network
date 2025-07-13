@@ -5,7 +5,9 @@ import (
 	"net/http"
 
 	group "social-network/backend/handlers/group"
+	"social-network/backend/middleware"
 	gRepo "social-network/backend/repositories/group"
+	authService "social-network/backend/services/auth"
 	gService "social-network/backend/services/group"
 )
 
@@ -30,7 +32,7 @@ import (
 // POST /api/groups/{group_id}/events/{event-id}/ (add a event to a specific group)
 /**********************************************************/
 
-func SetGroupRoutes(mux *http.ServeMux, db *sql.DB) {
+func SetGroupRoutes(mux *http.ServeMux, db *sql.DB, authService *authService.AuthService) {
 	//  auth service
 	// authRepo := ra.NewAuthRepository(db)
 	// authService := sa.NewAuthServer(authRepo)
@@ -43,10 +45,10 @@ func SetGroupRoutes(mux *http.ServeMux, db *sql.DB) {
 	GroupPostHandler := group.NewGroupPostHandler(groupService)
 	GroupCommentHandler := group.NewGroupCommentHandler(groupService)
 	GroupEventIDHandler := group.NewGroupEventIDHandler(groupService)
-	mux.Handle("/api/groups/{group_id}/events/{event_id}/", GroupEventIDHandler)
-	mux.Handle("/api/groups/{group_id}/posts/{post_id}/comments/", GroupCommentHandler)
-	mux.Handle("/api/groups/{group_id}/posts/", GroupPostHandler)
-	mux.Handle("/api/groups/{group_id}/events/", GroupEventHandler)
-	mux.Handle("/api/groups/{group_id}/", GroupIDHandler)
-	mux.Handle("/api/groups/", GroupHandler)
+	mux.Handle("/api/groups/{group_id}/events/{event_id}/", middleware.NewMiddleWare(GroupEventIDHandler, authService))
+	mux.Handle("/api/groups/{group_id}/posts/{post_id}/comments/", middleware.NewMiddleWare(GroupCommentHandler, authService))
+	mux.Handle("/api/groups/{group_id}/posts/", middleware.NewMiddleWare(GroupPostHandler, authService))
+	mux.Handle("/api/groups/{group_id}/events/", middleware.NewMiddleWare(GroupEventHandler, authService))
+	mux.Handle("/api/groups/{group_id}/", middleware.NewMiddleWare(GroupIDHandler, authService))
+	mux.Handle("/api/groups/", middleware.NewMiddleWare(GroupHandler, authService))
 }
