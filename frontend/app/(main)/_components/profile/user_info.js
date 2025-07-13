@@ -1,5 +1,5 @@
 import { useState } from "react"
-import "./components.css"
+import "./profile.css"
 
 export default function InfosDiv({ userInfos, children }) {
 
@@ -68,8 +68,8 @@ export default function InfosDiv({ userInfos, children }) {
         className="ProfileContainer p2"
         style={{ backgroundImage: `url(${userInfos.img || '/no-profile.png'})` }}
       >
-        <div className="ProfileData p2 flex-col gap-1">
         {children}
+        <div className="ProfileData p2 flex-col gap-1">
           <p><span className="font-bold">First Name:</span> {userInfos.firstName}</p>
           <p><span className="font-bold">Last Name:</span> {userInfos.lastName}</p>
           <p><span className="font-bold">Email:</span> {userInfos.email}</p>

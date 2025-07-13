@@ -3,17 +3,19 @@ package models
 import "time"
 
 type User struct {
-	Id             string `json:"id,omitempty"`
-	FirstName      string `json:"firstname,omitempty"`
-	LastName       string `json:"lastname,omitempty"`
-	BirthDate      string `json:"birthdate,omitempty"`
-	Email          string `json:"email,omitempty"`
-	Password       string `json:"password,omitempty"`
-	Nickname       string `json:"nickname,omitempty"`
-	AboutMe        string `json:"about_me,omitempty"`
-	ProfileImage   string `json:"avatar,omitempty"`
-	Visibility     string `json:"visibility,omitempty"`
-	ProfileImgSize int64  `json:"img_size,omitempty"`
+	Id              string `json:"id,omitempty"`
+	FirstName       string `json:"firstname,omitempty"`
+	LastName        string `json:"lastname,omitempty"`
+	BirthDate       string `json:"birthdate,omitempty"`
+	Email           string `json:"email,omitempty"`
+	Password        string `json:"password,omitempty"`
+	Nickname        string `json:"nickname,omitempty"`
+	AboutMe         string `json:"about_me,omitempty"`
+	ProfileImage    string `json:"avatar,omitempty"`
+	Visibility      string `json:"visibility,omitempty"`
+	ProfileImgSize  int64  `json:"img_size,omitempty"`
+	LastMessage     string `json:"last_message,omitempty"`
+	LastInteraction string `json:"last_interaction,omitempty"`
 }
 
 func NewUser() *User {

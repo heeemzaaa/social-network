@@ -1,17 +1,19 @@
 package chat
 
 import (
-	"fmt"
 	"io"
 	"slices"
+
 	"social-network/backend/models"
 	"social-network/backend/services/chat"
 
 	"github.com/gorilla/websocket"
 )
 
-type ClientList map[string][]*Client
-type GroupMembers map[string][]string // her I will handle kola user o l connections dyalo kamlin key: groupID, value: slice of user IDs
+type (
+	ClientList   map[string][]*Client
+	GroupMembers map[string][]string // her I will handle kola user o l connections dyalo kamlin key: groupID, value: slice of user IDs
+)
 
 type OnlineUsers struct {
 	Type string        `json:"type"`
@@ -82,14 +84,13 @@ func (client *Client) ReadMessages() {
 						Content:   " empty message field",
 						TargetID:  " empty receiver_id field",
 						Type:      " empty type field",
-						CreatedAt: " empty createdAt field",
 					},
 				}
 				continue
 			}
 			if isLogoutError(err) {
 				logged_out = true
-				fmt.Println("after", logged_out)
+				// fmt.Println("after", logged_out)
 				// delete(client.chatServer.clients, client.userId)
 				break
 			}
@@ -99,7 +100,7 @@ func (client *Client) ReadMessages() {
 		}
 
 		message.SenderID = client.session.UserId
-		fmt.Println(message.SenderID)
+		// fmt.Println(message.SenderID)
 		message_validated, errJson := client.chatServer.service.ValidateMessage(message)
 		if errJson != nil {
 			client.ErrorJson <- errJson
@@ -112,7 +113,7 @@ func (client *Client) ReadMessages() {
 	defer client.chatServer.RemoveClient(client, logged_out)
 }
 
-// i used the channels buy not sure if this is the correct way to handle this
+// i used the channels but not sure if this is the correct way to handle this
 func (client *Client) WriteMessages() {
 	defer client.chatServer.RemoveClient(client, false)
 
@@ -155,7 +156,7 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 			value.Message <- message
 		}
 	case "group":
-		members , err :=  user.service.GetMembersOfGroup(message.TargetID)
+		members, err := user.service.GetMembersOfGroup(message.TargetID)
 		if err != nil {
 			return
 		}
@@ -167,11 +168,11 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 		}
 
 		// receivers hna
-		for _ , member := range members {
+		for _, member := range members {
 			if member == message.SenderID {
 				continue
 			}
-			for _ , conn := range user.chatServer.client[member] {
+			for _, conn := range user.chatServer.client[member] {
 				if conn.connection != user.connection {
 					conn.Message <- message
 				}

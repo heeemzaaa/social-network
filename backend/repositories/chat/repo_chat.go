@@ -3,6 +3,7 @@ package chat
 import (
 	"database/sql"
 	"fmt"
+
 	"social-network/backend/models"
 
 	"github.com/google/uuid"
@@ -14,6 +15,71 @@ type ChatRepository struct {
 
 func NewChatRepository(db *sql.DB) *ChatRepository {
 	return &ChatRepository{db: db}
+}
+
+func (repo *ChatRepository) GetUsers(offset, user_id int) ([]models.User, *models.ErrorJson) {
+	var users []models.User
+	query := `
+		WITH 
+		cte_latest_interaction AS (
+    		SELECT
+        		CASE 
+            		WHEN sender_id = ? THEN target_id 
+            		ELSE sender_id 
+        		END AS userID,
+        	MAX(created_at) AS lastInteraction,
+        	message
+    	FROM messages
+    		WHERE (sender_id = ? OR target_id = ?)
+      		AND type = 'private'
+    		GROUP BY userID
+		),
+		cte_ordered_users AS (
+    		SELECT 
+       			 i.message, 
+       			 COALESCE(i.lastInteraction, 0) AS lastInteraction,  
+        		u.userID, 
+        		u.firstName
+    		FROM users u 
+    		LEFT JOIN cte_latest_interaction i 
+       		ON i.userID = u.userID
+    	WHERE u.userID != ?
+		),
+		cte_notifications AS (
+    		SELECT 
+        		sender_id,
+        		COUNT(*) AS notifications 
+    		FROM messages 
+    		WHERE readStatus = 0
+      			AND target_id = ?
+      			AND type = 'private'
+    			GROUP BY sender_id
+		)
+		SELECT 
+    		u.userID, 
+    		u.firstName,
+    	COALESCE(u.message, '') AS message, 
+   			u.lastInteraction, 
+    	COALESCE(n.notifications, 0) AS notifications
+		FROM cte_ordered_users u
+			LEFT JOIN cte_notifications n ON u.userID = n.sender_id
+			ORDER BY u.lastInteraction DESC, u.firstName, u.lastName;
+`
+
+	rows, err := repo.db.Query(query, user_id, user_id, user_id, user_id, user_id)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	for rows.Next() {
+		var user models.User
+		if err := rows.Scan(&user.Id, &user.Nickname, &user.LastMessage, &user.LastInteraction); err != nil {
+			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v ", err)}
+		}
+		users = append(users, user)
+	}
+	defer rows.Close()
+
+	return users, nil
 }
 
 // here I will get the session Id by the token given by the browser to check the auth
@@ -63,7 +129,7 @@ func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message
 	query = `SELECT firstName, lastName FROM users WHERE userID = ?`
 	err = repo.db.QueryRow(query, message.SenderID).Scan(&firstName, &lastName)
 	if err != nil {
-		return nil , models.NewErrorJson(500, "", fmt.Sprintf("%v", err))
+		return nil, models.NewErrorJson(500, "", fmt.Sprintf("%v", err))
 	}
 	message_created.SenderName = firstName + " " + lastName
 	return message_created, nil
@@ -206,5 +272,3 @@ func (repo *ChatRepository) GroupExists(groupID string) (bool, *models.ErrorJson
 	}
 	return exists, nil
 }
-
-

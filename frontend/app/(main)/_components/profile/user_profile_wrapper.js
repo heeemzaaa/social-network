@@ -6,21 +6,25 @@ import AboutUser from "./about_user"
 import { FaUserEdit, FaLockOpen, FaLock } from "react-icons/fa"
 import { RiUserFollowFill, RiUserUnfollowFill } from "react-icons/ri"
 import Button from "@/app/_components/button"
+import { usePathname } from "next/navigation"
+import "./profile.css"
+
+
 
 export default function UserProfileWrapper({ id }) {
-  // console.log(id)
   const [userInfos, setUserInfos] = useState(null)
   const [loading, setLoading] = useState(true)
   const [mine, setMine] = useState(false)
   const [privacy, setPrivacy] = useState(null)
   const [follows, setFollows] = useState(null)
+  const pathname = usePathname()
 
   useEffect(() => {
     async function fetchUserInfos() {
       try {
-        const res = await fetch(`http://localhost:8080/api/profile/${id}` , {credentials: 'include'})
+        const res = await fetch(`http://localhost:8080/api/profile/${id}`, { credentials: 'include' })
         const profile = await res.json()
-        console.log(profile)
+
         const info = {
           id: profile.user.id,
           firstName: profile.user.firstname,
@@ -29,15 +33,16 @@ export default function UserProfileWrapper({ id }) {
           dateOfBirth: profile.user.birthdate,
           nickname: profile.user.nickname || null,
           img: profile.user.avatar || null,
-          followers: profile.followers_count,
-          following: profile.following_count,
-          posts: profile.posts_count,
-          groups: profile.groups_count,
+          followers: profile.followers_count || 0,
+          following: profile.following_count || 0,
+          posts: profile.posts_count || 0,
+          groups: profile.groups_count || 0,
           aboutMe: profile.user.about_me || null,
           isMyProfile: profile.is_my_profile,
           isFollower: profile.is_follower,
           visibility: profile.visibility
         }
+        // setID(info.id)
         setUserInfos(info)
         setPrivacy(info.visibility)
         setFollows(info.isFollower)
@@ -70,6 +75,12 @@ export default function UserProfileWrapper({ id }) {
 
       if (res.ok) {
         setFollows(!follows)
+        if (follows) {
+          setUserInfos(prev => ({ ...prev, followers: prev.followers - 1 }))
+        } else {
+          setUserInfos(prev => ({ ...prev, followers: prev.followers + 1 }))
+
+        }
       } else {
         console.error("Failed to follow/unfollow")
       }
@@ -112,32 +123,48 @@ export default function UserProfileWrapper({ id }) {
   return (
     <>
       <InfosDiv userInfos={userInfos}>
-        {mine ? (
-          <Button variant={'btn-icon glass-bg'}>
-            <FaUserEdit size={'24px'} />
-          </Button>
-        ) : (
-          <Button variant={'btn-icon glass-bg'} onClick={handleToggleFollow}>
-            {follows ? (
-              <RiUserUnfollowFill size={'24px'} />
-            ) : (
-              <RiUserFollowFill size={'24px'} />
-            )}
-          </Button>
-        )}
+        <section className="buttons flex gap-1" style={{marginLeft: 'auto'}}>
+          {mine ? (
+            <Button variant={'btn-icon glass-bg gap-1'}>
+              <>
+                <FaUserEdit size={'24px'} color="white" />
+                <span style={{ color: 'white' }}>Edit Profile</span>
+              </>
+            </Button>
+          ) : (
+            <Button variant={'btn-icon glass-bg gap-1'} onClick={handleToggleFollow}>
+              {follows ? (
+                <>
+                  <RiUserUnfollowFill size={'24px'} color="white" />
+                  <span style={{ color: 'white' }}>Unfollow</span>
+                </>
+              ) : (
+                <>
+                  <RiUserFollowFill size={'24px'} color="white" />
+                  <span style={{ color: 'white' }}>Follow</span>
+                </>
+              )}
+            </Button>
+          )}
 
-        {mine && (
-          <Button variant={'btn-icon glass-bg'} onClick={handleTogglePrivacy}>
-            {privacy === 'private' ? (
-              <FaLock size={'24px'} />
-            ) : (
-              <FaLockOpen size={'24px'} />
-            )}
-          </Button>
-        )}
+          {mine && (
+            <Button variant={'btn-icon glass-bg gap-1'} onClick={handleTogglePrivacy}>
+              {privacy === 'private' ? (
+                <>
+                  <FaLockOpen size={'24px'} color="white" />
+                  <span style={{ color: 'white' }}>to Public</span>
+                </>
+              ) : (
+                <>
+                  <FaLock size={'24px'} color="white" />
+                  <span style={{ color: 'white' }}>to Private</span>
+                </>
+              )}
+            </Button>
+          )}
+        </section>
       </InfosDiv>
-      <AboutUser aboutMe={userInfos.aboutMe} />
-      
+      {pathname.startsWith("/profile/") && <AboutUser aboutMe={userInfos.aboutMe} />}
     </>
   )
 }

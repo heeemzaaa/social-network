@@ -2,18 +2,19 @@ package chat
 
 import (
 	"net/http"
+	"strings"
+	"sync"
+
 	h "social-network/backend/handlers"
 	"social-network/backend/models"
 	"social-network/backend/services/chat"
-	"strings"
-	"sync"
 
 	"github.com/gorilla/websocket"
 )
 
 type ChatServer struct {
 	service  *chat.ChatService
-	client  ClientList
+	client   ClientList
 	upgrader websocket.Upgrader
 	sync.RWMutex
 }
@@ -22,14 +23,18 @@ type ChatServer struct {
 func NewChatServer(service *chat.ChatService) *ChatServer {
 	return &ChatServer{
 		service: service,
-		client: make(ClientList),
+		client:  make(ClientList),
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
 		},
 	}
 }
 
+// here we'll try to upgrade the http connection to websocket
 func (server *ChatServer) ChatServerHandler(w http.ResponseWriter, r *http.Request) {
 	connection, err := server.upgrader.Upgrade(w, r, nil)
 	if err != nil {

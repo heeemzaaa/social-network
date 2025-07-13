@@ -1,11 +1,11 @@
 // frontend/app/(main)/page.js 
 
 "use client"
-import InfosDiv from "./_components/user_info";
 import PostsContainer from "./_components/posts/posts_container";
 import { useEffect, useState } from "react";
 import Loading from "./loading";
 import { fetchPosts } from "./_lib/posts";
+import UserProfileWrapper from "./_components/profile/user_profile_wrapper";
 
 export default function Home() {
   const userInfos = {
@@ -60,7 +60,7 @@ export default function Home() {
 
   return (
     <main className='home-page'>
-      <InfosDiv {...userInfos} />
+      <UserProfileWrapper {...userInfos} />
       {loading ? <Loading /> :  <PostsContainer posts={posts} />}
     </main>
   );
