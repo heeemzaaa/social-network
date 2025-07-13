@@ -1,0 +1,63 @@
+.grp-cards-list {
+    height: 100% ;
+    border: solid;
+    overflow-y: auto;
+}
+
+.grp-card {
+    --img-width: 180px;
+    --margin-left: calc(var(--img-width) / 2);
+    --card-padding: 1rem;
+}
+
+.grp-card {
+    margin-left: var(--margin-left);
+    background-color: var(--color-white);
+    padding: var(--card-padding);
+    padding-left: calc(var(--img-width) / 2 + var(--card-padding));
+    border-radius: var(--border-radius-lg);
+    width: 90%;
+    max-width: 350px;
+    box-shadow: var(--shadow-md);
+    transition: all .1s ease-in;
+    position: relative;
+    min-height: calc(var(--img-width) + var());
+}
+
+.grp-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: scale(.99) translateY(2px);
+    cursor: pointer;
+}
+
+.grp-card-img-holder {
+    padding: 1rem;
+    width: var(--img-width);
+    height: calc(90% - var(--card-padding) / 2);
+    margin-top: auto;
+    max-height: var(--img-width);
+    /* border: solid 1red; */
+    position: absolute;
+    left: calc(-1 * var(--img-width) / 2);
+}
+
+.grp-card-img {
+    border: solid 1px green;
+    height: 100%;
+    background-position: center;
+    background-size: contain;
+    box-shadow: var(--shadow-lg);
+}
+
+.grp-card-body {
+
+    /* border: solid 1px; */
+    height: 100%;
+
+}
+
+.grp-card-body .grp-description {
+    padding: .5rem;
+    text-align: justify;
+
+}

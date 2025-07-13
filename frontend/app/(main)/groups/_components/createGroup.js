@@ -2,14 +2,13 @@ import styles from "../group.module.css"
 import Button from '@/app/_components/button'
 import { HiMiniPencilSquare, HiOutlinePencil } from "react-icons/hi2";
 
-
-export  function CreateGroup() {
+export function CreateGroup() {
     return (
         <div className='group-form'>
             <form className={`${styles.form} glass-bg`}>
                 <div className={`${styles.formGrp}`}>
                     <label htmlFor='title'>
-                         <HiOutlinePencil />
+                        <HiOutlinePencil />
                         <span>
                             Title:
                         </span>
@@ -31,5 +30,4 @@ export  function CreateGroup() {
             </form>
         </div>
     );
-
 }
