@@ -30,6 +30,6 @@ func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		utils.WriteJsonErrors(w, *err)
 		return
 	}
-	ctx := context.WithValue(r.Context(), models.NewContextKey("userID"), session.UserId)
+	ctx := context.WithValue(r.Context(), "userID", session.UserId)
 	m.MiddlewareHanlder.ServeHTTP(w, r.WithContext(ctx))
 }
