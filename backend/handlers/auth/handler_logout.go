@@ -42,10 +42,10 @@ func (logout *Logout) Logout(w http.ResponseWriter, r *http.Request) {
 func (logout *Logout) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch {
-	case r.Method != http.MethodPost && r.URL.Path == "/api/user/logout":
+	case r.Method != http.MethodPost && r.URL.Path == "/api/auth/logout":
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
 		return
-	case r.Method == http.MethodPost && r.URL.Path == "/api/user/logout":
+	case r.Method == http.MethodPost && r.URL.Path == "/api/auth/logout":
 		logout.Logout(w, r)
 		return
 	default:

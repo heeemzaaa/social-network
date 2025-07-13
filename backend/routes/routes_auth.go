@@ -17,7 +17,7 @@ func SetAuthRoutes(mux *http.ServeMux, db *sql.DB) {
 	logoutHandler := ha.NewLogoutHandler(authService)
 	loggedInHandler := ha.NewLoggedInHanlder(authService)
 	// mux.Handle("/api/auth/", AuthHandler)
-	mux.Handle("/api/auth/loggedin", loggedInHandler)
+	mux.Handle("/api/loggedin", loggedInHandler)
 	mux.Handle("/api/auth/logout", middleware.NewMiddleWare(logoutHandler, authService))
 	mux.Handle("/api/auth/", middleware.NewLoginMiddleware(AuthHandler, authService))
 }

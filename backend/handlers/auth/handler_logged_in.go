@@ -18,11 +18,6 @@ func NewLoggedInHanlder(service *auth.AuthService) *UserData {
 
 func (loggedin *UserData) GetLoggedIn(w http.ResponseWriter, r *http.Request) {
 	user_data := &models.UserData{}
-	if r.Method != http.MethodGet {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!!"})
-		return
-	}
-
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		user_data.IsLoggedIn = false
@@ -46,10 +41,10 @@ func (loggedin *UserData) GetLoggedIn(w http.ResponseWriter, r *http.Request) {
 func (loggedin *UserData) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch {
-	case r.Method != http.MethodPost && r.URL.Path == "/api/user/loggedin":
+	case r.Method != http.MethodGet && r.URL.Path == "/api/loggedin":
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
 		return
-	case r.Method == http.MethodPost && r.URL.Path == "/api/user/loggedin":
+	case r.Method == http.MethodGet && r.URL.Path == "/api/loggedin":
 		loggedin.GetLoggedIn(w, r)
 		return
 	default:

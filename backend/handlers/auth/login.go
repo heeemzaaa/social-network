@@ -45,7 +45,6 @@ func (authHandler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// we need now
 	// before setting the session we need the actual id of the user
 	// if there is a session update it
-
 	session, errJSON := authHandler.service.SetUserSession(user)
 	if errJSON != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{

@@ -17,6 +17,10 @@ import (
 	"social-network/backend/models"
 )
 
+
+// set the default image based on the specific business logic 
+// so the default image MUST change based on if the group or the profile for example!!!
+
 func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string, setDefault bool) (string, *models.ErrorJson) {
 	defaultPath := ""
 	if setDefault {
