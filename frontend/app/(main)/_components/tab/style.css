@@ -1,13 +1,17 @@
 /* styles/globals.css or components/Tabs.module.css */
 
 .tab-container {
-    /* flex-grow: 1; */
+    flex-grow: 1;
 }
 
 .tab-list {
     margin-top: 1rem;
     display: flex;
     border-bottom: 1px solid #ccc;
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index:999999;
 }
 
 .tab-button {
@@ -25,9 +29,13 @@
     box-shadow: var(--shadow-md);
 }
 
-.tab-panel {
+.tab-content {
     padding: 20px;
     border: 1px solid #eee;
     border-top: none;
     height: 100%;
+}
+
+.border-red { 
+    border: solid 3px red;
 }

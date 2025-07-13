@@ -6,21 +6,27 @@ import Tabs from '../_components/tab/tabs';
 import Tab from '../_components/tab/tab';
 import TabContent from '../_components/tab/tabContent';
 import { useModal } from '../_context/ModalContext';
+import GroupCardList from './_components/groupCardList';
 
 
 export default function Groups() {
   const { openModal } = useModal()
   return (
-    <main className='flex-col '>
+    <main className='flex-col border-red'>
       <Button className={'self-end'} onClick={() => { openModal(<CreateGroup />) }}>Add Post</Button>
-      <Tabs className={'flex-grow'}>
+      <Tabs className={''}>
         <Tab label="Your Groups" />
         <Tab label="Joined Groups" />
         <Tab label="Groups" />
-        <TabContent>Content for Tab 1</TabContent>
-        <TabContent>Content for Tab 2</TabContent>
+        <TabContent>
+          <GroupCardList/>
+        </TabContent>
+        <TabContent> <GroupCardList/></TabContent>
         <TabContent>Content for Tab 3</TabContent>
       </Tabs>
     </main>
   )
 }
+
+
+

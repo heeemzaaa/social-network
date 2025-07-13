@@ -2,7 +2,7 @@
 import "./style.css";
 import React, { useState } from "react";
 
-export default function Tabs({ children }) {
+export default function Tabs({ children, className }) {
     const [activeTab, setActiveTab] = useState(0);
 
     const handleTabClick = (index) => {
@@ -20,7 +20,7 @@ export default function Tabs({ children }) {
     });
 
     return (
-        <div className="tab-container flex-container">
+        <div className={`tab-container ${className}`}>
             <div className="tab-list">
                 {tabs.map((tab, index) =>
                     React.cloneElement(tab, {
@@ -30,7 +30,7 @@ export default function Tabs({ children }) {
                     })
                 )}
             </div>
-            <div className="tab-content">
+            <div className="tab-content ">
                 {contents[activeTab] || <div>No content available for this tab</div>}
             </div>
         </div>
