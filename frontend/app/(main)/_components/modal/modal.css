@@ -1,0 +1,44 @@
+/* Modal backdrop */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width:  100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6); /* semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* sits above most content */
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Modal box */
+.modal-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+    max-height: 90vh;
+    position: relative;
+    color: black;
+}
+
+/* Close button */
+.modal-close {
+    margin-left: auto;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

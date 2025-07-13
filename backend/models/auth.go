@@ -1,19 +1,16 @@
 package models
 
-import "time"
-
 type User struct {
-	Id             string `json:"id,omitempty"`
-	FirstName      string `json:"firstname,omitempty"`
-	LastName       string `json:"lastname,omitempty"`
-	BirthDate      string `json:"birthdate,omitempty"`
-	Email          string `json:"email,omitempty"`
-	Password       string `json:"password,omitempty"`
-	Nickname       string `json:"nickname,omitempty"`
-	AboutMe        string `json:"about_me,omitempty"`
-	ProfileImage   string `json:"avatar,omitempty"`
-	Visibility     string `json:"visibility,omitempty"`
-	ProfileImgSize int64  `json:"img_size,omitempty"`
+	Id         string `json:"id,omitempty"`
+	FirstName  string `json:"firstname,omitempty"`
+	LastName   string `json:"lastname,omitempty"`
+	BirthDate  string `json:"birthdate,omitempty"`
+	Email      string `json:"email,omitempty"`
+	Password   string `json:"password,omitempty"`
+	Nickname   string `json:"nickname,omitempty"`
+	AboutMe    string `json:"about_me,omitempty"`
+	ImagePath  string `json:"avatar,omitempty"`
+	Visibility string `json:"visibility,omitempty"`
 }
 
 func NewUser() *User {
@@ -30,23 +27,28 @@ func NewLogin() *Login {
 }
 
 type Session struct {
-	Id        int       `json:"id,omitempty"`
-	Token     string    `json:"token"`
-	UserId    string    `json:"user_id"`
-	Username  string    `json:"username,omitempty"`
-	FirstName string    `json:"first_name,omitempty"`
-	LastName  string    `json:"last_name,omitempty"`
-	ExpDate   time.Time `json:"expiration_date,omitempty"`
+	Id        int    `json:"id,omitempty"`
+	Token     string `json:"token"`
+	UserId    string `json:"user_id"`
+	Username  string `json:"username,omitempty"`
+	FirstName string `json:"firstname,omitempty"`
+	LastName  string `json:"lastname,omitempty"`
 }
 
 func NewSession() *Session {
 	return &Session{}
 }
 
-type IsLoggedIn struct {
-	IsLoggedIn bool `json:"is_logged_in"`
+type UserData struct {
+	IsLoggedIn bool   `json:"is_logged_in"`
+	Id         string `json:"id,omitempty"`
+	Nickname   string `json:"nickname,omitempty"`
 }
 
-func NewIsLoggedIn() *IsLoggedIn {
-	return &IsLoggedIn{}
+type ContextKey struct {
+	Key string
+}
+
+func NewContextKey(key string) *ContextKey {
+	return &ContextKey{Key: key}
 }

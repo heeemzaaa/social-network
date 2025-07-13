@@ -7,7 +7,7 @@ export async function middleware(request) {
     console.log("====> Inside middlware: ", request.headers.get('cookie'))
     try {
         // Fetch authentication status from the external API
-        const response = await fetch('http://localhost:8080/api/auth/islogged', {
+        const response = await fetch('http://localhost:8080/api/loggedin', {
             headers: {
                 Cookie: request.headers.get('cookie'), // Forward client cookies to API
             },

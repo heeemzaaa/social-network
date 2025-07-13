@@ -2,6 +2,7 @@ package group
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -9,48 +10,62 @@ import (
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
 	"social-network/backend/utils"
-
-	"github.com/google/uuid"
 )
 
+// Not the latest version yet just zrbt 3liha
+// need to come back at night
+
+/***   /api/groups/   ***/
+
 type GroupHanlder struct {
-	gservice *gservice.GroupService
+	gService *gservice.GroupService
 }
 
-func NewGroupHandler(service *gservice.GroupService) *GroupHanlder {
-	return &GroupHanlder{gservice: service}
+func NewGroupHandler(gservice *gservice.GroupService) *GroupHanlder {
+	return &GroupHanlder{gService: gservice}
 }
 
+// we only need the userId and filter based on owned, availabe and created
 func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
+	userID, errParse := utils.GetUserIDFromContext(r.Context())
+	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}
 	filter := r.URL.Query().Get("filter")
+	if !utils.IsValidFilter(filter) {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect filter by field!!"})
+		return
+	}
 	offset, errOffset := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
 	if errOffset != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect Offset Format!"})
 		return
 	}
-	if !utils.IsValidFilter(filter) {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect filter by field!!"})
+	groups, errJson := Ghandler.gService.GetGroups(filter, offset, userID.String())
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
 	}
-	Ghandler.gservice.GetGroups(filter, offset, userID.String())
+	if err := json.NewEncoder(w).Encode(groups); err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)})
+		return
+	}
 }
 
+// tested
+// but needs the context to be there to test out other things
+
 func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
+	userID, errParse := utils.GetUserIDFromContext(r.Context())
+	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}
 	var group_to_create *models.Group
-	err := json.NewDecoder(r.Body).Decode(&group_to_create)
-	if err != nil {
+
+	data := r.FormValue("data")
+	if err := json.Unmarshal([]byte(data), &group_to_create); err != nil {
 		if err == io.EOF {
 			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
@@ -64,21 +79,29 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 
 		utils.WriteJsonErrors(w, models.ErrorJson{
 			Status:  400,
-			Message: "an error occured while trying to decode the json!",
+			Message: "ERROR!! Can not Unmarshal the data!",
 		})
 		return
 	}
 
-	group_to_create.GroupCreatorId = userID
 	// handle the image encoding in the phase that comes before the adding process
-	if group_to_create.ImageEncoded != "" {
+	path, errUploadImg := utils.HanldeUploadImage(r, "group", "groups", true)
+	if errUploadImg != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
+		return
 	}
-
-	Ghandler.gservice.AddGroup(group_to_create)
+	group_to_create.GroupCreatorId, group_to_create.ImagePath = userID.String(), path
+	group, errJson := Ghandler.gService.AddGroup(group_to_create)
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		return
+	}
+	utils.WriteDataBack(w, group)
 }
 
 func (Ghandler *GroupHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "appplication/json")
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Println("method", r.Method)
 	switch r.Method {
 	case http.MethodGet:
 		Ghandler.GetGroups(w, r)

@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	h "social-network/backend/handlers"
 	"social-network/backend/models"
 	ps "social-network/backend/services/profile"
+	"social-network/backend/utils"
 )
 
 type ProfileHandler struct {
@@ -23,58 +23,58 @@ func NewProfileHandler(service *ps.ProfileService) *ProfileHandler {
 func (PrHandler *ProfileHandler) GetProfileData(w http.ResponseWriter, r *http.Request, profileID string) {
 	authSessionID, err := GetSessionID(r)
 	if err != nil {
-		h.WriteJsonErrors(w, *err)
+		utils.WriteJsonErrors(w, *err)
 		return
 	}
 
 	profile, errService := PrHandler.service.GetProfileData(profileID, authSessionID)
 	if errService != nil {
-		h.WriteJsonErrors(w, *errService)
+		utils.WriteJsonErrors(w, *errService)
 		return
 	}
 
-	h.WriteDataBack(w, profile)
+	utils.WriteDataBack(w, profile)
 }
 
 // GET api/profile/id/followers
 func (PrHandler *ProfileHandler) GetFollowers(w http.ResponseWriter, r *http.Request, profileID string) {
 	authSessionID, err := GetSessionID(r)
 	if err != nil {
-		h.WriteJsonErrors(w, *err)
+		utils.WriteJsonErrors(w, *err)
 		return
 	}
 
 	users, errService := PrHandler.service.GetFollowers(profileID, authSessionID)
 	if errService != nil {
-		h.WriteJsonErrors(w, *errService)
+		utils.WriteJsonErrors(w, *errService)
 		return
 	}
 
-	h.WriteDataBack(w, users)
+	utils.WriteDataBack(w, users)
 }
 
 // GET api/profile/id/following
 func (PrHandler *ProfileHandler) GetFollowing(w http.ResponseWriter, r *http.Request, profileID string) {
 	authSessionID, err := GetSessionID(r)
 	if err != nil {
-		h.WriteJsonErrors(w, *err)
+		utils.WriteJsonErrors(w, *err)
 		return
 	}
 
 	users, errService := PrHandler.service.GetFollowing(profileID, authSessionID)
 	if errService != nil {
-		h.WriteJsonErrors(w, *errService)
+		utils.WriteJsonErrors(w, *errService)
 		return
 	}
 
-	h.WriteDataBack(w, users)
+	utils.WriteDataBack(w, users)
 }
 
 // POST api/profile/id/follow
 func (PrHandler *ProfileHandler) Follow(w http.ResponseWriter, r *http.Request) {
 	authSessionID, errSession := GetSessionID(r)
 	if errSession != nil {
-		h.WriteJsonErrors(w, *errSession)
+		utils.WriteJsonErrors(w, *errSession)
 		return
 	}
 
@@ -85,17 +85,17 @@ func (PrHandler *ProfileHandler) Follow(w http.ResponseWriter, r *http.Request) 
 	var request RequestBody
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		h.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
 		return
 	}
 
 	errFollow := PrHandler.service.Follow(request.ProfileID, authSessionID)
 	if errFollow != nil {
-		h.WriteJsonErrors(w, *errFollow)
+		utils.WriteJsonErrors(w, *errFollow)
 		return
 	}
 
-	h.WriteDataBack(w, "Done")
+	utils.WriteDataBack(w, "Done")
 }
 
 // POST api/profile/id/accepted
@@ -107,16 +107,16 @@ func (PrHandler *ProfileHandler) AcceptedRequest(w http.ResponseWriter, r *http.
 	var request RequestBody
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		h.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
 		return
 	}
 
 	errRequest := PrHandler.service.AcceptedRequest(profileID, request.Requestor)
 	if errRequest != nil {
-		h.WriteJsonErrors(w, *errRequest)
+		utils.WriteJsonErrors(w, *errRequest)
 		return
 	}
-	h.WriteDataBack(w, "done")
+	utils.WriteDataBack(w, "done")
 }
 
 // POST api/profile/id/rejected
@@ -128,23 +128,23 @@ func (PrHandler *ProfileHandler) RejectedRequest(w http.ResponseWriter, r *http.
 	var request RequestBody
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		h.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
 		return
 	}
 
 	errRequest := PrHandler.service.RejectedRequest(profileID, request.Requestor)
 	if errRequest != nil {
-		h.WriteJsonErrors(w, *errRequest)
+		utils.WriteJsonErrors(w, *errRequest)
 		return
 	}
-	h.WriteDataBack(w, "done")
+	utils.WriteDataBack(w, "done")
 }
 
 // POST api/profile/id/unfollow
 func (PrHandler *ProfileHandler) Unfollow(w http.ResponseWriter, r *http.Request) {
 	authSessionID, errSession := GetSessionID(r)
 	if errSession != nil {
-		h.WriteJsonErrors(w, *errSession)
+		utils.WriteJsonErrors(w, *errSession)
 		return
 	}
 
@@ -155,13 +155,13 @@ func (PrHandler *ProfileHandler) Unfollow(w http.ResponseWriter, r *http.Request
 	var request RequestBody
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		h.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
 		return
 	}
 
 	errUnfollow := PrHandler.service.Unfollow(request.ProfileID, authSessionID)
 	if errUnfollow != nil {
-		h.WriteJsonErrors(w, *errUnfollow)
+		utils.WriteJsonErrors(w, *errUnfollow)
 		return
 	}
 }
@@ -178,17 +178,17 @@ func (PrHandler *ProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Re
 	var request RequestBody
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		h.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
 		return
 	}
 
 	errUpdate := PrHandler.service.UpdatePrivacy(request.ProfileID, userID, request.WantedStatus)
 	if errUpdate != nil {
-		h.WriteJsonErrors(w, *errUpdate)
+		utils.WriteJsonErrors(w, *errUpdate)
 		return
 	}
 
-	h.WriteDataBack(w, "done !")
+	utils.WriteDataBack(w, "done !")
 }
 
 // PATCH api/profile/id/edit
@@ -202,7 +202,7 @@ func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	fmt.Println(r.URL.Path)
 	splittedPath := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	if len(splittedPath) < 3 {
-		h.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Path not found"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Path not found"})
 		return
 	}
 
@@ -225,7 +225,7 @@ func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		case "following":
 			PrHandler.GetFollowing(w, r, profileID)
 		default:
-			h.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
 		}
 	case http.MethodPatch:
 		switch request {
@@ -241,9 +241,9 @@ func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		case "unfollow":
 			PrHandler.Unfollow(w, r)
 		default:
-			h.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
 		}
 	default:
-		h.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed"})
 	}
 }

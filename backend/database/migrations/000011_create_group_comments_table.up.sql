@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS group_posts_comments (
     userID TEXT NOT NULL,
     content TEXT NOT NULL, 
     imageContent TEXT,
+    createdAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (groupID) REFERENCES groups(groupID) ON DELETE CASCADE,
     FOREIGN KEY (userID)  REFERENCES users(userID) ON DELETE CASCADE,
     FOREIGN KEY (postID)  REFERENCES group_posts(postID) ON DELETE CASCADE

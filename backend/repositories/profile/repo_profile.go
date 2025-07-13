@@ -204,7 +204,7 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 			&profile.User.FirstName,
 			&profile.User.LastName,
 			&profile.User.Nickname,
-			&profile.User.ProfileImage,
+			&profile.User.ImagePath,
 		)
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -239,7 +239,7 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 		&profile.User.LastName,
 		&profile.User.BirthDate,
 		&profile.User.Nickname,
-		&profile.User.ProfileImage,
+		&profile.User.ImagePath,
 		&profile.User.AboutMe,
 		&profile.NumberOfPosts,
 		&profile.NumberOfFollowers,
@@ -282,7 +282,7 @@ func (repo *ProfileRepository) GetFollowers(profileID string) (*[]models.User, e
 
 	for rows.Next() {
 		var user models.User
-		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ProfileImage)
+		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ImagePath)
 		if err != nil {
 			log.Printf("RowScanError in backend/repositories/profile/repo_profile.go/GetFollowers: %v", err)
 			return nil, fmt.Errorf("RowScanError: failed to scan follower: %w", err)
@@ -319,7 +319,7 @@ func (repo *ProfileRepository) GetFollowing(profileID string) (*[]models.User, e
 
 	for rows.Next() {
 		var user models.User
-		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ProfileImage)
+		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ImagePath)
 		if err != nil {
 			log.Printf("RowScanError in backend/repositories/profile/repo_profile.go/GetFollowing: %v", err)
 			return nil, fmt.Errorf("RowScanError: failed to scan following: %w", err)

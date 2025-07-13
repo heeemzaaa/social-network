@@ -5,14 +5,21 @@ import (
 	"net/http"
 
 	ha "social-network/backend/handlers/auth"
+	middleware "social-network/backend/middleware"
 	ra "social-network/backend/repositories/auth"
 	sa "social-network/backend/services/auth"
 )
 
-func SetAuthRoutes(mux *http.ServeMux, db *sql.DB) *http.ServeMux {
+func SetAuthRoutes(mux *http.ServeMux, db *sql.DB) (*http.ServeMux, *sa.AuthService) {
 	authRepo := ra.NewAuthRepository(db)
-	authService := sa.NewAuthServer(authRepo)
+	authService := sa.NewAuthService(authRepo)
 	AuthHandler := ha.NewAuthHandler(authService)
-	mux.Handle("/api/auth/", AuthHandler)
-	return mux
+	logoutHandler := ha.NewLogoutHandler(authService)
+	loggedInHandler := ha.NewLoggedInHanlder(authService)
+	// mux.Handle("/api/auth/", AuthHandler)
+	mux.Handle("/api/loggedin", loggedInHandler)
+	mux.Handle("/api/auth/logout", middleware.NewMiddleWare(logoutHandler, authService))
+	mux.Handle("/api/auth/", middleware.NewLoginMiddleware(AuthHandler, authService))
+
+	return mux, authService
 }

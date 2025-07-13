@@ -1,8 +1,6 @@
 package repositories
 
-import (
-	"database/sql"
-)
+import "database/sql"
 
 type AppRepository struct {
 	db *sql.DB
