@@ -1,40 +1,74 @@
-import Button from '@/app/_components/button'
-import React, { useActionState, useState } from 'react'
-import { HiMiniPencilSquare, HiOutlinePencil } from 'react-icons/hi2'
+"use client"
+import styles from "../auth.module.css"
+import { HiMiniDocumentText, HiMiniPhotograph } from "react-icons/hi2";
+import { useActionState, useState } from "react";
+import subimtButton from "@/app/_components/subimtButton";
+import { createGroupAction } from "@/app/_actions/group";
+import Button from "@/app/_components/button";
 
+export default function CreateGroupForm() {
+    const [state, action] = useActionState(createGroupAction, {});
+    const [data, setData] = useState({
+        title: "",
+        description: "",
+        img: null
+    });
 
-// todo: create the addGroupAction server action
-
-
-export default function AddGroupForm() {
-    // const [state, action] = useActionState(addGroupAction, {});
-    const [data, setData] = useState(initialGroupData)
+    const handleFileChange = (e) => {
+        setData(prev => ({ ...prev, img: e.target.files[0] }));
+    };
 
     return (
-        <form className={`${styles.form} glass-bg`}>
+        <form action={action} className={`${styles.form} glass-bg`}>
             <div className={`${styles.formGrp}`}>
                 <label htmlFor='title'>
-                    <HiOutlinePencil />
-                    <span>
-                        Title:
-                    </span>
+                    <HiMiniDocumentText />
+                    <span>Group Title:</span>
                 </label>
-                <input className={`${styles.input}`} id='title' name='title' type='text' placeholder='Title...' />
-                <span className='field-error'></span>
+                <input
+                    className={`${styles.input}`}
+                    id='title' 
+                    name='title'
+                    type='text'
+                    placeholder='Group Title ...'
+                    value={data.title}
+                    onChange={(e) => setData(prev => ({ ...prev, title: e.target.value }))}
+                />
+                {state.errors?.title && <span className='field-error'>{state.errors.title}</span>}
             </div>
             <div className={`${styles.formGrp}`}>
                 <label htmlFor='description'>
-                    <HiMiniPencilSquare />
-                    <span>
-                        Description:
-                    </span>
+                    <HiMiniDocumentText />
+                    <span>Description:</span>
                 </label>
-                <textarea className={`${styles.input}`} id='description' name='description' type='text' placeholder='Description...' />
-                <span className='field-error'></span>
+                <textarea
+                    className={`${styles.input}`}
+                    id='description'
+                    name='description'
+                    placeholder='Group Description ...'
+                    value={data.description}
+                    onChange={(e) => setData(prev => ({ ...prev, description: e.target.value }))}
+                />
+                {state.errors?.description && <span className='field-error'>{state.errors.description}</span>}
             </div>
-            <Button className="justify-center">Submit</Button>
+            <div className={`${styles.formGrp}`}>
+                <label htmlFor='img'>
+                    <HiMiniPhotograph />
+                    <span>Group Image (Optional):</span>
+                </label>
+                <input
+                    className={`${styles.input}`}
+                    id='img'
+                    name='img'
+                    type='file'
+                    accept='image/jpeg,image/png,image/gif'
+                    onChange={handleFileChange}
+                />
+                {state.errors?.img && <span className='field-error'>{state.errors.img}</span>}
+            </div>
+            <Button type={"submit"}>Create Group</Button>
+            {state.error && <span className='field-error'>{state.error}</span>}
+            {state.message && <span className='field-success'>{state.message}</span>}
         </form>
     )
 }
-
-const initialGroupData = {}

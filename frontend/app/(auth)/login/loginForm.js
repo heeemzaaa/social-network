@@ -4,7 +4,6 @@ import { HiMiniUser, HiLockClosed } from "react-icons/hi2";
 import { loginUser } from '@/app/_actions/user';
 import { useActionState, useState } from "react";
 import SubmitButton from "@/app/_components/subimtButton";
-import { redirect } from "next/navigation"
 
 
 export default function LoginForm() {
