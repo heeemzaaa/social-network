@@ -202,7 +202,18 @@ func (PrHandler *ProfileHandler) UpdateProfileData(w http.ResponseWriter, r *htt
 
 // get the posts with all cases , with one query as oumayma said
 func (PrHandler *ProfileHandler) GetPostsOfTheProfile(w http.ResponseWriter, r *http.Request, profileID string) {
-	fmt.Println("GetPostsOfTheProfile")
+	authSessionID, err := utils.GetUserIDFromContext(r.Context())
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
+		return
+	}
+
+	posts , errPosts := PrHandler.service.GetPosts(profileID, authSessionID.String())
+	if errPosts != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errPosts.Error})
+	}
+
+	utils.WriteDataBack(w, posts)
 }
 
 // global handler
