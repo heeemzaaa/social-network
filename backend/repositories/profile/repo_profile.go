@@ -166,14 +166,11 @@ func (repo *ProfileRepository) AcceptAllrequest(userID string) error {
 // is my account private, if yes , is he a follower?
 // is my account public ?
 func (repo *ProfileRepository) CheckProfileAccess(userID string, authUserID string) (bool, error) {
-	if userID == authUserID {
-		return true, nil
-	}
-
 	visibility, err := repo.Visibility(userID)
 	if err != nil {
 		return false, fmt.Errorf("%v", err)
 	}
+
 	// If profile is public, good to go
 	if visibility == "public" {
 		return true, nil
@@ -205,7 +202,7 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 			&profile.User.FirstName,
 			&profile.User.LastName,
 			&profile.User.Nickname,
-			&profile.User.ProfileImage,
+			&profile.User.ImagePath,
 		)
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -240,7 +237,7 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 		&profile.User.LastName,
 		&profile.User.BirthDate,
 		&profile.User.Nickname,
-		&profile.User.ProfileImage,
+		&profile.User.ImagePath,
 		&profile.User.AboutMe,
 		&profile.NumberOfPosts,
 		&profile.NumberOfFollowers,
@@ -283,7 +280,7 @@ func (repo *ProfileRepository) GetFollowers(profileID string) (*[]models.User, e
 
 	for rows.Next() {
 		var user models.User
-		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ProfileImage)
+		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ImagePath)
 		if err != nil {
 			log.Printf("RowScanError in backend/repositories/profile/repo_profile.go/GetFollowers: %v", err)
 			return nil, fmt.Errorf("RowScanError: failed to scan follower: %w", err)
@@ -312,24 +309,21 @@ func (repo *ProfileRepository) GetFollowing(profileID string) (*[]models.User, e
 	`
 	rows, err := repo.db.Query(query, profileID)
 	if err != nil {
-		log.Printf("RowScanError in backend/repositories/profile/repo_profile.go/GetFollowers: %v", err)
-		return nil, fmt.Errorf("RowScanError: failed to get the followersID: %w", err)
+		return nil, fmt.Errorf("%v", err)
 
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var user models.User
-		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ProfileImage)
+		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ImagePath)
 		if err != nil {
-			log.Printf("RowScanError in backend/repositories/profile/repo_profile.go/GetFollowing: %v", err)
-			return nil, fmt.Errorf("RowScanError: failed to scan following: %w", err)
+			return nil, fmt.Errorf("%v", err)
 		}
 		users = append(users, user)
 	}
 	if err := rows.Err(); err != nil {
-		log.Printf("RowsError in backend/repositories/profile/repo_profile.go/GetFollowing: %v", err)
-		return nil, fmt.Errorf("RowsError: failed to iterate following: %w", err)
+		return nil, fmt.Errorf("%v", err)
 	}
 
 	return &users, nil

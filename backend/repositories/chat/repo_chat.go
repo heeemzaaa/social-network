@@ -5,8 +5,7 @@ import (
 	"fmt"
 
 	"social-network/backend/models"
-
-	"github.com/google/uuid"
+	"social-network/backend/utils"
 )
 
 type ChatRepository struct {
@@ -85,10 +84,10 @@ func (repo *ChatRepository) GetUsers(offset, user_id int) ([]models.User, *model
 // here I will get the session Id by the token given by the browser to check the auth
 func (repo *ChatRepository) GetSessionbyTokenEnsureAuth(token string) (*models.Session, *models.ErrorJson) {
 	session := models.Session{}
-	query := `SELECT sessions.userID, sessions.sessionToken , sessions.expiresAt, users.firstName, users.lastName 
+	query := `SELECT sessions.userID, sessions.sessionToken , users.firstName, users.lastName 
 	FROM sessions INNER JOIN users ON users.userID = sessions.userID
 	WHERE sessionToken = ?`
-	row := repo.db.QueryRow(query, token).Scan(&session.UserId, &session.Token, &session.ExpDate, &session.FirstName, &session.LastName)
+	row := repo.db.QueryRow(query, token).Scan(&session.UserId, &session.Token, &session.FirstName, &session.LastName)
 	if row == sql.ErrNoRows {
 		return nil, &models.ErrorJson{Status: 401, Message: " Unauthorized Access"}
 	}
@@ -112,7 +111,7 @@ func (repo *ChatRepository) GetUserIdFromSession(sessionID string) (string, *mod
 // still need to check this
 func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message, *models.ErrorJson) {
 	message_created := &models.Message{}
-	message.ID = uuid.New().String()
+	message.ID = utils.NewUUID()
 	query := `INSERT INTO messages (id, sender_id,target_id, type, content, created_at) 
 	VALUES (?,?,?,?,?,?) RETURNING sender_id ,target_id ,content, created_at;`
 	stmt, err := repo.db.Prepare(query)

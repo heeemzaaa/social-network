@@ -7,5 +7,6 @@ CREATE TABLE messages (
   type TEXT NOT NULL CHECK(type IN ('private', 'group')),
   readStatus BOOLEAN NOT NULL DEFAULT 0 CHECK (readStatus IN (0, 1)),
   content TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CHECK (sender_id != target_id)
 );

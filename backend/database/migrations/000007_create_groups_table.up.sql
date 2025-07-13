@@ -3,9 +3,9 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS groups (
     groupID TEXT PRIMARY KEY,
     groupCreatorID TEXT NOT NULL,
-    title  TEXT NOT NULL,
+    title  VARCHAR(100) NOT NULL UNIQUE,
     imagePath TEXT,
-    description  TEXT NOT NULL,
+    description  VARCHAR(1000) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (groupCreatorID) REFERENCES users(userID)
-
 );
