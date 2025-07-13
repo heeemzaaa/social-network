@@ -272,3 +272,21 @@ func (s *ProfileService) UpdatePrivacy(userID string, requestorID any, wantedSta
 	}
 	return nil
 }
+
+
+// custom posts to each users lil2assaf 
+func (s *ProfileService) GetPosts(profileID string, authSessionID string) (*[]models.Post, *models.ErrorJson) {
+	var posts *[]models.Post
+
+	authUserID , err := s.repo.GetID(authSessionID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v" , err)}
+	}
+
+	posts, err = s.repo.GetPosts(profileID, authUserID)
+	if err != nil {
+		return  nil , &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v" , err)}
+	}
+
+	return posts, nil
+}
