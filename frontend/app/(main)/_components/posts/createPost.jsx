@@ -1,21 +1,53 @@
-import React, { useActionState, useState } from 'react'
+import React, { useActionState, useState } from 'react';
 
+const initialPostData = {
+    title: '',
+    content: '',
+};
 
-// this component is for post creation form
-// @type : can be ( user or grp ) 
-// @action : the server action that will handle the form validation
-// and send the validated data to the right endpoint
 export default function CreatePost({ type, postAction }) {
     const [state, action] = useActionState(postAction, {});
-    const [data, setData] = useState(initialPostData)
+    const [data, setData] = useState(initialPostData);
+
+    const handleChange = (e) => {
+        setData(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value,
+        }));
+    };
 
     return (
-        <form action={action}>
-            Here goes the creation post form <br />
-            Can be used for either user or group posts <br />
-            {action}
+        <form action={action} >
+            <input
+                name="title"
+                value={data.title}
+                onChange={handleChange}
+                placeholder="Title"
+                className="input"
+            />
+            {state.errors?.title && <span>{state.errors.title}</span>}
+
+            <label htmlFor="upload">GIF / IMG</label>
+            <input name="img" id="upload" type="file" />
+
+            <textarea
+                name="content"
+                value={data.content}
+                onChange={handleChange}
+                placeholder="Write your post here..."
+                className="textarea"
+            />
+            {state.errors?.content && <span>{state.errors.content}</span>}
+
+            <button type="submit" className="btn-primary" disabled={state.pending}>
+                {state.pending ? 'Submitting...' : 'Submit'}
+            </button>
+
+            {state.errors?.title && <p className="error">{state.errors.title}</p>}
+            {state.errors?.content && <p className="error">{state.errors.content}</p>}
+            {state.error && <p className="error">{state.error}</p>}
+            {state.message && <p className="success">{state.message}</p>}
         </form>
-    )
+    );
 }
 
-const initialPostData = {}

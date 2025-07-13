@@ -9,6 +9,7 @@ import Popover from './popover';
 import { useModal } from '../_context/ModalContext';
 import CreatePost from './posts/createPost';
 import { CreateGroup } from '../groups/_components/createGroup';
+import { createPostAction } from '@/app/_actions/posts';
 
 export default function Header() {
   let { openModal } = useModal()
@@ -22,7 +23,7 @@ export default function Header() {
 
       <div className='flex gap-2'>
         <Popover trigger={<HiMiniPlusCircle size={24} />}>
-          <Button style={"w-full"} variant='btn-tertiary' onClick={() => openModal(<CreatePost />)}>
+          <Button style={"w-full"} variant='btn-tertiary' onClick={() => openModal(<CreatePost postAction={createPostAction} />)}>
             <HiMiniPlusSmall size={"30px"} />
             <span>
               Add post
