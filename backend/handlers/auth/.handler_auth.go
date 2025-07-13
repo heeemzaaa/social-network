@@ -22,6 +22,7 @@ func NewAuthHandler(service *auth.AuthService) *AuthHandler {
 
 func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	fmt.Println("inside serveHttp: ", r.URL.Path)
 	method := r.Method
 	path := r.URL.Path
 
@@ -70,6 +71,7 @@ func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookie, err := r.Cookie("session")
+	fmt.Printf("cookie: %v\n", cookie)
 	if err != nil {
 		islogged.IsLoggedIn = false
 		utils.WriteDataBack(w, islogged)
@@ -77,12 +79,12 @@ func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	islogged, errJson := handler.service.IsLoggedInUser(cookie.Value)
-
 	if errJson != nil {
 		islogged.IsLoggedIn = false
 		utils.WriteDataBack(w, islogged)
 		return
 	}
+
 	islogged.IsLoggedIn = true
 	utils.WriteDataBack(w, islogged)
 }
@@ -125,6 +127,7 @@ func (handler *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		Name:     "session",
 		Value:    session.Token,
 		Expires:  session.ExpDate,
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 		HttpOnly: true,
 	})
@@ -156,7 +159,7 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	file, handler, err := r.FormFile("profile")
 	if err != nil {
 		if err == http.ErrMissingFile {
-			fmt.Println("No file uploaded, set defaults for optional image", file)
+			fmt.Println("- No file uploaded, set defaults for optional image", file)
 			user.ProfileImage = ""
 			user.ProfileImgSize = 0
 		}
@@ -191,8 +194,8 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 		Name:     "session",
 		Value:    session.Token,
 		Expires:  session.ExpDate,
-		SameSite: http.SameSiteNoneMode,
 		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 	})
 
@@ -200,8 +203,9 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 }
 
 func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
-	// delete from the database before
+	fmt.Println("===> inside logout in handler")
 	cookie, _ := r.Cookie("session")
+	fmt.Printf("cookie: %v\n", cookie)
 	session, errJson := handler.service.GetSessionByTokenEnsureAuth(cookie.Value)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, *models.NewErrorJson(errJson.Status, "", errJson.Message))
@@ -219,6 +223,5 @@ func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
-
 	w.WriteHeader(http.StatusNoContent)
 }

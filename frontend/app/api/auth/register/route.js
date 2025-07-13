@@ -1,18 +1,17 @@
 // frontend/app/api/auth/register/route.js
 export async function POST(request) {
-    console.info("inside the register api route ®️")
     try {
-        let formData = await request.formData();
+        // Get the form data from the incoming request
+        const formData = await request.formData()
+        
+        // Forward the request to the Go API
         const res = await fetch("http://localhost:8080/api/auth/register", {
             method: "POST",
-            body: formData, // Forward the request body
-            credentials: 'include'
-        });
+            body: formData,
+            credentials: 'include',
+        })
         return res
     } catch (error) {
-        return Response.json(
-            { error: error.message },
-            { status: error.status || 500 }
-        );
+        console.error("Error in register API route: ", error)
     }
 }

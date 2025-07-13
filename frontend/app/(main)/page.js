@@ -30,7 +30,17 @@ export default function Home() {
   //     let response = await fetch("http://localhost:8080/api/posts")
   //     let data = await response.json()
   //     setPosts(data)
+  //     setLoading(false)  // using the golang api directely
+  // useEffect( () => {
+  //   console.log("use Effect runs");
+  //   let LoadPosts = async () => {
+  //     let response = await fetch("http://localhost:8080/api/posts")
+  //     let data = await response.json()
+  //     setPosts(data)
   //     setLoading(false)
+  //   }
+  //   LoadPosts()
+  // }, []);
   //   }
   //   LoadPosts()
   // }, []);
@@ -40,15 +50,13 @@ export default function Home() {
   useEffect( () => {
     console.log("use Effect runs");
     let LoadPosts = async () => {
-      let data = await fetchPosts()
-      setPosts(data)
+      let posts = await fetchPosts() 
+      console.log(posts)
+      setPosts(posts)
       setLoading(false)
     }
     LoadPosts()
   }, []);
-
-
-
 
   return (
     <main className='home-page'>

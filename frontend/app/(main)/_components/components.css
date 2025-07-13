@@ -65,8 +65,9 @@ nav {
 
 .ProfileContainer {
     display: flex;
-    align-items: end;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: end;
+    align-items: center;
     width: 350px;
     min-width: max-content;
     height: 70%;
@@ -75,6 +76,8 @@ nav {
     background-size: cover;
     background-repeat: no-repeat;
 }
+
+
 
 
 .ProfileData {
@@ -90,7 +93,7 @@ nav {
     /* z-index: 10000; */
 }
 
-.UserFollowers {
+.UserNumbers {
     border-radius: 16px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(6.3px);
@@ -104,7 +107,7 @@ nav {
     gap: 10px;
 }
 
-.UserFollowers>div {
+.UserNumbers>div {
     width: calc(50% - 10px);
     background-color: var(--color-white);
     display: flex;
@@ -136,6 +139,27 @@ nav {
     text-align: justify;
 }
 
+
+.user_item {
+    display: flex;
+    align-items: center;
+}
+
+.user_item>img {
+    border-radius: 50%;
+    height: 35px;
+    width: 35px;
+}
+
+.sep {
+    height: 2px;
+    background: linear-gradient(
+    to left,
+    var(--color-white) 0%,
+    var(--color-dark) 50%,
+    var(--color-white) 100%
+  );
+}
 
 /* avatar styles */
 

@@ -1,0 +1,249 @@
+package profile
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+
+	"social-network/backend/models"
+	ps "social-network/backend/services/profile"
+	"social-network/backend/utils"
+)
+
+type ProfileHandler struct {
+	service *ps.ProfileService
+}
+
+func NewProfileHandler(service *ps.ProfileService) *ProfileHandler {
+	return &ProfileHandler{service: service}
+}
+
+// GET api/profile/id
+func (PrHandler *ProfileHandler) GetProfileData(w http.ResponseWriter, r *http.Request, profileID string) {
+	authSessionID, err := GetSessionID(r)
+	if err != nil {
+		utils.WriteJsonErrors(w, *err)
+		return
+	}
+
+	profile, errService := PrHandler.service.GetProfileData(profileID, authSessionID)
+	if errService != nil {
+		utils.WriteJsonErrors(w, *errService)
+		return
+	}
+
+	utils.WriteDataBack(w, profile)
+}
+
+// GET api/profile/id/followers
+func (PrHandler *ProfileHandler) GetFollowers(w http.ResponseWriter, r *http.Request, profileID string) {
+	authSessionID, err := GetSessionID(r)
+	if err != nil {
+		utils.WriteJsonErrors(w, *err)
+		return
+	}
+
+	users, errService := PrHandler.service.GetFollowers(profileID, authSessionID)
+	if errService != nil {
+		utils.WriteJsonErrors(w, *errService)
+		return
+	}
+
+	utils.WriteDataBack(w, users)
+}
+
+// GET api/profile/id/following
+func (PrHandler *ProfileHandler) GetFollowing(w http.ResponseWriter, r *http.Request, profileID string) {
+	authSessionID, err := GetSessionID(r)
+	if err != nil {
+		utils.WriteJsonErrors(w, *err)
+		return
+	}
+
+	users, errService := PrHandler.service.GetFollowing(profileID, authSessionID)
+	if errService != nil {
+		utils.WriteJsonErrors(w, *errService)
+		return
+	}
+
+	utils.WriteDataBack(w, users)
+}
+
+// POST api/profile/id/follow
+func (PrHandler *ProfileHandler) Follow(w http.ResponseWriter, r *http.Request) {
+	authSessionID, errSession := GetSessionID(r)
+	if errSession != nil {
+		utils.WriteJsonErrors(w, *errSession)
+		return
+	}
+
+	type RequestBody struct {
+		ProfileID string `json:"profile_id"`
+	}
+
+	var request RequestBody
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		return
+	}
+
+	errFollow := PrHandler.service.Follow(request.ProfileID, authSessionID)
+	if errFollow != nil {
+		utils.WriteJsonErrors(w, *errFollow)
+		return
+	}
+
+	utils.WriteDataBack(w, "Done")
+}
+
+// POST api/profile/id/accepted
+func (PrHandler *ProfileHandler) AcceptedRequest(w http.ResponseWriter, r *http.Request, profileID string) {
+	type RequestBody struct {
+		Requestor string `json:"requestor_id"`
+	}
+
+	var request RequestBody
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		return
+	}
+
+	errRequest := PrHandler.service.AcceptedRequest(profileID, request.Requestor)
+	if errRequest != nil {
+		utils.WriteJsonErrors(w, *errRequest)
+		return
+	}
+	utils.WriteDataBack(w, "done")
+}
+
+// POST api/profile/id/rejected
+func (PrHandler *ProfileHandler) RejectedRequest(w http.ResponseWriter, r *http.Request, profileID string) {
+	type RequestBody struct {
+		Requestor string `json:"requestor_id"`
+	}
+
+	var request RequestBody
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		return
+	}
+
+	errRequest := PrHandler.service.RejectedRequest(profileID, request.Requestor)
+	if errRequest != nil {
+		utils.WriteJsonErrors(w, *errRequest)
+		return
+	}
+	utils.WriteDataBack(w, "done")
+}
+
+// POST api/profile/id/unfollow
+func (PrHandler *ProfileHandler) Unfollow(w http.ResponseWriter, r *http.Request) {
+	authSessionID, errSession := GetSessionID(r)
+	if errSession != nil {
+		utils.WriteJsonErrors(w, *errSession)
+		return
+	}
+
+	type RequestBody struct {
+		ProfileID string `json:"profile_id"`
+	}
+
+	var request RequestBody
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		return
+	}
+
+	errUnfollow := PrHandler.service.Unfollow(request.ProfileID, authSessionID)
+	if errUnfollow != nil {
+		utils.WriteJsonErrors(w, *errUnfollow)
+		return
+	}
+}
+
+// PATCH api/profile/id/update-privacy
+func (PrHandler *ProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("userID")
+
+	type RequestBody struct {
+		ProfileID    string `json:"profile_id"`
+		WantedStatus string `json:"wanted_status"`
+	}
+
+	var request RequestBody
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		return
+	}
+
+	errUpdate := PrHandler.service.UpdatePrivacy(request.ProfileID, userID, request.WantedStatus)
+	if errUpdate != nil {
+		utils.WriteJsonErrors(w, *errUpdate)
+		return
+	}
+
+	utils.WriteDataBack(w, "done !")
+}
+
+// PATCH api/profile/id/edit
+func (PrHandler *ProfileHandler) UpdateProfileData(w http.ResponseWriter, r *http.Request, profileID string) {
+	fmt.Println("UpdateProfileData")
+}
+
+// global handler
+func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Println(r.URL.Path)
+	splittedPath := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(splittedPath) < 3 {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Path not found"})
+		return
+	}
+
+	profileID := r.PathValue("id")
+	request := ""
+	if len(splittedPath) > 3 {
+		request = splittedPath[3]
+	}
+
+	fmt.Println("pqtch", request, r.Method)
+
+	switch r.Method {
+
+	case http.MethodGet:
+		switch request {
+		case "":
+			PrHandler.GetProfileData(w, r, profileID)
+		case "followers":
+			PrHandler.GetFollowers(w, r, profileID)
+		case "following":
+			PrHandler.GetFollowing(w, r, profileID)
+		default:
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
+		}
+	case http.MethodPatch:
+		switch request {
+		case "update-privacy":
+			PrHandler.UpdatePrivacy(w, r)
+		case "update-profile":
+			PrHandler.UpdateProfileData(w, r, profileID)
+		}
+	case http.MethodPost:
+		switch request {
+		case "follow":
+			PrHandler.Follow(w, r)
+		case "unfollow":
+			PrHandler.Unfollow(w, r)
+		default:
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
+		}
+	default:
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed"})
+	}
+}

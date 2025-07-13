@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -10,7 +11,6 @@ import (
 )
 
 func isValidName(name string) error {
-	
 	if len(name) > 50 {
 		return errors.New("name must be 50 characters or less")
 	}
@@ -94,5 +94,8 @@ func HashPassword(password string) (string, error) {
 
 func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	if err != nil {
+		fmt.Println("error comparing the password and the hash", err)
+	}
 	return err == nil
 }

@@ -1,10 +1,11 @@
 "use client"
-import { HiMiniHome,HiMiniUser,HiMiniUserGroup,HiChatBubbleOvalLeft } from "react-icons/hi2";
+import { HiMiniHome, HiMiniUser, HiMiniUserGroup, HiChatBubbleOvalLeft } from "react-icons/hi2";
 import Button from '@/app/_components/button'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import "./components.css"
 import Logo from "@/app/_components/logo";
+import { logout } from "@/app/_actions/user";
 
 export default function Navigation() {
   const currentPath = usePathname()
@@ -12,28 +13,28 @@ export default function Navigation() {
     {
       page: "Home",
       href: "/",
-      icon: <HiMiniHome  size="24"/>
+      icon: <HiMiniHome size="24" />
     },
     {
       page: "Profile",
       href: "/profile/1",
-      icon: <HiMiniUser size="24"/>
+      icon: <HiMiniUser size="24" />
     },
     {
       page: "Groups",
       href: "/groups",
-      icon: <HiMiniUserGroup size="24"/>
+      icon: <HiMiniUserGroup size="24" />
     },
     {
       page: "Chat",
       href: "/chat",
-      icon: <HiChatBubbleOvalLeft size="24"/>
+      icon: <HiChatBubbleOvalLeft size="24" />
     }
   ]
 
   return (
     <aside>
-      <Logo/>
+      <Logo />
       <nav>
         {
           routes.map(route => <Link className={`link ${route.href === currentPath ? "link-active" : ""}`} key={route.page} href={route.href}>
@@ -44,11 +45,13 @@ export default function Navigation() {
           </Link>)
         }
       </nav>
-      <Button variant='btn-danger'>
-        <span>
-          Log-out
-        </span>
-      </Button>
+      <form action={logout}>
+        <Button variant='btn-danger' type="submit">
+          <span>
+            Log-out
+          </span>
+        </Button>
+      </form>
     </aside>
   )
 }

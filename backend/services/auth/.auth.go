@@ -1,4 +1,3 @@
-// authentication serevice.
 package auth
 
 import (

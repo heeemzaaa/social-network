@@ -35,8 +35,10 @@ func (s *AuthService) Login(login *models.Login) (*models.User, *models.ErrorJso
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}
 	}
+	fmt.Println("", CheckPasswordHash(login.Password, user.Password), login.Password, user.Password)
+
 	// if only the password
-	if CheckPasswordHash(login.Password, user.Password) {
+	if !CheckPasswordHash(login.Password, user.Password) {
 		return nil, &models.ErrorJson{
 			Status: 401,
 			Message: models.LoginERR{
@@ -47,6 +49,3 @@ func (s *AuthService) Login(login *models.Login) (*models.User, *models.ErrorJso
 	}
 	return user, nil
 }
-
-
-
