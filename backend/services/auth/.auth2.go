@@ -54,7 +54,7 @@ func (s *AuthService) Login(login *models.Login) (*models.User, *models.ErrorJso
 		}
 	}
 
-	fmt.Printf("User: %v\n Login: %v\n", user, login)
+	
 
 	if !CheckPasswordHash(login.Password, user.Password) {
 		return nil, models.NewErrorJson(401, "Invalid login credentials.", nil)

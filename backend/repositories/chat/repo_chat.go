@@ -19,10 +19,10 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 // here I will get the session Id by the token given by the browser to check the auth
 func (repo *ChatRepository) GetSessionbyTokenEnsureAuth(token string) (*models.Session, *models.ErrorJson) {
 	session := models.Session{}
-	query := `SELECT sessions.userID, sessions.sessionToken , sessions.expiresAt, users.firstName, users.lastName 
+	query := `SELECT sessions.userID, sessions.sessionToken , users.firstName, users.lastName 
 	FROM sessions INNER JOIN users ON users.userID = sessions.userID
 	WHERE sessionToken = ?`
-	row := repo.db.QueryRow(query, token).Scan(&session.UserId, &session.Token, &session.ExpDate, &session.FirstName, &session.LastName)
+	row := repo.db.QueryRow(query, token).Scan(&session.UserId, &session.Token, &session.FirstName, &session.LastName)
 	if row == sql.ErrNoRows {
 		return nil, &models.ErrorJson{Status: 401, Message: " Unauthorized Access"}
 	}

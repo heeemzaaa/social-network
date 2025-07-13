@@ -2,6 +2,7 @@ package group
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -12,19 +13,22 @@ import (
 	"github.com/google/uuid"
 )
 
+// for the one group only
+
+/***  /api/groups/{group_id}/   ***/
+
 type GroupIDHanlder struct {
 	gservice *gservice.GroupService
 }
 
-func NewGroupIDHandler(service *gservice.GroupService) *GroupHanlder {
-	return &GroupHanlder{gservice: service}
+func NewGroupIDHandler(service *gservice.GroupService) *GroupIDHanlder {
+	return &GroupIDHanlder{gservice: service}
 }
 
 // if the user has already joined the group : unauthorized important case
 func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
+	userID , errParse := utils.GetUserIDFromContext(r.Context())
+	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
 	}
@@ -43,18 +47,37 @@ func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Reque
 
 		utils.WriteJsonErrors(w, models.ErrorJson{
 			Status:  400,
-			Message: "an error occured while trying to decode the json!",
+			Message: "an error occured while trying to decode the json! hna",
 		})
 		return
 	}
-   
-	gIdHanlder.gservice.GoinGroup(group_to_join , userID.String())
 
+	if errJson := gIdHanlder.gservice.JoinGroup(group_to_join, userID.String()); errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		return
+	}
 }
 
 // always get the groupInfo (general info like if the number of users and name and description)
 func (gIdHanlder *GroupIDHanlder) GetGroupInfo(w http.ResponseWriter, r *http.Request) {
+	userIDVal := r.Context().Value("userID")
+	_, ok := userIDVal.(uuid.UUID)
+	if !ok {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		return
+	}
+	groupId := r.PathValue("group_id")
 
+	groupDetails, errJson := gIdHanlder.gservice.GetGroupInfo(groupId)
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(groupDetails); err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)})
+		return
+	}
 }
 
 func (gIdHanlder *GroupIDHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {

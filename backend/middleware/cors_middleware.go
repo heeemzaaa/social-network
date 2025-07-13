@@ -18,10 +18,10 @@ func (m *CorsMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
-	// just to test if it works
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
+
 	m.handler.ServeHTTP(w, r)
 }
