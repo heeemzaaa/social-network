@@ -17,9 +17,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	mux := routes.SetRoutes(db.Database)
-	mux.HandleFunc("/api/posts", handlers.GetPostsHandler)
+	mux.HandleFunc("/api/posts/{id}", handlers.CreatePostHandler)
 
 	fmt.Println("server is running in : http://localhost:8080")
 	http.ListenAndServe(":8080", middleware.NewCorsMiddlerware(middleware.NewMiddleWare(mux, auth.NewAuthServer(ra.NewAuthRepository(db.Database)))))

@@ -23,7 +23,7 @@ let postTest = {
 }
 
 export default function PostCard({ post }) {
-
+    
     return (
         <div className='post-card-container'>
             <div className="post-card-header">

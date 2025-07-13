@@ -1,21 +1,21 @@
 package models
 
-import "time"
-
 type Post struct {
-	Id            int       `json:"id,omitempty"`
-	UserId        int       `json:"user_id,omitempty"`
-	Username      string    `json:"user_name,omitempty"`
-	Content       string    `json:"content,omitempty"`
-	CreatedAt     time.Time `json:"created_at,omitempty"`
-	TotalComments int       `json:"total_comments,omitempty"`
-	TotalLikes    int       `json:"total_likes,omitempty"`
-	Liked         int       `json:"liked,omitempty"`
+	ID            string `json:"id"`
+	UserID        string `json:"user_id"`
+	GroupID       string `json:"group_id"`
+	Content       string `json:"content"`
+	CreatedAt     string `json:"created_at"`
+	LikesCount    int    `json:"likes_count"`
+	CommentsCount int    `json:"comments_count"`
+	LikedByUser   bool   `json:"is_liked"`
+	Privacy       string `json:"privacy"`
 }
 
 func NewPost() *Post {
 	return &Post{}
 }
+
 type Reaction struct {
 	Id           int    `json:"id,omitempty"`
 	EntityTypeId int    `json:"entity_type_id,omitempty"`

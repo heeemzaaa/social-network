@@ -4,25 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"social-network/backend/models"
 )
 
-// Post struct with exported fields and correct JSON tags
-type Post struct {
-	ID           string `json:"id"`
-	UserID       string `json:"user_id"`
-	GroupID      string `json:"group_id"`
-	Content      string `json:"content"`
-	CreatedAt    string `json:"created_at"`
-	LikesCount   int    `json:"likes_count"`
-	CommentsCount int   `json:"comments_count"`
-	LikedByUser  bool   `json:"is_liked"`
-}
-
-func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
+func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("inside the get posts handler.")
 
-	// Example post data
-	posts := []Post{
+	// fake post
+	posts := []models.Post{
 		{
 			ID:            "1",
 			UserID:        "u123",
@@ -32,6 +22,7 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 			LikesCount:    15,
 			CommentsCount: 3,
 			LikedByUser:   true,
+			Privacy:       "public",
 		},
 		{
 			ID:            "2",
