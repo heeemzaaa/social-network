@@ -13,17 +13,17 @@ func (authHandler *AuthHandler) Register(w http.ResponseWriter, r *http.Request)
 	var user models.User
 	data := r.FormValue("data")
 	if err := json.Unmarshal([]byte(data), &user); err != nil {
-		if err == io.EOF {
-			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: &models.RegisterError{
-				Nickname:      " empty username field",
-				Age:           " empty username field",
-				Gender:        " empty gender field",
-				FirstName:     " empty first Name field",
-				LastName:      " empty lastName field",
-				Email:         " empty email field",
-				Password:      " empty password  field",
-				VerifPassword: " empty verification Password  field",
-			}})
+		if err == io.EOF || user == (models.User{}) {
+			utils.WriteJsonErrors(w, models.ErrorJson{
+				Status: 400,
+				Message: models.User{
+					FirstName: "login field can't be empty",
+					LastName:  "password field can't be empty",
+					BirthDate: "login field can't be empty",
+					Email:     "password field can't be empty",
+					Password:  "password field can't be empty",
+				},
+			})
 			return
 		}
 

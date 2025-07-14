@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"social-network/backend/middleware"
 	"social-network/backend/models"
 	ps "social-network/backend/services/profile"
 	"social-network/backend/utils"
@@ -21,7 +22,7 @@ func NewProfileHandler(service *ps.ProfileService) *ProfileHandler {
 
 // GET api/profile/id
 func (PrHandler *ProfileHandler) GetProfileData(w http.ResponseWriter, r *http.Request, profileID string) {
-	authSessionID, err := utils.GetUserIDFromContext(r.Context())
+	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
@@ -38,7 +39,7 @@ func (PrHandler *ProfileHandler) GetProfileData(w http.ResponseWriter, r *http.R
 
 // GET api/profile/id/followers
 func (PrHandler *ProfileHandler) GetFollowers(w http.ResponseWriter, r *http.Request, profileID string) {
-	authSessionID, err := utils.GetUserIDFromContext(r.Context())
+	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
@@ -55,7 +56,7 @@ func (PrHandler *ProfileHandler) GetFollowers(w http.ResponseWriter, r *http.Req
 
 // GET api/profile/id/following
 func (PrHandler *ProfileHandler) GetFollowing(w http.ResponseWriter, r *http.Request, profileID string) {
-	authSessionID, err := utils.GetUserIDFromContext(r.Context())
+	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
@@ -72,7 +73,7 @@ func (PrHandler *ProfileHandler) GetFollowing(w http.ResponseWriter, r *http.Req
 
 // POST api/profile/id/follow
 func (PrHandler *ProfileHandler) Follow(w http.ResponseWriter, r *http.Request) {
-	authSessionID, err := utils.GetUserIDFromContext(r.Context())
+	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
@@ -142,7 +143,7 @@ func (PrHandler *ProfileHandler) RejectedRequest(w http.ResponseWriter, r *http.
 
 // POST api/profile/id/unfollow
 func (PrHandler *ProfileHandler) Unfollow(w http.ResponseWriter, r *http.Request) {
-	authSessionID, err := utils.GetUserIDFromContext(r.Context())
+	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
@@ -168,7 +169,7 @@ func (PrHandler *ProfileHandler) Unfollow(w http.ResponseWriter, r *http.Request
 
 // PATCH api/profile/id/update-privacy
 func (PrHandler *ProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Request) {
-	authSessionID, err := utils.GetUserIDFromContext(r.Context())
+	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
@@ -202,7 +203,7 @@ func (PrHandler *ProfileHandler) UpdateProfileData(w http.ResponseWriter, r *htt
 
 // get the posts with all cases , with one query as oumayma said
 func (PrHandler *ProfileHandler) GetPostsOfTheProfile(w http.ResponseWriter, r *http.Request, profileID string) {
-	authSessionID, err := utils.GetUserIDFromContext(r.Context())
+	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return

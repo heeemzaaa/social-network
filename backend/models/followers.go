@@ -1,6 +1,6 @@
 package models
 
 type Followers struct {
-	UserID string `json:"followed"`
-	FollowerID string `json:"follower"`
+	UserID     string `db:"userID" json:"followed"`
+	FollowerID string `db:"followerID" json:"follower"`
 }
