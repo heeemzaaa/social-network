@@ -9,7 +9,6 @@ export async function createPostAction(prevState, formData) {
     }
 
     const data = Object.fromEntries(formData.entries());
-    // same as r.form 
     let title = formData.get("title")
     let content = formData.get("content")
 
