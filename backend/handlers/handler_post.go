@@ -1,11 +1,13 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strings"
 
+	"social-network/backend/middleware"
 	"social-network/backend/models"
 	ps "social-network/backend/services"
 	"social-network/backend/utils"
@@ -39,18 +41,51 @@ func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request, postID
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*********** creating posts ***********")
-	var post models.Post
 
-	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid request body"})
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid form data"})
 		return
 	}
+
+	file, handler, err := r.FormFile("img")
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Image upload failed"})
+		return
+	}
+	defer file.Close()
+
+	imagePath := "uploads/posts/" + handler.Filename
+	dst, err := os.Create(imagePath)
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to save image"})
+		return
+	}
+	defer dst.Close()
+	io.Copy(dst, file)
+
+	usID, err := middleware.GetUserIDFromContext(r.Context())
+
+	fmt.Print(usID, " user id")
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	post := models.Post{
+		ID:      utils.NewUUID(),
+		UserID:  usID.String(),
+		Content: r.FormValue("content"),
+		Privacy: r.FormValue("privacy"), // from url
+		Img:     "/" + imagePath,
+	}
+
+	fmt.Println("Parsed post:", post)
 
 	if err := h.service.CreatePost(&post); err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to create post"})
 		return
 	}
-	
+
 	utils.WriteDataBack(w, map[string]string{"message": "Post created successfully"})
 }
 

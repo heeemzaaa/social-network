@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"fmt"
 
 	"social-network/backend/models"
 )
@@ -15,10 +16,12 @@ func NewPostRepository(db *sql.DB) *PostsRepository {
 }
 
 func (r *PostsRepository) CreatePost(post *models.Post) error {
+	fmt.Println("CREATING POST")
 	_, err := r.db.Exec(
-		`INSERT INTO posts (id, user_id, content) VALUES (?, ?, ?)`,
-		post.ID, post.UserID, post.Content,
+		`INSERT INTO posts (postID, userID, content, image_url) VALUES (?, ?, ?, ?)`,
+		post.ID, post.UserID, post.Content, post.Img,
 	)
+	fmt.Println("SQL : ", err)
 	return err
 }
 

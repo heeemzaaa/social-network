@@ -10,6 +10,7 @@ type Post struct {
 	CommentsCount int    `json:"comments_count"`
 	LikedByUser   bool   `json:"is_liked"`
 	Privacy       string `json:"privacy"`
+	Img           string `json:"img"`
 }
 
 func NewPost() *Post {
