@@ -86,10 +86,9 @@ export default function CreatePost({ type, postAction }) {
             </div>
 
             {/* Submit Button */}
-             <button type="submit" className="btn-primary" disabled={state.pending}>
+            <button type="submit" className="btn-primary" disabled={state.pending}>
                 {state.pending ? 'Submitting...' : 'Submit'}
             </button>
-
 
             {/* General messages */}
             {state.error && <span className="field-error">{state.error}</span>}

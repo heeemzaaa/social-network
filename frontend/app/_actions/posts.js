@@ -12,7 +12,13 @@ export async function createPostAction(prevState, formData) {
 
     const title = formData.get("title");
     const content = formData.get("content");
-
+    const privacy  = formData.get("privacy")
+    if(!privacy)  {
+        state.errors.privacy = "privacy is required"
+    }
+    //    if(privacy!= "Public" || privacy != "Private" || privacy !="Freinds" )  {
+    //     state.errors.privacy = "privacy is required"
+    // }
     if (!title) {
         state.errors.title = "Title is required";
     }
@@ -23,6 +29,7 @@ export async function createPostAction(prevState, formData) {
     if (Object.keys(state.errors).length > 0) {
         return state;
     }
+
     const sessionCookie = cookies().get("session")?.value;
     const response = await fetch("http://localhost:8080/api/posts", {
         method: "POST",
@@ -36,6 +43,6 @@ export async function createPostAction(prevState, formData) {
     }
 
     const createdPost = await response.json();
-    console.log(createdPost, "--");
+    console.log(createdPost, "post created sucssesfullyyy jummi");
     return createdPost;
 }
