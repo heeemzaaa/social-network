@@ -9,3 +9,9 @@ function getID() {
 }
 
 export {setID , getID} 
+
+export const userList =  {
+	username: String,
+	userID: String,
+	online: Boolean, 
+}
