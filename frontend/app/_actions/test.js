@@ -4,7 +4,7 @@
 export async function fetchTestData() {
     try {
         const response = await fetch("http://localhost:8080/api/test", {
-            cache: "no-store", // Ensure fresh data
+            cache: "no-store", 
         });
         if (!response.ok) {
             throw new Error(`API request failed with status ${response.status}`);
