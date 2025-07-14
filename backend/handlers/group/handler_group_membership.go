@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"social-network/backend/middleware"
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
 	"social-network/backend/utils"
@@ -27,7 +28,7 @@ func NewGroupIDHandler(service *gservice.GroupService) *GroupIDHanlder {
 
 // if the user has already joined the group : unauthorized important case
 func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Request) {
-	userID , errParse := utils.GetUserIDFromContext(r.Context())
+	userID , errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return

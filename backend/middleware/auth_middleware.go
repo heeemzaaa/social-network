@@ -2,11 +2,18 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"social-network/backend/models"
 	"social-network/backend/utils"
 )
+
+// Global variable is set
+
+type ContextKey string
+
+const UserID ContextKey = "userID"
 
 // could be returning a boolean but to see again
 func (m *Middleware) GetAuthUserEnsureAuth(r *http.Request) (*models.Session, *models.ErrorJson) {
@@ -30,6 +37,7 @@ func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		utils.WriteJsonErrors(w, *err)
 		return
 	}
-	ctx := context.WithValue(r.Context(), models.NewContextKey("userID"), session.UserId)
+	fmt.Println("session", session.UserId)
+	ctx := context.WithValue(r.Context(), UserID, session.UserId)
 	m.MiddlewareHanlder.ServeHTTP(w, r.WithContext(ctx))
 }
