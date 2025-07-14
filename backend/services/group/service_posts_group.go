@@ -1,7 +1,6 @@
 package group
 
 import (
-	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -19,7 +18,7 @@ func (s *GroupService) AddPost(post *models.PostGroup) (*models.PostGroup, *mode
 
 	post_created, err := s.gRepo.CreatePost(post)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
 	}
 	return post_created, nil
 }
@@ -27,7 +26,7 @@ func (s *GroupService) AddPost(post *models.PostGroup) (*models.PostGroup, *mode
 func (s *GroupService) GetPosts(user_id string, offset int) ([]models.PostGroup, *models.ErrorJson) {
 	posts, err := s.gRepo.GetPosts(user_id, offset)
 	if err != nil {
-		return nil, err
+		return nil, &models.ErrorJson{Status: err.Status, Message: err.Message, Error: err.Error}
 	}
 	return posts, nil
 }

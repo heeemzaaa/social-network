@@ -15,12 +15,12 @@ func (appRep *GroupRepository) GetItem(typ string, field string, value string) (
 	query := fmt.Sprintf(`SELECT %v FROM %v WHERE %v=?`, field, typ, field)
 	stmt, err := appRep.db.Prepare(query)
 	if err != nil {
-		return nil, false, &models.ErrorJson{Status: 500, Message: "ERROR!! Internal Server error"}
+		return nil, false, &models.ErrorJson{Status: 500, Error: "ERROR!! Internal Server error"}
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(value)
 	if err != nil {
-		return nil, false, &models.ErrorJson{Status: 500, Message: "ERROR!! Internal Server error"}
+		return nil, false, &models.ErrorJson{Status: 500, Error: "ERROR!! Internal Server error"}
 	}
 	for rows.Next() {
 		var row any

@@ -19,7 +19,7 @@ func (repo *GroupRepository) JoinGroup(group *models.Group, userId string) *mode
 	`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 3", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
@@ -30,7 +30,7 @@ func (repo *GroupRepository) JoinGroup(group *models.Group, userId string) *mode
 				return &models.ErrorJson{Status: 403, Error: "ERROR!! User already joined the group!"}
 			}
 		}
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 4", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	return nil
 }
@@ -68,12 +68,12 @@ func (repo *GroupRepository) GetGroupDetails(groupId string) (*models.Group, *mo
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 4", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 4", err)}
 	}
 	defer stmt.Close()
 	_, err = stmt.Query()
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 4", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 4", err)}
 	}
 	return groupDetails, nil
 }

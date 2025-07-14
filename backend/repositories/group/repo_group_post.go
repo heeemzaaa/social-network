@@ -17,13 +17,13 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
 	RETURNING postID , content ,createdAt`
 	stmt, err := grepo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 	err = stmt.QueryRow(postId, post.GroupId, post.UserId, post.Content, post.ImagePath).Scan(&post_created.Id,
 		&post_created.Content, &post_created.CreatedAt)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	return post_created, nil

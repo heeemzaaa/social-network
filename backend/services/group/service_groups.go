@@ -38,7 +38,7 @@ func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *mod
 		if err := utils.RemoveImage(group.ImagePath); err != nil {
 			return nil, &models.ErrorJson{Status: 500, Error: err.Error()}
 		}
-		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return group, nil
 }
@@ -57,7 +57,7 @@ func (gService *GroupService) GetGroups(filter string, offset int64, userID stri
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
 	}
 
 	return groups, nil

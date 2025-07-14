@@ -20,7 +20,7 @@ func (gService *GroupService) GetGroupInfo(groupId string) (*models.Group, *mode
 	}
 	group, errjson := gService.gRepo.GetGroupDetails(groupId)
 	if errjson != nil {
-		return nil, &models.ErrorJson{Status: errjson.Status, Message: errjson.Message}
+		return nil, &models.ErrorJson{Status: errjson.Status, Message: errjson.Message, Error: errjson.Error}
 	}
 	return group, nil
 }

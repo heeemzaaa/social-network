@@ -14,15 +14,15 @@ func (service *GroupService) GetGroupEvents(groupID, userID string, offset int64
 
 	exists, errJson := service.IsMemberGroup(groupID, userID)
 	if errJson != nil {
-		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	if !exists {
-		return nil, &models.ErrorJson{Status: 403, Message: "ERROR!! Acces Forbidden!"}
+		return nil, &models.ErrorJson{Status: 403, Error: "ERROR!! Acces Forbidden!"}
 	}
 
 	events, errJson := service.gRepo.GetGroupEvents(groupID, offset)
 	if errJson != nil {
-		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return events, nil
 }
