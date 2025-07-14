@@ -21,15 +21,15 @@ func NewProfileHandler(service *ps.ProfileService) *ProfileHandler {
 
 // GET api/profile/id
 func (PrHandler *ProfileHandler) GetProfileData(w http.ResponseWriter, r *http.Request, profileID string) {
-	authSessionID, err := GetSessionID(r)
+	authSessionID, err := utils.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, *err)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
 	}
 
-	profile, errService := PrHandler.service.GetProfileData(profileID, authSessionID)
+	profile, errService := PrHandler.service.GetProfileData(profileID, authSessionID.String())
 	if errService != nil {
-		utils.WriteJsonErrors(w, *errService)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errService.Status, Message: errService.Message})
 		return
 	}
 
@@ -38,15 +38,15 @@ func (PrHandler *ProfileHandler) GetProfileData(w http.ResponseWriter, r *http.R
 
 // GET api/profile/id/followers
 func (PrHandler *ProfileHandler) GetFollowers(w http.ResponseWriter, r *http.Request, profileID string) {
-	authSessionID, err := GetSessionID(r)
+	authSessionID, err := utils.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, *err)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
 	}
 
-	users, errService := PrHandler.service.GetFollowers(profileID, authSessionID)
+	users, errService := PrHandler.service.GetFollowers(profileID, authSessionID.String())
 	if errService != nil {
-		utils.WriteJsonErrors(w, *errService)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errService.Status, Message: errService.Message})
 		return
 	}
 
@@ -55,15 +55,15 @@ func (PrHandler *ProfileHandler) GetFollowers(w http.ResponseWriter, r *http.Req
 
 // GET api/profile/id/following
 func (PrHandler *ProfileHandler) GetFollowing(w http.ResponseWriter, r *http.Request, profileID string) {
-	authSessionID, err := GetSessionID(r)
+	authSessionID, err := utils.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, *err)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
 	}
 
-	users, errService := PrHandler.service.GetFollowing(profileID, authSessionID)
+	users, errService := PrHandler.service.GetFollowing(profileID, authSessionID.String())
 	if errService != nil {
-		utils.WriteJsonErrors(w, *errService)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errService.Status, Message: errService.Message})
 		return
 	}
 
@@ -72,9 +72,9 @@ func (PrHandler *ProfileHandler) GetFollowing(w http.ResponseWriter, r *http.Req
 
 // POST api/profile/id/follow
 func (PrHandler *ProfileHandler) Follow(w http.ResponseWriter, r *http.Request) {
-	authSessionID, errSession := GetSessionID(r)
-	if errSession != nil {
-		utils.WriteJsonErrors(w, *errSession)
+	authSessionID, err := utils.GetUserIDFromContext(r.Context())
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
 	}
 
@@ -83,15 +83,15 @@ func (PrHandler *ProfileHandler) Follow(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var request RequestBody
-	err := json.NewDecoder(r.Body).Decode(&request)
+	err = json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
 		return
 	}
 
-	errFollow := PrHandler.service.Follow(request.ProfileID, authSessionID)
+	errFollow := PrHandler.service.Follow(request.ProfileID, authSessionID.String())
 	if errFollow != nil {
-		utils.WriteJsonErrors(w, *errFollow)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errFollow.Status, Message: errFollow.Message})
 		return
 	}
 
@@ -113,7 +113,7 @@ func (PrHandler *ProfileHandler) AcceptedRequest(w http.ResponseWriter, r *http.
 
 	errRequest := PrHandler.service.AcceptedRequest(profileID, request.Requestor)
 	if errRequest != nil {
-		utils.WriteJsonErrors(w, *errRequest)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errRequest.Status, Message: errRequest.Message})
 		return
 	}
 	utils.WriteDataBack(w, "done")
@@ -134,7 +134,7 @@ func (PrHandler *ProfileHandler) RejectedRequest(w http.ResponseWriter, r *http.
 
 	errRequest := PrHandler.service.RejectedRequest(profileID, request.Requestor)
 	if errRequest != nil {
-		utils.WriteJsonErrors(w, *errRequest)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errRequest.Status, Message: errRequest.Message})
 		return
 	}
 	utils.WriteDataBack(w, "done")
@@ -142,9 +142,9 @@ func (PrHandler *ProfileHandler) RejectedRequest(w http.ResponseWriter, r *http.
 
 // POST api/profile/id/unfollow
 func (PrHandler *ProfileHandler) Unfollow(w http.ResponseWriter, r *http.Request) {
-	authSessionID, errSession := GetSessionID(r)
-	if errSession != nil {
-		utils.WriteJsonErrors(w, *errSession)
+	authSessionID, err := utils.GetUserIDFromContext(r.Context())
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
 	}
 
@@ -153,22 +153,26 @@ func (PrHandler *ProfileHandler) Unfollow(w http.ResponseWriter, r *http.Request
 	}
 
 	var request RequestBody
-	err := json.NewDecoder(r.Body).Decode(&request)
+	err = json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
 		return
 	}
 
-	errUnfollow := PrHandler.service.Unfollow(request.ProfileID, authSessionID)
+	errUnfollow := PrHandler.service.Unfollow(request.ProfileID, authSessionID.String())
 	if errUnfollow != nil {
-		utils.WriteJsonErrors(w, *errUnfollow)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUnfollow.Status, Message: errUnfollow.Message})
 		return
 	}
 }
 
 // PATCH api/profile/id/update-privacy
 func (PrHandler *ProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("userID")
+	authSessionID, err := utils.GetUserIDFromContext(r.Context())
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
+		return
+	}
 
 	type RequestBody struct {
 		ProfileID    string `json:"profile_id"`
@@ -176,15 +180,15 @@ func (PrHandler *ProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Re
 	}
 
 	var request RequestBody
-	err := json.NewDecoder(r.Body).Decode(&request)
+	err = json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
 		return
 	}
 
-	errUpdate := PrHandler.service.UpdatePrivacy(request.ProfileID, userID, request.WantedStatus)
+	errUpdate := PrHandler.service.UpdatePrivacy(request.ProfileID, authSessionID.String(), request.WantedStatus)
 	if errUpdate != nil {
-		utils.WriteJsonErrors(w, *errUpdate)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUpdate.Status, Message: errUpdate.Message})
 		return
 	}
 
@@ -196,34 +200,55 @@ func (PrHandler *ProfileHandler) UpdateProfileData(w http.ResponseWriter, r *htt
 	fmt.Println("UpdateProfileData")
 }
 
+// get the posts with all cases , with one query as oumayma said
+func (PrHandler *ProfileHandler) GetPostsOfTheProfile(w http.ResponseWriter, r *http.Request, profileID string) {
+	authSessionID, err := utils.GetUserIDFromContext(r.Context())
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
+		return
+	}
+
+	posts , errPosts := PrHandler.service.GetPosts(profileID, authSessionID.String())
+	if errPosts != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errPosts.Error})
+	}
+
+	utils.WriteDataBack(w, posts)
+}
+
 // global handler
 func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Println(r.URL.Path)
+
 	splittedPath := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	if len(splittedPath) < 3 {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Path not found"})
 		return
 	}
 
-	profileID := r.PathValue("id")
+	profileID, err := utils.GetUUIDFromPath(r, "id")
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
+		return
+	}
+
 	request := ""
 	if len(splittedPath) > 3 {
 		request = splittedPath[3]
 	}
-
-	fmt.Println("pqtch", request, r.Method)
 
 	switch r.Method {
 
 	case http.MethodGet:
 		switch request {
 		case "":
-			PrHandler.GetProfileData(w, r, profileID)
+			PrHandler.GetProfileData(w, r, profileID.String())
 		case "followers":
-			PrHandler.GetFollowers(w, r, profileID)
+			PrHandler.GetFollowers(w, r, profileID.String())
 		case "following":
-			PrHandler.GetFollowing(w, r, profileID)
+			PrHandler.GetFollowing(w, r, profileID.String())
+		case "get-posts":
+			PrHandler.GetPostsOfTheProfile(w, r, profileID.String())
 		default:
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
 		}
@@ -232,7 +257,9 @@ func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		case "update-privacy":
 			PrHandler.UpdatePrivacy(w, r)
 		case "update-profile":
-			PrHandler.UpdateProfileData(w, r, profileID)
+			PrHandler.UpdateProfileData(w, r, profileID.String())
+		default:
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
 		}
 	case http.MethodPost:
 		switch request {

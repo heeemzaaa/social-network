@@ -6,7 +6,7 @@ import { useState } from 'react'
 import Button from '@/app/_components/button'
 import { HiMiniFaceSmile, HiPaperAirplane } from "react-icons/hi2";
 import { RiSendPlaneFill } from "react-icons/ri";
-import UserList from '../_components/user_list'
+import UserList from '../_components/chat/user_list'
 import GroupList from '../_components/group_list'
 
 

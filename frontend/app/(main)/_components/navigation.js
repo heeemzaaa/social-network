@@ -6,9 +6,20 @@ import { usePathname } from 'next/navigation'
 import "./components.css"
 import Logo from "@/app/_components/logo";
 import { logout } from "@/app/_actions/user";
+import { getID } from "@/lib/global";
+import { useEffect, useState } from "react";
 
 export default function Navigation() {
   const currentPath = usePathname()
+
+  const [id, setId] = useState(null);
+
+  useEffect(() => {
+    const uid = getID();
+    setId(uid);
+  }, []);
+
+
   const routes = [
     {
       page: "Home",
@@ -17,7 +28,7 @@ export default function Navigation() {
     },
     {
       page: "Profile",
-      href: "/profile/1",
+      href: `/profile/${id}`,
       icon: <HiMiniUser size="24" />
     },
     {

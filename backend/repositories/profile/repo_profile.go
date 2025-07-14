@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	"social-network/backend/models"
 )
@@ -27,7 +28,6 @@ func (repo *ProfileRepository) GetID(sessionToken string) (string, error) {
 	}
 	return userID, nil
 }
-
 
 // here I will check if the user is following the profile or not
 func (repo *ProfileRepository) IsFollower(userID string, authUserID string) (bool, error) {
@@ -69,8 +69,9 @@ func (repo *ProfileRepository) FollowDone(userID string, authUserID string) erro
 
 // here I will just insert the request into the table of the followrequests
 func (repo *ProfileRepository) FollowPrivate(userID string, authUserID string) error {
-	query := `INSERT INTO follow_requests (userID, requestorID) VALUES(?,?) `
-	_, err := repo.db.Exec(query, userID, authUserID)
+	sentAt := time.Now().UTC().Format(time.RFC3339)
+	query := `INSERT INTO follow_requests (userID, requestorID, sent_at) VALUES(?, ?, ?) `
+	_, err := repo.db.Exec(query, userID, authUserID, sentAt)
 	if err != nil {
 		return fmt.Errorf("error inserting the data into the follow_requests table:%v", err)
 	}
@@ -165,14 +166,11 @@ func (repo *ProfileRepository) AcceptAllrequest(userID string) error {
 // is my account private, if yes , is he a follower?
 // is my account public ?
 func (repo *ProfileRepository) CheckProfileAccess(userID string, authUserID string) (bool, error) {
-	if userID == authUserID {
-		return true, nil
-	}
-
 	visibility, err := repo.Visibility(userID)
 	if err != nil {
 		return false, fmt.Errorf("%v", err)
 	}
+
 	// If profile is public, good to go
 	if visibility == "public" {
 		return true, nil
@@ -258,7 +256,7 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 }
 
 // here I will get all the user's posts
-func (repo *ProfileRepository) GetPosts(profileID string) (*[]models.Post, error) {
+func (repo *ProfileRepository) GetPosts(profileID string, userID string) (*[]models.Post, error) {
 	return nil, nil
 }
 
@@ -311,8 +309,7 @@ func (repo *ProfileRepository) GetFollowing(profileID string) (*[]models.User, e
 	`
 	rows, err := repo.db.Query(query, profileID)
 	if err != nil {
-		log.Printf("RowScanError in backend/repositories/profile/repo_profile.go/GetFollowers: %v", err)
-		return nil, fmt.Errorf("RowScanError: failed to get the followersID: %w", err)
+		return nil, fmt.Errorf("%v", err)
 
 	}
 	defer rows.Close()
@@ -321,14 +318,12 @@ func (repo *ProfileRepository) GetFollowing(profileID string) (*[]models.User, e
 		var user models.User
 		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ImagePath)
 		if err != nil {
-			log.Printf("RowScanError in backend/repositories/profile/repo_profile.go/GetFollowing: %v", err)
-			return nil, fmt.Errorf("RowScanError: failed to scan following: %w", err)
+			return nil, fmt.Errorf("%v", err)
 		}
 		users = append(users, user)
 	}
 	if err := rows.Err(); err != nil {
-		log.Printf("RowsError in backend/repositories/profile/repo_profile.go/GetFollowing: %v", err)
-		return nil, fmt.Errorf("RowsError: failed to iterate following: %w", err)
+		return nil, fmt.Errorf("%v", err)
 	}
 
 	return &users, nil
@@ -349,7 +344,7 @@ func (repo *ProfileRepository) ToPublicAccount(userID string) error {
 	return nil
 }
 
-// change the visibility to private 
+// change the visibility to private
 func (repo *ProfileRepository) ToPrivateAccount(userID string) error {
 	query := `UPDATE users SET visibility = ? WHERE userID = ?`
 	_, err := repo.db.Exec(query, "private", userID)

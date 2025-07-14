@@ -1,4 +1,4 @@
-import UserProfileWrapper from '../../_components/user_profile_wrapper'
+import UserProfileWrapper from '../../_components/profile/user_profile_wrapper'
 
 export default async function Profile({ params }) {
   let {id} = await params
