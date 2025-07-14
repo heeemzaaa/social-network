@@ -20,6 +20,7 @@ func NewProfileRepository(db *sql.DB) *ProfileRepository {
 // here I will get the userID based based on the sessionToken to pass it to other functions
 func (repo *ProfileRepository) GetID(sessionToken string) (string, error) {
 	var userID string
+	fmt.Println("sessionToken**********", sessionToken)
 	query := `SELECT userID from sessions WHERE sessionToken = ?`
 	err := repo.db.QueryRow(query, sessionToken).Scan(&userID)
 	if err != nil {
@@ -257,9 +258,6 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 
 // here I will get all the user's posts
 func (repo *ProfileRepository) GetPosts(profileID string, userID string) (*[]models.Post, error) {
-	// var posts *[]models.Post
-
-	// query := ``
 	return nil, nil
 }
 

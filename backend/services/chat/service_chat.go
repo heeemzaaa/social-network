@@ -3,10 +3,11 @@ package chat
 import (
 	"fmt"
 	"net/http"
-	"social-network/backend/models"
-	"social-network/backend/repositories/chat"
 	"strings"
 	"time"
+
+	"social-network/backend/models"
+	"social-network/backend/repositories/chat"
 )
 
 type ChatService struct {
@@ -51,7 +52,7 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 	// We can go on and insert the message in the database
 	switch strings.ToLower(message.Type) {
 	case "private":
-		//hna I will need to check if the userID match with some of my users
+		// hna I will need to check if the userID match with some of my users
 		exists, err := service.repo.UserExists(message.TargetID)
 		if err != nil {
 			return nil, err
@@ -173,4 +174,18 @@ func (service *ChatService) CheckExistance(type_, target_id string) (bool, *mode
 		return exists, nil
 	}
 	return false, &models.ErrorJson{Status: 400, Error: "", Message: "the type is not correct"}
+}
+
+func (service *ChatService) GetUsers(authSessionID string, offset int) (*[]models.User, *models.ErrorJson) {
+	authUserID, err := service.repo.GetID(authSessionID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: err.Status, Message: err.Message}
+	}
+
+	users, err := service.repo.GetUsers(authUserID, offset)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: err.Status, Message: err.Message}
+	}
+
+	return &users, nil
 }
