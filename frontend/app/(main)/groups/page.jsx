@@ -7,13 +7,18 @@ import Tab from '../_components/tab/tab';
 import TabContent from '../_components/tab/tabContent';
 import { useModal } from '../_context/ModalContext';
 import GroupCardList from './_components/groupCardList';
+import { HiMiniUserGroup } from 'react-icons/hi2';
+import AddGroupForm from './_components/addGroupForm';
 
 
 export default function Groups() {
   const { openModal } = useModal()
   return (
     <main className='flex-col flex-start border-red align-end'>
-      <Button className={'justify-start'} onClick={() => { openModal(<CreateGroup />) }}>Add Post</Button>
+      <Button className={'justify-start'} onClick={() => { openModal(<AddGroupForm />) }}>
+        <HiMiniUserGroup size={"24px"}/>
+        <span>Create New Group</span>
+      </Button>
       <Tabs className={''}>
         <Tab label="Your Groups" />
         <Tab label="Joined Groups" />

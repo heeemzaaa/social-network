@@ -1,12 +1,12 @@
 "use client"
-import styles from "../auth.module.css"
+import styles from "@/app/(auth)/auth.module.css"
 import { HiMiniDocumentText, HiMiniPhotograph } from "react-icons/hi2";
 import { useActionState, useState } from "react";
 import subimtButton from "@/app/_components/subimtButton";
 import { createGroupAction } from "@/app/_actions/group";
 import Button from "@/app/_components/button";
 
-export default function CreateGroupForm() {
+export default function AddGroupForm() {
     const [state, action] = useActionState(createGroupAction, {});
     const [data, setData] = useState({
         title: "",
@@ -53,7 +53,7 @@ export default function CreateGroupForm() {
             </div>
             <div className={`${styles.formGrp}`}>
                 <label htmlFor='img'>
-                    <HiMiniPhotograph />
+                    {/* <HiMiniPhotograph /> */}
                     <span>Group Image (Optional):</span>
                 </label>
                 <input

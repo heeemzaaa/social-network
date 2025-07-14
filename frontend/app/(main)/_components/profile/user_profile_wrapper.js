@@ -116,7 +116,6 @@ export default function UserProfileWrapper({ id }) {
     }
   }
 
-
   if (loading) return <p>Loading user info...</p>
   if (!userInfos) return <p>Failed to load user info.</p>
 

@@ -1,4 +1,6 @@
 "use server"
+
+
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
@@ -15,7 +17,6 @@ export async function addGroupPostAction(prevState, formData) {
     // return state with data containing the post component created to add it dinamically
 }
 
-"use server"
 
 // Creates a new group by validating form data and sending it to the group creation API.
 // @param {Object} prevState - The previous state of the form, used to preserve state across calls.
@@ -69,8 +70,8 @@ export async function createGroupAction(prevState, formData) {
     }
 
     try {
-        const sessionCookie = cookies().get("session")?.value;
-        const res = await fetch(`http://localhost:3000/api/groups/create`, {
+        const sessionCookie =  await cookies().get("session")?.value;
+        const res = await fetch(`http://localhost:8080/api/groups/`, {
             method: "POST",
             body: newFormData,
             credentials: 'include',
