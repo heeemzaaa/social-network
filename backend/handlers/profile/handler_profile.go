@@ -229,7 +229,7 @@ func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 	profileID, err := utils.GetUUIDFromPath(r, "id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Bad UUID format !"})
 		return
 	}
 
