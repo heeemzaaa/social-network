@@ -1,9 +1,7 @@
 package utils
 
 import (
-	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -66,15 +64,8 @@ func GetUUIDFromPath(r *http.Request, key string) (uuid.UUID, error) {
 	return uuid.Parse(val)
 }
 
-func GetUserIDFromContext(ctx context.Context) (uuid.UUID, error) {
-	val := ctx.Value("userID")
-	str, ok := val.(string)
-	if !ok {
-		return uuid.Nil, errors.New("userID not found or invalid")
-	}
-	return uuid.Parse(str)
-}
-
 func NewUUID() string {
 	return uuid.New().String()
 }
+
+

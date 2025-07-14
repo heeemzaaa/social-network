@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"social-network/backend/middleware"
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
 	"social-network/backend/utils"
@@ -16,7 +17,7 @@ import (
 
 /***   /api/groups/{group_id}/events/    ***/
 // here we'll be also querying if the user logged in is interested or not in the event!!!
-// not tested yet 
+// not tested yet
 type GroupEventHandler struct {
 	gService *gservice.GroupService
 }
@@ -66,7 +67,7 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 
 // we'll be working with exists to check if a user is member before proceeding in any action!!
 func (gEventHandler *GroupEventHandler) GetGroupEvents(w http.ResponseWriter, r *http.Request) {
-	userID , errParse := utils.GetUserIDFromContext(r.Context())
+	userID , errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
