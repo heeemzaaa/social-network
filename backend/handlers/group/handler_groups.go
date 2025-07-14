@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"social-network/backend/middleware"
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
 	"social-network/backend/utils"
@@ -27,9 +28,9 @@ func NewGroupHandler(gservice *gservice.GroupService) *GroupHanlder {
 
 // we only need the userId and filter based on owned, availabe and created
 func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) {
-	userID, errParse := utils.GetUserIDFromContext(r.Context())
+	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: errParse.Error()})
 		return
 	}
 	filter := r.URL.Query().Get("filter")
@@ -57,16 +58,16 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 // but needs the context to be there to test out other things
 
 func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request) {
-	userID, errParse := utils.GetUserIDFromContext(r.Context())
+	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: errParse.Error()})
 		return
 	}
 	var group_to_create *models.Group
 
 	data := r.FormValue("data")
 	if err := json.Unmarshal([]byte(data), &group_to_create); err != nil {
-		if err == io.EOF {
+		if err == io.EOF  || group_to_create ==(&models.Group{}){
 			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
 				Message: models.ErrGroup{
@@ -90,6 +91,7 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
 	}
+
 	group_to_create.GroupCreatorId, group_to_create.ImagePath = userID.String(), path
 	group, errJson := Ghandler.gService.AddGroup(group_to_create)
 	if errJson != nil {
@@ -101,7 +103,6 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 
 func (Ghandler *GroupHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Println("method", r.Method)
 	switch r.Method {
 	case http.MethodGet:
 		Ghandler.GetGroups(w, r)

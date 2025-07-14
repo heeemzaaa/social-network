@@ -14,15 +14,15 @@ func (service *GroupService) GetGroupEvents(groupID, userID string, offset int64
 
 	exists, errJson := service.IsMemberGroup(groupID, userID)
 	if errJson != nil {
-		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	if !exists {
-		return nil, &models.ErrorJson{Status: 403, Message: "ERROR!! Acces Forbidden!"}
+		return nil, &models.ErrorJson{Status: 403, Error: "ERROR!! Acces Forbidden!"}
 	}
 
 	events, errJson := service.gRepo.GetGroupEvents(groupID, offset)
 	if errJson != nil {
-		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return events, nil
 }
@@ -42,7 +42,7 @@ func (service *GroupService) AddGroupEvent(event *models.Event) (*models.Event, 
 	errValidation := models.ErrEventGroup{}
 	trimmedTitle := strings.TrimSpace(event.Title)
 	trimmedDesc := strings.TrimSpace(event.Description)
-	if err := utils.ValidateTitle(trimmedTitle); err != nil {
+	if err := service.ValidateEventTitle(trimmedTitle); err != nil {
 		errValidation.Title = err.Error()
 	}
 	if err := utils.ValidateDesc(trimmedDesc); err != nil {

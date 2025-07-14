@@ -8,8 +8,6 @@ import (
 	"social-network/backend/utils"
 )
 
-
-
 type GroupService struct {
 	gRepo *group.GroupRepository
 }
@@ -18,11 +16,11 @@ func NewGroupService(grepo *group.GroupRepository) *GroupService {
 	return &GroupService{gRepo: grepo}
 }
 
-func (gServide *GroupService) AddGroup(group *models.Group) (*models.Group, *models.ErrorJson) {
+func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *models.ErrorJson) {
 	errGroup := models.ErrGroup{}
 	trimmedTitle := strings.TrimSpace(group.Title)
 	trimmedDesc := strings.TrimSpace(group.Description)
-	if err := utils.ValidateTitle(trimmedTitle); err != nil {
+	if err := gService.ValidateGroupTitle(trimmedTitle); err != nil {
 		errGroup.Title = err.Error()
 	}
 	if err := utils.ValidateDesc(trimmedDesc); err != nil {
@@ -30,11 +28,17 @@ func (gServide *GroupService) AddGroup(group *models.Group) (*models.Group, *mod
 	}
 
 	if errGroup != (models.ErrGroup{}) {
+		if err := utils.RemoveImage(group.ImagePath); err != nil {
+			return nil, &models.ErrorJson{Status: 500, Error: err.Error()}
+		}
 		return nil, &models.ErrorJson{Status: 400, Message: errGroup}
 	}
-	group, errJson := gServide.gRepo.CreateGroup(group)
+	group, errJson := gService.gRepo.CreateGroup(group)
 	if errJson != nil {
-		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+		if err := utils.RemoveImage(group.ImagePath); err != nil {
+			return nil, &models.ErrorJson{Status: 500, Error: err.Error()}
+		}
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return group, nil
 }
@@ -53,7 +57,7 @@ func (gService *GroupService) GetGroups(filter string, offset int64, userID stri
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
 	}
 
 	return groups, nil

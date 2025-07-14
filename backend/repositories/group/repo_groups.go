@@ -25,18 +25,18 @@ func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *m
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(groupID, group.GroupCreatorId,
 		group.Title, group.ImagePath, group.Description)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 2", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 2", err)}
 	}
 
 	group.GroupId = groupID
 	if errJson := repo.JoinGroup(group, group.GroupCreatorId); errJson != nil {
-		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 
 	return group, nil
@@ -55,7 +55,7 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
@@ -70,7 +70,7 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 		var group models.Group
 		errScan := rows.Scan(&group.Title, &group.ImagePath, &group.Description)
 		if errScan != nil {
-			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 		joinedGroups = append(joinedGroups, group)
 	}
@@ -90,7 +90,7 @@ func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
@@ -105,7 +105,7 @@ func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]
 		var group models.Group
 		errScan := rows.Scan(&group.Title, &group.ImagePath, &group.Description)
 		if errScan != nil {
-			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 		availabeGroups = append(availabeGroups, group)
 	}
@@ -123,7 +123,7 @@ func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]mo
 	`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
@@ -138,7 +138,7 @@ func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]mo
 		var group models.Group
 		errScan := rows.Scan(&group.Title, &group.ImagePath, &group.Description)
 		if errScan != nil {
-			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 		createdGroups = append(createdGroups, group)
 	}
@@ -146,5 +146,20 @@ func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]mo
 	return createdGroups, nil
 }
 
-func (repo *GroupRepository) GetGroupById() {
+func (repo *GroupRepository) GetGroupById(groupID string) *models.ErrorJson {
+	var found int
+	query := `SELECT 1 FROM groups WHERE groupID = ?`
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+	if err = stmt.QueryRow(groupID).Scan(&found); err != nil {
+		if err == sql.ErrNoRows {
+			return &models.ErrorJson{Status: 404, Error: "ERROR!! Group Not Found!"}
+		}
+
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	return nil
 }

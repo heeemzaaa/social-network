@@ -28,7 +28,7 @@ func (s *AuthService) Register(user *models.User) *models.ErrorJson {
 
 	errJson := s.repo.CreateUser(user)
 	if errJson != nil {
-		fmt.Println("HHHHHH", errJson)
+		// needs another checking 
 		os.Remove(user.ImagePath)
 		return errJson
 	}
@@ -36,23 +36,26 @@ func (s *AuthService) Register(user *models.User) *models.ErrorJson {
 	return nil
 }
 
+
+
+
 func (s *AuthService) validateUserData(user *models.User) *models.ErrorJson {
 	userErrorJson := models.User{}
+	if err := isValidName(user.FirstName); err != nil {
+		userErrorJson.FirstName = err.Error()
+	}
 	if strings.TrimSpace(user.FirstName) == "" {
 		userErrorJson.FirstName = "First name is required"
 	}
 
-	if err := isValidName(user.FirstName); err != nil {
-		userErrorJson.FirstName = err.Error()
+	if err := isValidName(user.LastName); err != nil {
+		userErrorJson.LastName = err.Error()
 	}
 
 	if strings.TrimSpace(user.LastName) == "" {
 		userErrorJson.LastName = "Last name is required"
 	}
 
-	if err := isValidName(user.LastName); err != nil {
-		userErrorJson.LastName = err.Error()
-	}
 
 	if err := isValidName(user.LastName); err != nil {
 		userErrorJson.LastName = err.Error()

@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 	"sync"
-
 	"social-network/backend/models"
 	"social-network/backend/services/chat"
 	"social-network/backend/utils"
@@ -27,10 +26,14 @@ func NewChatServer(service *chat.ChatService) *ChatServer {
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
 		},
 	}
 }
 
+// here we'll try to upgrade the http connection to websocket
 func (server *ChatServer) ChatServerHandler(w http.ResponseWriter, r *http.Request) {
 	connection, err := server.upgrader.Upgrade(w, r, nil)
 	if err != nil {

@@ -1,1 +1,2 @@
-still need to change the query , because the offset was handled as int with the userID
+still have to add a logic to the read status
+still have add a query to the group

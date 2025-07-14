@@ -16,5 +16,6 @@ func SetProfileRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthServ
 	service := s.NewProfileService(repo)
 	handler := h.NewProfileHandler(service)
 	mux.Handle("/api/profile/{id}/", middleware.NewMiddleWare(handler, authService))
+	
 	return mux
 }

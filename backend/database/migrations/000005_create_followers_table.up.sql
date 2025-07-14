@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS followers(
     FOREIGN KEY (userID)  REFERENCES users(userID),
     FOREIGN KEY  (followerID) REFERENCES users(userID),
     PRIMARY KEY (userID, followerID)
+    CHECK (userID != followerID)
 );
 
 

@@ -19,6 +19,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId string, offset int64) ([]mo
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
@@ -30,7 +31,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId string, offset int64) ([]mo
 	for rows.Next() {
 		var event models.Event
 		if err := rows.Scan(&event.EventCreator, &event.Title, &event.Description, &event.EventDate); err != nil {
-			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 		events = append(events, event)
 	}
@@ -47,12 +48,12 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 	if _, err = stmt.Exec(eventId, event.EventCreatorId,
 		event.GroupId, event.Title, event.Description, event.EventDate); err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	return event, nil
@@ -61,7 +62,6 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 // Get the details ( the card of a specific event )
 
 func (gRepo *GroupRepository) GetEventDetails(eventId, userId, groupId string) (*models.Event, *models.ErrorJson) {
-	
 	return &models.Event{}, nil
 }
 

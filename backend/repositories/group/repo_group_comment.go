@@ -13,19 +13,19 @@ func (gRepo *GroupRepository) CreateComment(comment *models.CommentGroup) (*mode
 	RETURNING commentID, content, createdAt;`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 	if err := stmt.QueryRow(comment.PostId, comment.UserId, comment.Content).Scan(
 		&comment_created.Id, &comment_created.Content,
 		&comment_created.CreatedAt); err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	return comment_created, nil
 }
 
 // But hna comments dyal wa7d l post specific
-func (gRepo *GroupRepository) GetComments(user_id, postId, offset int) ([]models.CommentGroup, error) {
+func (gRepo *GroupRepository) GetComments(user_id, postId, offset int) ([]models.CommentGroup, *models.ErrorJson) {
 	var where string
 	if offset == 0 {
 		where = `comments.postID = ?`
@@ -70,7 +70,7 @@ func (gRepo *GroupRepository) GetComments(user_id, postId, offset int) ([]models
 
 	rows, err := gRepo.db.Query(query, user_id, postId, offset)
 	if err != nil {
-		return nil, err
+		return nil, &models.ErrorJson{Status: 500 , Error: fmt.Sprintf("%v", err)}
 	}
 	if rows.Err() == sql.ErrNoRows {
 		return comments, nil
@@ -80,7 +80,7 @@ func (gRepo *GroupRepository) GetComments(user_id, postId, offset int) ([]models
 		var comment models.CommentGroup
 		if err = rows.Scan(&comment.Username, &comment.Id, &comment.Content,
 			&comment.CreatedAt, &comment.TotalLikes, &comment.Liked); err != nil {
-			return comments, err
+			return comments,  &models.ErrorJson{Status: 500 , Error: fmt.Sprintf("%v", err)}
 		}
 		comments = append(comments, comment)
 	}

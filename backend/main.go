@@ -14,7 +14,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
+    
 	mux := routes.SetRoutes(db.Database)
 
 	fmt.Println("server is running in : http://localhost:8080")

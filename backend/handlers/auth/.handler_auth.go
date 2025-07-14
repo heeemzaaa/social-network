@@ -203,7 +203,6 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 }
 
 func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("===> inside logout in handler")
 	cookie, _ := r.Cookie("session")
 	fmt.Printf("cookie: %v\n", cookie)
 	session, errJson := handler.service.GetSessionByTokenEnsureAuth(cookie.Value)
