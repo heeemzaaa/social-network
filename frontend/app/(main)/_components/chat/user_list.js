@@ -1,3 +1,5 @@
+import "./chat.css"
+
 export default function UserList({ users }) {
   return (
     <div className="pi3">
