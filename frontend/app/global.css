@@ -371,6 +371,10 @@ a {
   overflow: auto;
 }
 
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
 /* Cursor */
 .cursor-pointer {
   cursor: pointer;
@@ -519,8 +523,8 @@ aside {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 2rem;
-  border: solid red 1px;
+  width: 200px;
+  padding: 2rem 1rem;
 }
 
 main {
@@ -530,7 +534,9 @@ main {
   padding: 2rem;
   border-bottom-left-radius: var(--border-radius-xl);
   border-bottom-right-radius: var(--border-radius-xl);
-  overflow-y: auto;  /* This makes main scrollable */
+  height: 100%;
+  overflow-y: hidden;
+  /* This makes main scrollable */
 }
 
 .login,
@@ -544,7 +550,6 @@ main {
   gap: 2rem;
 }
 
-
 .field-error {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
@@ -553,8 +558,80 @@ main {
 }
 
 .home_page {
-  border: solid red ;
+  border: solid red;
   display: flex;
   overflow: hidden;
   justify-content: space-between;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--color-dark);
+  border-radius: 2px;
+  margin-left: 1px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+
+@media (max-width: 500px) {
+  body {
+    color: var(--color-white);
+    background: var(--color-dark);
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: max-content 1fr max-content;
+  }
+
+  header {
+    background-color: var(--color-secondary);
+    color: var(--color-dark);
+    padding: 1rem;
+    margin: .5rem .5rem 0;
+    border-top-left-radius: var(--border-radius-xl);
+    border-top-right-radius: var(--border-radius-xl);
+  }
+
+  aside {
+    grid-row-start: 3;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    padding: 0;
+    align-items: center;
+
+    p,
+    button {
+      display: none;
+    }
+  }
+
+  main {
+    background-color: var(--color-secondary);
+    color: var(--color-dark);
+    margin: 0 .5rem .5rem;
+    padding: 2rem;
+    border-bottom-left-radius: var(--border-radius-xl);
+    border-bottom-right-radius: var(--border-radius-xl);
+    height: 100%;
+    overflow-y: hidden;
+    /* This makes main scrollable */
+  }
+
 }
