@@ -19,18 +19,24 @@ import (
 // POST /groups/{id}   join a specific group done
 // GET /groups/{id}  get the general info of a specific group (title description and so on )
 //  ##### routes i have to implement to all the user who is a member of a specific group  #####
-// GET /groups/{id}/posts  (get the posts of a specific group)
-// POST /groups/{id}/posts  (add a post to a specific group)
-/**********************************************************/
 // GET /groups/{id}/events  (get the events of a specific group)
 // POST /groups/{id}/events  (add a event to a specific group)
+// almost done !!
+/**********************************************************/
+// GET /groups/{id}/posts  (get the posts of a specific group)
+// POST /groups/{id}/posts  (add a post to a specific group)
 /**********************************************************/
 // GET /groups/{id}/posts/{post_id}/comments (get the comments of a specific post of specific group)
 // POST /groups/{id}/posts/{post_id}/comments  (add a comment to a specific post of a specific group)
 /***********************************************************/
 // GET /api/groups/{group_id}/events/{event-id}/  (get the details of a specific event of a specific group)
-// POST /api/groups/{group_id}/events/{event-id}/ (add a event to a specific group)
+// POST /api/groups/{group_id}/events/{event-id}/ (show interest to  an event to a specific group)
 /**********************************************************/
+// GET /groups/{group_id}/members  GET the members of a specific group
+// GET /groups/{group_id}/members/{id} to the profile of a user of a specific group 
+
+
+
 
 func SetGroupRoutes(mux *http.ServeMux, db *sql.DB, authService *authService.AuthService) {
 	//  auth service

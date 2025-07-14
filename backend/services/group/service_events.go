@@ -31,18 +31,18 @@ func (service *GroupService) GetGroupEvents(groupID, userID string, offset int64
 // as always we need to check if the user is part of the group before adding an event
 
 func (service *GroupService) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
-	exists, errJson := service.IsMemberGroup(event.GroupId, event.EventCreatorId)
+	isMember, errJson := service.IsMemberGroup(event.GroupId, event.EventCreatorId)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
 	}
-	if !exists {
+	if !isMember {
 		return nil, &models.ErrorJson{Status: 403, Message: "ERROR!! Acces Forbidden!"}
 	}
 	// here we'll be checking if the input is valid
 	errValidation := models.ErrEventGroup{}
 	trimmedTitle := strings.TrimSpace(event.Title)
 	trimmedDesc := strings.TrimSpace(event.Description)
-	if err := service.ValidateEventTitle(trimmedTitle); err != nil {
+	if err := utils.ValidateTitle(trimmedTitle); err != nil {
 		errValidation.Title = err.Error()
 	}
 	if err := utils.ValidateDesc(trimmedDesc); err != nil {
@@ -58,7 +58,7 @@ func (service *GroupService) AddGroupEvent(event *models.Event) (*models.Event, 
 	}
 	event, errJson = service.gRepo.AddGroupEvent(event)
 	if errJson != nil {
-		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return event, nil
 }

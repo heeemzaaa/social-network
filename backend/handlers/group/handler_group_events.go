@@ -11,8 +11,6 @@ import (
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
 	"social-network/backend/utils"
-
-	"github.com/google/uuid"
 )
 
 /***   /api/groups/{group_id}/events/    ***/
@@ -27,19 +25,17 @@ func NewGroupEventHandler(service *gservice.GroupService) *GroupEventHandler {
 }
 
 func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *http.Request) {
-	groupId := r.PathValue("group_id")
-	groupID, err := uuid.Parse(groupId)
-	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of groupID value!"})
-		return
-	}
-	userIDVal := r.Context().Value("userID")
-	userID, errParse := uuid.Parse(userIDVal.(string))
+	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		fmt.Println("errors", errParse)
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
+	groupID, err := utils.GetUUIDFromPath(r, "group_id")
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
+		return
+	}
+
 	var event *models.Event
 	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 		if err == io.EOF {
@@ -53,13 +49,13 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 			})
 			return
 		}
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v hhh", err)})
 		return
 	}
 	event.EventCreatorId, event.GroupId = userID.String(), groupID.String()
 	event, errJson := gEventHandler.gService.AddGroupEvent(event)
 	if errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
 		return
 	}
 	utils.WriteDataBack(w, event)
@@ -67,26 +63,30 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 
 // we'll be working with exists to check if a user is member before proceeding in any action!!
 func (gEventHandler *GroupEventHandler) GetGroupEvents(w http.ResponseWriter, r *http.Request) {
-	userID , errParse := middleware.GetUserIDFromContext(r.Context())
+	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
 		return
 	}
-	groupId := r.PathValue("group_id")
+	groupID, err := utils.GetUUIDFromPath(r, "group_id")
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
+		return
+	}
 	offset, errOffset := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
 	if errOffset != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect Offset Format!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Incorrect Offset Format!"})
 		return
 	}
 
-	events, errJson := gEventHandler.gService.GetGroupEvents(groupId, userID.String(), offset)
+	events, errJson := gEventHandler.gService.GetGroupEvents(groupID.String(), userID.String(), offset)
 	if errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(events); err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 }
@@ -101,7 +101,7 @@ func (gEventHandler *GroupEventHandler) ServeHTTP(w http.ResponseWriter, r *http
 		gEventHandler.AddGroupEvent(w, r)
 		return
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method not allowed!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method not allowed!"})
 		return
 	}
 }

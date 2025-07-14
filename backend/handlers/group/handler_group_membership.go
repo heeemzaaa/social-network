@@ -18,6 +18,8 @@ import (
 
 /***  /api/groups/{group_id}/   ***/
 
+// DONE tooo 
+
 type GroupIDHanlder struct {
 	gservice *gservice.GroupService
 }
@@ -30,7 +32,7 @@ func NewGroupIDHandler(service *gservice.GroupService) *GroupIDHanlder {
 func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect format of userID UUID!"})
 		return
 	}
 	var group_to_join *models.Group
@@ -52,7 +54,6 @@ func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Reque
 		})
 		return
 	}
-
 
 	fmt.Println("userId", userID.String(), group_to_join.GroupId)
 
@@ -77,7 +78,7 @@ func (gIdHanlder *GroupIDHanlder) GetGroupInfo(w http.ResponseWriter, r *http.Re
 	}
 
 	if err := json.NewEncoder(w).Encode(groupDetails); err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 }
@@ -92,7 +93,7 @@ func (gIdHanlder *GroupIDHanlder) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		gIdHanlder.JoinGroup(w, r)
 		return
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method Not Allowed!"})
 		return
 	}
 }

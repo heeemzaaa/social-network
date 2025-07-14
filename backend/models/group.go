@@ -11,6 +11,7 @@ type Group struct {
 	Description    string  `json:"description"`
 	ImagePath      string  `json:"image_path,omitempty"`
 	Image          string  `json:"image,omitempty"`
+	Total_Members  int     `json:"total_members,omitempty"`
 	Members        []User  `json:"members,omitempty"`
 	Posts          []Post  `json:"posts,omitempty"`
 	Events         []Event `json:"events,omitempty"`
@@ -28,13 +29,13 @@ type ErrJoinGroup struct {
 }
 
 type Event struct {
-	GroupId        string    `json:"group_id,omitempty"`
-	EventCreator   string    `json:"event_creator"`
-	EventCreatorId string    `json:"event_creator_id"`
-	Title          string    `json:"title"`
-	Description    string    `json:"description"`
-	EventDate      time.Time `json:"event_date"`
-	Going          int       `json:"going"`
+	GroupId        string `json:"group_id,omitempty"`
+	EventCreator   string `json:"event_creator,omitempty"`
+	EventCreatorId string `json:"event_creator_id"`
+	Title          string `json:"title"`
+	Description    string `json:"description"`
+	EventDate      Date   `json:"event_date"`
+	Going          int    `json:"going"`
 }
 
 type ErrEventGroup struct {
