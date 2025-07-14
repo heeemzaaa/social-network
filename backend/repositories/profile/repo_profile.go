@@ -257,6 +257,9 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 
 // here I will get all the user's posts
 func (repo *ProfileRepository) GetPosts(profileID string, userID string) (*[]models.Post, error) {
+	// var posts *[]models.Post
+
+	// query := ``
 	return nil, nil
 }
 
