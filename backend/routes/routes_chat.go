@@ -17,7 +17,7 @@ func SetChatRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService
 	handlerMessage := h.NewMessagesHandler(service)
 
 	mux.Handle("/ws/chat", handlerChat)
-	mux.Handle("/api/messages/", handlerMessage)
+	mux.Handle("/api/", handlerMessage)
 
 	return mux
 }
