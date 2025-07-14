@@ -35,33 +35,29 @@ func (s *ProfileService) CheckProfileAccess(profileID string, autSessionID strin
 }
 
 // here I will have the data of the user to pass it to the handler
-func (s *ProfileService) GetProfileData(profileID string, authSessionID string) (*models.Profile, *models.ErrorJson) {
+func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*models.Profile, *models.ErrorJson) {
 	var profile *models.Profile
-
-	if profileID == "" || authSessionID == "" {
+	if profileID == "" || authUserID == "" {
 		return nil, &models.ErrorJson{Status: 400, Message: "Data is invalid !"}
 	}
 
-	access, accessErr := s.CheckProfileAccess(profileID, authSessionID)
+	access, accessErr := s.CheckProfileAccess(profileID, authUserID)
 	if !access && accessErr != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", accessErr)}
 	}
+
 
 	profile, err := s.repo.GetProfileData(profileID, access)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 
-	AuthUserID, err := s.repo.GetID(authSessionID)
-	if err != nil {
-		return nil, &models.ErrorJson{Status: 401, Message: fmt.Sprintf("%v", err)}
-	}
 
-	if profileID == AuthUserID {
+	if profileID == authUserID {
 		profile.IsMyProfile = true
 	}
 
-	profile.IsFollower, err = s.repo.IsFollower(profileID, AuthUserID)
+	profile.IsFollower, err = s.repo.IsFollower(profileID, authUserID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}

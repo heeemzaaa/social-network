@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
+	"social-network/backend/middleware"
 	"social-network/backend/models"
 	"social-network/backend/services/chat"
 	"social-network/backend/utils"
@@ -58,6 +60,28 @@ func (messages *MessagesHandler) GetMessages(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+func (message *MessagesHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		return
+	}
+
+	offset, err := strconv.Atoi(r.URL.Query().Get("offset"))
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		return
+	}
+
+	users, errUsers := message.service.GetUsers(authSessionID.String(), offset)
+	if errUsers != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUsers.Status, Message: errUsers.Message})
+		return
+	}
+
+	utils.WriteDataBack(w, users)
+}
+
 func (messages *MessagesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -65,5 +89,13 @@ func (messages *MessagesHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!!"})
 		return
 	}
-	messages.GetMessages(w, r)
+	switch r.URL.Path {
+	case "/api/get-messages":
+		messages.GetMessages(w, r)
+	case "/api/get-users":
+		messages.GetUsers(w, r)
+	default:
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "ERROR!! Page Not Found!"})
+		return
+	}
 }
