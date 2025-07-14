@@ -1,7 +1,7 @@
 PRAGMA  foreign_keys=ON;
 
 
-CREATE TABLE follow_requests (
+CREATE TABLE IF NOT EXISTS follow_requests (
     userID TEXT NOT NULL,               
     requestorID TEXT NOT NULL,         
     sent_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
