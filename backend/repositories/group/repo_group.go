@@ -19,18 +19,17 @@ func (repo *GroupRepository) JoinGroup(group *models.Group, userId string) *mode
 	`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		if sqlite3Err, ok := err.(sqlite3.Error); ok {
-			if sqlite3Err.Code == sqlite3.ErrConstraint {
-				return &models.ErrorJson{Status: 403, Message: "user already joined the group!"}
-			}
-		}
-
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 3", err)}
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(group.GroupId, userId)
 	if err != nil {
+		if sqlite3Err, ok := err.(sqlite3.Error); ok {
+			if sqlite3Err.Code == sqlite3.ErrConstraint {
+				return &models.ErrorJson{Status: 403, Error: "ERROR!! User already joined the group!"}
+			}
+		}
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 4", err)}
 	}
 	return nil

@@ -146,5 +146,20 @@ func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]mo
 	return createdGroups, nil
 }
 
-func (repo *GroupRepository) GetGroupById() {
+func (repo *GroupRepository) GetGroupById(groupID string) *models.ErrorJson {
+	var found int
+	query := `SELECT 1 FROM groups WHERE groupID = ?`
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+	if err = stmt.QueryRow(groupID).Scan(&found); err != nil {
+		if err == sql.ErrNoRows {
+			return &models.ErrorJson{Status: 404, Error: "ERROR!! Group Not Found!"}
+		}
+
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	return nil
 }
