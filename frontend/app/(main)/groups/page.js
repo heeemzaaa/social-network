@@ -12,21 +12,20 @@ import GroupCardList from './_components/groupCardList';
 export default function Groups() {
   const { openModal } = useModal()
   return (
-    <main className='flex-col border-red'>
-      <Button className={'self-end'} onClick={() => { openModal(<CreateGroup />) }}>Add Post</Button>
+    <main className='flex-col flex-start border-red align-end'>
+      <Button className={'justify-start'} onClick={() => { openModal(<CreateGroup />) }}>Add Post</Button>
       <Tabs className={''}>
         <Tab label="Your Groups" />
         <Tab label="Joined Groups" />
         <Tab label="Groups" />
-        <TabContent>
-          <GroupCardList/>
+        <TabContent><GroupCardList filter={"owned"}/></TabContent>
+        <TabContent> 
+          <GroupCardList filter={"joined"}/>
         </TabContent>
-        <TabContent> <GroupCardList/></TabContent>
-        <TabContent>Content for Tab 3</TabContent>
+        <TabContent>
+          <GroupCardList filter={"available"}/>
+        </TabContent>
       </Tabs>
     </main>
   )
 }
-
-
-
