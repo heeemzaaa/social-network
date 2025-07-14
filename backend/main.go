@@ -15,7 +15,6 @@ func main() {
 		panic(err)
 	}
 	mux := routes.SetRoutes(db.Database)
-	// mux.HandleFunc("/api/posts/", handlers.CreatePostHandler)
 
 	fmt.Println("server is running in : http://localhost:8080")
 	http.ListenAndServe(":8080", middelware.NewCorsMiddlerware(middelware.NewRateLimitMiddleWare(mux)))

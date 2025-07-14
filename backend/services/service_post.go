@@ -1,9 +1,30 @@
 package services
 
-type PostsRepository struct {
-	repo *PostsRepository
+import (
+	"social-network/backend/models"
+	pr "social-network/backend/repositories"
+)
+
+type PostService struct {
+	repo *pr.PostsRepository
 }
 
-func NewPostsService(repo *PostsRepository) *PostsRepository {
-	return &PostsRepository{repo: repo}
+func NewPostService(repo *pr.PostsRepository) *PostService {
+	return &PostService{repo: repo}
+}
+
+func (s *PostService) CreatePost(post *models.Post) error {
+	return s.repo.CreatePost(post)
+}
+
+func (s *PostService) GetAllPosts() ([]models.Post, error) {
+	return s.repo.GetAllPosts()
+}
+
+func (s *PostService) GetPostByID(postID string) (models.Post, error) {
+	return s.repo.GetPostByID(postID)
+}
+
+func (s *PostService) DeletePost(postID string) error {
+	return s.repo.DeletePost(postID)
 }
