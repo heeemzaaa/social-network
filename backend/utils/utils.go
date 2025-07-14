@@ -68,4 +68,9 @@ func NewUUID() string {
 	return uuid.New().String()
 }
 
-
+func RemoveImage(ImagePath string) error {
+	if err := os.Remove(filepath.Join("static", ImagePath)); err != nil {
+		return err
+	}
+	return nil
+}

@@ -42,7 +42,7 @@ func (service *GroupService) AddGroupEvent(event *models.Event) (*models.Event, 
 	errValidation := models.ErrEventGroup{}
 	trimmedTitle := strings.TrimSpace(event.Title)
 	trimmedDesc := strings.TrimSpace(event.Description)
-	if err := utils.ValidateTitle(trimmedTitle); err != nil {
+	if err := service.ValidateEventTitle(trimmedTitle); err != nil {
 		errValidation.Title = err.Error()
 	}
 	if err := utils.ValidateDesc(trimmedDesc); err != nil {

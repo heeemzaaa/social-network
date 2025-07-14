@@ -47,7 +47,6 @@ func (repo *ProfileRepository) IsFollower(userID string, authUserID string) (boo
 
 // here I will check if the user have a private profile or a public one
 func (repo *ProfileRepository) Visibility(userID string) (string, error) {
-	fmt.Println(userID)
 	var visibility string
 	query := `SELECT visibility FROM users WHERE userID = ?`
 	err := repo.db.QueryRow(query, userID).Scan(&visibility)
@@ -310,7 +309,6 @@ func (repo *ProfileRepository) GetFollowing(profileID string) (*[]models.User, e
 	rows, err := repo.db.Query(query, profileID)
 	if err != nil {
 		return nil, fmt.Errorf("%v", err)
-
 	}
 	defer rows.Close()
 

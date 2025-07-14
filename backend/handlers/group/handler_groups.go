@@ -67,7 +67,7 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 
 	data := r.FormValue("data")
 	if err := json.Unmarshal([]byte(data), &group_to_create); err != nil {
-		if err == io.EOF {
+		if err == io.EOF  || group_to_create ==(&models.Group{}){
 			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
 				Message: models.ErrGroup{
@@ -91,6 +91,7 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
 	}
+
 	group_to_create.GroupCreatorId, group_to_create.ImagePath = userID.String(), path
 	group, errJson := Ghandler.gService.AddGroup(group_to_create)
 	if errJson != nil {
@@ -102,9 +103,6 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 
 func (Ghandler *GroupHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
-	fmt.Println("requested path:", r.URL.Path)
-	fmt.Println("method", r.Method)
 	switch r.Method {
 	case http.MethodGet:
 		Ghandler.GetGroups(w, r)

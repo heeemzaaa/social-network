@@ -147,7 +147,6 @@ func (s *ProfileService) Follow(userID string, authSessionID string) *models.Err
 	case "private":
 		err := s.repo.FollowPrivate(userID, authUserID)
 		if err != nil {
-			fmt.Println(11111111111)
 			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}
 	case "public":
