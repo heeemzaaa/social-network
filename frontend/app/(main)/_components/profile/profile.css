@@ -78,23 +78,3 @@
 .about_me_container>p {
     text-align: justify;
 }
-
-
-.user_item {
-    display: flex;
-    align-items: center;
-}
-
-.user_item>img {
-    border-radius: 50%;
-    height: 35px;
-    width: 35px;
-}
-
-.sep {
-    height: 2px;
-    background: linear-gradient(to left,
-            var(--color-white) 0%,
-            var(--color-dark) 50%,
-            var(--color-white) 100%);
-}
