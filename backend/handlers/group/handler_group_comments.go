@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"social-network/backend/middleware"
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
 	"social-network/backend/utils"
@@ -27,7 +28,7 @@ func NewGroupCommentHandler(service *gservice.GroupService) *GroupCommentHandler
 
 func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWriter, r *http.Request) {
 	var comment *models.CommentGroup
-	userID, errParse := utils.GetUserIDFromContext(r.Context())
+	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return
@@ -78,7 +79,7 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 }
 
 func (gCommentHandler *GroupCommentHandler) GetGroupComments(w http.ResponseWriter, r *http.Request) {
-	_, errParse := utils.GetUserIDFromContext(r.Context())
+	_, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
 		return

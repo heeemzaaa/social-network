@@ -51,6 +51,11 @@ type ContextKey struct {
 	Key string
 }
 
+// there is a  problem when doing this with contexts 
+
+
 func NewContextKey(key string) *ContextKey {
 	return &ContextKey{Key: key}
 }
+
+
