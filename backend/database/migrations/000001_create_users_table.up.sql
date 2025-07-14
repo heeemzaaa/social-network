@@ -7,9 +7,12 @@ CREATE TABLE IF NOT EXISTS users (
     lastName VARCHAR(50) NOT NULL,
     password VARCHAR(50) NOT NULL, 
     birthDate TEXT  NOT NULL,
-    nickname VARCHAR(30) UNIQUE,
+    nickname VARCHAR(30) DEFAULT NULL,
     avatarPath TEXT,
     aboutMe TEXT,
     visibility TEXT NOT NULL DEFAULT 'public' CHECK (visibility IN ('public','private')),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE INDEX unique_nickname ON users(nickname) WHERE nickname IS NOT NULL;
