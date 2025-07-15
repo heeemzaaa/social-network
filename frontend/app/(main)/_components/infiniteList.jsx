@@ -1,4 +1,5 @@
 import useInfiniteScroll from "@/app/_hooks/useInfiniteScroll";
+import { useEffect } from "react";
 
 export default function InfiniteList({
     getUrl,
@@ -7,16 +8,14 @@ export default function InfiniteList({
     renderItem,
     noDataImage = "no-data-animate.svg",
     className = "list-container flex flex-wrap gap-4 justify-center overflow-y-auto",
-}) {
-    
-    const { data, isLoading, error, hasMore, sentinelRef } = useInfiniteScroll({
+}) { 
+        const { data, isLoading, error, hasMore, sentinelRef } = useInfiniteScroll({
         getUrl,
         initialPage,
         itemsPerPage,
-    });
+    })
     console.log("====> fetching data for url: ", getUrl())
-    console.log("====> fetching data for url: ", getUrl())
-    console.log("====> fetching data for url: ", getUrl())
+    console.log("data fetched: ", data)
     
     if (error) return <p className="text-danger text-center">Error: {error}</p>;
     return (

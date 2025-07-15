@@ -37,7 +37,7 @@ export default function useInfiniteScroll({
             setIsLoading(false);
         }
     };
-
+    
     // Reset data when getUrl changes
     useEffect(() => {
         setData([]);

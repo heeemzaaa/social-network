@@ -3,11 +3,18 @@ import Tag from "../../_components/tag";
 import { HiMiniUsers } from "react-icons/hi2";
 import "./style.css"
 export default function GroupCard({
-    img,
+    type,
+    group_id,
+    image_path,
     title,
     description,
     membersCount
 }) {
+
+    const handleJoingGrp = (groupId) => {
+        console.log("join grp:) ")
+    }
+
     return (
         <div className="grp-card w-quarter">
             <div className="grp-card-img-holder glass-bg">
@@ -26,12 +33,13 @@ export default function GroupCard({
                         {membersCount}
                     </Tag>
                 </div>
-                {/* <div>
-                    <br /> */}
-                    <Button className={"text-center"}>Join</Button>
-                {/* </div> */}
+                {
+                    type === "available" ?
+                        <Button className={"text-center"} onClick={()=>handleJoingGrp(group_id)}>Join</Button>
+                        :
+                        <Button className={"text-center"}>Go to</Button>
+                }
             </div>
         </div>
     )
-};
-
+}

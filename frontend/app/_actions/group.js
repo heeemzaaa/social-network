@@ -1,8 +1,7 @@
 "use server"
-
-
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
+
 
 /*
     state = {
@@ -14,7 +13,6 @@ import { redirect } from "next/navigation"
 */
 
 export async function addGroupPostAction(prevState, formData) {
-    // return state with data containing the post component created to add it dinamically
 }
 
 
@@ -85,6 +83,7 @@ export async function createGroupAction(prevState, formData) {
                 errors: data.errors || null
             };
         }
+
         return {
             ...prevState,
             message: "Group created successfully",
@@ -96,6 +95,8 @@ export async function createGroupAction(prevState, formData) {
             error: "An unexpected error occurred",
         };
     }
+
+
 }
 
 // Creates a new group event by validating form data and sending it to the event creation API.
@@ -174,4 +175,10 @@ export async function createGroupEventAction(prevState, formData) {
             error: "An unexpected error occurred",
         };
     }
+}
+
+
+export async function joinGroupAction(groupId) {
+
+
 }
