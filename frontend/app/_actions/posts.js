@@ -12,7 +12,6 @@ export async function createPostAction(prevState, formData) {
     const title = formData.get("title");
     const content = formData.get("content");
     const privacy = formData.get("privacy");
-    console.log("privacy is ", privacy)
     const selectedFollowersRaw = formData.get("selectedFollowers");
 
     if (!title) {

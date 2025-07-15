@@ -24,6 +24,7 @@ export default function CreatePost({ type, postAction }) {
                     credentials: 'include',
                 });
                 const data = await res.json();
+                console.log("data is ************************************** ",data)
                 setFollowers(data);
             } catch (err) {
                 console.error("Error loading followers:", err);
