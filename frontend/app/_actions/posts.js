@@ -12,13 +12,10 @@ export async function createPostAction(prevState, formData) {
 
     const title = formData.get("title");
     const content = formData.get("content");
-    const privacy  = formData.get("privacy")
-    if(!privacy)  {
+    const privacy = formData.get("privacy")
+    if (!privacy) {
         state.errors.privacy = "privacy is required"
     }
-    //    if(privacy!= "Public" || privacy != "Private" || privacy !="Freinds" )  {
-    //     state.errors.privacy = "privacy is required"
-    // }
     if (!title) {
         state.errors.title = "Title is required";
     }
