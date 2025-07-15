@@ -13,7 +13,7 @@ export default function CreatePost({ type, postAction }) {
     const [data, setData] = useState(initialPostData);
     const [followers, setFollowers] = useState([]);
     const [loadingFollowers, setLoadingFollowers] = useState(true);
-    let id = "fc566f11-9cef-4fca-8e67-ed580c7add2a"
+    let id = "3df163f3-2e00-4a94-aaa9-1378a2881568"
     useEffect(() => {
         const fetchFollowers = async () => {
             try {
@@ -22,7 +22,7 @@ export default function CreatePost({ type, postAction }) {
                     credentials: 'include',
                 });
                 const data = await res.json();
-                console.log(data , "<----- data is ")
+                console.log(data, "<----- data is ")
                 setFollowers(data);
             } catch (err) {
                 console.error("Error loading followers:", err);
@@ -141,20 +141,33 @@ export default function CreatePost({ type, postAction }) {
                                         {/* Individual Followers */}
                                         {followers.map(follower => (
                                             <div key={follower.id} style={{ marginBottom: '8px' }}>
-                                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                                <label
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '8px',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
                                                     <input
                                                         type="checkbox"
                                                         checked={data.selectedFollowers.includes(follower.id)}
                                                         onChange={() => handleFollowerToggle(follower.id)}
                                                         style={{ cursor: 'pointer' }}
                                                     />
+
                                                     <div>
-                                                        <div style={{ fontWeight: '500' }}>{follower.name}</div>
-                                                        <div style={{ fontSize: '0.9em', color: '#666' }}>{follower.username}</div>
+                                                        <div style={{ fontWeight: '500' }}>
+                                                            {follower.firstname} {follower.lastname}
+                                                        </div>
+                                                        <div style={{ fontSize: '0.9em', color: '#666' }}>
+                                                            {follower.nickname}
+                                                        </div>
                                                     </div>
                                                 </label>
                                             </div>
                                         ))}
+
                                     </>
                                 )}
                             </div>
