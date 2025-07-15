@@ -2,7 +2,6 @@
 import './global.css'
 import { Geist } from 'next/font/google'
 import { useRef, useEffect } from 'react'
-import TestChat from './(main)/_lib/webSocket'
 
 const geist = Geist({
   subsets: ['latin'],
@@ -27,8 +26,7 @@ export default function RootLayout({ children }) {
   return (
 	  <html lang="en" className={geist.className}>
       <body ref={ref}>
-		<TestChat />
-        {children}
+          {children}
       </body>
     </html>
   );
