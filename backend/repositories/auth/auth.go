@@ -1,6 +1,8 @@
 package auth
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type AuthRepository struct {
 	db *sql.DB
