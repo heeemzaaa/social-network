@@ -38,13 +38,11 @@ func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*m
 
 	access, accessErr := s.CheckProfileAccess(profileID, authUserID)
 	if !access && accessErr != nil {
-		fmt.Println(1)
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", accessErr)}
 	}
 
 	profile, err := s.repo.GetProfileData(profileID, access)
 	if err != nil {
-		fmt.Println(2)
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 
@@ -54,19 +52,16 @@ func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*m
 
 	profile.IsFollower, err = s.repo.IsFollower(profileID, authUserID)
 	if err != nil {
-		fmt.Println(3)
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 
 	profile.IsRequested, err = s.repo.IsRequested(profileID, authUserID)
 	if err != nil {
-		fmt.Println(4)
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 
 	profile.Visibility, err = s.repo.Visibility(profileID)
 	if err != nil {
-		fmt.Println(5)
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 

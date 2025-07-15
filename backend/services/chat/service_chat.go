@@ -99,6 +99,10 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 
 // get the messages between specific users
 func (service *ChatService) GetMessages(sender_id, target_id, lastMessageTime, type_ string) ([]models.Message, *models.ErrorJson) {
+	if sender_id == "" || target_id == "" || type_ == "" {
+		return nil, &models.ErrorJson{Status: 400, Message: "Invalid data format !"}
+	}
+
 	messages, errJson := service.repo.GetMessages(sender_id, target_id, lastMessageTime, type_)
 	if errJson != nil {
 		return nil, errJson
@@ -176,16 +180,18 @@ func (service *ChatService) CheckExistance(type_, target_id string) (bool, *mode
 	return false, &models.ErrorJson{Status: 400, Error: "", Message: "the type is not correct"}
 }
 
-func (service *ChatService) GetUsers(authSessionID string, offset int) (*[]models.User, *models.ErrorJson) {
-	authUserID, err := service.repo.GetID(authSessionID)
-	if err != nil {
-		return nil, &models.ErrorJson{Status: err.Status, Message: err.Message}
-	}
-
-	users, err := service.repo.GetUsers(authUserID, offset)
+func (service *ChatService) GetUsers(authUserID string) (*[]models.User, *models.ErrorJson) {
+	users, err := service.repo.GetUsers(authUserID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Message: err.Message}
 	}
 
 	return &users, nil
+}
+
+func (service *ChatService) EditReadStatus(sender_id, target_id string) *models.ErrorJson {
+	if err := service.repo.EditReadStatus(sender_id, target_id); err != nil {
+		return err
+	}
+	return nil
 }
