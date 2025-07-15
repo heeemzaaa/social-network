@@ -1,7 +1,7 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS group_posts_comments (
-    commentID  TEXT NOT NULL PRIMARY KEY,
+    commentID  TEXT PRIMARY KEY,
     postID TEXT NOT NULL,
     groupID TEXT NOT NULL,
     userID TEXT NOT NULL,

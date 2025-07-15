@@ -115,23 +115,6 @@ func ValidateDateEvent(date string) error {
 	return nil
 }
 
-func ValidateDateRegister(date string) error {
-	s := strings.Trim(date, `"`)
-	timeParsed, err := time.Parse("2006-01-02", s)
-	if err != nil {
-		return errors.New("date format is incorrect: YYYY-MM-DD")
-	}
-
-	if timeParsed.IsZero() {
-		return errors.New("the date is not set up")
-	}
-	if timeParsed.Before(time.Now()) {
-		return fmt.Errorf("please set a date that comes after %v", models.NewDate(time.Now()).Format("2006-01-02"))
-	}
-
-	return nil
-}
-
 
 
 func IsValidFilter(filter string) bool {
