@@ -30,7 +30,6 @@ func NewGroupIDHandler(service *gservice.GroupService) *GroupIDHanlder {
 
 // if the user has already joined the group : unauthorized important case
 func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("hnaaaaaaaaaaaaaaaa!!!!!!!!!!!!!")
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect format of userID UUID!"})
@@ -56,7 +55,7 @@ func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	fmt.Println("userId", userID.String(), group_to_join.GroupId)
+
 
 	if errJson := gIdHanlder.gservice.JoinGroup(group_to_join, userID.String()); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})

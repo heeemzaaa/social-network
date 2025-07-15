@@ -46,11 +46,35 @@ func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *m
 func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]models.Group, *models.ErrorJson) {
 	joinedGroups := []models.Group{}
 	query := `
-	SELECT title , imagePath, description 
-	FROM groups INNER JOIN group_membership 
-    ON group_membership.groupID = groups.groupID
-	AND groups.groupCreatorID != ?
-    LIMIT 20 OFFSET ?
+	WITH
+    cte_members AS (
+        SELECT
+            group_membership.groupID AS Id,
+            count(group_membership.groupID) AS Nbr_Members
+        FROM
+            users
+            INNER JOIN group_membership ON users.userID = group_membership.userID
+        GROUP BY
+            Id
+    )
+	SELECT
+	DISTINCT
+		groups.groupID,
+		title,
+		imagePath,
+		description,
+		cte_members.Nbr_Members
+	FROM
+		groups
+		INNER JOIN group_membership ON group_membership.groupID = groups.groupID
+		INNER JOIN cte_members ON  cte_members.Id = groups.groupID
+	WHERE groups.groupCreatorID != ?
+	AND  group_membership.userID = ?
+
+	LIMIT
+		20
+	OFFSET
+		?
 	`
 
 	stmt, err := repo.db.Prepare(query)
@@ -59,20 +83,21 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 	}
 	defer stmt.Close()
 
-	rows, errQuery := stmt.Query(userID, offset)
+	rows, errQuery := stmt.Query(userID, userID, offset)
 	if errQuery != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-
+	defer  rows.Close()
 	for rows.Next() {
-		var group models.Group
-		errScan := rows.Scan(&group.Title, &group.ImagePath, &group.Description)
+		group := &models.Group{}
+		errScan := rows.Scan(&group.GroupId, &group.Title, &group.ImagePath, &group.Description, &group.Total_Members)
 		if errScan != nil {
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
-		joinedGroups = append(joinedGroups, group)
+		joinedGroups = append(joinedGroups, *group)
 	}
 
 	return joinedGroups, nil
@@ -81,55 +106,39 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]models.Group, *models.ErrorJson) {
 	availabeGroups := []models.Group{}
 	query := `
+	WITH
+    cte_members AS (
+        SELECT
+            group_membership.groupID AS Id,
+            count(group_membership.groupID) AS Nbr_Members
+        FROM
+            users
+            INNER JOIN group_membership ON users.userID = group_membership.userID
+        GROUP BY
+            Id
+    )
 	SELECT
+		groupID,
 		title,
 		imagePath,
-		description
+		description,
+		cte_members.Nbr_Members
 	FROM
 		groups
+		INNER JOIN cte_members ON groups.groupID = cte_members.Id
 	WHERE
 		groups.groupID NOT IN (
-			SELECT groups.groupID FROM groups
-			INNER JOIN  group_membership ON group_membership.groupID = groups.groupID
-			AND group_membership.userID = ?
+			SELECT
+				groups.groupID
+			FROM
+				groups
+				INNER JOIN group_membership ON group_membership.groupID = groups.groupID
+				AND group_membership.userID = ?
 		)
-	LIMIT 20
-	OFFSET ?
-	`
-
-	stmt, err := repo.db.Prepare(query)
-	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
-	}
-	defer stmt.Close()
-
-	rows, errQuery := stmt.Query(userID, offset)
-	if errQuery != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v hhhhhhhh", err)}
-	}
-    defer rows.Close()
-	for rows.Next() {
-		var group models.Group
-		errScan := rows.Scan(&group.Title, &group.ImagePath, &group.Description)
-		if errScan != nil {
-			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
-		}
-		availabeGroups = append(availabeGroups, group)
-	}
-
-	return availabeGroups, nil
-}
-
-func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]models.Group, *models.ErrorJson) {
-	createdGroups := []models.Group{}
-	query := `
-    SELECT title , imagePath, description 
-	FROM groups 
-	WHERE groupCreatorID = ?
-	LIMIT 20 OFFSET ?
+	LIMIT
+		20
+	OFFSET
+		?
 	`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -142,15 +151,67 @@ func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]mo
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-
+	defer rows.Close()
 	for rows.Next() {
-		var group models.Group
-		errScan := rows.Scan(&group.Title, &group.ImagePath, &group.Description)
+		group := &models.Group{}
+		errScan := rows.Scan(&group.GroupId, &group.Title, &group.ImagePath, &group.Description)
 		if errScan != nil {
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
-		createdGroups = append(createdGroups, group)
+		availabeGroups = append(availabeGroups, *group)
+	}
+
+	return availabeGroups, nil
+}
+
+func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]models.Group, *models.ErrorJson) {
+	createdGroups := []models.Group{}
+	query := `
+    WITH
+    cte_members AS (
+        SELECT
+            group_membership.groupID AS Id,
+            count(group_membership.groupID) AS Nbr_Members
+        FROM
+            users
+            INNER JOIN group_membership ON users.userID = group_membership.userID
+        GROUP BY
+            Id
+    )
+
+	SELECT groupID ,title , imagePath, description 
+		FROM groups 
+		WHERE groupCreatorID = ?
+	LIMIT
+		20
+	OFFSET
+		?
+
+	`
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	rows, errQuery := stmt.Query(userID, offset)
+	if errQuery != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		group := &models.Group{}
+		errScan := rows.Scan(&group.GroupId, &group.Title, &group.ImagePath, &group.Description)
+		if errScan != nil {
+			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		}
+		createdGroups = append(createdGroups, *group)
 	}
 
 	return createdGroups, nil
@@ -168,7 +229,6 @@ func (repo *GroupRepository) GetGroupById(groupID string) *models.ErrorJson {
 		if err == sql.ErrNoRows {
 			return &models.ErrorJson{Status: 404, Error: "ERROR!! Group Not Found!"}
 		}
-
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	return nil
