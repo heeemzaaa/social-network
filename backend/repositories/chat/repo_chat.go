@@ -16,7 +16,16 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 	return &ChatRepository{db: db}
 }
 
-func (repo *ChatRepository) GetUsers(offset, user_id int) ([]models.User, *models.ErrorJson) {
+func (repo *ChatRepository) GetID(sessionID string) (string, *models.ErrorJson) {
+	query := `SELECT userID FROM sessions WHERE userID = ?`
+	var userID string
+	err := repo.db.QueryRow(query, sessionID).Scan(&userID)
+	if err != nil {
+		return "" , &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v" , err)}
+	}
+	return userID, nil
+}
+func (repo *ChatRepository) GetUsers(authUserID string, offset int) ([]models.User, *models.ErrorJson) {
 	var users []models.User
 	query := `
 		WITH 
@@ -65,7 +74,7 @@ func (repo *ChatRepository) GetUsers(offset, user_id int) ([]models.User, *model
 			ORDER BY u.lastInteraction DESC, u.firstName, u.lastName;
 `
 
-	rows, err := repo.db.Query(query, user_id, user_id, user_id, user_id, user_id)
+	rows, err := repo.db.Query(query, authUserID, authUserID, authUserID, authUserID, authUserID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
