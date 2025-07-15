@@ -4,8 +4,7 @@ import (
 	"fmt"
 
 	"social-network/backend/models"
-
-	"github.com/google/uuid"
+	"social-network/backend/utils"
 )
 
 // get the event created of a specific group
@@ -41,7 +40,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId string, offset int64) ([]mo
 
 // add an event in a specific group
 func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
-	eventId := uuid.New()
+	eventId := utils.NewUUID()
 	query := `INSERT INTO group_events 
 	(eventID,eventCreatorID,groupID,title,description,eventTime)
 	VALUES (?,?,?,?,?,?)
@@ -52,7 +51,7 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 	}
 	defer stmt.Close()
 	if _, err = stmt.Exec(eventId, event.EventCreatorId,
-		event.GroupId, event.Title, event.Description, event.EventDate.Date); err != nil {
+		event.GroupId, event.Title, event.Description, event.EventDate); err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 

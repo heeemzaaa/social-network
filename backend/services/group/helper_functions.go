@@ -3,6 +3,7 @@ package group
 import (
 	"errors"
 
+	"social-network/backend/models"
 	"social-network/backend/utils"
 )
 
@@ -15,6 +16,17 @@ func (service *GroupService) ValidateGroupTitle(title string) error {
 
 	if err := utils.ValidateTitle(title); err != nil {
 		return err
+	}
+	return nil
+}
+
+func (service *GroupService) CheckMembership(groupID, userID string) *models.ErrorJson {
+	isMember, errJson := service.IsMemberGroup(groupID, userID)
+	if errJson != nil {
+		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+	}
+	if !isMember {
+		return &models.ErrorJson{Status: 403, Message: "ERROR!! Acces Forbidden!"}
 	}
 	return nil
 }

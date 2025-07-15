@@ -16,7 +16,7 @@ import (
 /***   /api/groups/{group_id}/events/    ***/
 // here we'll be also querying if the user logged in is interested or not in the event!!!
 // not tested yet
-// not 
+// not
 type GroupEventHandler struct {
 	gService *gservice.GroupService
 }
@@ -51,7 +51,7 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 			})
 			return
 		}
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: err.Error()})
 		return
 	}
 	event.EventCreatorId, event.GroupId = userID.String(), groupID.String()

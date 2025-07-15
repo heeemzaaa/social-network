@@ -34,7 +34,7 @@ type Event struct {
 	EventCreatorId string `json:"event_creator_id"`
 	Title          string `json:"title"`
 	Description    string `json:"description"`
-	EventDate      Date   `json:"event_date"`
+	EventDate      string `json:"event_date"`
 	Going          int    `json:"going"`
 }
 
