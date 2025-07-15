@@ -38,6 +38,7 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 
 	var event *models.Event
 	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+		
 		if err == io.EOF {
 			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,

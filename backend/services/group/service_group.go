@@ -1,10 +1,17 @@
 package group
 
 import (
+	"strings"
+
 	"social-network/backend/models"
 )
 
 func (gService *GroupService) JoinGroup(group *models.Group, userId string) *models.ErrorJson {
+	if strings.TrimSpace(group.GroupId) == "" {
+		return &models.ErrorJson{Status: 400, Message: models.ErrJoinGroup{
+			GroupId: "missing group_id field!!",
+		}}
+	}
 	if errJson := gService.gRepo.GetGroupById(group.GroupId); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}

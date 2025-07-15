@@ -81,16 +81,25 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]models.Group, *models.ErrorJson) {
 	availabeGroups := []models.Group{}
 	query := `
-	SELECT title , imagePath, description 
-	FROM groups INNER JOIN group_membership 
-    ON group_membership.groupID != groups.groupID
-	AND groups.groupCreatorID != ?
-    LIMIT 20 OFFSET ?
+	SELECT
+		title,
+		imagePath,
+		description
+	FROM
+		groups
+	WHERE
+		groups.groupID NOT IN (
+			SELECT groups.groupID FROM groups
+			INNER JOIN  group_membership ON group_membership.groupID = groups.groupID
+			AND group_membership.userID = ?
+		)
+	LIMIT 20
+	OFFSET ?
 	`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()
 
@@ -99,8 +108,9 @@ func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v hhhhhhhh", err)}
 	}
-
+    defer rows.Close()
 	for rows.Next() {
 		var group models.Group
 		errScan := rows.Scan(&group.Title, &group.ImagePath, &group.Description)
