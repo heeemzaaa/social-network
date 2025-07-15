@@ -51,7 +51,7 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 	}
 	defer stmt.Close()
 	if _, err = stmt.Exec(eventId, event.EventCreatorId,
-		event.GroupId, event.Title, event.Description, event.EventDate.Date); err != nil {
+		event.GroupId, event.Title, event.Description, event.EventDate); err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 

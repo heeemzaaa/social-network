@@ -1,6 +1,7 @@
 package group
 
 import (
+	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -33,7 +34,8 @@ func (service *GroupService) GetGroupEvents(groupID, userID string, offset int64
 // as always we need to check if the user is part of the group before adding an event
 
 func (service *GroupService) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
-	if errMembership := service.CheckMembership(event.GroupId, event.EventCreator); errMembership != nil {
+	if errMembership := service.CheckMembership(event.GroupId, event.EventCreatorId);errMembership != nil {
+		fmt.Println("", errMembership)
 		return nil, errMembership
 	}
 	// here we'll be checking if the input is valid
@@ -47,7 +49,7 @@ func (service *GroupService) AddGroupEvent(event *models.Event) (*models.Event, 
 		errValidation.Description = err.Error()
 	}
 	// check the date of the event (but how ???)
-	if err := utils.ValidateDate(event.EventDate); err != nil {
+	if err := utils.ValidateDateEvent(event.EventDate); err != nil {
 		errValidation.EventDate = err.Error()
 	}
 

@@ -96,19 +96,43 @@ func ValidateDesc(desc string) error {
 	return nil
 }
 
-
 // mn b3d had  l validation ana t2kdt belli blassti mashi f zone!!
 
-func ValidateDate(date models.Date) error {
-	if date.Date.IsZero() {
+func ValidateDateEvent(date string) error {
+	s := strings.Trim(date, `"`)
+	timeParsed, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return errors.New("date format is incorrect: YYYY-MM-DD")
+	}
+
+	if timeParsed.IsZero() {
 		return errors.New("the date is not set up")
 	}
-	if date.Date.Before(time.Now()) {
+	if timeParsed.Before(time.Now()) {
 		return fmt.Errorf("please set a date that comes after %v", models.NewDate(time.Now()).Format("2006-01-02"))
 	}
 
 	return nil
 }
+
+func ValidateDateRegister(date string) error {
+	s := strings.Trim(date, `"`)
+	timeParsed, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return errors.New("date format is incorrect: YYYY-MM-DD")
+	}
+
+	if timeParsed.IsZero() {
+		return errors.New("the date is not set up")
+	}
+	if timeParsed.Before(time.Now()) {
+		return fmt.Errorf("please set a date that comes after %v", models.NewDate(time.Now()).Format("2006-01-02"))
+	}
+
+	return nil
+}
+
+
 
 func IsValidFilter(filter string) bool {
 	return filter == "owned" || filter == "available" || filter == "joined"
