@@ -1,6 +1,5 @@
 import React, { useActionState, useState, useEffect } from 'react';
 import styles from "../../../(auth)/auth.module.css";
-import { getUserId } from '../../../_actions/followers';
 
 const initialPostData = {
     title: '',
@@ -18,20 +17,13 @@ export default function CreatePost({ type, postAction }) {
     useEffect(() => {
         const fetchFollowers = async () => {
             try {
-                // later
-                /*const id = await getUserId();
-                if (!id) {
-                    console.error("User ID not found");
-                    return;
-                }*/
+                //TODO:  make the id dynamic by getting the current userId ...
                 const id = "3df163f3-2e00-4a94-aaa9-1378a2881568"
                 const res = await fetch(`http://localhost:8080/api/profile/${id}/followers`, {
                     method: 'GET',
                     credentials: 'include',
                 });
-
                 const data = await res.json();
-                console.log(data, "<----- data is ");
                 setFollowers(data);
             } catch (err) {
                 console.error("Error loading followers:", err);
@@ -39,7 +31,6 @@ export default function CreatePost({ type, postAction }) {
                 setLoadingFollowers(false);
             }
         };
-
         fetchFollowers();
     }, []);
 
@@ -112,7 +103,7 @@ export default function CreatePost({ type, postAction }) {
                             onChange={handleChange}
                         >
                             <option value="public">Public (All users can see)</option>
-                            <option value="followers">Almost Private (Only followers can see)</option>
+                            <option value="almost private">Almost Private (Only followers can see)</option>
                             <option value="private">Private (Selected followers only)</option>
                         </select>
                         {state.errors?.privacy && <span className="field-error">{state.errors.privacy}</span>}
@@ -168,10 +159,11 @@ export default function CreatePost({ type, postAction }) {
                                                 </label>
                                             </div>
                                         ))}
+                                        {state.errors?.selectedFollowers && <span className="field-error">{state.errors.selectedFollowers}</span>}
                                     </>
                                 )}
+                                {state.errors?.privacy && <span className="field-error">{state.errors.privacy}</span>}
                             </div>
-
                             {data.selectedFollowers.length > 0 && !loadingFollowers && (
                                 <div style={{ marginTop: '8px', fontSize: '0.9em', color: '#666' }}>
                                     {data.selectedFollowers.length} follower(s) selected

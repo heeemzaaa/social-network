@@ -17,9 +17,10 @@ func NewPostRepository(db *sql.DB) *PostsRepository {
 
 func (r *PostsRepository) CreatePost(post *models.Post) error {
 	fmt.Println("CREATING POST")
+	fmt.Println("the post privacy is ", post.Privacy)
 	_, err := r.db.Exec(
-		`INSERT INTO posts (postID, userID, content, image_url) VALUES (?, ?, ?, ?)`,
-		post.ID, post.UserID, post.Content, post.Img,
+		`INSERT INTO posts (postID, userID, content, privacy, image_url) VALUES (?, ?, ?, ?,?)`,
+		post.ID, post.UserID, post.Content, post.Privacy, post.Img,
 	)
 	fmt.Println("SQL : ", err)
 	return err

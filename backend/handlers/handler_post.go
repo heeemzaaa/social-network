@@ -75,7 +75,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		ID:      utils.NewUUID(),
 		UserID:  usID.String(),
 		Content: r.FormValue("content"),
-		Privacy: r.FormValue("privacy"), // from url
+		Privacy: r.FormValue("privacy"),
 		Img:     "/" + imagePath,
 	}
 
