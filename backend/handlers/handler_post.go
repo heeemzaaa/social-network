@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -48,45 +49,59 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Optional file upload
 	file, handler, err := r.FormFile("img")
-	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Image upload failed"})
-		return
+	imagePath := ""
+	if err == nil {
+		defer file.Close()
+		imagePath = "uploads/posts/" + handler.Filename
+		dst, err := os.Create(imagePath)
+		if err != nil {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to save image"})
+			return
+		}
+		defer dst.Close()
+		io.Copy(dst, file)
+	} else {
+		imagePath = "" // no image uploaded
 	}
-	defer file.Close()
-
-	imagePath := "uploads/posts/" + handler.Filename
-	dst, err := os.Create(imagePath)
-	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to save image"})
-		return
-	}
-	defer dst.Close()
-	io.Copy(dst, file)
 
 	usID, err := middleware.GetUserIDFromContext(r.Context())
-
-	fmt.Print(usID, " user id")
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 401, Message: "Unauthorized"})
 		return
 	}
-	post := models.Post{
-		ID:      utils.NewUUID(),
-		UserID:  usID.String(),
-		Content: r.FormValue("content"),
-		Privacy: r.FormValue("privacy"),
-		Img:     "/" + imagePath,
+
+	// Parse selected followers if privacy is private
+	selectedFollowers := r.FormValue("selectedFollowers")
+	var selectedUserIDs []string
+	if selectedFollowers != "" {
+		err := json.Unmarshal([]byte(selectedFollowers), &selectedUserIDs)
+		if err != nil {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid selectedFollowers"})
+			return
+		}
 	}
 
-	fmt.Println("Parsed post:", post)
+	// Create post model
+	post := models.Post{
+		ID:            utils.NewUUID(),
+		UserID:        usID.String(),
+		Content:       r.FormValue("content"),
+		Privacy:       r.FormValue("privacy"),
+		Img:           "/" + imagePath,
+		SelectedUsers: selectedUserIDs, // ✅ <-- Don't forget this!
+	}
 
+	// Save to DB
 	if err := h.service.CreatePost(&post); err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to create post"})
 		return
 	}
 
-	utils.WriteDataBack(w, map[string]string{"message": "Post created successfully"})
+	utils.WriteDataBack(w, map[string]string{
+		"message": "Post created successfully",
+	})
 }
 
 func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request, postID string) {

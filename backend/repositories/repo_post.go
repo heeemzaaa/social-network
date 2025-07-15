@@ -16,14 +16,33 @@ func NewPostRepository(db *sql.DB) *PostsRepository {
 }
 
 func (r *PostsRepository) CreatePost(post *models.Post) error {
-	fmt.Println("CREATING POST")
-	fmt.Println("the post privacy is ", post.Privacy)
+	// 1. Save post to DB
 	_, err := r.db.Exec(
-		`INSERT INTO posts (postID, userID, content, privacy, image_url) VALUES (?, ?, ?, ?,?)`,
+		`INSERT INTO posts (postID, userID, content, privacy, image_url)
+		 VALUES (?, ?, ?, ?, ?)`,
 		post.ID, post.UserID, post.Content, post.Privacy, post.Img,
 	)
-	fmt.Println("SQL : ", err)
-	return err
+	if err != nil {
+		fmt.Println("Error inserting post:", err)
+		return err
+	}
+
+	// 2. If privacy is "private", save allowed users in post_acces
+	if post.Privacy == "private" && len(post.SelectedUsers) > 0 {
+		for _, followerID := range post.SelectedUsers {
+			_, err := r.db.Exec(
+				`INSERT INTO post_access (postID, userID)
+				 VALUES (?, ?)`,
+				post.ID, followerID,
+			)
+			if err != nil {
+				fmt.Println("Error inserting post access:", err)
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func (r *PostsRepository) GetAllPosts() ([]models.Post, error) {

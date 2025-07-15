@@ -1,16 +1,17 @@
 package models
 
 type Post struct {
-	ID            string `json:"id"`
-	UserID        string `json:"user_id"`
-	GroupID       string `json:"group_id"`
-	Content       string `json:"content"`
-	CreatedAt     string `json:"created_at"`
-	LikesCount    int    `json:"likes_count"`
-	CommentsCount int    `json:"comments_count"`
-	LikedByUser   bool   `json:"is_liked"`
-	Privacy       string `json:"privacy"`
-	Img           string `json:"img"`
+	ID            string   `json:"id"`
+	UserID        string   `json:"user_id"`
+	GroupID       string   `json:"group_id"`
+	Content       string   `json:"content"`
+	CreatedAt     string   `json:"created_at"`
+	LikesCount    int      `json:"likes_count"`
+	CommentsCount int      `json:"comments_count"`
+	LikedByUser   bool     `json:"is_liked"`
+	Privacy       string   `json:"privacy"`
+	Img           string   `json:"img"`
+	SelectedUsers []string `json:"selected_users"`
 }
 
 func NewPost() *Post {
