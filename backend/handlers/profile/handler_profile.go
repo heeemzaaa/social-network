@@ -39,6 +39,7 @@ func (PrHandler *ProfileHandler) GetProfileData(w http.ResponseWriter, r *http.R
 
 // GET api/profile/id/followers
 func (PrHandler *ProfileHandler) GetFollowers(w http.ResponseWriter, r *http.Request, profileID string) {
+	fmt.Println("here*********************")
 	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})

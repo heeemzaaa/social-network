@@ -16,12 +16,7 @@ func NewProfileService(repo *pr.ProfileRepository) *ProfileService {
 }
 
 // here we will check if the profile has the access to see the data of the user
-func (s *ProfileService) CheckProfileAccess(profileID string, autSessionID string) (bool, *models.ErrorJson) {
-	authUserID, err := s.repo.GetID(autSessionID)
-	if err != nil {
-		return false, &models.ErrorJson{Status: 401, Message: fmt.Sprintf("%v", err)}
-	}
-
+func (s *ProfileService) CheckProfileAccess(profileID string, authUserID string) (bool, *models.ErrorJson) {
 	if profileID == authUserID {
 		return true, nil
 	}
@@ -71,16 +66,16 @@ func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*m
 }
 
 // here I will get the list of followers
-func (s *ProfileService) GetFollowers(profileID string, authSessionID string) (*[]models.User, *models.ErrorJson) {
+func (s *ProfileService) GetFollowers(profileID string, authUserID string) (*[]models.User, *models.ErrorJson) {
 	var users *[]models.User
 
-	if profileID == "" || authSessionID == "" {
+	if profileID == "" || authUserID == "" {
 		return nil, &models.ErrorJson{Status: 400, Message: "Data is invalid !"}
 	}
 
-	access, accessErr := s.CheckProfileAccess(profileID, authSessionID)
+	access, accessErr := s.CheckProfileAccess(profileID, authUserID)
 	if !access && accessErr == nil {
-		return nil, &models.ErrorJson{Status: 401, Message: "the user is not a follower !"}
+		return nil, &models.ErrorJson{Status: 403, Message: "you don't have the access to see the followers of this profile"}
 	} else if !access && accessErr != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", accessErr)}
 	}
@@ -92,14 +87,14 @@ func (s *ProfileService) GetFollowers(profileID string, authSessionID string) (*
 	return users, nil
 }
 
-func (s *ProfileService) GetFollowing(profileID string, authSessionID string) (*[]models.User, *models.ErrorJson) {
+func (s *ProfileService) GetFollowing(profileID string, authUserID string) (*[]models.User, *models.ErrorJson) {
 	var users *[]models.User
 
-	if profileID == "" || authSessionID == "" {
+	if profileID == "" || authUserID == "" {
 		return nil, &models.ErrorJson{Status: 400, Message: "Data is invalid !"}
 	}
 
-	access, accessErr := s.CheckProfileAccess(profileID, authSessionID)
+	access, accessErr := s.CheckProfileAccess(profileID, authUserID)
 	if !access && accessErr == nil {
 		return nil, &models.ErrorJson{Status: 401, Message: "the user is not a follower !"}
 	} else if !access && accessErr != nil {
