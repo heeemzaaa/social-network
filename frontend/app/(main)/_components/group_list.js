@@ -7,10 +7,10 @@ export default function GroupList({ groups }) {
             <img src={grp.img || "/no-profile.png"} />
             <p className="text-md">{grp.name}</p>
           </div>
-          <div  className="sep">
+          <div className="sep">
 
           </div>
-          </>
+        </>
       ))}
     </div>
   );
