@@ -17,8 +17,7 @@ import (
 	"social-network/backend/models"
 )
 
-
-// set the default image based on the specific business logic 
+// set the default image based on the specific business logic
 // so the default image MUST change based on if the group or the profile for example!!!
 
 func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string, setDefault bool) (string, *models.ErrorJson) {
@@ -32,7 +31,7 @@ func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string, setDe
 		if err == http.ErrMissingFile {
 			return defaultPath, nil
 		}
-		return "", &models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v 111111", err)}
+		return "", &models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v 111111", err)}
 	}
 
 	defer file.Close()
@@ -41,31 +40,31 @@ func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string, setDe
 	written, err := io.Copy(buf, file)
 	// so the 500 is the more convenient way to handle it
 	if err != nil {
-		return "", &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return "", &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	if written == 0 {
-		return "", &models.ErrorJson{Status: 400, Message: "No content is being detected!!"}
+		return "", &models.ErrorJson{Status: 400, Error: "No content is being detected!!"}
 	}
 
 	mimeType := http.DetectContentType(buf.Bytes())
 	if !IsValidImageType(mimeType) {
-		return "", &models.ErrorJson{Status: 400, Message: "Error!! Only PNG, JPEG and GIF images are allowed"}
+		return "", &models.ErrorJson{Status: 400, Error: "Error!! Only PNG, JPEG and GIF images are allowed"}
 	}
 	// the string returned here is the actual format (we can do another check to see if the mimeType is
 	// on harmony with the format but no need !!
-	_,_, err = image.Decode(bytes.NewReader(buf.Bytes()))
+	_, _, err = image.Decode(bytes.NewReader(buf.Bytes()))
 	if err != nil {
-		return "", &models.ErrorJson{Status: 400, Message: "Error!! Invalid Image Content"}
+		return "", &models.ErrorJson{Status: 400, Error: "Error!! Invalid Image Content"}
 	}
 
 	if len(buf.Bytes()) > (3 * 1024 * 1024) {
-		return "", &models.ErrorJson{Status: 400, Message: "File too large"}
+		return "", &models.ErrorJson{Status: 400, Error: "File too large"}
 	}
 
 	path, errJson := CreateDirectoryForUploads(subDirectoryName, mimeType, buf.Bytes())
 	if errJson != nil {
-		return "", &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+		return "", &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 
 	return path, nil
@@ -97,12 +96,15 @@ func ValidateDesc(desc string) error {
 	return nil
 }
 
-func ValidateDate(date time.Time) error {
-	if date.IsZero() {
+
+// mn b3d had  l validation ana t2kdt belli blassti mashi f zone!!
+
+func ValidateDate(date models.Date) error {
+	if date.Date.IsZero() {
 		return errors.New("the date is not set up")
 	}
-	if date.Before(time.Now()) {
-		return errors.New("please set a date that comes after ")
+	if date.Date.Before(time.Now()) {
+		return fmt.Errorf("please set a date that comes after %v", models.NewDate(time.Now()).Format("2006-01-02"))
 	}
 
 	return nil
