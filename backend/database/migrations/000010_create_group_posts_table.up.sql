@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS group_posts (
     content TEXT NOT NULL, 
     imagePath TEXT,
     createdAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (groupID) REFERENCES groups(groupID),
-    FOREIGN KEY (userID)  REFERENCES users(userID)
+    FOREIGN KEY (groupID) REFERENCES groups(groupID) ON DELETE CASCADE,
+    FOREIGN KEY (userID)  REFERENCES users(userID) ON DELETE CASCADE
 );
 
