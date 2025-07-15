@@ -20,7 +20,6 @@ func NewProfileRepository(db *sql.DB) *ProfileRepository {
 // here I will get the userID based based on the sessionToken to pass it to other functions
 func (repo *ProfileRepository) GetID(sessionToken string) (string, error) {
 	var userID string
-	fmt.Println("sessionToken**********", sessionToken)
 	query := `SELECT userID from sessions WHERE sessionToken = ?`
 	err := repo.db.QueryRow(query, sessionToken).Scan(&userID)
 	if err != nil {
@@ -353,4 +352,16 @@ func (repo *ProfileRepository) ToPrivateAccount(userID string) error {
 		return fmt.Errorf("%v", err)
 	}
 	return nil
+}
+
+func (repo *ProfileRepository) IsRequested(profileID string, authUserID string) (bool, error) {
+	query := `SELECT EXISTS (SELECT 1 FROM follow_requests WHERE userID = ? AND requestorID = ? LIMIT 1)`
+	isRequested := false
+	err := repo.db.QueryRow(query, profileID, authUserID).Scan(&isRequested)
+	if err != nil {
+		fmt.Println(err)
+		return false, fmt.Errorf("%v", err)
+	}
+
+	return isRequested, nil
 }

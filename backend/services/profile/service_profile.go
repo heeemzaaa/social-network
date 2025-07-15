@@ -41,18 +41,21 @@ func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*m
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", accessErr)}
 	}
 
-
 	profile, err := s.repo.GetProfileData(profileID, access)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
-
 
 	if profileID == authUserID {
 		profile.IsMyProfile = true
 	}
 
 	profile.IsFollower, err = s.repo.IsFollower(profileID, authUserID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+
+	profile.IsRequested, err = s.repo.IsRequested(profileID, authUserID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
@@ -84,6 +87,7 @@ func (s *ProfileService) GetFollowers(profileID string, authUserID string) (*[]m
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
+
 	return users, nil
 }
 
@@ -110,14 +114,9 @@ func (s *ProfileService) GetFollowing(profileID string, authUserID string) (*[]m
 }
 
 // here we will handle the logic of following a user
-func (s *ProfileService) Follow(userID string, authSessionID string) *models.ErrorJson {
-	if userID == "" || authSessionID == "" {
+func (s *ProfileService) Follow(userID string, authUserID string) *models.ErrorJson {
+	if userID == "" || authUserID == "" {
 		return &models.ErrorJson{Status: 400, Message: "Invalid data !"}
-	}
-
-	authUserID, err := s.repo.GetID(authSessionID)
-	if err != nil {
-		return &models.ErrorJson{Status: 401, Message: fmt.Sprintf("%v", err)}
 	}
 
 	isFollower, errFollowers := s.repo.IsFollower(userID, authUserID)
@@ -138,7 +137,6 @@ func (s *ProfileService) Follow(userID string, authSessionID string) *models.Err
 	case "private":
 		err := s.repo.FollowPrivate(userID, authUserID)
 		if err != nil {
-			fmt.Println(11111111111)
 			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}
 	case "public":
@@ -199,14 +197,9 @@ func (s *ProfileService) RejectedRequest(userID string, authUserID string) *mode
 }
 
 // here the user can unfollow the user that he already follows
-func (s *ProfileService) Unfollow(userID string, authSessionID string) *models.ErrorJson {
-	if userID == "" || authSessionID == "" {
+func (s *ProfileService) Unfollow(userID string, authUserID string) *models.ErrorJson {
+	if userID == "" || authUserID == "" {
 		return &models.ErrorJson{Status: 400, Message: "Invalid data !"}
-	}
-
-	authUserID, err := s.repo.GetID(authSessionID)
-	if err != nil {
-		return &models.ErrorJson{Status: 401, Message: fmt.Sprintf("%v", err)}
 	}
 
 	isFollower, errFollowers := s.repo.IsFollower(userID, authUserID)
@@ -218,7 +211,7 @@ func (s *ProfileService) Unfollow(userID string, authSessionID string) *models.E
 		return &models.ErrorJson{Status: 401, Message: "You're already not following this user !"}
 	}
 
-	err = s.repo.Unfollow(userID, authUserID)
+	err := s.repo.Unfollow(userID, authUserID)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
@@ -227,6 +220,10 @@ func (s *ProfileService) Unfollow(userID string, authSessionID string) *models.E
 
 // here we will handle the logic of updating the privacy of a user
 func (s *ProfileService) UpdatePrivacy(userID string, requestorID any, wantedStatus string) *models.ErrorJson {
+	if userID == "" || requestorID == "" {
+		return &models.ErrorJson{Status: 400, Message: "Invalid data !"}
+	}
+
 	if userID != requestorID {
 		return &models.ErrorJson{Status: 401, Message: "You can't update another user's profile"}
 	}
@@ -264,19 +261,18 @@ func (s *ProfileService) UpdatePrivacy(userID string, requestorID any, wantedSta
 	return nil
 }
 
-
-// custom posts to each users lil2assaf 
+// custom posts to each users lil2assaf
 func (s *ProfileService) GetPosts(profileID string, authSessionID string) (*[]models.Post, *models.ErrorJson) {
 	var posts *[]models.Post
 
-	authUserID , err := s.repo.GetID(authSessionID)
+	authUserID, err := s.repo.GetID(authSessionID)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v" , err)}
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 
 	posts, err = s.repo.GetPosts(profileID, authUserID)
 	if err != nil {
-		return  nil , &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v" , err)}
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 
 	return posts, nil

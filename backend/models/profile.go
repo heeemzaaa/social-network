@@ -8,6 +8,6 @@ type Profile struct {
 	NumberOfGroups    int    `json:"groups_count,omitempty"`
 	IsMyProfile       bool   `json:"is_my_profile,omitempty"`
 	IsFollower        bool   `json:"is_follower,omitempty"`
+	IsRequested       bool   `json:"is_requested,omitempty"`
 	Visibility        string `json:"visibility,omitempty"`
 }
-
