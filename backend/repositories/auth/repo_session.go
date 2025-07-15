@@ -11,7 +11,7 @@ func (appRep *AuthRepository) CreateUserSession(session *models.Session, user *m
 	query := `INSERT INTO sessions (userID, sessionToken) VALUES (?,?)`
 	_, err := appRep.db.Exec(query, user.Id, session.Token)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	return nil
 }
@@ -31,11 +31,14 @@ func (appRepo *AuthRepository) GetSessionbyTokenEnsureAuth(token string) (*model
 }
 
 func (appRepo *AuthRepository) HasValidToken(token string) (bool, *models.Session) {
-	session := models.NewSession()
-	query := `SELECT userID, sessionToken , expiresAt FROM sessions WHERE sessionToken = ?`
-	row := appRepo.db.QueryRow(query, token).Scan(&session.UserId, &session.Token)
-
-	if row == sql.ErrNoRows {
+	session := &models.Session{}
+	query := `SELECT userID, sessionToken  FROM sessions WHERE sessionToken = ?`
+	stmt, err := appRepo.db.Prepare(query)
+	if err != nil {
+		return false, nil
+	}
+	defer stmt.Close()
+	if errJson := stmt.QueryRow(token).Scan(&session.UserId, &session.Token); errJson != nil {
 		return false, nil
 	}
 
@@ -58,8 +61,6 @@ func (appRep *AuthRepository) GetUserSessionByUserId(user_id string) (*models.Se
 	}
 	return session, nil
 }
-
-
 
 func (appRep *AuthRepository) DeleteSession(session models.Session) *models.ErrorJson {
 	query := `DELETE FROM sessions WHERE sessionToken = ?`

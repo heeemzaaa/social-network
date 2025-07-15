@@ -61,13 +61,10 @@ func (s *AuthService) validateUserData(user *models.User) *models.ErrorJson {
 		userErrorJson.LastName = err.Error()
 	}
 
-	if err := isValidBirthDate(user.BirthDate); err != nil {
+	if err := ValidateDateRegister(user.BirthDate); err != nil {
 		userErrorJson.LastName = err.Error()
 	}
 
-	if err := isValidBirthDate(user.BirthDate); err != nil {
-		userErrorJson.BirthDate = err.Error()
-	}
 
 	if err := s.isValidEmail(user.Email); err != nil {
 		userErrorJson.Email = err.Error()

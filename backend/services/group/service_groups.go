@@ -27,20 +27,20 @@ func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *mod
 		errGroup.Description = err.Error()
 	}
 
-	if errGroup != (models.ErrGroup{}) {
+	if errGroup != (models.ErrGroup{}) && group.ImagePath != "" {
 		if err := utils.RemoveImage(group.ImagePath); err != nil {
 			return nil, &models.ErrorJson{Status: 500, Error: err.Error()}
 		}
 		return nil, &models.ErrorJson{Status: 400, Message: errGroup}
 	}
-	group, errJson := gService.gRepo.CreateGroup(group)
-	if errJson != nil {
+	groupCreated, errJson := gService.gRepo.CreateGroup(group)
+	if errJson != nil && group.ImagePath != "" {
 		if err := utils.RemoveImage(group.ImagePath); err != nil {
 			return nil, &models.ErrorJson{Status: 500, Error: err.Error()}
 		}
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
-	return group, nil
+	return groupCreated, nil
 }
 
 func (gService *GroupService) GetGroups(filter string, offset int64, userID string) ([]models.Group, *models.ErrorJson) {
