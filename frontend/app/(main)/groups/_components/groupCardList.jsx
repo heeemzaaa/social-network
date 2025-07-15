@@ -12,9 +12,6 @@ export default function GroupCardList({ filter }) {
         return `http://localhost:8080/api/groups?${params.toString()}`;
     };
 
-    useEffect(() => {
-    }, [filter])
-
     return (
         <InfiniteList
             getUrl={getUrl}

@@ -16,19 +16,19 @@ export default function Groups() {
   return (
     <main className='flex-col flex-start border-red align-end'>
       <Button className={'justify-start'} onClick={() => { openModal(<AddGroupForm />) }}>
-        <HiMiniUserGroup size={"24px"}/>
+        <HiMiniUserGroup size={"24px"} />
         <span>Create New Group</span>
       </Button>
       <Tabs className={''}>
         <Tab label="Your Groups" />
         <Tab label="Joined Groups" />
         <Tab label="Groups" />
-        <TabContent><GroupCardList filter={"owned"}/></TabContent>
-        <TabContent> 
-          <GroupCardList filter={"joined"}/>
+        <TabContent><GroupCardList key={"owned"} filter={"owned"} /></TabContent>
+        <TabContent>
+          <GroupCardList key={"joined"} filter={"joined"} />
         </TabContent>
         <TabContent>
-          <GroupCardList filter={"available"}/>
+          <GroupCardList key={"available"} filter={"available"} />
         </TabContent>
       </Tabs>
     </main>

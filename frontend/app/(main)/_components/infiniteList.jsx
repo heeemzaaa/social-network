@@ -8,15 +8,21 @@ export default function InfiniteList({
     noDataImage = "no-data-animate.svg",
     className = "list-container flex flex-wrap gap-4 justify-center overflow-y-auto",
 }) {
+    
     const { data, isLoading, error, hasMore, sentinelRef } = useInfiniteScroll({
         getUrl,
         initialPage,
         itemsPerPage,
     });
+    console.log("====> fetching data for url: ", getUrl())
+    console.log("====> fetching data for url: ", getUrl())
+    console.log("====> fetching data for url: ", getUrl())
+    
     if (error) return <p className="text-danger text-center">Error: {error}</p>;
     return (
         <div className={className}>
-            {data.length > 0 ? (
+            {
+            data.length > 0 ? (
                 data.map((item, index) => renderItem({ item, index }))
             ) : (
                 !isLoading && (
