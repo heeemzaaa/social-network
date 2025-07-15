@@ -1,5 +1,6 @@
 import React, { useActionState, useState, useEffect } from 'react';
 import styles from "../../../(auth)/auth.module.css";
+import { getUserId } from '../../../_actions/followers';
 
 const initialPostData = {
     title: '',
@@ -13,16 +14,24 @@ export default function CreatePost({ type, postAction }) {
     const [data, setData] = useState(initialPostData);
     const [followers, setFollowers] = useState([]);
     const [loadingFollowers, setLoadingFollowers] = useState(true);
-    let id = "3df163f3-2e00-4a94-aaa9-1378a2881568"
+
     useEffect(() => {
         const fetchFollowers = async () => {
             try {
-                const res = await fetch(`http://localhost:8080/api/profile/${id}/followers`, { // id will change with the current id 
+                // later
+                /*const id = await getUserId();
+                if (!id) {
+                    console.error("User ID not found");
+                    return;
+                }*/
+                const id = "3df163f3-2e00-4a94-aaa9-1378a2881568"
+                const res = await fetch(`http://localhost:8080/api/profile/${id}/followers`, {
                     method: 'GET',
                     credentials: 'include',
                 });
+
                 const data = await res.json();
-                console.log(data, "<----- data is ")
+                console.log(data, "<----- data is ");
                 setFollowers(data);
             } catch (err) {
                 console.error("Error loading followers:", err);
@@ -109,7 +118,7 @@ export default function CreatePost({ type, postAction }) {
                         {state.errors?.privacy && <span className="field-error">{state.errors.privacy}</span>}
                     </div>
 
-                    {/* Follower Selection - Only show when privacy is "private" */}
+                    {/* Follower Selection */}
                     {data.privacy === 'private' && (
                         <div className={styles.formGrp}>
                             <label>Select Followers:</label>
@@ -125,7 +134,7 @@ export default function CreatePost({ type, postAction }) {
                                     <p style={{ fontStyle: 'italic', color: '#666' }}>Loading followers...</p>
                                 ) : (
                                     <>
-                                        {/* Select All Option */}
+                                        {/* Select All */}
                                         <div style={{ borderBottom: '1px solid #eee', paddingBottom: '8px', marginBottom: '8px' }}>
                                             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                                                 <input
@@ -141,21 +150,13 @@ export default function CreatePost({ type, postAction }) {
                                         {/* Individual Followers */}
                                         {followers.map(follower => (
                                             <div key={follower.id} style={{ marginBottom: '8px' }}>
-                                                <label
-                                                    style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '8px',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                >
+                                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                                                     <input
                                                         type="checkbox"
                                                         checked={data.selectedFollowers.includes(follower.id)}
                                                         onChange={() => handleFollowerToggle(follower.id)}
                                                         style={{ cursor: 'pointer' }}
                                                     />
-
                                                     <div>
                                                         <div style={{ fontWeight: '500' }}>
                                                             {follower.firstname} {follower.lastname}
@@ -167,12 +168,10 @@ export default function CreatePost({ type, postAction }) {
                                                 </label>
                                             </div>
                                         ))}
-
                                     </>
                                 )}
                             </div>
 
-                            {/* Show selected count */}
                             {data.selectedFollowers.length > 0 && !loadingFollowers && (
                                 <div style={{ marginTop: '8px', fontSize: '0.9em', color: '#666' }}>
                                     {data.selectedFollowers.length} follower(s) selected
@@ -198,19 +197,19 @@ export default function CreatePost({ type, postAction }) {
                 </div>
             </div>
 
-            {/* Hidden input to pass selected followers data */}
+            {/* Hidden input */}
             <input
                 type="hidden"
                 name="selectedFollowers"
                 value={JSON.stringify(data.selectedFollowers)}
             />
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button type="submit" className="btn-primary" disabled={state.pending}>
                 {state.pending ? 'Submitting...' : 'Submit'}
             </button>
 
-            {/* General messages */}
+            {/* Messages */}
             {state.error && <span className="field-error">{state.error}</span>}
             {state.message && <span className="field-success">{state.message}</span>}
         </form>

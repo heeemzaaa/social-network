@@ -6,10 +6,10 @@ import (
 	"io"
 	"net/http"
 	"slices"
-	"time"
-
 	"social-network/backend/models"
+	"social-network/backend/services/auth"
 	"social-network/backend/utils"
+	"time"
 )
 
 type AuthHandler struct {
@@ -177,7 +177,6 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	}
 
 	userData, errJson := authHandler.service.GetUser(&models.Login{LoginField: user.Email})
-	
 
 	if errJson != nil {
 		utils.WriteJsonErrors(w, *errJson)
