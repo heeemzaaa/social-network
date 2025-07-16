@@ -1,7 +1,7 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS users (
-    userID TEXT PRIMARY KEY ,
+    userID TEXT NOT NULL PRIMARY KEY ,
     email VARCHAR(255) NOT NULL UNIQUE,
     firstName VARCHAR(50) NOT NULL,
     lastName VARCHAR(50) NOT NULL,
