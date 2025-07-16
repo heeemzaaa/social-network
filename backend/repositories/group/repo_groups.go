@@ -223,7 +223,7 @@ func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]mo
 	for rows.Next() {
 		group := &models.Group{}
 		errScan := rows.Scan(&group.GroupId, &group.Title,
-			&group.ImagePath, &group.Description, &group.CreatedAt)
+			&group.ImagePath, &group.Description, &group.CreatedAt, &group.Total_Members)
 		if errScan != nil {
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", errScan)}
 		}
