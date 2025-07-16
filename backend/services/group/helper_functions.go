@@ -29,3 +29,14 @@ func (service *GroupService) CheckMembership(groupID, userID string) *models.Err
 	}
 	return nil
 }
+
+func (service *GroupService) GroupExists(groupID string) *models.ErrorJson {
+	if err := service.gRepo.GetGroupById(groupID); err != nil {
+		return &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
+	}
+	return nil
+}
+
+func IsValidType(typeEntity string) bool {
+	return typeEntity == "post" || typeEntity == "comment"
+}

@@ -1,7 +1,7 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS groups (
-    groupID TEXT PRIMARY KEY,
+    groupID TEXT NOT NULL PRIMARY KEY,
     groupCreatorID TEXT NOT NULL,
     title  VARCHAR(100) NOT NULL UNIQUE,
     imagePath TEXT,

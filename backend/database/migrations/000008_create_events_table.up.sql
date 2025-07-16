@@ -1,7 +1,7 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS group_events (
-    eventID TEXT PRIMARY KEY,
+    eventID TEXT NOT NULL PRIMARY KEY,
     eventCreatorID  TEXT  NOT NULL,
     groupID TEXT NOT NULL,
     title  VARCHAR(100 ) NOT NULL ,

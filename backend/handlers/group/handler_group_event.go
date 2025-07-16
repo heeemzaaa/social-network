@@ -38,10 +38,9 @@ func (gEventIDHandler *GroupEventIDHandler) AddInterestIntoEvent(w http.Response
 		return
 	}
 
-	eventId := r.PathValue("event_id")
-	eventID, err := uuid.Parse(eventId)
+	eventID, err := utils.GetUUIDFromPath(r, "event_id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of postID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
 
@@ -55,17 +54,15 @@ func (gEventIDHandler *GroupEventIDHandler) GetEventDetails(w http.ResponseWrite
 		return
 	}
 
-	groupId := r.PathValue("group_id")
-	groupID, err := uuid.Parse(groupId)
+	groupID, err := utils.GetUUIDFromPath(r, "group_id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
 
-	eventId := r.PathValue("event_id")
-	eventID, err := uuid.Parse(eventId)
+	eventID, err := utils.GetUUIDFromPath(r, "event_id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of postID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
 	gEventIDHandler.gService.GetEventDetails(eventID.String(), userID.String(), groupID.String())

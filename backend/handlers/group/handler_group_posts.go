@@ -35,7 +35,7 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 	}
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Incorrect type of groupID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
 
@@ -52,7 +52,7 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 			return
 		}
 		// which status code to return
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v hhh", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
 		return
 
 	}
@@ -83,7 +83,7 @@ func (gPostHandler *GroupPostHandler) GetGroupPosts(w http.ResponseWriter, r *ht
 	}
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Incorrect type of groupID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
 
