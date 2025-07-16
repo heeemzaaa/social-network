@@ -186,7 +186,15 @@ func (service *ChatService) GetUsers(authUserID string) (*[]models.User, *models
 		return nil, &models.ErrorJson{Status: err.Status, Message: err.Message}
 	}
 
-	return &users, nil
+	return users, nil
+}
+
+func (service *ChatService) GetGroups(authUserID string) (*[]models.Group, *models.ErrorJson) {
+	groups, err := service.repo.GetGroups(authUserID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	return groups, nil
 }
 
 func (service *ChatService) EditReadStatus(sender_id, target_id string) *models.ErrorJson {
