@@ -7,19 +7,32 @@ export function PostsContainer({ post }) {
     const [posts, setPosts] = useState([])
 
     useEffect(() => {
-        console.log("fetch posts here.")
-        // todo : for fetching posts
-        try {
-            
-        } catch (error) {
-            
-        }
-    },[])
+        async function fetchPosts() {
+            console.log("fetch posts here.");
+            try {
+                const resp = await fetch("http://localhost:8080/api/posts", {
+                    method: "GET",
+                    credentials: "include",
+                });
 
-    useEffect(()=>{
+                if (!resp.ok) {
+                    console.log("error fetching posts 1");
+                    return;
+                }
+                const data = await resp.json();
+                setPosts(data); 
+            } catch (error) {
+                console.log("error fetching posts", error);
+            }
+        }
+
+        fetchPosts(); 
+    }, []);
+
+    useEffect(() => {
         if (!post) return;
-        setPosts(prev => [post,...prev])
-    },[post])
+        setPosts(prev => [post, ...prev])
+    }, [post])
 
     return (
         <div className="posts-container">

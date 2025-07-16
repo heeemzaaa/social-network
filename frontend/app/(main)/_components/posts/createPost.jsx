@@ -74,20 +74,6 @@ export default function CreatePost({ type, postAction }) {
         <form noValidate action={action} className={`${styles.form} glass-bg`}>
             <div className="flex gap-3">
                 <div className="flex-col gap-1">
-                    {/* Title */}
-                    <div className={styles.formGrp}>
-                        <label htmlFor="title">Title:</label>
-                        <input
-                            className={styles.input}
-                            type="text"
-                            name="title"
-                            id="title"
-                            value={data.title}
-                            onChange={handleChange}
-                        />
-                        {state.errors?.title && <span className="field-error">{state.errors.title}</span>}
-                    </div>
-
                     {/* Content */}
                     <div className={styles.formGrp}>
                         <label htmlFor="content">Content:</label>

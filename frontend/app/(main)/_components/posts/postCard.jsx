@@ -5,16 +5,19 @@ import { HiEllipsisHorizontal, HiHeart, HiOutlineChatBubbleOvalLeft } from 'reac
 import Avatar from '../avatar';
 
 
-
-export default function PostCard({ key, post }) {
+//TODO:ADD REAL PATH TO THE IMG SRC 
+export default function PostCard({ post }) {
     return (
-        <div className='post-card-container' key={key}>
+        <div className='post-card-container' >
             <div className="post-card-header">
                 <Avatar />
             </div>
             <div className="post-card-content">
                  <div className="post-card-content-privacy">
                     {post.privacy}
+                </div>
+                <div className="post-card-content-privacy">
+                   <img src="" alt="postImage" />
                 </div>
                 <div className="post-card-content-text">
                     {post.content}

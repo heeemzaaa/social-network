@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"social-network/backend/models"
+
+	"github.com/google/uuid"
 )
 
 type PostsRepository struct {
@@ -45,22 +47,37 @@ func (r *PostsRepository) CreatePost(post *models.Post) error {
 	return nil
 }
 
-func (r *PostsRepository) GetAllPosts() ([]models.Post, error) {
-	rows, err := r.db.Query(`SELECT id, user_id, content FROM posts`)
+func (r *PostsRepository) GetAllPosts(userID uuid.UUID) ([]models.Post, error) {
+	query := `
+	SELECT DISTINCT p.postID, p.userID, p.content, p.createdAt, p.privacy, p.image_url
+	FROM posts p
+	LEFT JOIN post_access pa ON p.postID = pa.postID
+	LEFT JOIN followers f ON p.userID = f.userID  -- the author being followed
+	WHERE
+		p.privacy = 'public'
+		OR p.userID = ? -- author's own posts
+		OR (p.privacy = 'private' AND pa.userID = ?)
+		OR (p.privacy = 'followers' AND f.followerID = ?)
+	ORDER BY p.createdAt DESC;
+	`
+
+	rows, err := r.db.Query(query, userID.String(), userID.String(), userID.String())
 	if err != nil {
+		fmt.Println("error in executing", err)
 		return nil, err
 	}
 	defer rows.Close()
-
+	fmt.Println("entred ----->")
 	var posts []models.Post
 	for rows.Next() {
 		var p models.Post
-		if err := rows.Scan(&p.ID, &p.UserID, &p.Content); err != nil {
+		if err := rows.Scan(&p.ID, &p.UserID, &p.Content, &p.CreatedAt, &p.Privacy, &p.Img); err != nil {
+			fmt.Println("---err", err)
 			return nil, err
 		}
 		posts = append(posts, p)
 	}
-
+	fmt.Println(posts, "----------------------------------------------------------------------------------------")
 	return posts, nil
 }
 

@@ -8,14 +8,12 @@ export async function createPostAction(prevState, formData) {
         message: null,
     };
 
-    const title = formData.get("title");
+    
     const content = formData.get("content");
     const privacy = formData.get("privacy");
     const selectedFollowersRaw = formData.get("selectedFollowers");
 
-    if (!title) {
-        state.errors.title = "Title is required";
-    }
+
     if (!content) {
         state.errors.content = "Content is required";
     }
