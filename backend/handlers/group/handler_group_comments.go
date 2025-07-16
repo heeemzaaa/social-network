@@ -63,7 +63,7 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 	}
 
 	// handle the image encoding in the phase that comes before the adding process
-	path, errUploadImg := utils.HanldeUploadImage(r, "comment", filepath.Join("groups", "comments"), false)
+	path, errUploadImg := utils.HanldeUploadImage(r, "comment", filepath.Join("groups", "comments"))
 	if errUploadImg != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
