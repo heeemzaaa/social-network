@@ -14,14 +14,13 @@ type ChatNavigation struct {
 	service *chat.ChatService
 }
 
-func NewChatNavigation(service *chat.ChatService) *MessagesHandler {
-	return &MessagesHandler{service: service}
+func NewChatNavigation(service *chat.ChatService) *ChatNavigation {
+	return &ChatNavigation{service: service}
 }
 
 func (chatNav *ChatNavigation) GetUsers(w http.ResponseWriter, r *http.Request) {
 	authUserID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
-		fmt.Println("here an error: ", err)
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
 		return
 	}
@@ -35,6 +34,22 @@ func (chatNav *ChatNavigation) GetUsers(w http.ResponseWriter, r *http.Request) 
 	utils.WriteDataBack(w, users)
 }
 
+func (ChatNav *ChatNavigation) GetGroups(w http.ResponseWriter, r *http.Request) {
+	authUserID, err := middleware.GetUserIDFromContext(r.Context())
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		return
+	}
+
+	groups, errGroups := ChatNav.service.GetUsers(authUserID.String())
+	if errGroups != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		return
+	}
+
+	utils.WriteDataBack(w, groups)
+}
+
 func (chatNav *ChatNavigation) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -45,6 +60,8 @@ func (chatNav *ChatNavigation) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	switch r.URL.Path {
 	case "/api/get-users/":
 		chatNav.GetUsers(w, r)
+	case "/api/get-groups/":
+		chatNav.GetGroups(w,r)
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "ERROR!! Page Not Found!"})
 		return

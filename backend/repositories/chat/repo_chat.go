@@ -26,7 +26,7 @@ func (repo *ChatRepository) GetID(sessionID string) (string, *models.ErrorJson) 
 	return userID, nil
 }
 
-func (repo *ChatRepository) GetUsers(authUserID string) ([]models.User, *models.ErrorJson) {
+func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models.ErrorJson) {
 	var users []models.User
 
 	query := `WITH 
@@ -44,9 +44,9 @@ func (repo *ChatRepository) GetUsers(authUserID string) ([]models.User, *models.
     GROUP BY userID
 	),
 	cte_connections AS (
-    SELECT userID FROM followers WHERE followerID = ?     -- user follows them
+    SELECT userID FROM followers WHERE followerID = ?     
     UNION
-    SELECT followerID AS userID FROM followers WHERE userID = ?  -- they follow user
+    SELECT followerID AS userID FROM followers WHERE userID = ?  
 	),
 	cte_ordered_users AS (
     SELECT 
@@ -82,7 +82,7 @@ func (repo *ChatRepository) GetUsers(authUserID string) ([]models.User, *models.
 	ORDER BY u.lastInteraction DESC, u.firstName, u.lastName;
 `
 
-	rows, err := repo.db.Query(query, authUserID, authUserID, authUserID, authUserID, authUserID)
+	rows, err := repo.db.Query(query, authUserID, authUserID, authUserID, authUserID, authUserID, authUserID, authUserID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
@@ -103,7 +103,45 @@ func (repo *ChatRepository) GetUsers(authUserID string) ([]models.User, *models.
 		users = append(users, user)
 	}
 
-	return users, nil
+	return &users, nil
+}
+
+func (repo *ChatRepository) GetGroups(authUserID string) (*[]models.Group, *models.ErrorJson) {
+	var groups []models.Group
+	query := `WITH
+	cte_latest_interaction AS (
+    SELECT
+        CASE 
+            WHEN sender_id = ? THEN target_id 
+            ELSE sender_id 
+        END AS userID,
+        MAX(created_at) AS lastInteraction,
+        content
+    FROM messages
+    WHERE (sender_id = ? OR target_id = ?)
+      AND type = 'group'
+    GROUP BY userID
+	),
+	cte_my_groups AS (
+		SELECT groupID WHERE userID = ?
+	),
+	`
+
+	rows, err := repo.db.Query(query, authUserID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+
+	for rows.Next() {
+		var group models.Group
+		err := rows.Scan()
+		if err != nil {
+			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		}
+		groups = append(groups, group)
+	}
+
+	return &groups, nil
 }
 
 // here I will get the session Id by the token given by the browser to check the auth
