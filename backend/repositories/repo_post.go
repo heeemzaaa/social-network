@@ -57,7 +57,7 @@ func (r *PostsRepository) GetAllPosts(userID uuid.UUID) ([]models.Post, error) {
 		p.privacy = 'public'
 		OR p.userID = ? -- author's own posts
 		OR (p.privacy = 'private' AND pa.userID = ?)
-		OR (p.privacy = 'followers' AND f.followerID = ?)
+		OR (p.privacy = 'almost private' AND f.followerID = ?)
 	ORDER BY p.createdAt DESC;
 	`
 
