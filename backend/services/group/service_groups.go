@@ -1,6 +1,7 @@
 package group
 
 import (
+	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -17,6 +18,7 @@ func NewGroupService(grepo *group.GroupRepository) *GroupService {
 }
 
 func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *models.ErrorJson) {
+	fmt.Println("group", group)
 	errGroup := models.ErrGroup{}
 	trimmedTitle := strings.TrimSpace(group.Title)
 	trimmedDesc := strings.TrimSpace(group.Description)
@@ -27,16 +29,20 @@ func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *mod
 		errGroup.Description = err.Error()
 	}
 
-	if errGroup != (models.ErrGroup{}) && group.ImagePath != "" {
-		if err := utils.RemoveImage(group.ImagePath); err != nil {
-			return nil, &models.ErrorJson{Status: 500, Error: err.Error()}
+	if errGroup != (models.ErrGroup{}) {
+		if group.ImagePath != "" {
+			if err := utils.RemoveImage(group.ImagePath); err != nil {
+				return nil, &models.ErrorJson{Status: 500, Error: err.Error()}
+			}
 		}
 		return nil, &models.ErrorJson{Status: 400, Message: errGroup}
 	}
 	groupCreated, errJson := gService.gRepo.CreateGroup(group)
-	if errJson != nil && group.ImagePath != "" {
-		if err := utils.RemoveImage(group.ImagePath); err != nil {
-			return nil, &models.ErrorJson{Status: 500, Error: err.Error()}
+	if errJson != nil {
+		if group.ImagePath != "" {
+			if err := utils.RemoveImage(group.ImagePath); err != nil {
+				return nil, &models.ErrorJson{Status: 500, Error: err.Error()}
+			}
 		}
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
