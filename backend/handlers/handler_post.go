@@ -23,9 +23,11 @@ func NewPostHandler(service *ps.PostService) *PostHandler {
 }
 
 func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("************************* getting Posts *************************")
 	usID, err := middleware.GetUserIDFromContext(r.Context())
-
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to get userID"})
+		return
+	}
 	posts, err := h.service.GetAllPosts(usID)
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to get posts"})

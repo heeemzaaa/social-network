@@ -18,7 +18,6 @@ func NewPostRepository(db *sql.DB) *PostsRepository {
 }
 
 func (r *PostsRepository) CreatePost(post *models.Post) error {
-	// 1. Save post to DB
 	_, err := r.db.Exec(
 		`INSERT INTO posts (postID, userID, content, privacy, image_url)
 		 VALUES (?, ?, ?, ?, ?)`,
@@ -28,8 +27,6 @@ func (r *PostsRepository) CreatePost(post *models.Post) error {
 		fmt.Println("Error inserting post:", err)
 		return err
 	}
-
-	// 2. If privacy is "private", save allowed users in post_acces
 	if post.Privacy == "private" && len(post.SelectedUsers) > 0 {
 		for _, followerID := range post.SelectedUsers {
 			_, err := r.db.Exec(
@@ -43,7 +40,6 @@ func (r *PostsRepository) CreatePost(post *models.Post) error {
 			}
 		}
 	}
-
 	return nil
 }
 
@@ -67,17 +63,15 @@ func (r *PostsRepository) GetAllPosts(userID uuid.UUID) ([]models.Post, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	fmt.Println("entred ----->")
 	var posts []models.Post
 	for rows.Next() {
 		var p models.Post
 		if err := rows.Scan(&p.ID, &p.UserID, &p.Content, &p.CreatedAt, &p.Privacy, &p.Img); err != nil {
-			fmt.Println("---err", err)
+			fmt.Println("err  in scaning", err)
 			return nil, err
 		}
 		posts = append(posts, p)
 	}
-	fmt.Println(posts, "----------------------------------------------------------------------------------------")
 	return posts, nil
 }
 
