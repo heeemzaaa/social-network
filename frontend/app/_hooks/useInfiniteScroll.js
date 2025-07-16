@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 export default function useInfiniteScroll({
     getUrl,
     initialPage = 0,
-    itemsPerPage = 10,
+    itemsPerPage = 20,
 }) {
     const [data, setData] = useState([]);
     const [page, setPage] = useState(initialPage);
@@ -11,17 +11,19 @@ export default function useInfiniteScroll({
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState(null);
     const sentinelRef = useRef(null);
+    const abortControllerRef = useRef(null);
 
     // Fetch data function
     const fetchData = async (currentPage) => {
         if (isLoading || !hasMore) return;
         setIsLoading(true);
+        abortControllerRef.current = new AbortController();
+        const signal = abortControllerRef.current.signal;
         try {
             const url = getUrl(currentPage);
-            const response = await fetch(url, {
-                credentials: "include",
-            });
+            const response = await fetch(url, { credentials: "include", signal });
             const result = await response.json();
+            // console.log()
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -31,13 +33,15 @@ export default function useInfiniteScroll({
                 setData((prevData) => [...prevData, ...result]); // Append new data
             }
         } catch (err) {
-            console.error(err);
-            setError(err.message);
+            if (err.name !== "AbortError") {
+                console.log(err.name);
+                setError(err.message);
+            }
         } finally {
             setIsLoading(false);
         }
     };
-    
+
     // Reset data when getUrl changes
     useEffect(() => {
         setData([]);
@@ -45,6 +49,12 @@ export default function useInfiniteScroll({
         setHasMore(true);
         setError(null);
         fetchData(initialPage);
+
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        }
     }, [getUrl]);
 
     // Set up Intersection Observer

@@ -1,5 +1,7 @@
 'use client'
 
+// group page
+
 import Button from '@/app/_components/button'
 import { CreateGroup } from "./_components/createGroup"
 import Tabs from '../_components/tab/tabs';
@@ -9,9 +11,29 @@ import { useModal } from '../_context/ModalContext';
 import GroupCardList from './_components/groupCardList';
 import { HiMiniUserGroup } from 'react-icons/hi2';
 import AddGroupForm from './_components/addGroupForm';
+import { useState } from 'react';
+
+
+let tabs = [
+  {
+    label: "Your Groups",
+    type: "owned",
+  },
+  {
+    label: "Joined Groups",
+    type: "joined",
+  },
+  {
+    label: "Available Groups",
+    type: "available",
+  }
+]
 
 
 export default function Groups() {
+  let [activeTab, setActiveTab] = useState("owned")
+
+
   const { openModal } = useModal()
   return (
     <main className='flex-col flex-start border-red align-end'>
@@ -23,14 +45,19 @@ export default function Groups() {
         <Tab label="Your Groups" />
         <Tab label="Joined Groups" />
         <Tab label="Groups" />
-        <TabContent><GroupCardList key={"owned"} filter={"owned"} /></TabContent>
+        <TabContent>
+          <GroupCardList key={"owned"} filter={"owned"} />
+        </TabContent>
         <TabContent>
           <GroupCardList key={"joined"} filter={"joined"} />
         </TabContent>
         <TabContent>
           <GroupCardList key={"available"} filter={"available"} />
         </TabContent>
-      </Tabs>
+      </Tabs> 
+
     </main>
   )
 }
+
+
