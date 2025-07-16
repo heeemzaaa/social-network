@@ -3,15 +3,15 @@
 // group page
 
 import Button from '@/app/_components/button'
-import { CreateGroup } from "./_components/createGroup"
 import Tabs from '../_components/tab/tabs';
 import Tab from '../_components/tab/tab';
 import TabContent from '../_components/tab/tabContent';
 import { useModal } from '../_context/ModalContext';
 import GroupCardList from './_components/groupCardList';
 import { HiMiniUserGroup } from 'react-icons/hi2';
-import AddGroupForm from './_components/addGroupForm';
+import AddGroupForm from './_components/createGroupForm';
 import { useState } from 'react';
+import CreateGroupForm from './_components/createGroupForm';
 
 
 let tabs = [
@@ -37,7 +37,7 @@ export default function Groups() {
   const { openModal } = useModal()
   return (
     <main className='flex-col flex-start border-red align-end'>
-      <Button className={'justify-start'} onClick={() => { openModal(<AddGroupForm />) }}>
+      <Button className={'justify-start'} onClick={() => { openModal(<CreateGroupForm />) }}>
         <HiMiniUserGroup size={"24px"} />
         <span>Create New Group</span>
       </Button>

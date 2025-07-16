@@ -1,12 +1,11 @@
 "use client"
-import styles from "@/app/(auth)/auth.module.css"
-import { HiMiniDocumentText, HiMiniPhotograph } from "react-icons/hi2";
+// import styles from "@/app/(auth)/auth.module.css"
+import { HiMiniDocumentText } from "react-icons/hi2";
 import { useActionState, useState } from "react";
-import subimtButton from "@/app/_components/subimtButton";
 import { createGroupAction } from "@/app/_actions/group";
 import Button from "@/app/_components/button";
 
-export default function AddGroupForm() {
+export default function CreateGroupForm() {
     const [state, action] = useActionState(createGroupAction, {});
     const [data, setData] = useState({
         title: "",

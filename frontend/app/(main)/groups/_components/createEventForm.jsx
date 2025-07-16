@@ -1,6 +1,6 @@
 import React, { useActionState } from 'react'
 
-export default function AddEventForm() {
+export default function CreateEventForm() {
     const [state, action] = useActionState(postAction, {});
     const [data, setData] = useState(initialPostData)
 

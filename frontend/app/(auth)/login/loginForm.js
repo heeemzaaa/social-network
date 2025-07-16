@@ -1,5 +1,5 @@
 "use client"
-import styles from "../auth.module.css"
+import styles from "@/app/page.module.css"
 import { HiMiniUser, HiLockClosed } from "react-icons/hi2";
 import { loginUser } from '@/app/_actions/user';
 import { useActionState, useState } from "react";

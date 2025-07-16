@@ -1,7 +1,7 @@
 "use client"
 
 import Button from '@/app/_components/button';
-import AddGroupForm from '../groups/_components/addGroupForm';
+import AddGroupForm from '../groups/_components/createGroupForm';
 import AddEventForm from '../groups/_components/addEventForm';
 import { useModal } from '../_context/ModalContext';
 import Tabs from '../_components/tab/tabs';

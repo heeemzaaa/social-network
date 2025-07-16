@@ -13,6 +13,7 @@ import { redirect } from "next/navigation"
 */
 
 export async function addGroupPostAction(prevState, formData) {
+    
 }
 
 
@@ -179,6 +180,4 @@ export async function createGroupEventAction(prevState, formData) {
 
 
 export async function joinGroupAction(groupId) {
-
-
 }

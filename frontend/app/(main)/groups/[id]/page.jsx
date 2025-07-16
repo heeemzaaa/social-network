@@ -10,20 +10,23 @@ import GroupPostCardList from "../_components/groupPostCardList";
 import GroupEventCardList from "../_components/groupEventCardList";
 
 export default function GroupPage({ params }) {
-  const [groupId, setGroupId] = useState(null)
+  // const [groupId, setGroupId] = useState(null)
   const [data, setData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const resolvedParams = React.use(params);
+  const groupId = resolvedParams.id;
+
   // Fetch group data
   useEffect(() => {
     const getId = async () => {
-      let {id} = await params
+      let { id } = await params
       return id
     }
-    const getGroupData = async () => {
+    const getGroupData = async (id) => {
       try {
-        const response = await fetch(`http://localhost:8080/api/groups/${groupId}`, {
+        const response = await fetch(`http://localhost:8080/api/groups/${id}`, {
           credentials: "include",
         });
         if (!response.ok) {
@@ -39,14 +42,16 @@ export default function GroupPage({ params }) {
         setIsLoading(false);
       }
     };
-    setGroupId(getId())
-    getGroupData();
+
+    // getId().then(id => {
+    //   getGroupData(id)
+    //   setGroupId(id)
+    //   console.log()
+    // })
+
+    getGroupData(groupId)
   }, []);
 
-  // Define getUrl for InfiniteList (e.g., fetch posts for this group)
-  const getUrl = (page) => {
-    return `http://localhost:8080/api/groups/${id}/posts?page=${page}&limit=20`;
-  };
 
   // Render item for InfiniteList (customize based on your data structure)
   const renderItem = ({ item, index }) => (
@@ -60,19 +65,18 @@ export default function GroupPage({ params }) {
   if (error) return <p className="text-danger text-center">Error: {error}</p>;
 
   return (
-    <main className="group-page-section flex ">
+    <main className="group-page-section flex gap-2">
       <div className="col w-quarter" >
         {/* Group Info */}
         <div className="grp-info-container">
-          <div className="grp-img">
-            {/* Replace with actual image or placeholder */}
+          <div className="grp-img w-full" >
             <img
-              src={data.image || "/placeholder-group-img.jpg"}
+              className="w-full"
+              src={"/no-profile.png"}
               alt={data.title || "Group"}
-              className="w-32 h-32 object-cover rounded"
             />
           </div>
-          <div className="grp-info flex-1">
+          <div className="grp-info flex-col">
             <h4 className="grp-title">
               {data.title}
             </h4>
@@ -81,18 +85,23 @@ export default function GroupPage({ params }) {
             </p>
             <Tag className="glass-bg">
               <HiMiniUsers className="w-5 h-5" />
-              {data.total_members || 0} Member{data.total_members > 1 ? "" : "s"}
+              {data.total_members || 0} {data.total_members > 1 ? "Members" : "Member"}
             </Tag>
           </div>
         </div>
       </div>
+
       {/* tabs for posts and  */}
       <div className="flex-grow">
         <Tabs>
           <Tab label={"Posts"} />
           <Tab label={"Events"} />
-          <TabContent><GroupPostCardList  gorupdId={groupId}/></TabContent>
-          <TabContent><GroupEventCardList /></TabContent>
+          <TabContent>
+            <GroupPostCardList groupId={groupId} />
+          </TabContent>
+          <TabContent>
+            <GroupEventCardList groupId={groupId} />
+          </TabContent>
         </Tabs>
       </div>
     </main>

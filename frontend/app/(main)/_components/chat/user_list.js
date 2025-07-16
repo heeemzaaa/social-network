@@ -7,8 +7,8 @@ export default function UserList({ users }) {
             <img src={user.img || "/no-profile.png"} />
             <p className="text-md">{user.username}</p>
           </div>
-          <div  className="sep"></div>
-          </>
+          <div className="sep"></div>
+        </>
       ))}
     </div>
   );
