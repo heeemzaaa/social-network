@@ -1,19 +1,21 @@
 "use client";
 
-import React, { use } from "react";
+import React, { useState, useEffect } from "react";
 import "./chat.css";
-import { useState } from "react";
 import Button from "@/app/_components/button";
 import { HiMiniFaceSmile, HiPaperAirplane } from "react-icons/hi2";
-import { RiSendPlaneFill } from "react-icons/ri";
 import UserList from "../_components/chat/user_list";
 import GroupList from "../_components/group_list";
 import { useUserContext } from "../_context/userContext";
-
+import { fetchMessages } from "../_components/fetchMessages";
 
 export default function Chat() {
-const { users } = useUserContext();
-console.log("Users from context:", users);
+  const [currentUser, setCurrentUser] = useState({
+    username: "",
+    ID: "",
+  });
+  const [newMessage, setNewMessage] = useState("");
+  const { users, socket, messages, setMessages } = useUserContext();
 
   const groups = {
     groups: [
@@ -28,6 +30,67 @@ console.log("Users from context:", users);
   };
 
   const [view, setView] = useState("Users");
+
+  // This effect resets currentUser if they disappear from users list
+  useEffect(() => {
+    if (
+      currentUser.ID &&
+      !users.some((user) => user.userID === currentUser.ID)
+    ) {
+      setCurrentUser({ username: "", ID: "" });
+    }
+  }, [users, currentUser.ID]);
+
+  const handleUserClick = (user) => {
+    setCurrentUser({
+      username: user.username,
+      ID: user.userID,
+      type: "private",
+    });
+    console.log("Selected user:", user);
+  };
+
+  const sendMessage = () => {
+    if (!newMessage || !currentUser.ID || socket?.readyState !== 1) return;
+
+    const messagePayload = {
+      content: newMessage,
+      target_id: currentUser.ID,
+      type: "private",
+    };
+
+    socket.send(JSON.stringify(messagePayload));
+
+    setMessages((prev) => ({
+      ...prev,
+      [currentUser.ID]: [
+        ...(prev[currentUser.ID] || []),
+        { content: newMessage, sender: "me" },
+      ],
+    }));
+
+    setNewMessage("");
+  };
+
+  useEffect(() => {
+    if (!currentUser.ID) return;
+
+    const loadMessages = async () => {
+      const msgs = await fetchMessages(currentUser.ID, currentUser.type);
+      if (!msgs) return;
+      setMessages((prev) => ({
+        ...prev,
+        [currentUser.ID]: msgs.map((msg) => ({
+          content: msg.content,
+          sender: msg.sender_id === currentUser.ID ? "them" : "me",
+        })),
+      }));
+    };
+
+    loadMessages();
+  }, [currentUser.ID]);
+
+  console.log("Current user messages:", messages);
 
   return (
     <main className="chat_main_container p4 flex-row">
@@ -51,7 +114,7 @@ console.log("Users from context:", users);
 
         <div className="chosing_param">
           {view === "Users" ? (
-            <UserList users={users} />
+            <UserList users={users} onUserClick={handleUserClick} />
           ) : (
             <GroupList {...groups} />
           )}
@@ -60,14 +123,35 @@ console.log("Users from context:", users);
 
       <section className="chat_place flex-col">
         <div className="chat_header p2">
-          <img src="/no-profile.png"></img>
-          <p className="text-lg font-semibold">Hamza</p>
+          <img src="/no-profile.png" alt="Profile" />
+          <p className="text-lg font-semibold">{currentUser.username}</p>
         </div>
-        <div className="chat_body"></div>
+
+        <div className="chat_body">
+          {(messages[currentUser.ID] || []).map((msg, i) => (
+            <div
+              key={i}
+              className={`message ${msg.sender === "me" ? "sent" : "received"}`}
+            >
+              {msg.content}
+            </div>
+          ))}
+        </div>
+
         <div className="chat_footer p2">
           <HiMiniFaceSmile size={"30px"} />
-          <textarea></textarea>
-          <HiPaperAirplane className="HiPaperAirplane" size={"30px"} />
+          <textarea
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
+            placeholder="Type a message..."
+          />
+          <HiPaperAirplane
+            onClick={sendMessage}
+            className="HiPaperAirplane"
+            size={"30px"}
+            style={{ cursor: "pointer" }}
+          />
         </div>
       </section>
     </main>

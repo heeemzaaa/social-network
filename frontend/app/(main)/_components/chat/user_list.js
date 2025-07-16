@@ -2,13 +2,12 @@ import "./chat.css";
 import React from 'react'
 
 
-export default function UserList({ users }) {
-  console.log("UserList received users:", users);
+export default function UserList({ users , onUserClick}) {
   return (
     <div className="pi3">
       {users.map((user, index) => (
         <React.Fragment key={index}>
-          <div key={index} className="user_item p2 gap-1">
+          <div key={index} className="user_item p2 gap-1" onClick={() => onUserClick(user)} style={{ cursor: "pointer" }}>
             <img src={user.img || "/no-profile.png"} />
             <p className="text-md">{user.username}</p>
           </div>
@@ -18,3 +17,5 @@ export default function UserList({ users }) {
     </div>
   );
 }
+
+
