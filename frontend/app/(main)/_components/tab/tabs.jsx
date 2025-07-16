@@ -3,7 +3,6 @@ import "./style.css";
 import React, { useEffect, useState } from "react";
 
 export default function Tabs({ children, className }) {
-    console.log(`rendering tabs (instance: ${Math.random()})`)
     const [activeTab, setActiveTab] = useState(0);
 
     const handleTabClick = (index) => {
@@ -26,7 +25,6 @@ export default function Tabs({ children, className }) {
 
     return (
         <div className={`tab-container ${className}`}>
-            <h3>tab list: </h3>
             <div className="tab-list">
                 
                 {tabs.map((tab, index) =>
@@ -37,8 +35,7 @@ export default function Tabs({ children, className }) {
                     })
                 )}
             </div>
-            <h3>tab content</h3>
-            <div className="tab-content">``
+            <div className="tab-content">
                 {contents[activeTab] || <div>No content available for this tab</div>}
             </div>
         </div>

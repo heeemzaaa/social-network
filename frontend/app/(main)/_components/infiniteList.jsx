@@ -8,16 +8,12 @@ export default function InfiniteList({
     noDataImage = "no-data-animate.svg",
     className = "list-container flex flex-wrap gap-4 justify-center overflow-y-auto",
 }) {
-    
-
 
     const { data, isLoading, error, hasMore, sentinelRef } = useInfiniteScroll({
         getUrl,
         initialPage,
         itemsPerPage,
     })
-
-    // console.log
 
     if (error) return <p className="text-danger text-center">Error: {error}</p>;
     return (

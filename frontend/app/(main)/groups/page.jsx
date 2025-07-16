@@ -55,7 +55,6 @@ export default function Groups() {
           <GroupCardList key={"available"} filter={"available"} />
         </TabContent>
       </Tabs> 
-
     </main>
   )
 }

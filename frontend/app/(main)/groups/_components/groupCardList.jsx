@@ -5,7 +5,6 @@ import GroupCard from "./groupCard";
 export default function GroupCardList({ filter }) {
     const getUrl = useCallback(
         (page) => {
-            console.log("fetching data for: ", filter,Math.random())
             const params = new URLSearchParams({
                 filter,
                 offset: page *20,
@@ -23,3 +22,6 @@ export default function GroupCardList({ filter }) {
         />
     );
 }
+
+
+

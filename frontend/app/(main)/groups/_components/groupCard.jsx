@@ -2,21 +2,26 @@ import Button from "@/app/_components/button";
 import Tag from "../../_components/tag";
 import { HiMiniUsers } from "react-icons/hi2";
 import "./style.css"
+import { redirect } from "next/navigation";
 export default function GroupCard({
     type,
     group_id,
     image_path,
     title,
     description,
-    membersCount
+    total_members
 }) {
 
     const handleJoingGrp = (groupId) => {
         console.log("join grp:) ")
     }
 
+    const navigateToGroup = (groupId) => {
+        redirect(`/groups/${groupId}`)
+    }
+
     return (
-        <div className="grp-card w-quarter">
+        <div className="grp-card w-quarter" onClick={()=>navigateToGroup(group_id)}>
             <div className="grp-card-img-holder glass-bg">
                 <div className="grp-card-img" style={{ backgroundImage: `url(${'/no-profile.png'})` }}></div>
             </div>
@@ -30,7 +35,7 @@ export default function GroupCard({
                     </p>
                     <Tag className={"glass-bg align-end"}>
                         <HiMiniUsers />
-                        {membersCount}
+                        {total_members}
                     </Tag>
                 </div>
                 {

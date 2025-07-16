@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 export default function useInfiniteScroll({
     getUrl,
@@ -12,6 +12,7 @@ export default function useInfiniteScroll({
     const [error, setError] = useState(null);
     const sentinelRef = useRef(null);
     const abortControllerRef = useRef(null);
+    const observerRef = useRef(null);
 
     // Fetch data function
     const fetchData = async (currentPage) => {
@@ -23,20 +24,20 @@ export default function useInfiniteScroll({
             const url = getUrl(currentPage);
             const response = await fetch(url, { credentials: "include", signal });
             const result = await response.json();
-            // console.log()
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             if (result.length === 0) {
-                setHasMore(false); // No more data to fetch
+                setHasMore(false);
             } else {
-                setData((prevData) => [...prevData, ...result]); // Append new data
+                setData((prevData) => [...prevData, ...result]);
             }
         } catch (err) {
-            if (err.name !== "AbortError") {
-                console.log(err.name);
-                setError(err.message);
+            if (err.name === "AbortError") {
+                return;
             }
+            console.error(err);
+            setError(err.message);
         } finally {
             setIsLoading(false);
         }
@@ -53,31 +54,56 @@ export default function useInfiniteScroll({
         return () => {
             if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
+                abortControllerRef.current = null;
             }
-        }
+        };
     }, [getUrl]);
+
+    // Callback to update sentinelRef and re-observe
+    const setSentinelRef = useCallback((node) => {
+        console.log("Sentinel ref updated:", node);
+        // Update sentinelRef
+        sentinelRef.current = node;
+
+        // Re-observe if observer exists and node is valid
+        if (observerRef.current && node) {
+            observerRef.current.observe(node);
+        }
+    }, []);
+
+
+
 
     // Set up Intersection Observer
     useEffect(() => {
-        const observer = new IntersectionObserver(
+        // Clean up existing observer
+        if (observerRef.current && sentinelRef.current) {
+            observerRef.current.unobserve(sentinelRef.current);
+        }
+
+        // Create new observer
+        observerRef.current = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting && hasMore && !isLoading) {
                     setPage((prevPage) => prevPage + 1);
                 }
             },
-            { threshold: 0.1 } // Trigger when 10% of sentinel is visible
+            { threshold: 0.1 }
         );
 
+        // Observe the sentinel if it exists
         if (sentinelRef.current) {
-            observer.observe(sentinelRef.current);
+            observerRef.current.observe(sentinelRef.current);
         }
 
+        // Cleanup on unmount or when dependencies change
         return () => {
-            if (sentinelRef.current) {
-                observer.unobserve(sentinelRef.current);
+            if (observerRef.current && sentinelRef.current) {
+                observerRef.current.unobserve(sentinelRef.current);
             }
+            observerRef.current = null;
         };
-    }, [hasMore, isLoading]);
+    }, [hasMore, isLoading, getUrl]);
 
     // Fetch data when page changes
     useEffect(() => {
@@ -86,5 +112,5 @@ export default function useInfiniteScroll({
         }
     }, [page]);
 
-    return { data, isLoading, error, hasMore, sentinelRef };
+    return { data, isLoading, error, hasMore, sentinelRef: setSentinelRef };
 }
