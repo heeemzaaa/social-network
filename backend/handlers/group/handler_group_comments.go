@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
+	"strconv"
 
 	"social-network/backend/middleware"
 	"social-network/backend/models"
@@ -74,9 +75,36 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 }
 
 func (gCommentHandler *GroupCommentHandler) GetGroupComments(w http.ResponseWriter, r *http.Request) {
-	_, errParse := middleware.GetUserIDFromContext(r.Context())
+	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		return
+	}
+	groupID, err := utils.GetUUIDFromPath(r, "group_id")
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: ""})
+	}
+
+	postID, err := utils.GetUUIDFromPath(r, "post_id")
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "ERROR!! Incorrect UUID Format!"})
+		return
+	}
+
+	offset, errConvoff := strconv.Atoi(r.URL.Query().Get("offset"))
+	if errConvoff != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", errConvoff)})
+		return
+	}
+
+	comments, errJson := gCommentHandler.gService.GetComments(groupID.String(), userID.String(), postID.String(), offset)
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(comments); err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)})
 		return
 	}
 }

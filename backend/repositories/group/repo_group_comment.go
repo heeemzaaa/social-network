@@ -25,7 +25,7 @@ func (gRepo *GroupRepository) CreateComment(comment *models.CommentGroup) (*mode
 }
 
 // But hna comments dyal wa7d l post specific
-func (gRepo *GroupRepository) GetComments(user_id, postId, offset int) ([]models.CommentGroup, *models.ErrorJson) {
+func (gRepo *GroupRepository) GetComments(userId, postId string, offset int) ([]models.CommentGroup, *models.ErrorJson) {
 	var where string
 	if offset == 0 {
 		where = `comments.postID = ?`
@@ -68,7 +68,7 @@ func (gRepo *GroupRepository) GetComments(user_id, postId, offset int) ([]models
 		10;
 	`, where)
 
-	rows, err := gRepo.db.Query(query, user_id, postId, offset)
+	rows, err := gRepo.db.Query(query, userId, postId, offset)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500 , Error: fmt.Sprintf("%v", err)}
 	}

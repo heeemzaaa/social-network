@@ -1,6 +1,7 @@
 package group
 
 import (
+	"database/sql"
 	"fmt"
 
 	"social-network/backend/models"
@@ -9,28 +10,35 @@ import (
 
 // get the event created of a specific group
 func (gRepo *GroupRepository) GetGroupEvents(groupId string, offset int64) ([]models.Event, *models.ErrorJson) {
+	events := []models.Event{}
 	query := `SELECT concat(users.firstName, " " , users.lastName) AS FullName, 
 	group_events.title, group_events.description, group_events.eventTime 
 	FROM group_events INNER JOIN users 
 	ON group_events.eventCreatorID = users.userID
 	WHERE groupID = ?
-	LIMIT 20, OFFSET ?
+	LIMIT 20 OFFSET ?
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(groupId, offset)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return events, nil
+		}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 2", err)}
 	}
 	defer rows.Close()
-	var events []models.Event
 	for rows.Next() {
 		var event models.Event
-		if err := rows.Scan(&event.EventCreator, &event.Title, &event.Description, &event.EventDate); err != nil {
-			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		if err := rows.Scan(&event.EventCreator,
+			&event.Title,
+			&event.Description,
+			&event.EventDate); err != nil {
+			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 2", err)}
 		}
 		events = append(events, event)
 	}
