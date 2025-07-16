@@ -19,7 +19,7 @@ export default function CreatePost({ type, postAction }) {
             try {
                 //TODO:  make the id dynamic by getting the current userId ...
                 const id = "3df163f3-2e00-4a94-aaa9-1378a2881568"
-                const res = await fetch(`http://localhost:8080/api/profile/${id}/followers`, {
+                const res = await fetch(`http://localhost:8080/api/profile/${id}/connections/followers`, {
                     method: 'GET',
                     credentials: 'include',
                 });

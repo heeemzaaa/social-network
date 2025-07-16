@@ -114,6 +114,8 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request, postID 
 
 func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*************** serving request  ****************")
+	fmt.Println("Session cookie:", r.Header.Get("Cookie"))
+
 	w.Header().Set("Content-Type", "application/json")
 
 	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")

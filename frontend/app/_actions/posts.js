@@ -42,12 +42,12 @@ export async function createPostAction(prevState, formData) {
     if (Object.keys(state.errors).length > 0) {
         return state;
     }
-
-    const sessionCookie = cookies().get("session")?.value;
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("session")?.value;
 
     const response = await fetch("http://localhost:8080/api/posts", {
         method: "POST",
-        body: formData, 
+        body: formData,
         headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
     });
 
