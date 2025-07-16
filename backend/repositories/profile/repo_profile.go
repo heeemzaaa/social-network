@@ -255,9 +255,32 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 	return &profile, nil
 }
 
-// here I will get all the user's posts
-func (repo *ProfileRepository) GetPosts(profileID string, userID string) (*[]models.Post, error) {
-	return nil, nil
+// here I will get the posts of the user with conditions
+func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfile bool) (*[]models.Post, error) {
+	var query string
+	var posts []models.Post
+
+	switch myProfile {
+	case true:
+		query = ``
+	default:
+		query = ``
+	}
+
+	rows , err := repo.db.Query(query, )
+	if err != nil {
+		return nil, fmt.Errorf("%v", err)
+	}
+
+	for rows.Next() {
+		var post models.Post
+		err := rows.Scan()
+		if err != nil {
+			return nil, fmt.Errorf("%v", err)
+		}
+		posts = append(posts, post)
+	}
+	return &posts, nil
 }
 
 // here I will get my followers as a user

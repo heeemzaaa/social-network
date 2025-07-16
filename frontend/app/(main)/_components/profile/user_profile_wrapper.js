@@ -19,7 +19,7 @@ export default function UserProfileWrapper({ id }) {
   const [privacy, setPrivacy] = useState(null)
   const [follows, setFollows] = useState(null)
   const [requested, setRequested] = useState(null)
-  const pathname = usePathname()
+  const [access, setAccess] = useState(null)
 
   useEffect(() => {
     async function fetchUserInfos() {
@@ -43,22 +43,24 @@ export default function UserProfileWrapper({ id }) {
           isMyProfile: profile.is_my_profile,
           isFollower: profile.is_follower,
           isRequested: profile.is_requested,
-          visibility: profile.visibility
+          visibility: profile.visibility,
+          access: profile.access
         }
-        // setID(info.id)
         setUserInfos(info)
         setPrivacy(info.visibility)
         setFollows(info.isFollower)
         setMine(info.isMyProfile)
         setRequested(info.isRequested)
-
+        setAccess(info.access)
+        console.log('access', info.firstName)
+        
       } catch (err) {
         console.error("Error fetching user profile:", err)
       } finally {
         setLoading(false)
       }
     }
-
+    
     fetchUserInfos()
   }, [id])
 
@@ -86,9 +88,10 @@ export default function UserProfileWrapper({ id }) {
             setUserInfos(prev => ({ ...prev, followers: prev.followers + 1 }))
           }
         } else {
-          isRequestedNow = !requested
+          console.log("*************", access)
+          let isRequestedNow = !requested
           setRequested(isRequestedNow)
-          setUserInfos(prev => ({ ...prev, isRequested: isRequestedNow}))
+          setUserInfos(prev => ({ ...prev, isRequested: isRequestedNow }))
         }
 
       } else {
@@ -135,19 +138,12 @@ export default function UserProfileWrapper({ id }) {
     <>
       <InfosDiv userInfos={userInfos}>
         <section className="buttons flex gap-1" style={{ marginLeft: 'auto' }}>
-          {mine ? (
-            <Button variant={'btn-icon glass-bg gap-1'}>
-              <>
-                <FaUserEdit size={'24px'} color="white" />
-                <span style={{ color: 'white' }}>Edit Profile</span>
-              </>
-            </Button>
-          ) : (
+          {!mine && (
             <Button variant={'btn-icon glass-bg gap-1'} onClick={handleToggleFollow} disabled={requested}>
               {requested ? (
                 <>
-                <MdPending size="24px" color="white"/>
-                <span style={{ color: 'white' }}>Pending</span>
+                  <MdPending size="24px" color="white" />
+                  <span style={{ color: 'white' }}>Pending</span>
                 </>
               ) : follows ? (
                 <>
@@ -167,20 +163,20 @@ export default function UserProfileWrapper({ id }) {
             <Button variant={'btn-icon glass-bg gap-1'} onClick={handleTogglePrivacy}>
               {privacy === 'private' ? (
                 <>
-                  <FaLockOpen size={'24px'} color="white" />
-                  <span style={{ color: 'white' }}>to Public</span>
+                  <FaLock size={'24px'} color="white" />
+                  <span style={{ color: 'white' }}>Private</span>
                 </>
               ) : (
                 <>
-                  <FaLock size={'24px'} color="white" />
-                  <span style={{ color: 'white' }}>to Private</span>
+                <FaLockOpen size={'24px'} color="white" />
+                  <span style={{ color: 'white' }}>Public</span>
                 </>
               )}
             </Button>
           )}
         </section>
       </InfosDiv>
-      {pathname.startsWith("/profile/") && <AboutUser aboutMe={userInfos.aboutMe} />}
+      { access === true && userInfos.aboutMe && <AboutUser aboutMe={userInfos.aboutMe} /> }
     </>
   )
 }

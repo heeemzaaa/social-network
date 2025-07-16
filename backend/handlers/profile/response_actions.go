@@ -35,7 +35,7 @@ func (rh *ResponseHandler) AcceptedRequest(w http.ResponseWriter, r *http.Reques
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errRequest.Status, Message: errRequest.Message})
 		return
 	}
-	utils.WriteDataBack(w, "done")
+	utils.WriteDataBack(w, "done !")
 }
 
 // POST api/profile/id/response/rejected
@@ -56,7 +56,7 @@ func (rh *ResponseHandler) RejectedRequest(w http.ResponseWriter, r *http.Reques
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errRequest.Status, Message: errRequest.Message})
 		return
 	}
-	utils.WriteDataBack(w, "done")
+	utils.WriteDataBack(w, "done !")
 }
 
 func (rh *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

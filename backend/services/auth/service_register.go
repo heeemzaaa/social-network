@@ -25,7 +25,7 @@ func (s *AuthService) Register(user *models.User) *models.ErrorJson {
 	} else {
 		user.Password = hash
 	}
-
+	fmt.Println("user in service: ", user.AboutMe)
 	errJson := s.repo.CreateUser(user)
 	if errJson != nil {
 		fmt.Println("HHHHHH", errJson)

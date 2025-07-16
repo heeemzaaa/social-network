@@ -66,7 +66,7 @@ export default function InfosDiv({ userInfos, children }) {
     <section className="profileLeftSection h-full">
       <div
         className="ProfileContainer p2"
-        style={{ backgroundImage: `url(${userInfos.img || '/no-profile.png'})` }}
+        style={{ backgroundImage: `url(${'/no-profile.png'})` }}
       >
         {children}
         <div className="ProfileData p2 flex-col gap-1">
