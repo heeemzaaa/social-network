@@ -58,7 +58,7 @@ export async function registerUser(prevState, formData) {
     const lastname = formData.get("lastname")?.trim();
     const birthdate = formData.get("birthdate")?.trim();
     const nickname = formData.get("nickname")?.trim() || null;
-    const aboutMe = formData.get("aboutMe")?.trim() || null;
+    const aboutMe = formData.get("about_me")?.trim() || null;
     const avatar = formData.get("avatar");
 
     if (!email) {
