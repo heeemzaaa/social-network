@@ -1,7 +1,6 @@
 package group
 
 import (
-	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -22,17 +21,23 @@ func (s *GroupService) AddPost(post *models.PostGroup) (*models.PostGroup, *mode
 	}
 
 	if errPostGroup != (models.PostGroupErr{}) {
+		if post.ImagePath != "" {
+			if errRemoveImg := utils.RemoveImage(post.ImagePath); errRemoveImg != nil {
+				return nil, &models.ErrorJson{Status: 500, Error: errRemoveImg.Error()}
+			}
+		}
 		return nil, &models.ErrorJson{Status: 400, Message: errPostGroup}
 	}
 
 	post_created, err := s.gRepo.CreatePost(post)
-	if err != nil && post.ImagePath != "" {
-		if errRemoveImg := utils.RemoveImage(post.ImagePath); errRemoveImg != nil {
-			return nil, &models.ErrorJson{Status: 500, Error: errRemoveImg.Error()}
+	if err != nil {
+		if post.ImagePath != "" {
+			if errRemoveImg := utils.RemoveImage(post.ImagePath); errRemoveImg != nil {
+				return nil, &models.ErrorJson{Status: 500, Error: errRemoveImg.Error()}
+			}
 		}
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
 	}
-	fmt.Println("post created", post_created)
 	return post_created, nil
 }
 
