@@ -51,6 +51,7 @@ type PostGroup struct {
 	GroupId       string    `json:"group_id,omitempty"`
 	UserId        string    `json:"user_id,omitempty"`
 	Username      string    `json:"user_name,omitempty"`
+	FullName      string    `json:"full_name,omitempty"`
 	Content       string    `json:"content"`
 	ImagePath     string    `json:"image_path,omitempty"`
 	Image         string    `json:"image,omitempty"`
