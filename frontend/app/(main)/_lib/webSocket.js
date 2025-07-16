@@ -63,9 +63,8 @@ export default function UserProvider({ children }) {
         const data = JSON.parse(event.data);
 
         // Update online users list
-        if (data.type === "online" && Array.isArray(data.data)) {
+        /*if (data.type === "online" && Array.isArray(data.data)) {
           const newUsers = data.data
-            .filter((u) => u.id !== authenticatedUser.id)
             .map((user) => ({
               userID: user.id,
               username: user.firstname + " " + user.lastname,
@@ -73,15 +72,14 @@ export default function UserProvider({ children }) {
             }));
 
           setUsers(newUsers);
-        }
+        }*/
 
         // Update messages state
         if (
           typeof data.content === "string" &&
           data.content !== "" &&
           (data.type === "private" || data.type === "group") &&
-          (data.sender_id === authenticatedUser.id ||
-            data.receiver_id === authenticatedUser.id)
+          (data.sender_id === authenticatedUser.id)
         ) {
           const from = data.sender_id;
           const msg = {
