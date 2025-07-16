@@ -1,4 +1,5 @@
-import Button from '@/app/_components/button'
+import Button from '../../_components/button'
+import NotificationsPopover from './notifications/NotificationsPopover'
 import {
   HiBell,
   HiChatBubbleOvalLeftEllipsis,
@@ -39,12 +40,8 @@ export default function Header() {
 
         
         <Popover trigger={<HiBell size={24} />}>
-          <p>notification</p>
-          <p>notification</p>
-          <p>notification</p>
-          <p>notification</p>
-          <p>notification</p>
-          <p>notification</p>
+        {/* notifications container */}
+          <NotificationsPopover />
         </Popover>
       </div>
 

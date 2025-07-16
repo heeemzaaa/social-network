@@ -1,9 +1,9 @@
 "use client"
 import styles from "../auth.module.css"
 import { HiMiniUser, HiLockClosed } from "react-icons/hi2";
-import { loginUser } from '@/app/_actions/user';
+import { loginUser } from '../../_actions/user';
 import { useActionState, useState } from "react";
-import SubmitButton from "@/app/_components/subimtButton";
+import SubmitButton from "../../_components/subimtButton";
 import { redirect } from "next/navigation"
 
 

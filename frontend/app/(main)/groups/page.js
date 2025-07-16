@@ -1,6 +1,6 @@
 'use client'
 
-import Button from '@/app/_components/button'
+import Button from '../../_components/button'
 import { HiOutlinePlus } from "react-icons/hi";
 import styles from  "./group.module.css"
 import { CreateGroup } from "./_components/createGroup"

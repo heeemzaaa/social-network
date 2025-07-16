@@ -16,6 +16,27 @@ func NewAuthRepository(db *sql.DB) *AuthRepository {
 	return &AuthRepository{db: db}
 }
 
+// func (repo *AuthRepository) GetUserNickname(userID string) (string, *models.ErrorJson) {
+//     var nickname string
+//     query := `SELECT nickname FROM users WHERE userID = ?`
+    
+//     err := repo.db.QueryRow(query, userID).Scan(&nickname)
+//     if err != nil {
+//         if err == sql.ErrNoRows {
+//             return "err 11111", &models.ErrorJson{
+//                 Status: 404,
+//                 Error:  "user not found",
+//             }
+//         }
+//         return "err 22222", &models.ErrorJson{
+//             Status: 500,
+//             Message: fmt.Sprintf("database error: %v", err),
+//         }
+//     }
+    
+//     return nickname, nil
+// }
+
 func (repo *AuthRepository) CreateUser(user *models.User) *models.ErrorJson {
 	query := `INSERT INTO users (userID, email, firstName, lastName, password, birthDate, nickname, avatarPath, aboutMe, visibility) VALUES (?,?,?,?,?,?,?,?,?,?)`
 	stmt, err := repo.db.Prepare(query)

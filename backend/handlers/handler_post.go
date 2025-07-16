@@ -8,7 +8,7 @@ import (
 
 // Post struct with exported fields and correct JSON tags
 type Post struct {
-	ID           string `json:"id"`
+	Id           string `json:"id"`
 	UserID       string `json:"user_id"`
 	GroupID      string `json:"group_id"`
 	Content      string `json:"content"`
@@ -24,7 +24,7 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	// Example post data
 	posts := []Post{
 		{
-			ID:            "1",
+			Id:            "1",
 			UserID:        "u123",
 			GroupID:       "g1",
 			Content:       "This is my first post!",
@@ -34,7 +34,7 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 			LikedByUser:   true,
 		},
 		{
-			ID:            "2",
+			Id:            "2",
 			UserID:        "u124",
 			GroupID:       "g2",
 			Content:       "Enjoying the summer ☀️",
@@ -44,7 +44,7 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 			LikedByUser:   false,
 		},
 		{
-			ID:            "3",
+			Id:            "3",
 			UserID:        "u125",
 			GroupID:       "g3",
 			Content:       "Working on my Go project 👨‍💻",

@@ -1,8 +1,8 @@
 "use client"
 import styles from "../auth.module.css"
 import { useActionState, useState } from "react";
-import { registerUser } from "@/app/_actions/user";
-import SubmitButton from "@/app/_components/subimtButton";
+import { registerUser } from "../../_actions/user";
+import SubmitButton from "../../_components/subimtButton";
 import { redirect } from "next/navigation"
 
 const initialData = {

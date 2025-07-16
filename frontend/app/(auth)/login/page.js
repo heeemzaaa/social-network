@@ -1,4 +1,4 @@
-import Logo from '@/app/_components/logo'
+import Logo from '../../_components/logo'
 
 import LoginForm from './loginForm';
 import Link from 'next/link';

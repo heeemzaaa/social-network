@@ -1,6 +1,6 @@
 "use client"
 
-import Button from "@/app/_components/button";
+import Button from "../../_components/button";
 import { useEffect, useRef, useState } from "react";
 
 export default function Popover({ trigger, children }) {

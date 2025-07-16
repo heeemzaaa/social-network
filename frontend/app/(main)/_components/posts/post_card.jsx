@@ -1,4 +1,4 @@
-import Button from '@/app/_components/button';
+// import Button from '@/app/_components/button';
 import Image from 'next/image';
 import React from 'react';
 import { HiEllipsisHorizontal, HiHeart, HiOutlineChatBubbleOvalLeft } from 'react-icons/hi2';

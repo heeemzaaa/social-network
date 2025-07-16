@@ -1,4 +1,4 @@
-import Logo from '@/app/_components/logo'
+import Logo from '../../_components/logo'
 
 import React from 'react'
 import RegisterForm from './registerForm';

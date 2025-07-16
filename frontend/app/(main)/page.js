@@ -5,7 +5,7 @@ import InfosDiv from "./_components/user_info";
 import PostsContainer from "./_components/posts/posts_container";
 import { useEffect, useState } from "react";
 import Loading from "./loading";
-import { fetchPosts } from "./_lib/posts";
+import { fetchPosts, fetchNotif } from "./_lib/posts";
 
 export default function Home() {
   const userInfos = {
@@ -37,16 +37,41 @@ export default function Home() {
 
 
 
-  useEffect( () => {
-    console.log("use Effect runs");
-    let LoadPosts = async () => {
-      let posts = await fetchPosts() 
-      console.log(posts)
-      setPosts(posts)
-      setLoading(false)
-    }
-    LoadPosts()
-  }, []);
+  // useEffect( () => {
+  //   console.log("use Effect runs");
+  //   let LoadPosts = async () => {
+  //     let posts = await fetchPosts() 
+  //     console.log(posts)
+  //     setPosts()
+  //     setLoading(false)
+  //   }
+  //   LoadPosts()
+  // }, []);
+
+  //  using the golang api directely
+ useEffect(() => {
+  const getRequest = {
+    method: "GET",
+    credentials: "include"
+  }
+  let LoadPosts = async () => {
+    let response = await fetch("http://localhost:8080/api/notification", getRequest)
+    let data = await response.json()
+    console.log("Fetched notifications:", data)
+    setPosts(data)
+    setLoading(false)
+  }
+  LoadPosts()
+}, []);
+  
+  // useEffect( () => {
+  //   console.log("use Effect runs");
+  //   let LoadPosts = async () => {
+  //     let posts = await fetchNotif() 
+  //     console.log(posts)
+  //   }
+  //   LoadPosts(false)
+  // }, []);
 
   return (
     <main className='home-page'>

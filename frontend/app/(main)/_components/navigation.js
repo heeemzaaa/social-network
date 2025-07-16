@@ -1,11 +1,11 @@
 "use client"
 import { HiMiniHome, HiMiniUser, HiMiniUserGroup, HiChatBubbleOvalLeft } from "react-icons/hi2";
-import Button from '@/app/_components/button'
+import Button from '../../_components/button'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import "./components.css"
-import Logo from "@/app/_components/logo";
-import { logout } from "@/app/_actions/user";
+import Logo from "../../_components/logo";
+import { logout } from "../../_actions/user";
 
 export default function Navigation() {
   const currentPath = usePathname()
