@@ -33,7 +33,7 @@ func (authHandler *AuthHandler) Register(w http.ResponseWriter, r *http.Request)
 		})
 		return
 	}
-	path, errUploadImg := utils.HanldeUploadImage(r, "avatar", "avatars", true)
+	path, errUploadImg := utils.HanldeUploadImage(r, "avatar", "avatars")
 	if errUploadImg != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return

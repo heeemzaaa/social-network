@@ -10,7 +10,6 @@ import (
 	_ "image/png"
 	"io"
 	"net/http"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -20,18 +19,13 @@ import (
 // set the default image based on the specific business logic
 // so the default image MUST change based on if the group or the profile for example!!!
 
-func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string, setDefault bool) (string, *models.ErrorJson) {
-	defaultPath := ""
-	if setDefault {
-		defaultPath = filepath.Join("static", "default", "default.jpg")
-		defaultPath = strings.TrimPrefix(defaultPath, "static/")
-	}
+func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string) (string, *models.ErrorJson) {
 	file, _, err := r.FormFile(fileName)
 	if err != nil {
 		if err == http.ErrMissingFile {
-			return defaultPath, nil
+			return "", nil
 		}
-		return "", &models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v 111111", err)}
+		return "", &models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)}
 	}
 
 	defer file.Close()
@@ -114,8 +108,6 @@ func ValidateDateEvent(date string) error {
 
 	return nil
 }
-
-
 
 func IsValidFilter(filter string) bool {
 	return filter == "owned" || filter == "available" || filter == "joined"

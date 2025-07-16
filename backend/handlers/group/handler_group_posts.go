@@ -58,7 +58,7 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 	}
 
 	// handle the image encoding in the phase that comes before the adding process
-	path, errUploadImg := utils.HanldeUploadImage(r, "post", filepath.Join("groups", "posts"), false)
+	path, errUploadImg := utils.HanldeUploadImage(r, "post", filepath.Join("groups", "posts"))
 	if errUploadImg != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
