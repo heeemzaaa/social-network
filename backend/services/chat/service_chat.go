@@ -203,3 +203,4 @@ func (service *ChatService) EditReadStatus(sender_id, target_id string) *models.
 	}
 	return nil
 }
+
