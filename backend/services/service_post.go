@@ -24,7 +24,3 @@ func (s *PostService) GetAllPosts() ([]models.Post, error) {
 func (s *PostService) GetPostByID(postID string) (models.Post, error) {
 	return s.repo.GetPostByID(postID)
 }
-
-func (s *PostService) DeletePost(postID string) error {
-	return s.repo.DeletePost(postID)
-}

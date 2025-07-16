@@ -1,7 +1,6 @@
 "use server";
 
 import { cookies } from "next/headers";
-
 export async function createPostAction(prevState, formData) {
     let state = {
         error: null,
@@ -63,6 +62,6 @@ export async function createPostAction(prevState, formData) {
 
     return {
         message: "Post created successfully",
-        post: createdPost,
+        data: createdPost
     };
 }

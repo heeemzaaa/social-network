@@ -70,8 +70,3 @@ func (r *PostsRepository) GetPostByID(postID string) (models.Post, error) {
 		Scan(&p.ID, &p.UserID, &p.Content)
 	return p, err
 }
-
-func (r *PostsRepository) DeletePost(postID string) error {
-	_, err := r.db.Exec(`DELETE FROM posts WHERE id = ?`, postID)
-	return err
-}

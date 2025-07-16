@@ -41,15 +41,12 @@ func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request, postID
 }
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("*********** creating posts ***********")
-
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid form data"})
 		return
 	}
 
-	// Optional file upload
 	file, handler, err := r.FormFile("img")
 	imagePath := ""
 	if err == nil {
@@ -63,7 +60,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		defer dst.Close()
 		io.Copy(dst, file)
 	} else {
-		imagePath = "" // no image uploaded
+		imagePath = ""
 	}
 
 	usID, err := middleware.GetUserIDFromContext(r.Context())
@@ -72,7 +69,6 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse selected followers if privacy is private
 	selectedFollowers := r.FormValue("selectedFollowers")
 	var selectedUserIDs []string
 	if selectedFollowers != "" {
@@ -83,17 +79,15 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Create post model
 	post := models.Post{
 		ID:            utils.NewUUID(),
 		UserID:        usID.String(),
 		Content:       r.FormValue("content"),
 		Privacy:       r.FormValue("privacy"),
 		Img:           "/" + imagePath,
-		SelectedUsers: selectedUserIDs, // ✅ <-- Don't forget this!
+		SelectedUsers: selectedUserIDs,
 	}
 
-	// Save to DB
 	if err := h.service.CreatePost(&post); err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to create post"})
 		return
@@ -101,19 +95,14 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteDataBack(w, map[string]string{
 		"message": "Post created successfully",
+		"postId":  post.ID,
+		"content": post.Content,
+		"privacy" : post.Privacy,
+		"img" : post.Img,
 	})
 }
 
-func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request, postID string) {
-	if err := h.service.DeletePost(postID); err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to delete post"})
-		return
-	}
-	utils.WriteDataBack(w, map[string]string{"message": "Post deleted successfully"})
-}
-
 func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("*************** serving request  ****************")
 	fmt.Println("Session cookie:", r.Header.Get("Cookie"))
 
 	w.Header().Set("Content-Type", "application/json")
@@ -143,12 +132,6 @@ func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			h.CreatePost(w, r)
 		} else {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed on this endpoint"})
-		}
-	case http.MethodDelete:
-		if postID != "" {
-			h.DeletePost(w, r, postID)
-		} else {
-			utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed"})
 		}
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed"})

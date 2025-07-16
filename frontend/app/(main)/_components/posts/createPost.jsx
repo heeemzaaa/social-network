@@ -1,5 +1,6 @@
-import React, { useActionState, useState, useEffect } from 'react';
+import React, { useActionState, useState, useEffect, use } from 'react';
 import styles from "../../../(auth)/auth.module.css";
+import { useModal } from '../../_context/ModalContext';
 
 const initialPostData = {
     title: '',
@@ -14,6 +15,16 @@ export default function CreatePost({ type, postAction }) {
     const [followers, setFollowers] = useState([]);
     const [loadingFollowers, setLoadingFollowers] = useState(true);
 
+    const {setModalData,closeModal} = useModal()
+
+    useEffect(()=> {
+        if (!state.data) return
+        // console.log("data", state.data)
+        setModalData(state.data)
+        closeModal()
+    },[state])
+
+
     useEffect(() => {
         const fetchFollowers = async () => {
             try {
@@ -24,7 +35,6 @@ export default function CreatePost({ type, postAction }) {
                     credentials: 'include',
                 });
                 const data = await res.json();
-                console.log("data is ************************************** ",data)
                 setFollowers(data);
             } catch (err) {
                 console.error("Error loading followers:", err);
