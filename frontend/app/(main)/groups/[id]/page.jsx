@@ -1,16 +1,21 @@
 "use client"; // Required for client-side rendering in Next.js
 
 import React, { useEffect, useState } from "react";
-import { HiMiniUsers } from "react-icons/hi2";
+import { HiCalendar, HiDocumentPlus, HiMiniUserPlus, HiMiniUsers } from "react-icons/hi2";
 import Tag from "../../_components/tag";
 import Tabs from "../../_components/tab/tabs";
 import Tab from "../../_components/tab/tab";
 import TabContent from "../../_components/tab/tabContent";
 import GroupPostCardList from "../_components/groupPostCardList";
 import GroupEventCardList from "../_components/groupEventCardList";
+import Avatar from "../../_components/avatar";
+import Button from "@/app/_components/button";
+import { useModal } from "../../_context/ModalContext";
+import CreatePostForm from "../_components/createPostForm";
+import CreateEventForm from "../_components/createEventForm";
+import InviteFriendForm from "../_components/inviteFriendsForm";
 
 export default function GroupPage({ params }) {
-  // const [groupId, setGroupId] = useState(null)
   const [data, setData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,12 +23,28 @@ export default function GroupPage({ params }) {
   const resolvedParams = React.use(params);
   const groupId = resolvedParams.id;
 
+  const { openModal } = useModal()
+
+  const actionButtons = [
+    {
+      label: "Invite Friend",
+      icon: <HiMiniUserPlus size={"24"} />,
+      onClick: () => openModal(<InviteFriendForm/>)
+    },
+    {
+      label: "Add Post",
+      icon: <HiDocumentPlus size={"24"} />,
+      onClick: () => openModal(<CreatePostForm groupId={groupId}/>)
+    },
+    {
+      label: "Add Event",
+      icon: <HiCalendar size={"24"} />,
+      onClick: () => openModal(<CreateEventForm groupId={groupId}/>)
+    }
+  ]
+
   // Fetch group data
   useEffect(() => {
-    const getId = async () => {
-      let { id } = await params
-      return id
-    }
     const getGroupData = async (id) => {
       try {
         const response = await fetch(`http://localhost:8080/api/groups/${id}`, {
@@ -42,41 +63,19 @@ export default function GroupPage({ params }) {
         setIsLoading(false);
       }
     };
-
-    // getId().then(id => {
-    //   getGroupData(id)
-    //   setGroupId(id)
-    //   console.log()
-    // })
-
     getGroupData(groupId)
   }, []);
-
-
-  // Render item for InfiniteList (customize based on your data structure)
-  const renderItem = ({ item, index }) => (
-    <div key={item.id || index} className="post-item p-4 border rounded">
-      <h5>{item.title}</h5>
-      <p>{item.content}</p>
-    </div>
-  );
 
   if (isLoading) return <p className="text-center">Loading...</p>;
   if (error) return <p className="text-danger text-center">Error: {error}</p>;
 
   return (
     <main className="group-page-section flex gap-2">
-      <div className="col w-quarter" >
+      <div className="col" >
         {/* Group Info */}
+        <Avatar size={250} />
         <div className="grp-info-container">
-          <div className="grp-img w-full" >
-            <img
-              className="w-full"
-              src={"/no-profile.png"}
-              alt={data.title || "Group"}
-            />
-          </div>
-          <div className="grp-info flex-col">
+          <div className="grp-info flex-col align-center ">
             <h4 className="grp-title">
               {data.title}
             </h4>
@@ -89,11 +88,19 @@ export default function GroupPage({ params }) {
             </Tag>
           </div>
         </div>
+        <div className="flex-col p4 gap-1">
+          {actionButtons.map((button,index) =>
+            <Button onClick={button.onClick} key={index}>
+              {button.icon}
+              <span style={{ marginLeft: "5px" }}>{button.label}</span>
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* tabs for posts and  */}
-      <div className="flex-grow">
-        <Tabs>
+      <div className="flex-grow ">
+        <Tabs className={"h-full"}>
           <Tab label={"Posts"} />
           <Tab label={"Events"} />
           <TabContent>
@@ -107,3 +114,4 @@ export default function GroupPage({ params }) {
     </main>
   );
 }
+

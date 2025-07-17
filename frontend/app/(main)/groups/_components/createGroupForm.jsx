@@ -4,6 +4,7 @@ import { HiMiniDocumentText } from "react-icons/hi2";
 import { useActionState, useState } from "react";
 import { createGroupAction } from "@/app/_actions/group";
 import Button from "@/app/_components/button";
+import styles from "@/app/page.module.css"
 
 export default function CreateGroupForm() {
     const [state, action] = useActionState(createGroupAction, {});

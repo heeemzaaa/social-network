@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function Tag({ children, className}) {
     return (
-        <div className={`tag ${className}`} style={style}>
+        <div style={style} className={`${className}`} >
             {children}
         </div>
     )

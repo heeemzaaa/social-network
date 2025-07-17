@@ -7,8 +7,8 @@
 .form {
   padding: 2rem;
   width: 100%;
-  max-width: max-content;
-  width: max-content;
+  min-width: max-content;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 15px;

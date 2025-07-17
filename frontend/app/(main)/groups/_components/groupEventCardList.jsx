@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import Button from "@/app/_components/button";
+import GroupEventCard from "./groupEventCard";
 
 export default function GroupEventCardList({ groupId }) {
     const [data, setData] = useState([]);
@@ -15,7 +16,7 @@ export default function GroupEventCardList({ groupId }) {
             const params = new URLSearchParams({
                 offset: page * 20,
             });
-            return `http://localhost:8080/api/groups/${groupId}/posts/?${params.toString()}`;
+            return `http://localhost:8080/api/groups/${groupId}/events/?${params.toString()}`;
         },
         [groupId]
     );
@@ -41,6 +42,7 @@ export default function GroupEventCardList({ groupId }) {
                 if (result.length === 0) {
                     setHasMore(false); // No more data to fetch
                 } else {
+                    console.log(data)
                     if (result.length < 20) setHasMore(false);
                     setData((prevData) => [...prevData, ...result]); // Append new data
                 }
@@ -95,9 +97,9 @@ export default function GroupEventCardList({ groupId }) {
     );
 
     return (
-        <div className="list-container flex flex-wrap gap-4 justify-center overflow-y-auto">
-            {data.map((item, index) => (
-                "sdfadsdf"
+        <div className="list-container flex flex-wrap gap-4 justify-center overflow-y-auto h-full">
+            {data.map((event, index) => (
+                <GroupEventCard {...event} key={index} />
                 // <GroupCard key={item.id || index} {...item} />
             ))}
             {isLoading && <p className="text-center w-full">Loading...</p>}
@@ -111,3 +113,4 @@ export default function GroupEventCardList({ groupId }) {
         </div>
     );
 }
+

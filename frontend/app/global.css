@@ -27,6 +27,8 @@
   --font-weight-semibold: 600;
   --font-weight-medium: 500;
   --font-weight-regular: 400;
+  --font-weight-lighter: 200;
+  
 
   /* Border Radius */
   --border-radius-sm: 4px;
@@ -128,6 +130,23 @@ a {
 .m4 {
   margin: 2rem;
 }
+
+.mt1 {
+  margin: 0.5rem;
+}
+
+.mt2 {
+  margin: 1rem;
+}
+
+.mt3 {
+  margin: 1.5rem;
+}
+
+.mt4 {
+  margin: 2rem;
+}
+
 .m-auto {
   margin: auto;
 }
@@ -164,6 +183,7 @@ a {
 .font-medium {
   font-weight: var(--font-weight-medium);
 }
+
 
 .text-center {
   text-align: center;
@@ -247,7 +267,7 @@ a {
   border-radius: var(--border-radius-lg);
 }
 
-.rounded-lg {
+.rounded-xl {
   border-radius: var(--border-radius-xl);
 }
 

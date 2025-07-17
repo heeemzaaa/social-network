@@ -1,12 +1,10 @@
 
 "use client";
 
-import React, { useState } from "react";
-import { useActionState } from "react-dom";
-import { createPost } from "../_actions/post";
-// import SubmitButton from "../_components/SubmitButton";
-import styles from "../auth.module.css";
+import React, { useActionState, useState } from "react";
+import styles from "@/app/page.module.css"
 import Button from "@/app/_components/button";
+import { createGroupPostAction } from "@/app/_actions/group";
 
 const initialData = {
     title: "",
@@ -14,26 +12,12 @@ const initialData = {
 };
 
 export default function CreatePostForm({ groupId }) {
-    const [state, action] = useActionState(createPost, {});
+    const [state, action] = useActionState(createGroupPostAction, {});
     const [data, setData] = useState(initialData);
-
     return (
         <form noValidate action={action} className={`${styles.form} glass-bg`}>
             <input type="hidden" name="groupId" value={groupId} />
             <div className="flex flex-col gap-3">
-                <div className={styles.formGrp}>
-                    <label htmlFor="title">Post Title:</label>
-                    <input
-                        className={styles.input}
-                        type="text"
-                        name="title"
-                        id="title"
-                        value={data.title}
-                        onChange={(e) => setData((prev) => ({ ...prev, title: e.target.value }))}
-                        placeholder="Enter post title"
-                    />
-                    {state.errors?.title && <span className="field-error">{state.errors.title}</span>}
-                </div>
                 <div className={styles.formGrp}>
                     <label htmlFor="content">Content:</label>
                     <textarea
@@ -47,6 +31,18 @@ export default function CreatePostForm({ groupId }) {
                     />
                     {state.errors?.content && <span className="field-error">{state.errors.content}</span>}
                 </div>
+                <div className={styles.formGrp}>
+                    <label htmlFor="image">Image (Optional):</label>
+                    <input
+                        className={styles.input}
+                        type="file"
+                        name="image"
+                        id="image"
+                        accept="image/*"
+                    />
+                    {state.errors?.image && <span className="field-error">{state.errors.avatar}</span>}
+                </div>
+                <input type="text" name="groupId" id="groupId" defaultValue={groupId} hidden />
                 <Button>
                     Submit
                 </Button>
