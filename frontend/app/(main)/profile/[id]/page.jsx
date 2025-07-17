@@ -1,18 +1,18 @@
 'use client'
 
-import { useEffect, useState } from "react"
-import InfosDiv from "./user_info"
-import AboutUser from "./about_user"
-import { FaUserEdit, FaLockOpen, FaLock } from "react-icons/fa"
+import React, { useEffect, useState } from "react"
+import InfosDiv from "./_components/userInfo"
+import AboutUser from "./_components/abouUser"
+import UserPosts from "./_components/userPosts"
+import { FaLockOpen, FaLock } from "react-icons/fa"
 import { RiUserFollowFill, RiUserUnfollowFill } from "react-icons/ri"
 import { MdPending } from "react-icons/md";
 import Button from "@/app/_components/button"
-import { usePathname } from "next/navigation"
-import "./profile.css"
+import "./_components/profile.css"
 
 
 
-export default function UserProfileWrapper({ id }) {
+export default function Page({ params }) {
   const [userInfos, setUserInfos] = useState(null)
   const [loading, setLoading] = useState(true)
   const [mine, setMine] = useState(false)
@@ -20,6 +20,11 @@ export default function UserProfileWrapper({ id }) {
   const [follows, setFollows] = useState(null)
   const [requested, setRequested] = useState(null)
   const [access, setAccess] = useState(null)
+
+
+  const resolvedParams = React.use(params)
+  const id = resolvedParams.id
+
 
   useEffect(() => {
     async function fetchUserInfos() {
@@ -52,15 +57,15 @@ export default function UserProfileWrapper({ id }) {
         setMine(info.isMyProfile)
         setRequested(info.isRequested)
         setAccess(info.access)
-        console.log('access', info.firstName)
-        
+        console.log('access', info.access)
+
       } catch (err) {
         console.error("Error fetching user profile:", err)
       } finally {
         setLoading(false)
       }
     }
-    
+
     fetchUserInfos()
   }, [id])
 
@@ -88,10 +93,17 @@ export default function UserProfileWrapper({ id }) {
             setUserInfos(prev => ({ ...prev, followers: prev.followers + 1 }))
           }
         } else {
-          console.log("*************", access)
-          let isRequestedNow = !requested
-          setRequested(isRequestedNow)
-          setUserInfos(prev => ({ ...prev, isRequested: isRequestedNow }))
+          if (follows) {
+            setAccess(false)
+            setUserInfos(prev => ({ ...prev, email: "" }))
+            setUserInfos(prev => ({ ...prev, dateOfBirth: "" }))
+            setUserInfos(prev => ({ ...prev, aboutMe: "" }))
+            setUserInfos(prev => ({ ...prev, followers: prev.followers - 1 }))
+          } else {
+            let isRequestedNow = !requested
+            setRequested(isRequestedNow)
+            setUserInfos(prev => ({ ...prev, isRequested: isRequestedNow }))
+          }
         }
 
       } else {
@@ -130,12 +142,11 @@ export default function UserProfileWrapper({ id }) {
     }
   }
 
-
   if (loading) return <p>Loading user info...</p>
   if (!userInfos) return <p>Failed to load user info.</p>
 
   return (
-    <>
+    <main className='profile_page_section flex h-full p4 gap-4'>
       <InfosDiv userInfos={userInfos}>
         <section className="buttons flex gap-1" style={{ marginLeft: 'auto' }}>
           {!mine && (
@@ -168,7 +179,7 @@ export default function UserProfileWrapper({ id }) {
                 </>
               ) : (
                 <>
-                <FaLockOpen size={'24px'} color="white" />
+                  <FaLockOpen size={'24px'} color="white" />
                   <span style={{ color: 'white' }}>Public</span>
                 </>
               )}
@@ -176,7 +187,12 @@ export default function UserProfileWrapper({ id }) {
           )}
         </section>
       </InfosDiv>
-      { access === true && userInfos.aboutMe && <AboutUser aboutMe={userInfos.aboutMe} /> }
-    </>
+      <div className="data-container scrollable-section flex-col w-full align-center gap-4 " >
+        {userInfos.aboutMe && <AboutUser aboutMe={userInfos.aboutMe} />}
+        <div className="flex-col align-center h-full w-full p2">
+          <UserPosts id={userInfos.id} />
+        </div>
+      </div>
+    </main>
   )
 }

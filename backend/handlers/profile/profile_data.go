@@ -31,7 +31,6 @@ func (PrHandler *ProfileHandler) GetProfileData(w http.ResponseWriter, r *http.R
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errService.Status, Message: errService.Message})
 		return
 	}
-
 	utils.WriteDataBack(w, profile)
 }
 

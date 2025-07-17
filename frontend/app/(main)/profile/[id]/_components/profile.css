@@ -79,3 +79,11 @@
 .about_me_container>p {
     text-align: justify;
 }
+
+.data-container {
+    overflow-y: auto;
+}
+
+.scrollable-section::-webkit-scrollbar {
+  display: none; 
+}

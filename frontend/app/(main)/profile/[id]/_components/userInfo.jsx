@@ -8,7 +8,7 @@ export default function InfosDiv({ userInfos, children }) {
 
   async function handleGetFollowers() {
     try {
-      const res = await fetch(`http://localhost:8080/api/profile/${userInfos.id}/followers`, {
+      const res = await fetch(`http://localhost:8080/api/profile/${userInfos.id}/connections/followers`, {
         credentials: "include",
       })
       if (res.ok) {
@@ -36,11 +36,12 @@ export default function InfosDiv({ userInfos, children }) {
 
   async function handleGetFollowing() {
     try {
-      const res = await fetch(`http://localhost:8080/api/profile/${userInfos.id}/following`, {
+      const res = await fetch(`http://localhost:8080/api/profile/${userInfos.id}/connections/following`, {
         credentials: "include",
       })
       if (res.ok) {
         const following = await res.json()
+        console.log('following', following)
         setFollowingList(following)
         {
           followingList.length > 0 && (
@@ -75,7 +76,7 @@ export default function InfosDiv({ userInfos, children }) {
           <p><span className="font-bold">Email:</span> {userInfos.email}</p>
           <p><span className="font-bold">Date of Birth:</span> {userInfos.dateOfBirth}</p>
           {userInfos.nickname && <p><span className="font-bold">Nickname:</span> {userInfos.nickname}</p>}
-          
+
         </div>
       </div>
 
@@ -93,7 +94,7 @@ export default function InfosDiv({ userInfos, children }) {
           <p className="font-bold">Groups</p><p>{userInfos.groups}</p>
         </div>
       </div>
-    </section> 
-    
+    </section>
+
   )
 }

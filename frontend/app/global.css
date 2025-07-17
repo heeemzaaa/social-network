@@ -273,6 +273,10 @@ a {
   height: 100vh;
 }
 
+.h-auto {
+  height: auto
+}
+
 /* Gaps for Flex and Grid */
 .gap-1 {
   gap: 0.5rem;
@@ -530,7 +534,7 @@ main {
   padding: 2rem;
   border-bottom-left-radius: var(--border-radius-xl);
   border-bottom-right-radius: var(--border-radius-xl);
-  overflow-y: auto;  /* This makes main scrollable */
+  overflow-y: hidden;  /* This makes main scrollable */
 }
 
 .login,

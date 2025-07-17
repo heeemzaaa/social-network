@@ -17,18 +17,6 @@ func NewProfileRepository(db *sql.DB) *ProfileRepository {
 	return &ProfileRepository{db: db}
 }
 
-// here I will get the userID based based on the sessionToken to pass it to other functions
-func (repo *ProfileRepository) GetID(sessionToken string) (string, error) {
-	var userID string
-	query := `SELECT userID from sessions WHERE sessionToken = ?`
-	err := repo.db.QueryRow(query, sessionToken).Scan(&userID)
-	if err != nil {
-		log.Println("Error getting the userID from the database:", err)
-		return "", fmt.Errorf("error getting the userID from the database: %v", err)
-	}
-	return userID, nil
-}
-
 // here I will check if the user is following the profile or not
 func (repo *ProfileRepository) IsFollower(userID string, authUserID string) (bool, error) {
 	var exist int
@@ -256,31 +244,97 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 }
 
 // here I will get the posts of the user with conditions
-func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfile bool) (*[]models.Post, error) {
+func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfile bool) ([]models.Post, error) {
 	var query string
-	var posts []models.Post
+	posts := []models.Post{}
+	var args []any
 
 	switch myProfile {
 	case true:
-		query = ``
+		query = `
+		SELECT
+    		p.postID,
+    		u.userID, u.firstName, u.lastName, u.avatarPath,
+    		p.content AS postContent, p.media AS postMedia, p.createdAt AS postCreatedAt,
+    		(SELECT COUNT(*) FROM reactions r1 WHERE r1.entityType = 'post' AND r1.entityID = p.postID) AS post_total_likes,
+    		(SELECT COUNT(*) FROM comments c1 WHERE c1.postID = p.postID) AS post_total_comments
+		FROM posts p
+		JOIN users u ON u.userID = p.userID
+		WHERE p.userID = ?
+		ORDER BY p.createdAt DESC;
+		`
+		args = append(args, userID)
 	default:
-		query = ``
+		query = `
+		WITH 
+			follower_check AS (
+    			SELECT EXISTS (
+        			SELECT 1 FROM followers WHERE userID = ? AND followerID = ?
+    			) AS is_follower
+			),
+			user_visibility AS (
+    			SELECT visibility FROM users WHERE userID = ?
+			)
+		SELECT 
+    		p.postID,
+    		u.userID, u.firstName, u.lastName, u.avatarPath,
+    		p.content AS postContent, p.media AS postMedia, p.createdAt AS postCreatedAt,
+    		(SELECT COUNT(*) FROM reactions r1 WHERE r1.entityType = 'post' AND r1.entityID = p.postID) AS post_total_likes,
+   	 		(SELECT COUNT(*) FROM comments c1 WHERE c1.postID = p.postID) AS post_total_comments
+		FROM posts p
+		JOIN users u ON u.userID = p.userID
+		JOIN user_visibility vis
+		JOIN follower_check fc
+		WHERE 
+		    p.userID = ?
+		    AND (
+	        (vis.visibility = 'public' AND (
+    	        p.privacy = 'public'
+        	    OR (p.privacy = 'almost private' AND fc.is_follower)
+            	OR (p.privacy = 'private' AND EXISTS (
+                	SELECT 1 FROM post_access pa WHERE pa.postID = p.postID AND pa.userID = ?
+            	))
+        	))
+        OR (vis.visibility = 'private' AND fc.is_follower = 1 AND (
+            p.privacy = 'public'
+            OR p.privacy = 'almost private'
+            OR (p.privacy = 'private' AND EXISTS (
+                SELECT 1 FROM post_access pa WHERE pa.postID = p.postID AND pa.userID = ?
+            	))
+        	))
+    	)
+		ORDER BY p.createdAt DESC;
+		`
+
+		args = append(args, profileID, userID, profileID, profileID, userID, userID)
 	}
 
-	rows , err := repo.db.Query(query, )
+	rows, err := repo.db.Query(query, args...)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return posts, nil
+		}
 		return nil, fmt.Errorf("%v", err)
 	}
 
 	for rows.Next() {
 		var post models.Post
-		err := rows.Scan()
+		var user models.User
+
+		err := rows.Scan(
+			&post.Id,
+			&user.Id, &user.FirstName, &user.LastName, &user.ImagePath,
+			&post.Content, &post.Media, &post.CreatedAt,
+			&post.TotalLikes, &post.TotalComments,
+		)
 		if err != nil {
-			return nil, fmt.Errorf("%v", err)
+			return nil, fmt.Errorf("row scan error: %v", err)
 		}
+		post.User = user
 		posts = append(posts, post)
+
 	}
-	return &posts, nil
+	return posts, nil
 }
 
 // here I will get my followers as a user
@@ -333,7 +387,6 @@ func (repo *ProfileRepository) GetFollowing(profileID string) (*[]models.User, e
 	rows, err := repo.db.Query(query, profileID)
 	if err != nil {
 		return nil, fmt.Errorf("%v", err)
-
 	}
 	defer rows.Close()
 
