@@ -1,7 +1,9 @@
 package group
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"social-network/backend/middleware"
@@ -43,8 +45,24 @@ func (gEventIDHandler *GroupEventIDHandler) AddInterestIntoEvent(w http.Response
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
+	var actionChosen int
+	if err := json.NewDecoder(r.Body).Decode(&actionChosen); err != nil {
+		if err == io.EOF {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: models.UserEventActionErr{
+				Action: "please specify an action (going:1/not going:-1)",
+			}})
+			return
+		}
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
+		return
+	}
 
-	fmt.Println("", eventID, userID, groupID)
+	action, errJson := gEventIDHandler.gService.HandleActionChosen(userID.String(), groupID.String(), eventID.String(), actionChosen)
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		return
+	}
+	utils.WriteDataBack(w, action)
 }
 
 func (gEventIDHandler *GroupEventIDHandler) GetEventDetails(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +83,12 @@ func (gEventIDHandler *GroupEventIDHandler) GetEventDetails(w http.ResponseWrite
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	gEventIDHandler.gService.GetEventDetails(eventID.String(), userID.String(), groupID.String())
+	event, errJson := gEventIDHandler.gService.GetEventDetails(eventID.String(), userID.String(), groupID.String())
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		return
+	}
+	utils.WriteDataBack(w, event)
 }
 
 func (gEventIDHandler *GroupEventIDHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

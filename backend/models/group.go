@@ -96,4 +96,17 @@ type GroupReaction struct {
 type GroupReactionErr struct {
 	EntityId   string `json:"entity_id"`
 	EntityType string `json:"entity_type"`
+	Reaction   string `json:"reaction,omitempty"`
+}
+
+type UserEventAction struct {
+	Id      string `json:"id,omitempty"`
+	UserId  string `json:"user_id,omitempty"`
+	GroupId string `json:"group_id,omitempty"`
+	EventId string `json:"event_id,omitempty"`
+	Action  int    `json:"action,omitempty"`
+}
+
+type UserEventActionErr struct {
+	Action string `json:"action,omitempty"`
 }

@@ -98,7 +98,104 @@ func (gRepo *GroupRepository) GetEventDetails(eventId, userId, groupId string) (
 
 // show the interest to a specific event
 
-func (gRepo *GroupRepository) IntersetedOrNot(event *models.Event, userId string) *models.ErrorJson {
-	
-	return nil
+// here will be adding the action chosen for the first time and then we need to update it again
+func (gRepo *GroupRepository) AddAction(userId, groupId, eventId string, action int) (*models.UserEventAction, *models.ErrorJson) {
+	action_created := &models.UserEventAction{}
+	actionID := utils.NewUUID()
+	query := `INSERT INTO group_event_users 
+	(ID , eventID , groupID, userID, actionChosen) VALUES (?,?,?,?) RETURNING actionChosen`
+	stmt, err := gRepo.db.Prepare(query)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
+	}
+	defer stmt.Close()
+	err = stmt.QueryRow(actionID, eventId, groupId, userId, action).Scan(
+		&action_created.Action)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 2", err)}
+	}
+	action_created.Id = actionID
+	return action_created, nil
+}
+
+
+// here we'll be updating the action we had chosen before and then proceed and return it
+// here we'll be going to update to going whatever the case 
+
+func (gRepo *GroupRepository) UpdateToGoing(userId, groupId, eventId string) (*models.UserEventAction, *models.ErrorJson) {
+	action_created := &models.UserEventAction{}
+	query := `UPDATE group_reactions SET actionChosen = CASE actionChosen
+              WHEN 0 THEN 1
+			  WHEN -1 THEN 1
+              ELSE 0
+              END
+	          WHERE eventID = ? AND groupID= ? AND userID= ?
+			  RETURNING actionChosen;`
+
+	// finahyaa l preparation a diik oumaaaaaaaaayma :)
+
+	stmt, err := gRepo.db.Prepare(query)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v ", err)}
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(eventId, groupId, userId).Scan(&action_created.Action)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v ", err)}
+	}
+
+	return action_created, nil
+}
+
+func (gRepo *GroupRepository) UpdateToNotGoing(userId, groupId, eventId string) (*models.UserEventAction, *models.ErrorJson) {
+	action_created := &models.UserEventAction{}
+	query := `UPDATE group_reactions SET actionChosen = CASE actionChosen
+              WHEN 0 THEN -1
+			  WHEN 1 THEN -1
+              ELSE 0
+              END
+	          WHERE eventID = ? AND groupID= ? AND userID= ?
+			  RETURNING actionChosen;`
+
+	// finahyaa l preparation a diik oumaaaaaaaaayma :)
+
+	stmt, err := gRepo.db.Prepare(query)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v ", err)}
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(eventId, groupId, userId).Scan(&action_created.Action)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v ", err)}
+	}
+
+	return action_created, nil
+}
+
+
+
+
+func (gRepo *GroupRepository) HanldeAction(eventID, userID, groupID string) (*models.UserEventAction, *models.ErrorJson) {
+	query := `SELECT * FROM group_event_users WHERE
+	eventID = ? AND groupID = ? AND userID = ?
+	`
+	stmt, err := gRepo.db.Prepare(query)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v ", err)}
+	}
+	reaction_existed := &models.UserEventAction{}
+	if err := stmt.QueryRow(eventID, groupID, userID).Scan(
+		&reaction_existed.Id,
+		&reaction_existed.EventId,
+		&reaction_existed.GroupId,
+		&reaction_existed.UserId,
+		&reaction_existed.Action); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v jjj", err)}
+	}
+	return reaction_existed, nil
 }
