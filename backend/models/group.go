@@ -104,7 +104,7 @@ type UserEventAction struct {
 	UserId  string `json:"user_id,omitempty"`
 	GroupId string `json:"group_id,omitempty"`
 	EventId string `json:"event_id,omitempty"`
-	Action  int    `json:"action,omitempty"`
+	Action  int    `json:"action"`
 }
 
 type UserEventActionErr struct {

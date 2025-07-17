@@ -135,15 +135,15 @@ func (gRepo *GroupRepository) UpdateToGoing(actionChosen *models.UserEventAction
 
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v jjjj", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
 	err = stmt.QueryRow(actionChosen.EventId, actionChosen.GroupId, actionChosen.UserId).Scan(&action_created.Action)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v yyyy", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-
+	fmt.Println("action_created", action_created)
 	return action_created, nil
 }
 

@@ -1,8 +1,6 @@
 package group
 
 import (
-	"fmt"
-
 	"social-network/backend/models"
 )
 
@@ -61,7 +59,6 @@ func (gService *GroupService) HandleActionChosen(actionChosen *models.UserEventA
 		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
 
-	fmt.Println("ACTION ", action_existed)
 	// so there was a reaction and we need to edit it
 	if action_existed == nil {
 		action_created, errJson := gService.AddAction(actionChosen)
