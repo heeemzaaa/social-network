@@ -87,7 +87,7 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 	rows, err := stmt.Query(userID, userID, offset)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil
+			return joinedGroups, nil
 		}
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
@@ -153,7 +153,7 @@ func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]
 	rows, errQuery := stmt.Query(userID, offset)
 	if errQuery != nil {
 		if errQuery == sql.ErrNoRows {
-			return nil, nil
+			return availabeGroups, nil
 		}
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", errQuery)}
 	}
@@ -214,7 +214,7 @@ func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]mo
 	rows, errQuery := stmt.Query(userID, offset)
 	if errQuery != nil {
 		if errQuery == sql.ErrNoRows {
-			return nil, nil
+			return createdGroups, nil
 		}
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", errQuery)}
 	}

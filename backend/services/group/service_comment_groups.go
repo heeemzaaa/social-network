@@ -7,8 +7,15 @@ import (
 )
 
 // add the offset and the limit thing after
-func (s *GroupService) GetComments(user_id, postId, offset int) ([]models.CommentGroup, *models.ErrorJson) {
-	comments, errJson := s.gRepo.GetComments(user_id, postId, offset)
+func (gService *GroupService) GetComments(groupId, userId, postId string, offset int) ([]models.CommentGroup, *models.ErrorJson) {
+	if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	}
+	// always check the membership and also the the group is a valid one
+	if errMembership := gService.CheckMembership(groupId, userId); errMembership != nil {
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+	}
+	comments, errJson := gService.gRepo.GetComments(userId, postId, offset)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
@@ -16,18 +23,30 @@ func (s *GroupService) GetComments(user_id, postId, offset int) ([]models.Commen
 }
 
 // check if the content is null
-func (s *GroupService) AddComment(comment *models.CommentGroup) (*models.CommentGroup, *models.ErrorJson) {
+func (gService *GroupService) AddComment(comment *models.CommentGroup) (*models.CommentGroup, *models.ErrorJson) {
+	if errJson := gService.gRepo.GetGroupById(comment.GroupId); errJson != nil {
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	}
+	// always check the membership and also the the group is a valid one
+	if errMembership := gService.CheckMembership(comment.GroupId, comment.UserId); errMembership != nil {
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+	}
+
+	_, postsExists, _ := gService.gRepo.GetItem("group_posts", "postID", comment.PostId)
+	if !postsExists {
+		return nil, &models.ErrorJson{Status: 400, Error: "ERROR!! Post not Found!!"}
+	}
+
 	message := models.CommentGroupErr{}
 	if strings.TrimSpace(comment.Content) == "" {
 		message.Content = "empty body comment!"
 	}
-	if comment.PostId == "" {
-		message.PostId = "Post ID is incorrect or did you mean post_id?"
-	}
-	if message.Content != "" || message.PostId != "" {
+
+	if message.Content != "" {
 		return nil, &models.ErrorJson{Status: 400, Message: message}
 	}
-	comment_created, errjson := s.gRepo.CreateComment(comment)
+
+	comment_created, errjson := gService.gRepo.CreateComment(comment)
 	if errjson != nil {
 		return nil, &models.ErrorJson{Status: errjson.Status, Error: errjson.Error, Message: errjson.Message}
 	}

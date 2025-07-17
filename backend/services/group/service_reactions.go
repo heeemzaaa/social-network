@@ -2,17 +2,31 @@ package group
 
 import "social-network/backend/models"
 
-func (service *GroupService) AddReaction(reaction *models.GroupReaction, reaction_type int) (*models.GroupReaction, *models.ErrorJson) {
-	reaction_created, err := service.gRepo.AddReaction(reaction, reaction_type)
+func (gService *GroupService) AddReaction(reaction *models.GroupReaction, reaction_type int) (*models.GroupReaction, *models.ErrorJson) {
+	if errJson := gService.gRepo.GetGroupById(reaction.GroupId); errJson != nil {
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	}
+	// always check the membership and also the the group is a valid one
+	if errMembership := gService.CheckMembership(reaction.GroupId, reaction.UserId); errMembership != nil {
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+	}
+	reaction_created, err := gService.gRepo.AddReaction(reaction, reaction_type)
 	if err != nil {
 		return nil, err
 	}
 	return reaction_created, nil
 }
 
-func (service *GroupService) UpdateReaction(reaction *models.GroupReaction, reaction_type int) (*models.GroupReaction, *models.ErrorJson) {
+func (gService *GroupService) UpdateReaction(reaction *models.GroupReaction, reaction_type int) (*models.GroupReaction, *models.ErrorJson) {
+	if errJson := gService.gRepo.GetGroupById(reaction.GroupId); errJson != nil {
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	}
+	// always check the membership and also the the group is a valid one
+	if errMembership := gService.CheckMembership(reaction.GroupId, reaction.UserId); errMembership != nil {
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+	}
 	if reaction_type == 1 {
-		reaction_created, err := service.gRepo.UpdateReactionLike(reaction)
+		reaction_created, err := gService.gRepo.UpdateReactionLike(reaction)
 		if err != nil {
 			return nil, err
 		}

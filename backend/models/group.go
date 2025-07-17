@@ -58,7 +58,7 @@ type PostGroup struct {
 	CreatedAt     time.Time `json:"created_at,omitempty"`
 	TotalComments int       `json:"total_comments"`
 	TotalLikes    int       `json:"total_likes"`
-	Liked         string       `json:"liked"`
+	Liked         string    `json:"liked"`
 }
 type PostGroupErr struct {
 	Content string `json:"content"`
@@ -84,15 +84,15 @@ type CommentGroupErr struct {
 }
 
 type GroupReaction struct {
-	Id           string    `json:"id,omitempty"`
-	EntityType   string `json:"entity_type,omitempty"`
-	EntityId     string    `json:"entity_id,omitempty"`
-	Reaction     int    `json:"reaction"`
-	UserId       string    `json:"user_id,omitempty"`
+	Id         string `json:"id,omitempty"`
+	EntityType string `json:"entity_type,omitempty"`
+	EntityId   string `json:"entity_id,omitempty"`
+	Reaction   int    `json:"reaction"`
+	UserId     string `json:"user_id,omitempty"`
+	GroupId    string `json:"group_id,omitempty"`
 }
 
 type GroupReactionErr struct {
 	EntityId   string `json:"entity_id"`
 	EntityType string `json:"entity_type"`
 }
-

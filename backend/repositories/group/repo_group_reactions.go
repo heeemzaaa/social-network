@@ -11,7 +11,6 @@ import (
 func (appRepo *GroupRepository) AddReaction(reaction *models.GroupReaction, type_reaction int) (*models.GroupReaction, *models.ErrorJson) {
 	reaction_created := &models.GroupReaction{}
 	reactionID := utils.NewUUID()
-	fmt.Println("reaction", reaction)
 	query := `INSERT INTO group_reactions 
 	(reactionID , entityType, entityID,reaction,userID) VALUES (?,?,?,?,?) RETURNING reaction`
 	stmt, err := appRepo.db.Prepare(query)
@@ -39,7 +38,7 @@ func (appRepo *GroupRepository) UpdateReactionLike(reaction *models.GroupReactio
 
 	err := appRepo.db.QueryRow(query, reaction.Id).Scan(&reaction_created.Reaction)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 3", err)}
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v ", err)}
 	}
 
 	return reaction_created, nil
