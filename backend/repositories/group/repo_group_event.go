@@ -9,13 +9,35 @@ import (
 )
 
 // get the event created of a specific group
-func (gRepo *GroupRepository) GetGroupEvents(groupId string, offset int64) ([]models.Event, *models.ErrorJson) {
+func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int64) ([]models.Event, *models.ErrorJson) {
 	events := []models.Event{}
-	query := `SELECT eventID, eventCreatorID,  concat(users.firstName, " " , users.lastName) AS FullName, 
-	group_events.title, group_events.description, group_events.eventTime 
-	FROM group_events INNER JOIN users 
-	ON group_events.eventCreatorID = users.userID
-	WHERE groupID = ?
+	query := `WITH
+    cte_liked AS (
+        SELECT
+            group_events.eventID as ID,
+            group_event_users.actionChosen as chosen
+        FROM
+            group_events
+            LEFT JOIN group_event_users ON group_event_users.eventID = group_events.eventID
+            INNER JOIN users ON users.userID = group_event_users.userID
+            AND users.userID =  ?
+        GROUP BY
+            group_events.eventID
+    )
+	SELECT
+		group_events.eventID,
+		group_events.eventCreatorID,
+		concat (users.firstName, " ", users.lastName) AS FullName,
+		group_events.title,
+		group_events.description,
+		group_events.eventTime,
+		cte_liked.chosen
+	FROM
+		group_events
+		INNER JOIN users ON group_events.eventCreatorID = users.userID
+		INNER JOIN  cte_liked ON cte_liked.ID = group_events.eventID
+	WHERE
+		group_events.groupID = ?
 	LIMIT 20 OFFSET ?
 	`
 	stmt, err := gRepo.db.Prepare(query)
@@ -24,7 +46,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId string, offset int64) ([]mo
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(groupId, offset)
+	rows, err := stmt.Query(userId, groupId, offset)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return events, nil

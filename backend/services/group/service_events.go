@@ -19,7 +19,7 @@ func (gService *GroupService) GetGroupEvents(groupID, userID string, offset int6
 	}
 	// if the one trying to access is a member wlla laa
 
-	events, errJson := gService.gRepo.GetGroupEvents(groupID, offset)
+	events, errJson := gService.gRepo.GetGroupEvents(groupID,userID, offset)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
