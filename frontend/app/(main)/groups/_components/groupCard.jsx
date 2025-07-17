@@ -2,7 +2,7 @@ import Button from "@/app/_components/button";
 import Tag from "../../_components/tag";
 import { HiMiniUsers } from "react-icons/hi2";
 import "./style.css"
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 export default function GroupCard({
     type,
     group_id,
@@ -12,16 +12,19 @@ export default function GroupCard({
     total_members
 }) {
 
+    const router = useRouter()
+
     const handleJoingGrp = (groupId) => {
         console.log("join grp:) ")
     }
 
+
     const navigateToGroup = (groupId) => {
-        redirect(`/groups/${groupId}`)
+        router.push(`/groups/${groupId}`);
     }
 
     return (
-        <div className="grp-card w-quarter" onClick={()=>navigateToGroup(group_id)}>
+        <div className="grp-card w-quarter" onClick={() => navigateToGroup(group_id)}>
             <div className="grp-card-img-holder glass-bg">
                 <div className="grp-card-img" style={{ backgroundImage: `url(${'/no-profile.png'})` }}></div>
             </div>
@@ -40,7 +43,12 @@ export default function GroupCard({
                 </div>
                 {
                     type === "available" ?
-                        <Button className={"text-center"} onClick={()=>handleJoingGrp(group_id)}>Join</Button>
+                        <Button className={"text-center"} onClick={(e) => {
+                            e.stopPropagation()
+                            handleJoingGrp(group_id)
+                        }}>
+                            Join
+                        </Button>
                         :
                         <Button className={"text-center"}>Go to</Button>
                 }

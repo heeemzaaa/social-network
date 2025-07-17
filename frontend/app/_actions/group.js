@@ -229,7 +229,10 @@ export async function createGroupEventAction(prevState, formData) {
     }
 }
 
-export async function joinGroupAction(groupId) {
+export async function joinGroupAction(prevState, formData) {
+
+    
+
 }
 
 export async function inviteUsersAction(prevState, formData) {

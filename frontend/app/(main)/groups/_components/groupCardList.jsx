@@ -10,19 +10,6 @@ export default function GroupCardList({ filter }) {
     const [error, setError] = useState(null);
     const abortControllerRef = useRef(null);
 
-    // Memoized function to generate API URL
-    const getUrl = useCallback(
-        (page) => {
-            const params = new URLSearchParams({
-                filter,
-                offset: page * 20,
-            });
-            return `http://localhost:8080/api/groups?${params.toString()}`;
-        },
-        [filter]
-    );
-
-    // Fetch data function
     const fetchData = useCallback(
         async (currentPage) => {
             if (isLoading || !hasMore) return;
@@ -30,8 +17,8 @@ export default function GroupCardList({ filter }) {
             abortControllerRef.current = new AbortController();
             const signal = abortControllerRef.current.signal;
             try {
-                const url = getUrl(currentPage);
-                const response = await fetch(url, { credentials: "include", signal });
+                const response = await fetch(`http://localhost:8080/api/groups?filter=${filter}&offset=${currentPage * 20}`,
+                    { credentials: "include", signal });
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -52,7 +39,7 @@ export default function GroupCardList({ filter }) {
                 setIsLoading(false);
             }
         },
-        [getUrl]
+        [filter]
     );
 
     // Reset data and fetch initial page when filter changes
@@ -94,7 +81,7 @@ export default function GroupCardList({ filter }) {
     return (
         <div className="list-container flex flex-wrap gap-4 justify-center overflow-y-auto">
             {
-                data.map((item, index) =>  <GroupCard key={item.id || index} {...item} />)
+                data.map((item, index) => <GroupCard key={item.id || index} type={filter} {...item} />)
             }
             {isLoading && <p className="text-center w-full">Loading...</p>}
             {hasMore && !isLoading && (
