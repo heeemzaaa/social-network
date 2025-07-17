@@ -1,6 +1,10 @@
 package group
 
-import "social-network/backend/models"
+import (
+	"fmt"
+
+	"social-network/backend/models"
+)
 
 func (service *GroupService) GetEventDetails(eventId, userId, groupId string) (*models.Event, *models.ErrorJson) {
 	event, errJson := service.gRepo.GetEventDetails(eventId, userId, groupId)
@@ -11,36 +15,36 @@ func (service *GroupService) GetEventDetails(eventId, userId, groupId string) (*
 }
 
 // SECTION DYAL GOING AND NOT GOING
-func (service *GroupService) AddAction(userId, groupId, eventId string, action_chosen int) (*models.UserEventAction, *models.ErrorJson) {
-	action, err := service.gRepo.AddAction(userId, groupId, eventId, action_chosen)
+func (service *GroupService) AddAction(actionChosen *models.UserEventAction) (*models.UserEventAction, *models.ErrorJson) {
+	action, err := service.gRepo.AddAction(actionChosen)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
 	}
 	return action, nil
 }
 
-func (gService *GroupService) UpdateAction(userId, groupId, eventId string, action_chosen int) (*models.UserEventAction, *models.ErrorJson) {
-	switch action_chosen {
+func (gService *GroupService) UpdateAction(actionChosen *models.UserEventAction) (*models.UserEventAction, *models.ErrorJson) {
+	switch actionChosen.Action {
 	case 1:
-		return gService.gRepo.UpdateToGoing(userId, groupId, eventId)
+		return gService.gRepo.UpdateToGoing(actionChosen)
 	case -1:
-		return gService.gRepo.UpdateToNotGoing(userId, groupId, eventId)
+		return gService.gRepo.UpdateToNotGoing(actionChosen)
 	default:
 		return nil, &models.ErrorJson{Status: 400, Error: "error!! wrong type of action only -1 and 1 are allowed!"}
 	}
 }
 
-func (gService *GroupService) HandleActionChosen(userId, groupId, eventId string, action int) (*models.UserEventAction, *models.ErrorJson) {
-	if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
+func (gService *GroupService) HandleActionChosen(actionChosen *models.UserEventAction) (*models.UserEventAction, *models.ErrorJson) {
+	if errJson := gService.gRepo.GetGroupById(actionChosen.GroupId); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	// always check the membership and also the the group is a valid one
-	if errMembership := gService.CheckMembership(groupId, userId); errMembership != nil {
+	if errMembership := gService.CheckMembership(actionChosen.GroupId, actionChosen.UserId); errMembership != nil {
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 
 	// now let's check if the event where we're trying to add
-	_, eventExists, _ := gService.gRepo.GetItem("group_events", "eventID", eventId)
+	_, eventExists, _ := gService.gRepo.GetItem("group_events", "eventID", actionChosen.EventId)
 	if !eventExists {
 		return nil, &models.ErrorJson{
 			Status: 404,
@@ -48,24 +52,26 @@ func (gService *GroupService) HandleActionChosen(userId, groupId, eventId string
 		}
 	}
 
-	if action != -1 && action != 1 {
+	if actionChosen.Action != -1 && actionChosen.Action != 1 {
 		return nil, &models.ErrorJson{Status: 400, Error: "bad type of action"}
 	}
 
-	action_existed, errJson := gService.gRepo.HanldeAction(eventId, userId, userId)
+	action_existed, errJson := gService.gRepo.HanldeAction(actionChosen)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
+
+	fmt.Println("ACTION ", action_existed)
 	// so there was a reaction and we need to edit it
 	if action_existed == nil {
-		action_created, errJson := gService.AddAction(userId, groupId, eventId, action)
+		action_created, errJson := gService.AddAction(actionChosen)
 		if errJson != nil {
 			return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 		}
 		return action_created, nil
 	}
 
-	action_created, errJson := gService.UpdateAction(userId, groupId, eventId, action)
+	action_created, errJson := gService.UpdateAction(actionChosen)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}

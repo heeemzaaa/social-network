@@ -10,8 +10,6 @@ import (
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
 	"social-network/backend/utils"
-
-	"github.com/google/uuid"
 )
 
 /***  /api/groups/{group_id}/events/{event-id}/  ***/
@@ -26,11 +24,9 @@ func NewGroupEventIDHandler(service *gservice.GroupService) *GroupEventIDHandler
 }
 
 func (gEventIDHandler *GroupEventIDHandler) AddInterestIntoEvent(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	userID, errParse := uuid.Parse(userIDVal.(string))
+	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		fmt.Println("errors", errParse)
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 
@@ -45,7 +41,7 @@ func (gEventIDHandler *GroupEventIDHandler) AddInterestIntoEvent(w http.Response
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	var actionChosen int
+	actionChosen:=&models.UserEventAction{}
 	if err := json.NewDecoder(r.Body).Decode(&actionChosen); err != nil {
 		if err == io.EOF {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: models.UserEventActionErr{
@@ -56,8 +52,8 @@ func (gEventIDHandler *GroupEventIDHandler) AddInterestIntoEvent(w http.Response
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
 		return
 	}
-
-	action, errJson := gEventIDHandler.gService.HandleActionChosen(userID.String(), groupID.String(), eventID.String(), actionChosen)
+    actionChosen.UserId, actionChosen.GroupId, actionChosen.EventId = userID.String(), groupID.String(), eventID.String()
+	action, errJson := gEventIDHandler.gService.HandleActionChosen(actionChosen)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
