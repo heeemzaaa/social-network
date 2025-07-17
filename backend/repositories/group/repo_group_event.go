@@ -11,7 +11,7 @@ import (
 // get the event created of a specific group
 func (gRepo *GroupRepository) GetGroupEvents(groupId string, offset int64) ([]models.Event, *models.ErrorJson) {
 	events := []models.Event{}
-	query := `SELECT concat(users.firstName, " " , users.lastName) AS FullName, 
+	query := `SELECT eventID, eventCreatorID,  concat(users.firstName, " " , users.lastName) AS FullName, 
 	group_events.title, group_events.description, group_events.eventTime 
 	FROM group_events INNER JOIN users 
 	ON group_events.eventCreatorID = users.userID
@@ -34,7 +34,10 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId string, offset int64) ([]mo
 	defer rows.Close()
 	for rows.Next() {
 		var event models.Event
-		if err := rows.Scan(&event.EventCreator,
+		if err := rows.Scan(
+			&event.EventId,
+			&event.EventCreatorId,
+			&event.EventCreator,
 			&event.Title,
 			&event.Description,
 			&event.EventDate); err != nil {

@@ -9,20 +9,17 @@ import (
 
 // the process of checking if a user is a member of a group of not will be hold at the service of every function
 
-func (service *GroupService) GetGroupEvents(groupID, userID string, offset int64) ([]models.Event, *models.ErrorJson) {
-	// check if the user is a member or not
-
-	isMember, errJson := service.IsMemberGroup(groupID, userID)
-	if errJson != nil {
+func (gService *GroupService) GetGroupEvents(groupID, userID string, offset int64) ([]models.Event, *models.ErrorJson) {
+	if errJson := gService.gRepo.GetGroupById(groupID); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
-	// if the one trying to access is a member wlla laa
-	// so if not we need to return 403
-	if !isMember {
-		return nil, &models.ErrorJson{Status: 403, Error: "ERROR!! Acces Forbidden!"}
+	// always check the membership and also the the group is a valid one
+	if errMembership := gService.CheckMembership(groupID, userID); errMembership != nil {
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
+	// if the one trying to access is a member wlla laa
 
-	events, errJson := service.gRepo.GetGroupEvents(groupID, offset)
+	events, errJson := gService.gRepo.GetGroupEvents(groupID, offset)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
