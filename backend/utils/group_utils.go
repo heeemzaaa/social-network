@@ -94,9 +94,9 @@ func ValidateDesc(desc string) error {
 
 func ValidateDateEvent(date string) error {
 	s := strings.Trim(date, `"`)
-	timeParsed, err := time.Parse("2006-01-02", s)
+	timeParsed, err := time.Parse("2006-01-02 15:04:05", s)
 	if err != nil {
-		return errors.New("date format is incorrect: YYYY-MM-DD")
+		return errors.New("date format is incorrect: YYYY-MM-DD HH:MM:SS")
 	}
 
 	if timeParsed.IsZero() {

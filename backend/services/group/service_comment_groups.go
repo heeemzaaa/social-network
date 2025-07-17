@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"social-network/backend/models"
+	"social-network/backend/utils"
 )
 
 // add the offset and the limit thing after
@@ -43,11 +44,21 @@ func (gService *GroupService) AddComment(comment *models.CommentGroup) (*models.
 	}
 
 	if message.Content != "" {
+		if comment.ImagePath != "" {
+			if errRemoveImg := utils.RemoveImage(comment.ImagePath); errRemoveImg != nil {
+				return nil, &models.ErrorJson{Status: 500, Error: errRemoveImg.Error()}
+			}
+		}
 		return nil, &models.ErrorJson{Status: 400, Message: message}
 	}
 
 	comment_created, errjson := gService.gRepo.CreateComment(comment)
 	if errjson != nil {
+		if comment.ImagePath != "" {
+			if errRemoveImg := utils.RemoveImage(comment.ImagePath); errRemoveImg != nil {
+				return nil, &models.ErrorJson{Status: 500, Error: errRemoveImg.Error()}
+			}
+		}
 		return nil, &models.ErrorJson{Status: errjson.Status, Error: errjson.Error, Message: errjson.Message}
 	}
 	return comment_created, nil

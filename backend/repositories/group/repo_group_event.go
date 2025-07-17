@@ -52,6 +52,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId string, offset int64) ([]mo
 // add an event in a specific group
 func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
 	eventId := utils.NewUUID()
+	event.EventId = eventId
 	query := `INSERT INTO group_events 
 	(eventID,eventCreatorID,groupID,title,description,eventTime)
 	VALUES (?,?,?,?,?,?)
@@ -61,7 +62,7 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	if _, err = stmt.Exec(eventId, event.EventCreatorId,
+	if _, err = stmt.Exec(event.EventId, event.EventCreatorId,
 		event.GroupId, event.Title, event.Description, event.EventDate); err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
@@ -72,11 +73,32 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 // Get the details ( the card of a specific event )
 
 func (gRepo *GroupRepository) GetEventDetails(eventId, userId, groupId string) (*models.Event, *models.ErrorJson) {
-	return &models.Event{}, nil
+	event := &models.Event{}
+	query := `
+	SELECT * FROM group_events 
+	WHERE eventID = ? and groupID = ? 
+	`
+	stmt, err := gRepo.db.Prepare(query)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	if err := stmt.QueryRow(eventId, groupId).Scan(&event.EventId,
+		&event.EventCreatorId,
+		&event.GroupId,
+		&event.Title,
+		&event.Description,
+		&event.EventDate,
+		&event.CreatedAt); err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	return event, nil
 }
 
 // show the interest to a specific event
 
 func (gRepo *GroupRepository) IntersetedOrNot(event *models.Event, userId string) *models.ErrorJson {
+	
 	return nil
 }
