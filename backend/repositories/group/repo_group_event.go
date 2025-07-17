@@ -71,27 +71,57 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 }
 
 // Get the details ( the card of a specific event )
-
-func (gRepo *GroupRepository) GetEventDetails(eventId, userId, groupId string) (*models.Event, *models.ErrorJson) {
+// userid will be needed to see if he has done some interest on the event
+func (gRepo *GroupRepository) GetEventDetails(eventId, groupId, userId string) (*models.Event, *models.ErrorJson) {
 	event := &models.Event{}
 	query := `
-	SELECT * FROM group_events 
-	WHERE eventID = ? and groupID = ? 
+	WITH
+    cte_liked AS (
+        SELECT
+            group_event_users.actionChosen as action_chosen
+        FROM
+            users
+            INNER JOIN group_event_users ON users.userID = group_event_users.userID
+            AND users.userID = ?
+    )
+	SELECT
+		eventID,
+		groupID,
+		title,
+		description,
+		eventTime,
+		group_events.createdAt,
+		concat (users.firstName, " ", users.lastName) AS fullName,
+		(
+			SELECT
+				cte_liked.action_chosen
+			FROM
+				cte_liked
+		) as actionChosen
+	FROM
+		group_events
+		INNER JOIN users ON group_events.eventCreatorID = users.userID
+	WHERE
+		eventID = ?
+		and groupID = ?
+
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v hna", err)}
 	}
 	defer stmt.Close()
 
-	if err := stmt.QueryRow(eventId, groupId).Scan(&event.EventId,
-		&event.EventCreatorId,
+	if err := stmt.QueryRow(userId, eventId, groupId).Scan(&event.EventId,
 		&event.GroupId,
 		&event.Title,
 		&event.Description,
 		&event.EventDate,
-		&event.CreatedAt); err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		&event.CreatedAt,
+		&event.EventCreator,
+		&event.Going,
+	); err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v lhiih", err)}
 	}
 	return event, nil
 }

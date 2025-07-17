@@ -4,8 +4,15 @@ import (
 	"social-network/backend/models"
 )
 
-func (service *GroupService) GetEventDetails(eventId, userId, groupId string) (*models.Event, *models.ErrorJson) {
-	event, errJson := service.gRepo.GetEventDetails(eventId, userId, groupId)
+func (gService *GroupService) GetEventDetails(eventId, userId, groupId string) (*models.Event, *models.ErrorJson) {
+	if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	}
+	// always check the membership and also the the group is a valid one
+	if errMembership := gService.CheckMembership(groupId, userId); errMembership != nil {
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+	}
+	event, errJson := gService.gRepo.GetEventDetails(eventId, groupId, userId)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
@@ -13,24 +20,7 @@ func (service *GroupService) GetEventDetails(eventId, userId, groupId string) (*
 }
 
 // SECTION DYAL GOING AND NOT GOING
-func (service *GroupService) AddAction(actionChosen *models.UserEventAction) (*models.UserEventAction, *models.ErrorJson) {
-	action, err := service.gRepo.AddAction(actionChosen)
-	if err != nil {
-		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
-	}
-	return action, nil
-}
-
-func (gService *GroupService) UpdateAction(actionChosen *models.UserEventAction) (*models.UserEventAction, *models.ErrorJson) {
-	switch actionChosen.Action {
-	case 1:
-		return gService.gRepo.UpdateToGoing(actionChosen)
-	case -1:
-		return gService.gRepo.UpdateToNotGoing(actionChosen)
-	default:
-		return nil, &models.ErrorJson{Status: 400, Error: "error!! wrong type of action only -1 and 1 are allowed!"}
-	}
-}
+// HERE we'll only check the membership once 
 
 func (gService *GroupService) HandleActionChosen(actionChosen *models.UserEventAction) (*models.UserEventAction, *models.ErrorJson) {
 	if errJson := gService.gRepo.GetGroupById(actionChosen.GroupId); errJson != nil {
@@ -78,53 +68,21 @@ func (gService *GroupService) HandleActionChosen(actionChosen *models.UserEventA
 	// update it if necessary
 }
 
-// func (gService *GroupService) HanldeReaction(reaction *models.GroupReaction, reaction_type int) (*models.GroupReaction, *models.ErrorJson) {
-// 	if errJson := gService.gRepo.GetGroupById(reaction.GroupId); errJson != nil {
-// 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
-// 	}
-// 	// always check the membership and also the the group is a valid one
-// 	if errMembership := gService.CheckMembership(reaction.GroupId, reaction.UserId); errMembership != nil {
-// 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
-// 	}
-// 	reactionERR := models.GroupReactionErr{}
-// 	if !IsValidType(reaction.EntityType) {
-// 		reactionERR.EntityType = "wrong entity_type!!"
-// 	}
+func (gService *GroupService) AddAction(actionChosen *models.UserEventAction) (*models.UserEventAction, *models.ErrorJson) {
+	action, err := gService.gRepo.AddAction(actionChosen)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
+	}
+	return action, nil
+}
 
-// 	if IsValidType(reaction.EntityType) {
-// 		switch reaction.EntityType {
-// 		case "post":
-// 			_, exists, _ := gService.gRepo.GetItem("group_posts", "postID", reaction.EntityId)
-// 			if !exists {
-// 				reactionERR.EntityId = "entity_id not found"
-// 			}
-// 		case "comment":
-// 			_, exists, _ := gService.gRepo.GetItem("group_comments", "commentID", reaction.EntityId)
-// 			if !exists {
-// 				reactionERR.EntityId = "entity_id not found"
-// 			}
-// 		}
-// 	}
-
-// 	if reactionERR != (models.GroupReactionErr{}) {
-// 		return nil, &models.ErrorJson{Status: 400, Message: reactionERR}
-// 	}
-
-// 	reaction_existed, err := gService.gRepo.HanldeReaction(reaction)
-// 	if err != nil {
-// 		return reaction_existed, &models.ErrorJson{Status: err.Status, Message: err.Message}
-// 	}
-// 	if reaction_existed == nil {
-// 		reaction, errJson := gService.AddReaction(reaction, reaction_type)
-// 		if errJson != nil {
-// 			return nil, errJson
-// 		}
-// 		return reaction, nil
-// 	} else {
-// 		reaction, errJson := gService.UpdateReaction(reaction_existed, reaction_type)
-// 		if errJson != nil {
-// 			return nil, errJson
-// 		}
-// 		return reaction, nil
-// 	}
-// }
+func (gService *GroupService) UpdateAction(actionChosen *models.UserEventAction) (*models.UserEventAction, *models.ErrorJson) {
+	switch actionChosen.Action {
+	case 1:
+		return gService.gRepo.UpdateToGoing(actionChosen)
+	case -1:
+		return gService.gRepo.UpdateToNotGoing(actionChosen)
+	default:
+		return nil, &models.ErrorJson{Status: 400, Error: "error!! wrong type of action only -1 and 1 are allowed!"}
+	}
+}

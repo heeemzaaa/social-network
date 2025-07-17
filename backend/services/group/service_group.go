@@ -6,6 +6,10 @@ import (
 	"social-network/backend/models"
 )
 
+
+
+
+
 func (gService *GroupService) JoinGroup(group *models.Group, userId string) *models.ErrorJson {
 	if strings.TrimSpace(group.GroupId) == "" {
 		return &models.ErrorJson{Status: 400, Message: models.ErrJoinGroup{

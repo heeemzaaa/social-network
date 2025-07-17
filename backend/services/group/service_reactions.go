@@ -21,7 +21,9 @@ func (gService *GroupService) UpdateReaction(reaction *models.GroupReaction, rea
 	return nil, nil
 }
 
-//
+//  here we'll check the membership once and it is sufficient 3la makaybaan
+// so no need to handle it for the adding and the update (t7bss 3nd check !!)
+
 
 func (gService *GroupService) HanldeReaction(reaction *models.GroupReaction, reaction_type int) (*models.GroupReaction, *models.ErrorJson) {
 	if errJson := gService.gRepo.GetGroupById(reaction.GroupId); errJson != nil {

@@ -104,7 +104,8 @@ type UserEventAction struct {
 	UserId  string `json:"user_id,omitempty"`
 	GroupId string `json:"group_id,omitempty"`
 	EventId string `json:"event_id,omitempty"`
-	Action  int    `json:"action"`
+	Action  int    `json:"action"` // it has to remain without omiempty
+	// if it is done 0 won't be displayed because it is considered empty
 }
 
 type UserEventActionErr struct {
