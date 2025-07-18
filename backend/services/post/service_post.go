@@ -2,7 +2,7 @@ package services
 
 import (
 	"social-network/backend/models"
-	pr "social-network/backend/repositories"
+	pr "social-network/backend/repositories/post"
 
 	"github.com/google/uuid"
 )

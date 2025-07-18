@@ -2,15 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
 	"social-network/backend/middleware"
 	"social-network/backend/models"
-	ps "social-network/backend/services"
+	ps "social-network/backend/services/post"
 	"social-network/backend/utils"
 )
 
@@ -46,54 +44,34 @@ func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request, postID
 }
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(10 << 20)
-	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid form data"})
-		return
-	}
-
-	file, handler, err := r.FormFile("img")
-	imagePath := ""
-	if err == nil {
-		defer file.Close()
-		imagePath = "uploads/posts/" + handler.Filename
-		dst, err := os.Create(imagePath)
-		if err != nil {
-			utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to save image"})
-			return
-		}
-		defer dst.Close()
-		io.Copy(dst, file)
-	} else {
-		imagePath = ""
-	}
-
 	usID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 401, Message: "Unauthorized"})
 		return
 	}
 
-	selectedFollowers := r.FormValue("selectedFollowers")
-	var selectedUserIDs []string
-	if selectedFollowers != "" {
-		err := json.Unmarshal([]byte(selectedFollowers), &selectedUserIDs)
-		if err != nil {
-			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid selectedFollowers"})
-			return
-		}
+	path, errUploadImg := utils.HanldeUploadImage(r, "img", "posts")
+	if errUploadImg != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
+		return
 	}
-	var user models.User
-	user.Id = usID.String()
-	post := models.Post{
-		Id:            utils.NewUUID(),
-		User:          user,
-		Content:       r.FormValue("content"),
-		Privacy:       r.FormValue("privacy"),
-		Img:           "/" + imagePath,
-		SelectedUsers: selectedUserIDs,
-		CreatedAt:     time.Now().String(),
+
+	dataStr := r.FormValue("data")
+	if dataStr == "" {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Missing data field"})
+		return
 	}
+
+	var post models.Post
+	if err := json.Unmarshal([]byte(dataStr), &post); err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid JSON in data field"})
+		return
+	}
+
+	post.User = models.User{Id: usID.String()}
+	post.Img = path
+	post.Id = utils.NewUUID()
+	post.CreatedAt = time.Now().Format(time.RFC3339)
 
 	if err := h.service.CreatePost(&post); err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to create post"})
@@ -111,28 +89,23 @@ func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	thirdEndPoint := ""
-	if len(pathParts) >= 3 {
-		thirdEndPoint = pathParts[2]
-	}
 	switch r.Method {
-
 	case http.MethodGet:
-		if thirdEndPoint == "" {
+		if len(pathParts) == 2 {
 			h.GetAllPosts(w, r)
-		} else {
-			h.GetPostByID(w, r, thirdEndPoint)
+			return
 		}
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Not found"})
 	case http.MethodPost:
-		if thirdEndPoint != "" {
-			if len(pathParts) >= 3 && pathParts[2] == "like" {
-				h.LikePost(w, r)
-				return
-			}
+		if len(pathParts) == 2 {
 			h.CreatePost(w, r)
-		} else {
-			utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed on this endpoint"})
+			return
 		}
+		if len(pathParts) == 4 && pathParts[2] == "like" {
+			h.LikePost(w, r)
+			return
+		}
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed on this endpoint"})
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed"})
 	}
@@ -161,6 +134,6 @@ func (h *PostHandler) LikePost(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]any{
 		"success": true,
 		"message": "Post like updated successfully",
-		"postId" : postID,
-		})
+		"postId":  postID,
+	})
 }

@@ -1,46 +1,82 @@
-import Button from '@/app/_components/button';
-import Image from 'next/image';
-import React from 'react';
-import { useActionState } from 'react'
+"use client "
+import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa";
+import "./style.css"
+import Avatar from "../avatar";
+import { useModal } from "../../_context/ModalContext";
+import { useState } from "react";
 
-import { HiEllipsisHorizontal, HiHeart, HiOutlineChatBubbleOvalLeft } from 'react-icons/hi2';
-import Avatar from '../avatar';
-import { likePostAction } from '@/app/_actions/posts';
+export default function PostCard({
+    id,
+    user,
+    content,
+    created_at,
+    img,
+    total_likes,
+    total_comments,
+    liked,
+    privacy
+}) {
 
+    const { openModal } = useModal()
+    const [isLiked, setIsLiked] = useState(liked === 1);
+    const [likes, setLikes] = useState(total_likes);
 
-//TODO:ADD REAL PATH TO THE IMG SRC 
-export default function PostCard({ post }) {
-     const [state, likeAction] = useActionState(likePostAction, { message: '' })
+    const handleToggleLike = (id) => {
+        setIsLiked(prev => !prev);
+        setLikes(prev => isLiked ? prev - 1 : prev + 1);
+
+        // TODO: send to backend
+    };
+
     return (
-        <div className='post-card-container' >
-            <div className="post-card-header">
-                <Avatar />
-            </div>
-            <div className="post-card-content-nickname">
-                {post.user.nickname}
-            </div>
-            <div className="post-card-content-likes">
-                {post.total_likes}
-            </div>
-            <div className="post-card-content">
-                <div className="post-card-content-privacy">
-                    {post.privacy}
+
+        <div className="post-card">
+            <div className="post-card-body">
+                <div className="post-card-header">
+                    <div className="flex align-center gap-1">
+                        <Avatar size="42" />
+                        <h3 className="post-user">
+                            {user.first_name} {user.last_name}
+                        </h3>
+                    </div>
+                    <span className="post-privacy">{privacy}</span>
                 </div>
-                <form action={likeAction}>
-                    <input type="hidden" name="postId" value={post.id} />
-                    <button type="submit">Like</button>
-                    {state.message && <p>{state.message}</p>}
-                </form>
-                <div className="post-card-content-privacy">
-                    <img src="" alt="postImage" />
+                <p className="post-content">{content}</p>
+                {img && (
+                    <div className="post-card-img">
+                        <img src={`http://localhost:8080/static/${img}` } alt={img} />
+                    </div>
+                )}
+                <div className="post-actions flex gap-2 align-center" >
+                    <div style={actionStyle} onClick={handleToggleLike} >
+                        {isLiked ? <FaHeart color="red" /> : <FaRegHeart />}
+                        <span>
+                            {likes}
+                        </span>
+                    </div>
+                    <div className="glass-bg" onClick={() => { openModal("pass comments component here") }}>
+                        <div style={actionStyle}>
+                            <FaRegComment />
+                            <span>
+                                {total_comments}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div className="post-card-content-text">
-                    {post.content}
-                </div>
-                <div className="post-card-content-img" style={{ background: `url(${post.image})` }} />
             </div>
-            <div className="post-card-stats"></div>
-            <div className="post-card-actions"></div>
         </div>
     );
+}
+
+const actionStyle = {
+    border: "1px solid",
+    color: "black",
+    background: "#eee",
+    height: "min-content",
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    padding: ".3rem .8rem",
+    borderRadius: "var(--border-radius-sm)",
+    cursor: "pointer"
 }

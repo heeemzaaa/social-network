@@ -23,11 +23,14 @@ func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string) (stri
 	file, _, err := r.FormFile(fileName)
 	if err != nil {
 		if err == http.ErrMissingFile {
+			fmt.Println("register:", err)
 			return "", nil
 		}
 		return "", &models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)}
 	}
-
+	
+	fmt.Println("***************************handler image********************************")
+	fmt.Println("file:", file)
 	defer file.Close()
 
 	buf := bytes.NewBuffer(nil)

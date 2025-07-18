@@ -337,9 +337,9 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfi
 }
 
 // here I will get my followers as a user
-func (repo *ProfileRepository) GetFollowers(profileID string) (*[]models.User, error) {
+func (repo *ProfileRepository) GetFollowers(profileID string) ([]models.User, error) {
 	var query string
-	var users []models.User
+	users := []models.User{}
 
 	query = `SELECT u.userID, u.firstName, u.lastName, u.nickname, u.avatarPath  FROM followers f
 			JOIN users u ON f.followerID = u.userID
@@ -348,8 +348,9 @@ func (repo *ProfileRepository) GetFollowers(profileID string) (*[]models.User, e
 	`
 	rows, err := repo.db.Query(query, profileID)
 	if err != nil {
+		fmt.Println("error: ", err)
 		log.Printf("RowScanError in backend/repositories/profile/repo_profile.go/GetFollowers: %v", err)
-		return nil, fmt.Errorf("RowScanError: failed to get the followersID: %w", err)
+		return []models.User{}, fmt.Errorf("RowScanError: failed to get the followersID: %w", err)
 
 	}
 	defer rows.Close()
@@ -359,7 +360,7 @@ func (repo *ProfileRepository) GetFollowers(profileID string) (*[]models.User, e
 		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ImagePath)
 		if err != nil {
 			log.Printf("RowScanError in backend/repositories/profile/repo_profile.go/GetFollowers: %v", err)
-			return nil, fmt.Errorf("RowScanError: failed to scan follower: %w", err)
+			return []models.User{}, fmt.Errorf("RowScanError: failed to scan follower: %w", err)
 		}
 		users = append(users, user)
 	}
@@ -369,13 +370,13 @@ func (repo *ProfileRepository) GetFollowers(profileID string) (*[]models.User, e
 		return nil, fmt.Errorf("RowsError: failed to iterate followers: %w", err)
 	}
 
-	return &users, nil
+	return users, nil
 }
 
 // here I will get the followed users
-func (repo *ProfileRepository) GetFollowing(profileID string) (*[]models.User, error) {
+func (repo *ProfileRepository) GetFollowing(profileID string) ([]models.User, error) {
 	var query string
-	var users []models.User
+	users := []models.User{}
 
 	query = `SELECT u.userID, u.firstName, u.lastName, u.nickname, u.avatarPath 
 			FROM followers f
@@ -385,23 +386,23 @@ func (repo *ProfileRepository) GetFollowing(profileID string) (*[]models.User, e
 	`
 	rows, err := repo.db.Query(query, profileID)
 	if err != nil {
-		return nil, fmt.Errorf("%v", err)
+		return []models.User{}, fmt.Errorf("%v", err)
 	}
 	defer rows.Close()
-
+	
 	for rows.Next() {
 		var user models.User
 		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ImagePath)
 		if err != nil {
-			return nil, fmt.Errorf("%v", err)
+			return []models.User{}, fmt.Errorf("%v", err)
 		}
 		users = append(users, user)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("%v", err)
+		return []models.User{}, fmt.Errorf("%v", err)
 	}
 
-	return &users, nil
+	return users, nil
 }
 
 // here I will update anything in the user data

@@ -15,21 +15,21 @@ export default function CreatePost({ type, postAction }) {
     const [followers, setFollowers] = useState([]);
     const [loadingFollowers, setLoadingFollowers] = useState(true);
 
-    const {setModalData,closeModal} = useModal()
+    const { setModalData, closeModal } = useModal()
 
-    useEffect(()=> {
+    useEffect(() => {
         if (!state.data) return
         // console.log("data", state.data)
         setModalData(state.data)
         closeModal()
-    },[state])
+    }, [state])
 
 
     useEffect(() => {
         const fetchFollowers = async () => {
             try {
                 //TODO:  make the id dynamic by getting the current userId ...
-                const id = "3df163f3-2e00-4a94-aaa9-1378a2881568"
+                const id = "cbb58c6a-035c-4a08-b460-5fce382a012d"
                 const res = await fetch(`http://localhost:8080/api/profile/${id}/connections/followers`, {
                     method: 'GET',
                     credentials: 'include',
@@ -62,6 +62,7 @@ export default function CreatePost({ type, postAction }) {
     };
 
     const handleSelectAllFollowers = () => {
+        if (!Array.isArray(followers)) return;
         setData(prev => ({
             ...prev,
             selectedFollowers: prev.selectedFollowers.length === followers.length
@@ -69,7 +70,6 @@ export default function CreatePost({ type, postAction }) {
                 : followers.map(f => f.id)
         }));
     };
-
     return (
         <form noValidate action={action} className={`${styles.form} glass-bg`}>
             <div className="flex gap-3">
@@ -134,9 +134,8 @@ export default function CreatePost({ type, postAction }) {
                                                 <strong>Select All ({followers.length})</strong>
                                             </label>
                                         </div>
-
                                         {/* Individual Followers */}
-                                        {followers.map(follower => (
+                                        {Array.isArray(followers) && followers.length > 0 && followers.map(follower => (
                                             <div key={follower.id} style={{ marginBottom: '8px' }}>
                                                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                                                     <input
@@ -156,6 +155,7 @@ export default function CreatePost({ type, postAction }) {
                                                 </label>
                                             </div>
                                         ))}
+
                                         {state.errors?.selectedFollowers && <span className="field-error">{state.errors.selectedFollowers}</span>}
                                     </>
                                 )}

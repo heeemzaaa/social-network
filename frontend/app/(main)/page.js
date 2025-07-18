@@ -1,9 +1,8 @@
-// frontend/app/(main)/page.js 
 "use client"
 
 import { useEffect, useState } from "react";
-import PostsContainer from "./_components/posts/postsContainer";
 import { useModal } from "./_context/ModalContext";
+import PostCardList from "./_components/posts/postCardList";
 
 
 
@@ -17,7 +16,7 @@ export default function Home() {
   },[setModalData])
   return (
     <main className='home-page'>
-      <PostsContainer post={post} />
+      <PostCardList post={post} />
     </main>
   );
 }

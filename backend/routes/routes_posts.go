@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"net/http"
 
-	hp "social-network/backend/handlers"
+	hp "social-network/backend/handlers/post"
 	"social-network/backend/middleware"
-	rp "social-network/backend/repositories"
-	sp "social-network/backend/services"
+	rp "social-network/backend/repositories/post"
+	sp "social-network/backend/services/post"
 	sa "social-network/backend/services/auth"
 )
 

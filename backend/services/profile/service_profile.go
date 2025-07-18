@@ -70,30 +70,28 @@ func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*m
 }
 
 // here I will get the list of followers
-func (s *ProfileService) GetFollowers(profileID string, authUserID string) (*[]models.User, *models.ErrorJson) {
-	var users *[]models.User
+func (s *ProfileService) GetFollowers(profileID string, authUserID string) ([]models.User, *models.ErrorJson) {
 
 	if profileID == "" || authUserID == "" {
-		return nil, &models.ErrorJson{Status: 400, Message: "Data is invalid !"}
+		return []models.User{}, &models.ErrorJson{Status: 400, Message: "Data is invalid !"}
 	}
 
 	access, accessErr := s.CheckProfileAccess(profileID, authUserID)
 	if !access && accessErr == nil {
-		return nil, &models.ErrorJson{Status: 403, Message: "you don't have the access to see the followers of this profile"}
+		return []models.User{}, &models.ErrorJson{Status: 403, Message: "you don't have the access to see the followers of this profile"}
 	} else if !access && accessErr != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", accessErr)}
+		return []models.User{}, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", accessErr)}
 	}
 
 	users, err := s.repo.GetFollowers(profileID)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return []models.User{}, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 
 	return users, nil
 }
 
-func (s *ProfileService) GetFollowing(profileID string, authUserID string) (*[]models.User, *models.ErrorJson) {
-	var users *[]models.User
+func (s *ProfileService) GetFollowing(profileID string, authUserID string) ([]models.User, *models.ErrorJson) {
 
 	if profileID == "" || authUserID == "" {
 		return nil, &models.ErrorJson{Status: 400, Message: "Data is invalid !"}
@@ -101,14 +99,14 @@ func (s *ProfileService) GetFollowing(profileID string, authUserID string) (*[]m
 
 	access, accessErr := s.CheckProfileAccess(profileID, authUserID)
 	if !access && accessErr == nil {
-		return nil, &models.ErrorJson{Status: 401, Message: "the user is not a follower !"}
+		return []models.User{}, &models.ErrorJson{Status: 401, Message: "the user is not a follower !"}
 	} else if !access && accessErr != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", accessErr)}
+		return []models.User{}, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", accessErr)}
 	}
 
 	users, err := s.repo.GetFollowing(profileID)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return []models.User{}, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 
 	return users, nil
