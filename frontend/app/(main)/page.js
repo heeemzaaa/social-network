@@ -15,7 +15,7 @@ export default function Home() {
     setPost(postData)
   },[setModalData])
   return (
-    <main className='home-page'>
+    <main className='home-page' style={{overflow : "auto"}} >
       <PostCardList post={post} />
     </main>
   );
