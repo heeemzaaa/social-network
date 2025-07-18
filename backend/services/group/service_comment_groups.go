@@ -16,7 +16,7 @@ func (gService *GroupService) GetComments(groupId, userId, postId string, offset
 	if errMembership := gService.CheckMembership(groupId, userId); errMembership != nil {
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
-	comments, errJson := gService.gRepo.GetComments(userId, postId, offset)
+	comments, errJson := gService.gRepo.GetComments(userId, postId, groupId, offset)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}

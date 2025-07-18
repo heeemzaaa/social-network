@@ -1,6 +1,7 @@
 package group
 
 import (
+	"fmt"
 	"net/http"
 
 	"social-network/backend/middleware"
@@ -24,6 +25,7 @@ func NewGroupRequestsHandler(service *gservice.GroupService) *GroupRequestsHandl
 // here the request is not processed yet so he's allowed to cancel it
 
 func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("hnaaaaaaaaaaaaaaaaa")
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
@@ -34,7 +36,10 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	GrpReqHandler.gService.RequestToJoin(userID.String(), groupID.String())
+	if errJson := GrpReqHandler.gService.RequestToJoin(userID.String(), groupID.String()); errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		return
+	}
 }
 
 func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +54,10 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter
 		return
 	}
 
-	GrpReqHandler.gService.RequestToCancel(userID.String(), groupID.String())
+	if errJson := GrpReqHandler.gService.RequestToCancel(userID.String(), groupID.String()); errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		return
+	}
 }
 
 func (GrpReqHandler *GroupRequestsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
