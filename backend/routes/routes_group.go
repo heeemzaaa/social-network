@@ -51,11 +51,13 @@ func SetGroupRoutes(mux *http.ServeMux, db *sql.DB, authService *authService.Aut
 	GroupCommentHandler := group.NewGroupCommentHandler(groupService)
 	GroupEventIDHandler := group.NewGroupEventIDHandler(groupService)
 	GroupReactionHandler := group.NewReactionHandler(groupService)
+	MembersHandler := group.NewMembersHanlder(groupService)
 	mux.Handle("/api/groups/{group_id}/events/{event_id}/", middleware.NewMiddleWare(GroupEventIDHandler, authService))
 	mux.Handle("/api/groups/{group_id}/posts/{post_id}/comments/", middleware.NewMiddleWare(GroupCommentHandler, authService))
 	mux.Handle("/api/groups/{group_id}/posts/", middleware.NewMiddleWare(GroupPostHandler, authService))
 	mux.Handle("/api/groups/{group_id}/events/", middleware.NewMiddleWare(GroupEventHandler, authService))
 	mux.Handle("/api/groups/{group_id}/react/like", middleware.NewMiddleWare(GroupReactionHandler, authService))
+	mux.Handle("/api/groups/{group_id}/members", middleware.NewMiddleWare(MembersHandler, authService))
 	mux.Handle("/api/groups/{group_id}/", middleware.NewMiddleWare(GroupIDHandler, authService))
 	mux.Handle("/api/groups/", middleware.NewMiddleWare(GroupHandler, authService))
 }
