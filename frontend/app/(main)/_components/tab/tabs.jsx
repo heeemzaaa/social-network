@@ -1,6 +1,6 @@
 // components/Tabs.jsx
 import "./style.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function Tabs({ children, className }) {
     const [activeTab, setActiveTab] = useState(0);
@@ -11,17 +11,22 @@ export default function Tabs({ children, className }) {
 
     const tabs = [];
     const contents = [];
-    React.Children.forEach(children, (child) => {
-        if (child && child.type && child.type.name === "Tab") {
-            tabs.push(child);
-        } else if (child && child.type && child.type.name === "TabContent") {
-            contents.push(child);
-        }
-    });
+
+    // useEffect(()=>{
+
+        React.Children.forEach(children, (child) => {
+            if (child && child.type && child.type.name === "Tab") {
+                tabs.push(child);
+            } else if (child && child.type && child.type.name === "TabContent") {
+                contents.push(child);
+            }
+        })
+    // })
 
     return (
         <div className={`tab-container ${className}`}>
             <div className="tab-list">
+                
                 {tabs.map((tab, index) =>
                     React.cloneElement(tab, {
                         isActive: index === activeTab,
@@ -30,7 +35,7 @@ export default function Tabs({ children, className }) {
                     })
                 )}
             </div>
-            <div className="tab-content ">
+            <div className="tab-content">
                 {contents[activeTab] || <div>No content available for this tab</div>}
             </div>
         </div>

@@ -1,7 +1,7 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS messages (
-  id TEXT PRIMARY KEY,
+  id TEXT NOT NULL  PRIMARY KEY,
   sender_id TEXT NOT NULL,
   target_id TEXT NOT NULL, 
   type TEXT NOT NULL CHECK(type IN ('private', 'group')),

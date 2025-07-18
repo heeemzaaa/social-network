@@ -11,6 +11,8 @@ type Group struct {
 	Description     string    `json:"description"`
 	ImagePath       string    `json:"image_path,omitempty"`
 	Image           string    `json:"image,omitempty"`
+	CreatedAt       time.Time `json:"created_at,omitempty"`
+	Total_Members   int       `json:"total_members,omitempty"`
 	Members         []User    `json:"members,omitempty"`
 	Posts           []Post    `json:"posts,omitempty"`
 	Events          []Event   `json:"events,omitempty"`
@@ -29,12 +31,14 @@ type ErrJoinGroup struct {
 }
 
 type Event struct {
+	EventId        string    `json:"event_id,omitempty"`
 	GroupId        string    `json:"group_id,omitempty"`
-	EventCreator   string    `json:"event_creator"`
-	EventCreatorId string    `json:"event_creator_id"`
+	EventCreator   string    `json:"event_creator,omitempty"`
+	EventCreatorId string    `json:"event_creator_id,omitempty"`
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
-	EventDate      time.Time `json:"event_date"`
+	EventDate      string    `json:"event_date"`
+	CreatedAt      time.Time `json:"created_at,omitempty"`
 	Going          int       `json:"going"`
 }
 
@@ -47,15 +51,14 @@ type ErrEventGroup struct {
 type PostGroup struct {
 	Id            string    `json:"id,omitempty"`
 	GroupId       string    `json:"group_id,omitempty"`
-	UserId        string    `json:"user_id,omitempty"`
-	Username      string    `json:"user_name,omitempty"`
+	User          User      `json:"user"`
 	Content       string    `json:"content"`
 	ImagePath     string    `json:"image_path,omitempty"`
 	Image         string    `json:"image,omitempty"`
 	CreatedAt     time.Time `json:"created_at,omitempty"`
 	TotalComments int       `json:"total_comments"`
 	TotalLikes    int       `json:"total_likes"`
-	Liked         int       `json:"liked"`
+	Liked         string    `json:"liked"`
 }
 type PostGroupErr struct {
 	Content string `json:"content"`
@@ -78,4 +81,32 @@ type CommentGroup struct {
 type CommentGroupErr struct {
 	Content string `json:"content"`
 	PostId  string `json:"post_id"`
+}
+
+type GroupReaction struct {
+	Id         string `json:"id,omitempty"`
+	EntityType string `json:"entity_type,omitempty"`
+	EntityId   string `json:"entity_id,omitempty"`
+	Reaction   int    `json:"reaction"`
+	UserId     string `json:"user_id,omitempty"`
+	GroupId    string `json:"group_id,omitempty"`
+}
+
+type GroupReactionErr struct {
+	EntityId   string `json:"entity_id"`
+	EntityType string `json:"entity_type"`
+	Reaction   string `json:"reaction,omitempty"`
+}
+
+type UserEventAction struct {
+	Id      string `json:"id,omitempty"`
+	UserId  string `json:"user_id,omitempty"`
+	GroupId string `json:"group_id,omitempty"`
+	EventId string `json:"event_id,omitempty"`
+	Action  int    `json:"action"` // it has to remain without omiempty
+	// if it is done 0 won't be displayed because it is considered empty
+}
+
+type UserEventActionErr struct {
+	Action string `json:"action,omitempty"`
 }

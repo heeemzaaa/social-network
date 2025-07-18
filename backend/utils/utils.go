@@ -35,7 +35,7 @@ func CreateDirectoryForUploads(subDirectoryName, mimeType string, data []byte) (
 	baseDir := "static/uploads/"
 	err := os.MkdirAll(filepath.Join(baseDir, subDirectoryName), 0o755)
 	if err != nil {
-		return "", &models.ErrorJson{Status: 500, Message: "Failed to create the directory"}
+		return "", &models.ErrorJson{Status: 500, Error: "Failed to create the directory"}
 	}
 	ext := ".jpg"
 	switch mimeType {
@@ -49,7 +49,7 @@ func CreateDirectoryForUploads(subDirectoryName, mimeType string, data []byte) (
 	path := filepath.Join(baseDir, subDirectoryName, filename)
 	err = os.WriteFile(path, data, 0o644)
 	if err != nil {
-		return "", &models.ErrorJson{Status: 500, Message: "Failed to write data into the file"}
+		return "", &models.ErrorJson{Status: 500, Error: "Failed to write data into the file"}
 	}
 
 	// Return relative path for use in frontend / API
@@ -68,4 +68,9 @@ func NewUUID() string {
 	return uuid.New().String()
 }
 
-
+func RemoveImage(ImagePath string) error {
+	if err := os.Remove(filepath.Join("static", ImagePath)); err != nil {
+		return err
+	}
+	return nil
+}

@@ -10,13 +10,17 @@ import (
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
 	"social-network/backend/utils"
-
-	"github.com/google/uuid"
 )
 
 // for the one group only
+// POST request will help us join the group
+// GET request will help us get the details of the a specific group
 
 /***  /api/groups/{group_id}/   ***/
+
+// DONE tooo 
+
+
 
 type GroupIDHanlder struct {
 	gservice *gservice.GroupService
@@ -28,15 +32,15 @@ func NewGroupIDHandler(service *gservice.GroupService) *GroupIDHanlder {
 
 // if the user has already joined the group : unauthorized important case
 func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Request) {
-	userID , errParse := middleware.GetUserIDFromContext(r.Context())
+	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect format of userID UUID!"})
 		return
 	}
 	var group_to_join *models.Group
 	err := json.NewDecoder(r.Body).Decode(&group_to_join)
 	if err != nil {
-		if err == io.EOF {
+		if err == io.EOF || group_to_join==(&models.Group{}) {
 			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
 				Message: models.ErrJoinGroup{
@@ -48,35 +52,35 @@ func (gIdHanlder *GroupIDHanlder) JoinGroup(w http.ResponseWriter, r *http.Reque
 
 		utils.WriteJsonErrors(w, models.ErrorJson{
 			Status:  400,
-			Message: "an error occured while trying to decode the json! hna",
+			Message: "an error occured while trying to decode the json!",
 		})
 		return
 	}
 
+
+
 	if errJson := gIdHanlder.gservice.JoinGroup(group_to_join, userID.String()); errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
 		return
 	}
 }
 
 // always get the groupInfo (general info like if the number of users and name and description)
 func (gIdHanlder *GroupIDHanlder) GetGroupInfo(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	_, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+	groupId, err := utils.GetUUIDFromPath(r, "group_id")
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	groupId := r.PathValue("group_id")
 
-	groupDetails, errJson := gIdHanlder.gservice.GetGroupInfo(groupId)
+	groupDetails, errJson := gIdHanlder.gservice.GetGroupInfo(groupId.String())
 	if errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(groupDetails); err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 }
@@ -91,7 +95,7 @@ func (gIdHanlder *GroupIDHanlder) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		gIdHanlder.JoinGroup(w, r)
 		return
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method Not Allowed!"})
 		return
 	}
 }
