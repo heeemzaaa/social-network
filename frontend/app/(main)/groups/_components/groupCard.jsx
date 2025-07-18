@@ -13,11 +13,9 @@ export default function GroupCard({
 }) {
 
     const router = useRouter()
-
     const handleJoingGrp = (groupId) => {
         console.log("join grp:) ")
     }
-
 
     const navigateToGroup = (groupId) => {
         router.push(`/groups/${groupId}`);

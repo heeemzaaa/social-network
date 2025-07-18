@@ -2,6 +2,7 @@
 
 import { useModal } from '../_context/ModalContext';
 import Avatar from '../_components/avatar';
+import PostCardList from './postCardList';
 
 export default function Page() {
     const { openModal } = useModal()
@@ -18,7 +19,8 @@ export default function Page() {
                 <TabContent>Content for Tab 1</TabContent>
                 <TabContent>Content for Tab 2</TabContent>
             </Tabs> */}
-            <Avatar size={42}/>
+            {/* <Avatar size={42}/> */}
+            <PostCardList/>
         </main>
     )
 }

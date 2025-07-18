@@ -9,7 +9,7 @@ export default function Tag({ children, className}) {
 }
 
 const style = {
-    background : "#ddd",
+    // background : "#ddd",
     fontSize : "1rem",
     color: "black",
     width : "max-content",

@@ -79,7 +79,7 @@ export default function GroupCardList({ filter }) {
         />
     )
     return (
-        <div className="list-container flex flex-wrap gap-4 justify-center overflow-y-auto">
+        <div className="list-container flex flex-wrap gap-4 justify-center items-start overflow-y-auto">
             {
                 data.map((item, index) => <GroupCard key={item.id || index} type={filter} {...item} />)
             }
