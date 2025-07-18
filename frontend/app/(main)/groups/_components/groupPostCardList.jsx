@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import Button from "@/app/_components/button";
+import PostCard from "../../_components/posts/post_card";
 
 export default function GroupPostCardList({ groupId }) {
     const [data, setData] = useState([]);
@@ -97,8 +98,7 @@ export default function GroupPostCardList({ groupId }) {
     return (
         <div className="list-container flex flex-wrap gap-4 justify-center overflow-y-auto">
             {data.map((item, index) => (
-                "sdfadsdf"
-                // <GroupCard key={item.id || index} {...item} />
+                <PostCard {...item} key={item.id}/>
             ))}
             {isLoading && <p className="text-center w-full">Loading...</p>}
             {hasMore && !isLoading && (

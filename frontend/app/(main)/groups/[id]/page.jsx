@@ -14,6 +14,7 @@ import { useModal } from "../../_context/ModalContext";
 import CreatePostForm from "../_components/createPostForm";
 import CreateEventForm from "../_components/createEventForm";
 import InviteFriendForm from "../_components/inviteFriendsForm";
+import "./style.css"
 
 export default function GroupPage({ params }) {
   const [data, setData] = useState({});
