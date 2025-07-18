@@ -17,6 +17,10 @@ func main() {
 
 	mux := routes.SetRoutes(db.Database)
 
+	fs := http.FileServer(http.Dir("./static"))
+	mux.Handle("/static/", http.StripPrefix("/static/", fs))
+
+
 	fmt.Println("server is running in : http://localhost:8080")
 	http.ListenAndServe(":8080", middelware.NewCorsMiddlerware(middelware.NewRateLimitMiddleWare(mux)))
 }

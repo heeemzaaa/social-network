@@ -1,11 +1,7 @@
-.grp-cards-list {
-    height: 100% ;
-    border: solid;
-    overflow-y: auto;
-}
+
 
 .grp-card {
-    --img-width: 180px;
+    --img-width: 150px;
     --margin-left: calc(var(--img-width) / 2);
     --card-padding: 1rem;
 }
@@ -31,33 +27,33 @@
 }
 
 .grp-card-img-holder {
-    padding: 1rem;
+    padding: .5rem;
     width: var(--img-width);
     height: calc(90% - var(--card-padding) / 2);
     margin-top: auto;
     max-height: var(--img-width);
-    /* border: solid 1red; */
     position: absolute;
     left: calc(-1 * var(--img-width) / 2);
 }
 
 .grp-card-img {
-    border: solid 1px green;
     height: 100%;
     background-position: center;
     background-size: contain;
     box-shadow: var(--shadow-lg);
+    /* display: none; */
+    border-radius: var(--border-radius-md)
 }
 
 .grp-card-body {
-
-    /* border: solid 1px; */
-    height: 100%;
-
+    /* height: 100%; */
 }
 
 .grp-card-body .grp-description {
     padding: .5rem;
     text-align: justify;
-
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    overflow: scroll;
 }

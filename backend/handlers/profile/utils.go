@@ -8,6 +8,7 @@ import (
 	"social-network/backend/utils"
 )
 
+
 func GetPath(r *http.Request) (string, string, error) {
 	splittedPath := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	if len(splittedPath) < 3 {

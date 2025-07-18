@@ -19,18 +19,44 @@ import (
 // POST /groups/{id}   join a specific group done
 // GET /groups/{id}  get the general info of a specific group (title description and so on )
 //  ##### routes i have to implement to all the user who is a member of a specific group  #####
-// GET /groups/{id}/posts  (get the posts of a specific group)
-// POST /groups/{id}/posts  (add a post to a specific group)
-/**********************************************************/
 // GET /groups/{id}/events  (get the events of a specific group)
 // POST /groups/{id}/events  (add a event to a specific group)
+// almost done !!
+/**********************************************************/
+// GET /groups/{id}/posts  (get the posts of a specific group)
+// POST /groups/{id}/posts  (add a post to a specific group)
 /**********************************************************/
 // GET /groups/{id}/posts/{post_id}/comments (get the comments of a specific post of specific group)
 // POST /groups/{id}/posts/{post_id}/comments  (add a comment to a specific post of a specific group)
 /***********************************************************/
 // GET /api/groups/{group_id}/events/{event-id}/  (get the details of a specific event of a specific group)
-// POST /api/groups/{group_id}/events/{event-id}/ (add a event to a specific group)
+// POST /api/groups/{group_id}/events/{event-id}/ (show interest to  an event to a specific group)
 /**********************************************************/
+// GET /groups/{group_id}/members  GET the members of a specific group
+/**********************************************************/
+// POST  /groups/{group_id}/react
+
+/*******************************************************************************************/
+// so the table created will be only one and not two 
+// separation of concerns ???
+// for the requests  
+
+// POST   /groups/{group_id}/join-request  (the userID here is gotten from the context the one who is sending the request and the)
+// one who will be processing it (the receiver_id) is the admin of the group
+// DELETE  /groups/{group_id}/join-request  (the same here)
+
+
+// for the requests acceptation  (to the admin of the group)
+// POST /groups/{group_id}/accept
+// DELETE  /groups/{group_id}/decline
+
+
+
+
+
+
+
+
 
 func SetGroupRoutes(mux *http.ServeMux, db *sql.DB, authService *authService.AuthService) {
 	//  auth service
@@ -45,10 +71,14 @@ func SetGroupRoutes(mux *http.ServeMux, db *sql.DB, authService *authService.Aut
 	GroupPostHandler := group.NewGroupPostHandler(groupService)
 	GroupCommentHandler := group.NewGroupCommentHandler(groupService)
 	GroupEventIDHandler := group.NewGroupEventIDHandler(groupService)
+	GroupReactionHandler := group.NewReactionHandler(groupService)
+	MembersHandler := group.NewMembersHanlder(groupService)
 	mux.Handle("/api/groups/{group_id}/events/{event_id}/", middleware.NewMiddleWare(GroupEventIDHandler, authService))
 	mux.Handle("/api/groups/{group_id}/posts/{post_id}/comments/", middleware.NewMiddleWare(GroupCommentHandler, authService))
 	mux.Handle("/api/groups/{group_id}/posts/", middleware.NewMiddleWare(GroupPostHandler, authService))
 	mux.Handle("/api/groups/{group_id}/events/", middleware.NewMiddleWare(GroupEventHandler, authService))
+	mux.Handle("/api/groups/{group_id}/react/like", middleware.NewMiddleWare(GroupReactionHandler, authService))
+	mux.Handle("/api/groups/{group_id}/members", middleware.NewMiddleWare(MembersHandler, authService))
 	mux.Handle("/api/groups/{group_id}/", middleware.NewMiddleWare(GroupIDHandler, authService))
 	mux.Handle("/api/groups/", middleware.NewMiddleWare(GroupHandler, authService))
 }

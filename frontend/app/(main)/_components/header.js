@@ -17,7 +17,7 @@ export default function Header() {
     <header className='p3 flex justify-between align-center' >
       <div>
         <h2>
-          Welcome User!!
+          Welcome user!!
         </h2>
       </div>
 
@@ -29,7 +29,7 @@ export default function Header() {
               Add post
             </span>
           </Button>
-          <Button variant='btn-tertiary' onClick={() => openModal(<CreateGroup />)}>
+          <Button variant='btn-tertiary' onClick={() => openModal(<CreateGroupForm />)}>
             <HiMiniPlusSmall size={"30px"} />
             <span>
               Add Group

@@ -31,13 +31,11 @@ func (PrHandler *ProfileHandler) GetProfileData(w http.ResponseWriter, r *http.R
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errService.Status, Message: errService.Message})
 		return
 	}
-
 	utils.WriteDataBack(w, profile)
 }
 
 func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Println("path:", r.URL.Path)
 	if r.Method != http.MethodGet {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed !"})
 		return
@@ -48,8 +46,6 @@ func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
 		return
 	}
-
-	fmt.Println("path: ", path)
 
 	switch path {
 	case "":

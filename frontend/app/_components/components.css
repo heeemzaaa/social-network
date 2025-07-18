@@ -5,7 +5,7 @@ button {
     font-weight: var(--font-weight-semibold);
     border-radius:  var(--border-radius-md);
     display: flex;
-    /* justify-content: center; */
+    justify-content: center;
     align-items: center;
     cursor: pointer;
     /* width: max-content; */

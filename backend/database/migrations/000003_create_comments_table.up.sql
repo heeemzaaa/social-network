@@ -2,7 +2,7 @@ PRAGMA foreign_keys = ON;
 
 
 CREATE TABLE IF NOT EXISTS comments (
-    commentID TEXT PRIMARY KEY,
+    commentID TEXT NOT NULL PRIMARY KEY,
     postID TEXT NOT NULL,
     userID TEXT NOT NULL,
     content TEXT NOT NULL ,

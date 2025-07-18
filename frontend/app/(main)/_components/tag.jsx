@@ -2,14 +2,14 @@ import React from 'react'
 
 export default function Tag({ children, className}) {
     return (
-        <div className={`tag ${className}`} style={style}>
+        <div style={style} className={`${className}`} >
             {children}
         </div>
     )
 }
 
 const style = {
-    background : "#ddd",
+    // background : "#ddd",
     fontSize : "1rem",
     color: "black",
     width : "max-content",
