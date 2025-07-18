@@ -16,7 +16,7 @@ func (gRepo *GroupRepository) CreateComment(comment *models.CommentGroup) (*mode
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	if err := stmt.QueryRow(comment.PostId, comment.UserId, comment.Content).Scan(
+	if err := stmt.QueryRow(comment.PostId, comment.User.Id, comment.Content).Scan(
 		&comment_created.Id, &comment_created.Content,
 		&comment_created.CreatedAt); err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
@@ -48,6 +48,8 @@ func (gRepo *GroupRepository) GetComments(userId, postId string, offset int) ([]
             entityID
     )
 	SELECT
+	    concat(users.firstName, " ", users.lastName),
+		users.usersID,
 		users.nickname,
 		comments.commentID,
 		content,
@@ -70,7 +72,7 @@ func (gRepo *GroupRepository) GetComments(userId, postId string, offset int) ([]
 
 	rows, err := gRepo.db.Query(query, userId, postId, offset)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500 , Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	if rows.Err() == sql.ErrNoRows {
 		return comments, nil
@@ -78,9 +80,9 @@ func (gRepo *GroupRepository) GetComments(userId, postId string, offset int) ([]
 
 	for rows.Next() {
 		var comment models.CommentGroup
-		if err = rows.Scan(&comment.Username, &comment.Id, &comment.Content,
+		if err = rows.Scan(&comment.User.FullName, &comment.User.Id, &comment.User.Nickname, &comment.Id, &comment.Content,
 			&comment.CreatedAt, &comment.TotalLikes, &comment.Liked); err != nil {
-			return comments,  &models.ErrorJson{Status: 500 , Error: fmt.Sprintf("%v", err)}
+			return comments, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 		comments = append(comments, comment)
 	}
