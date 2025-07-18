@@ -13,7 +13,7 @@ const initialData = {
     birthdate: "",
     avatar: "",
     nickname: "",
-    aboutMe: ""
+    about_me: ""
 };
 
 export default function RegisterForm() {
@@ -123,23 +123,21 @@ export default function RegisterForm() {
                             value={data.nickname}
                             onChange={(e) => setData(prev => ({ ...prev, nickname: e.target.value }))}
                         />
-                        <input type="hidden" name="nickname" value={data.nickname} />
                         {state.errors?.nickname && <span className="field-error">{state.errors.nickname}</span>}
                     </div>
                     
                     {/* about me */}
                     <div className={styles.formGrp}>
-                        <label htmlFor="aboutMe">About Me (Optional):</label>
+                        <label htmlFor="about_me">About Me (Optional):</label>
                         <textarea
                             className={styles.input}
-                            name="aboutMe"
-                            id="aboutMe"
+                            name="about_me"
+                            id="about_me"
                             rows={4}
-                            value={data.aboutMe}
-                            onChange={(e) => setData(prev => ({ ...prev, aboutMe: e.target.value }))}
+                            value={data.about_me}
+                            onChange={(e) => setData(prev => ({ ...prev, about_me: e.target.value }))}
                         />
-                        <input type="hidden" name="aboutMe" value={data.aboutMe} />
-                        {state.errors?.aboutMe && <span className="field-error">{state.errors.aboutMe}</span>}
+                        {state.errors?.about_me && <span className="field-error">{state.errors.about_me}</span>}
                     </div>
                 </div>
 

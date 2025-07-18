@@ -5,6 +5,7 @@ import InfosDiv from "./user_info"
 import AboutUser from "./about_user"
 import { FaUserEdit, FaLockOpen, FaLock } from "react-icons/fa"
 import { RiUserFollowFill, RiUserUnfollowFill } from "react-icons/ri"
+import { MdPending } from "react-icons/md";
 import Button from "@/app/_components/button"
 import { usePathname } from "next/navigation"
 import "./profile.css"
@@ -17,12 +18,13 @@ export default function UserProfileWrapper({ id }) {
   const [mine, setMine] = useState(false)
   const [privacy, setPrivacy] = useState(null)
   const [follows, setFollows] = useState(null)
+  const [requested, setRequested] = useState(null)
   const pathname = usePathname()
 
   useEffect(() => {
     async function fetchUserInfos() {
       try {
-        const res = await fetch(`http://localhost:8080/api/profile/${id}`, { credentials: 'include' })
+        const res = await fetch(`http://localhost:8080/api/profile/${id}/info`, { credentials: 'include' })
         const profile = await res.json()
 
         const info = {
@@ -37,9 +39,10 @@ export default function UserProfileWrapper({ id }) {
           following: profile.following_count || 0,
           posts: profile.posts_count || 0,
           groups: profile.groups_count || 0,
-          aboutMe: profile.user.about_me || null,
+          aboutMe: profile.user.about_me,
           isMyProfile: profile.is_my_profile,
           isFollower: profile.is_follower,
+          isRequested: profile.is_requested,
           visibility: profile.visibility
         }
         // setID(info.id)
@@ -47,6 +50,7 @@ export default function UserProfileWrapper({ id }) {
         setPrivacy(info.visibility)
         setFollows(info.isFollower)
         setMine(info.isMyProfile)
+        setRequested(info.isRequested)
 
       } catch (err) {
         console.error("Error fetching user profile:", err)
@@ -60,8 +64,8 @@ export default function UserProfileWrapper({ id }) {
 
   async function handleToggleFollow() {
     const endpoint = follows
-      ? `http://localhost:8080/api/profile/${id}/unfollow`
-      : `http://localhost:8080/api/profile/${id}/follow`
+      ? `http://localhost:8080/api/profile/${id}/actions/unfollow`
+      : `http://localhost:8080/api/profile/${id}/actions/follow`
 
     try {
       const res = await fetch(endpoint, {
@@ -75,12 +79,18 @@ export default function UserProfileWrapper({ id }) {
 
       if (res.ok) {
         setFollows(!follows)
-        if (follows) {
-          setUserInfos(prev => ({ ...prev, followers: prev.followers - 1 }))
+        if (privacy == 'public') {
+          if (follows) {
+            setUserInfos(prev => ({ ...prev, followers: prev.followers - 1 }))
+          } else {
+            setUserInfos(prev => ({ ...prev, followers: prev.followers + 1 }))
+          }
         } else {
-          setUserInfos(prev => ({ ...prev, followers: prev.followers + 1 }))
-
+          isRequestedNow = !requested
+          setRequested(isRequestedNow)
+          setUserInfos(prev => ({ ...prev, isRequested: isRequestedNow}))
         }
+
       } else {
         console.error("Failed to follow/unfollow")
       }
@@ -94,7 +104,7 @@ export default function UserProfileWrapper({ id }) {
     const newPrivacy = privacy === 'private' ? 'public' : 'private'
 
     try {
-      const res = await fetch(`http://localhost:8080/api/profile/${id}/update-privacy`, {
+      const res = await fetch(`http://localhost:8080/api/profile/${id}/edit/update-privacy`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -108,6 +118,7 @@ export default function UserProfileWrapper({ id }) {
 
       if (res.ok) {
         setPrivacy(newPrivacy)
+        setUserInfos(prev => ({ ...prev, privacy: newPrivacy }))
       } else {
         console.error("Failed to update privacy status")
       }
@@ -122,7 +133,7 @@ export default function UserProfileWrapper({ id }) {
   return (
     <>
       <InfosDiv userInfos={userInfos}>
-        <section className="buttons flex gap-1" style={{marginLeft: 'auto'}}>
+        <section className="buttons flex gap-1" style={{ marginLeft: 'auto' }}>
           {mine ? (
             <Button variant={'btn-icon glass-bg gap-1'}>
               <>
@@ -131,15 +142,20 @@ export default function UserProfileWrapper({ id }) {
               </>
             </Button>
           ) : (
-            <Button variant={'btn-icon glass-bg gap-1'} onClick={handleToggleFollow}>
-              {follows ? (
+            <Button variant={'btn-icon glass-bg gap-1'} onClick={handleToggleFollow} disabled={requested}>
+              {requested ? (
                 <>
-                  <RiUserUnfollowFill size={'24px'} color="white" />
+                <MdPending size="24px" color="white"/>
+                <span style={{ color: 'white' }}>Pending</span>
+                </>
+              ) : follows ? (
+                <>
+                  <RiUserUnfollowFill size="24px" color="white" />
                   <span style={{ color: 'white' }}>Unfollow</span>
                 </>
               ) : (
                 <>
-                  <RiUserFollowFill size={'24px'} color="white" />
+                  <RiUserFollowFill size="24px" color="white" />
                   <span style={{ color: 'white' }}>Follow</span>
                 </>
               )}

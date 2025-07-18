@@ -351,3 +351,15 @@ func (repo *ProfileRepository) ToPrivateAccount(userID string) error {
 	}
 	return nil
 }
+
+func (repo *ProfileRepository) IsRequested(profileID string, authUserID string) (bool, error) {
+	query := `SELECT EXISTS (SELECT 1 FROM follow_requests WHERE userID = ? AND requestorID = ? LIMIT 1)`
+	isRequested := false
+	err := repo.db.QueryRow(query, profileID, authUserID).Scan(&isRequested)
+	if err != nil {
+		fmt.Println(err)
+		return false, fmt.Errorf("%v", err)
+	}
+
+	return isRequested, nil
+}

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+
 	"social-network/backend/models"
 	"social-network/backend/services/chat"
 	"social-network/backend/utils"
@@ -64,12 +65,13 @@ func (server *ChatServer) ChatServerHandler(w http.ResponseWriter, r *http.Reque
 // HERE fin l handler ghadi yt9ad and we'll be handling everything
 func (server *ChatServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	
 	if r.Method != http.MethodGet {
 		utils.WriteJsonErrors(w, *models.NewErrorJson(405, "", "ERROR!! Method Not Allowed!"))
 		return
 	}
 	switch r.URL.Path {
-	case "/ws/chat":
+	case "/ws/chat/":
 		server.ChatServerHandler(w, r)
 		return
 	default:

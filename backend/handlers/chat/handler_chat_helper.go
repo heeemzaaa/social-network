@@ -100,7 +100,6 @@ func (client *Client) ReadMessages() {
 		}
 
 		message.SenderID = client.session.UserId
-		// fmt.Println(message.SenderID)
 		message_validated, errJson := client.chatServer.service.ValidateMessage(message)
 		if errJson != nil {
 			client.ErrorJson <- errJson
