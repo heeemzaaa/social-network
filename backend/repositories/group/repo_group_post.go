@@ -21,10 +21,10 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	errScan := stmt.QueryRow(postId, post.GroupId, post.UserId, post.Content, post.ImagePath).Scan(
+	errScan := stmt.QueryRow(postId, post.GroupId, post.User.Id, post.Content, post.ImagePath).Scan(
 		&post_created.Id,
 		&post_created.GroupId,
-		&post_created.UserId,
+		&post_created.User.Id,
 		&post_created.Content,
 		&post_created.ImagePath,
 		&post_created.CreatedAt)
@@ -66,6 +66,8 @@ func (grepo *GroupRepository) GetPosts(userId string, offset int) ([]models.Post
     )
 	SELECT
 		concat (users.firstName, " ", users.lastName),
+		users.nickname,
+		users.userID,
 		group_posts.postID,
 		group_posts.createdAt,
 		group_posts.content,
@@ -106,7 +108,9 @@ func (grepo *GroupRepository) GetPosts(userId string, offset int) ([]models.Post
 
 	for rows.Next() {
 		var post models.PostGroup
-		if err := rows.Scan(&post.FullName,
+		if err := rows.Scan(&post.User.FullName,
+			&post.User.Nickname,
+			&post.User.Id,
 			&post.Id, &post.CreatedAt,
 			&post.Content,
 			&post.TotalLikes,

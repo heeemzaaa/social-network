@@ -63,7 +63,7 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
 	}
-	post.UserId, post.GroupId, post.ImagePath = userID.String(), groupID.String(), path
+	post.User.Id, post.GroupId, post.ImagePath = userID.String(), groupID.String(), path
 	// even if the userid is given wrong we insert the correct one
 	postCreated, err_ := gPostHandler.gService.AddPost(post)
 

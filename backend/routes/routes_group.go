@@ -37,15 +37,21 @@ import (
 // POST  /groups/{group_id}/react
 
 /*******************************************************************************************/
+// so the table created will be only one and not two 
+// separation of concerns ???
 // for the requests  
 
-// POST   /groups/{group_id}/join-request  (the userID here is gotten from the context)
+// POST   /groups/{group_id}/join-request  (the userID here is gotten from the context the one who is sending the request and the)
+// one who will be processing it (the receiver_id) is the admin of the group
 // DELETE  /groups/{group_id}/join-request  (the same here)
 
 
 // for the requests acceptation  (to the admin of the group)
+// POST /groups/{group_id}/accept
+// DELETE  /groups/{group_id}/decline
 
-// POST  
+
+
 
 
 

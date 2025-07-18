@@ -51,9 +51,7 @@ type ErrEventGroup struct {
 type PostGroup struct {
 	Id            string    `json:"id,omitempty"`
 	GroupId       string    `json:"group_id,omitempty"`
-	UserId        string    `json:"user_id,omitempty"`
-	Username      string    `json:"user_name,omitempty"`
-	FullName      string    `json:"full_name,omitempty"`
+	User          User      `json:"user"`
 	Content       string    `json:"content"`
 	ImagePath     string    `json:"image_path,omitempty"`
 	Image         string    `json:"image,omitempty"`
