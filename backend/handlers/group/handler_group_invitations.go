@@ -14,5 +14,5 @@ func NewGroupInvitationHandler(service *gservice.GroupService) *GroupInvitationH
 	return &GroupInvitationHandler{gService: service}
 }
 
-func (GrpInviatuionH *GroupInvitationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (GrpInvHandler *GroupInvitationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
