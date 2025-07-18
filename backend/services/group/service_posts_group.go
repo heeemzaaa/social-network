@@ -12,7 +12,7 @@ func (s *GroupService) AddPost(post *models.PostGroup) (*models.PostGroup, *mode
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	// always check the membership and also the the group is a valid one
-	if errMembership := s.CheckMembership(post.GroupId, post.UserId); errMembership != nil {
+	if errMembership := s.CheckMembership(post.GroupId, post.User.Id); errMembership != nil {
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 	errPostGroup := models.PostGroupErr{}

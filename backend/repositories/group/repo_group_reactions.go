@@ -68,37 +68,5 @@ func (appRepo *GroupRepository) HanldeReaction(reaction *models.GroupReaction) (
 	return reaction_existed, nil
 }
 
-func (appRepo *GroupRepository) GetTypeIdByName(type_entity string) int {
-	var id int
-	query := `SELECT entityTypeID FROM types WHERE entityType = ?`
-	if err := appRepo.db.QueryRow(query, type_entity).Scan(&id); err != nil {
-		return 0
-	}
-	return id
-}
 
-func (appRepo *GroupRepository) CheckEntityID(reaction *models.GroupReaction, type_entity string) *models.ErrorJson {
-	var query string
-	var entity int
-	switch type_entity {
-	case "comment":
-		query = `SELECT exists(SELECT 1 FROM comments WHERE commentID = ? );`
-		if err := appRepo.db.QueryRow(query, reaction.EntityId).Scan(&entity); err != nil {
-			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v lhiih", err)}
-		}
 
-	case "post":
-		query = `SELECT exists(SELECT 1 FROM posts WHERE postID = ? );`
-		if err := appRepo.db.QueryRow(query, reaction.EntityId).Scan(&entity); err != nil {
-			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
-		}
-
-	}
-	// exists will return 0 if there is no row thar matches dakshi li 3ndna
-	if entity == 0 {
-		return &models.ErrorJson{Status: 400, Message: &models.GroupReactionErr{
-			EntityId: "Wrong EntityID field!",
-		}}
-	}
-	return nil
-}

@@ -9,20 +9,17 @@ import (
 
 // the process of checking if a user is a member of a group of not will be hold at the service of every function
 
-func (service *GroupService) GetGroupEvents(groupID, userID string, offset int64) ([]models.Event, *models.ErrorJson) {
-	// check if the user is a member or not
-
-	isMember, errJson := service.IsMemberGroup(groupID, userID)
-	if errJson != nil {
+func (gService *GroupService) GetGroupEvents(groupID, userID string, offset int64) ([]models.Event, *models.ErrorJson) {
+	if errJson := gService.gRepo.GetGroupById(groupID); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
-	// if the one trying to access is a member wlla laa
-	// so if not we need to return 403
-	if !isMember {
-		return nil, &models.ErrorJson{Status: 403, Error: "ERROR!! Acces Forbidden!"}
+	// always check the membership and also the the group is a valid one
+	if errMembership := gService.CheckMembership(groupID, userID); errMembership != nil {
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
+	// if the one trying to access is a member wlla laa
 
-	events, errJson := service.gRepo.GetGroupEvents(groupID, offset)
+	events, errJson := gService.gRepo.GetGroupEvents(groupID,userID, offset)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
@@ -32,9 +29,13 @@ func (service *GroupService) GetGroupEvents(groupID, userID string, offset int64
 //  check if the values entered by the user are correct ( waaa tleee3  liya hadshii frassii mumiil)
 // as always we need to check if the user is part of the group before adding an event
 
-func (service *GroupService) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
-	if errMembership := service.CheckMembership(event.GroupId, event.EventCreatorId); errMembership != nil {
-		return nil, errMembership
+func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
+	if errJson := gService.gRepo.GetGroupById(event.GroupId); errJson != nil {
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	}
+	// always check the membership and also the the group is a valid one
+	if errMembership := gService.CheckMembership(event.GroupId, event.EventCreatorId); errMembership != nil {
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 	// here we'll be checking if the input is valid
 	errValidation := models.ErrEventGroup{}
@@ -54,7 +55,7 @@ func (service *GroupService) AddGroupEvent(event *models.Event) (*models.Event, 
 	if errValidation != (models.ErrEventGroup{}) {
 		return nil, &models.ErrorJson{Status: 400, Message: errValidation}
 	}
-	event, errJson := service.gRepo.AddGroupEvent(event)
+	event, errJson := gService.gRepo.AddGroupEvent(event)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}

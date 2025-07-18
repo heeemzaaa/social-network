@@ -5,17 +5,18 @@ import (
 )
 
 type Group struct {
-	GroupId        string    `json:"group_id,omitempty"`
-	GroupCreatorId string    `json:"group_creator_id,omitempty"`
-	Title          string    `json:"title"`
-	Description    string    `json:"description"`
-	ImagePath      string    `json:"image_path,omitempty"`
-	Image          string    `json:"image,omitempty"`
-	CreatedAt      time.Time `json:"created_at,omitempty"`
-	Total_Members  int       `json:"total_members,omitempty"`
-	Members        []User    `json:"members,omitempty"`
-	Posts          []Post    `json:"posts,omitempty"`
-	Events         []Event   `json:"events,omitempty"`
+	GroupId         string    `json:"group_id,omitempty"`
+	GroupCreatorId  string    `json:"group_creator_id,omitempty"`
+	Title           string    `json:"title"`
+	Description     string    `json:"description"`
+	ImagePath       string    `json:"image_path,omitempty"`
+	Image           string    `json:"image,omitempty"`
+	CreatedAt       time.Time `json:"created_at,omitempty"`
+	Total_Members   int       `json:"total_members,omitempty"`
+	Members         []User    `json:"members,omitempty"`
+	Posts           []Post    `json:"posts,omitempty"`
+	Events          []Event   `json:"events,omitempty"`
+	LastInteraction time.Time `json:"last_interaction,omitempty"`
 }
 
 // when trying to  create a group
@@ -30,9 +31,10 @@ type ErrJoinGroup struct {
 }
 
 type Event struct {
+	EventId        string    `json:"event_id,omitempty"`
 	GroupId        string    `json:"group_id,omitempty"`
 	EventCreator   string    `json:"event_creator,omitempty"`
-	EventCreatorId string    `json:"event_creator_id"`
+	EventCreatorId string    `json:"event_creator_id,omitempty"`
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
 	EventDate      string    `json:"event_date"`
@@ -49,9 +51,7 @@ type ErrEventGroup struct {
 type PostGroup struct {
 	Id            string    `json:"id,omitempty"`
 	GroupId       string    `json:"group_id,omitempty"`
-	UserId        string    `json:"user_id,omitempty"`
-	Username      string    `json:"user_name,omitempty"`
-	FullName      string    `json:"full_name,omitempty"`
+	User          User      `json:"user"`
 	Content       string    `json:"content"`
 	ImagePath     string    `json:"image_path,omitempty"`
 	Image         string    `json:"image,omitempty"`
@@ -95,4 +95,18 @@ type GroupReaction struct {
 type GroupReactionErr struct {
 	EntityId   string `json:"entity_id"`
 	EntityType string `json:"entity_type"`
+	Reaction   string `json:"reaction,omitempty"`
+}
+
+type UserEventAction struct {
+	Id      string `json:"id,omitempty"`
+	UserId  string `json:"user_id,omitempty"`
+	GroupId string `json:"group_id,omitempty"`
+	EventId string `json:"event_id,omitempty"`
+	Action  int    `json:"action"` // it has to remain without omiempty
+	// if it is done 0 won't be displayed because it is considered empty
+}
+
+type UserEventActionErr struct {
+	Action string `json:"action,omitempty"`
 }

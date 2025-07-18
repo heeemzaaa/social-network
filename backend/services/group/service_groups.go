@@ -1,7 +1,6 @@
 package group
 
 import (
-	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -18,7 +17,6 @@ func NewGroupService(grepo *group.GroupRepository) *GroupService {
 }
 
 func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *models.ErrorJson) {
-	fmt.Println("group", group)
 	errGroup := models.ErrGroup{}
 	trimmedTitle := strings.TrimSpace(group.Title)
 	trimmedDesc := strings.TrimSpace(group.Description)
