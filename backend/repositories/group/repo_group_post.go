@@ -37,7 +37,7 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
 
 // all the posts
 // add the offset and the limit after
-func (grepo *GroupRepository) GetPosts(userId string, offset int) ([]models.PostGroup, *models.ErrorJson) {
+func (grepo *GroupRepository) GetPosts(userId, groupId string ,offset int) ([]models.PostGroup, *models.ErrorJson) {
 	posts := []models.PostGroup{}
 	// query needs an update because the reactions table does not exist
 	// also the tables names are not correct
@@ -83,6 +83,7 @@ func (grepo *GroupRepository) GetPosts(userId string, offset int) ([]models.Post
 		AND group_reactions.userID = ?
 		AND group_reactions.reaction = 1
 		AND group_reactions.entityType = "post"
+	WHERE group_posts.groupID = ?
 	ORDER BY
 		group_posts.createdAt DESC
 	LIMIT
@@ -97,7 +98,7 @@ func (grepo *GroupRepository) GetPosts(userId string, offset int) ([]models.Post
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(userId, offset)
+	rows, err := stmt.Query(userId,groupId, offset)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return posts, nil
