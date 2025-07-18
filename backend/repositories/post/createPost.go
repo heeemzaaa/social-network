@@ -16,6 +16,12 @@ func (r *PostsRepository) CreatePost(post *models.Post) error {
 		fmt.Println("Error inserting post:", err)
 		return err
 	}
+	fullName, err := r.GetUserName(post.User.Id)
+	if err != nil {
+		fmt.Print("chi haja")
+		return err
+	}
+	post.User.FirstName = fullName
 	if post.Privacy == "private" && len(post.SelectedUsers) > 0 {
 		for _, followerID := range post.SelectedUsers {
 			_, err := r.db.Exec(
