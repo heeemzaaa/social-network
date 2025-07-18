@@ -27,7 +27,7 @@ export default function PostCard({
 
         // TODO: send to backend
     };
- 
+
     return (
 
         <div className="post-card">
@@ -44,9 +44,10 @@ export default function PostCard({
                 <p className="post-content">{content}</p>
                 {img && (
                     <div className="post-card-img">
-                        <img src={`http://localhost:8080/static/${img}` } alt={img} />
+                        <img src={`http://localhost:8080/static/${img}`} alt={img} />
                     </div>
                 )}
+                <span>{new Date(created_at).toISOString().slice(0, 16).replace('T', ' ')}</span>
                 <div className="post-actions flex gap-2 align-center" >
                     <div style={actionStyle} onClick={handleToggleLike} >
                         {isLiked ? <FaHeart color="red" /> : <FaRegHeart />}
