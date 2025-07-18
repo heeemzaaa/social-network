@@ -29,7 +29,7 @@ func (gService *GroupService) AddComment(comment *models.CommentGroup) (*models.
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	// always check the membership and also the the group is a valid one
-	if errMembership := gService.CheckMembership(comment.GroupId, comment.UserId); errMembership != nil {
+	if errMembership := gService.CheckMembership(comment.GroupId, comment.User.Id); errMembership != nil {
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 
