@@ -10,6 +10,8 @@ import { useModal } from '../_context/ModalContext';
 import CreatePost from './posts/createPost';
 import { CreateGroup } from '../groups/_components/createGroup';
 
+import NotificationsPopover from './notifications/NotificationsPopover'
+
 export default function Header() {
   let { openModal } = useModal()
   return (
@@ -41,12 +43,7 @@ export default function Header() {
         </Button>
 
         <Popover trigger={<HiBell size={24} />}>
-          <p>notification</p>
-          <p>notification</p>
-          <p>notification</p>
-          <p>notification</p>
-          <p>notification</p>
-          <p>notification</p>
+          <NotificationsPopover />
         </Popover>
       </div>
 
