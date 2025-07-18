@@ -27,7 +27,7 @@ export default function PostCard({
 
         // TODO: send to backend
     };
-
+ 
     return (
 
         <div className="post-card">
@@ -36,7 +36,7 @@ export default function PostCard({
                     <div className="flex align-center gap-1">
                         <Avatar size="42" />
                         <h3 className="post-user">
-                            {user.first_name} {user.last_name}
+                            {user.firstname} {user.lastname}
                         </h3>
                     </div>
                     <span className="post-privacy">{privacy}</span>

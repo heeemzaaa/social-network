@@ -12,7 +12,7 @@ func (r *PostsRepository) GetAllPosts(userID uuid.UUID) ([]models.Post, error) {
 	query := `
 SELECT DISTINCT 
     p.postID, p.userID, p.content, p.createdAt, p.privacy, p.image_url,
-    u.nickname
+    u.firstName , u.lastName
     FROM posts p
     JOIN users u ON p.userID = u.userID
     LEFT JOIN post_access pa ON p.postID = pa.postID
@@ -33,7 +33,7 @@ ORDER BY p.createdAt DESC;`
 	var posts []models.Post
 	for rows.Next() {
 		var p models.Post
-		if err := rows.Scan(&p.Id, &p.User.Id, &p.Content, &p.CreatedAt, &p.Privacy, &p.Img, &p.User.Nickname); err != nil {
+		if err := rows.Scan(&p.Id, &p.User.Id, &p.Content, &p.CreatedAt, &p.Privacy, &p.Img, &p.User.FirstName, &p.User.LastName); err != nil {
 			fmt.Println("err  in scaning", err)
 			return nil, err
 		}
