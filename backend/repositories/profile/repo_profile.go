@@ -324,7 +324,7 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfi
 		err := rows.Scan(
 			&post.Id,
 			&user.Id, &user.FirstName, &user.LastName, &user.ImagePath,
-			&post.Content, &post.Media, &post.CreatedAt,
+			&post.Content, &post.Img, &post.CreatedAt,
 			&post.TotalLikes, &post.TotalComments,
 		)
 		if err != nil {

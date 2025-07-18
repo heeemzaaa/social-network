@@ -7,10 +7,12 @@ type Post struct {
 	User          User      `json:"user"`
 	Content       string    `json:"content,omitempty"`
 	CreatedAt     time.Time `json:"created_at,omitempty"`
-	Media         string    `json:"media,omitempty"`
-	TotalComments int       `json:"total_comments,omitempty"`
+	Img           string    `json:"img,omitempty"`
 	TotalLikes    int       `json:"total_likes,omitempty"`
+	TotalComments int       `json:"total_comments"`
+	Privacy       string    `json:"privacy"`
 	Liked         int       `json:"liked,omitempty"`
+	SelectedUsers []string  `json:"selected_users,omitempty"`
 }
 
 func NewPost() *Post {

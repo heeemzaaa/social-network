@@ -57,7 +57,8 @@ export default function Page({ params }) {
         setMine(info.isMyProfile)
         setRequested(info.isRequested)
         setAccess(info.access)
-        console.log('access', info.access)
+        
+
 
       } catch (err) {
         console.error("Error fetching user profile:", err)
@@ -150,7 +151,7 @@ export default function Page({ params }) {
       <InfosDiv userInfos={userInfos}>
         <section className="buttons flex gap-1" style={{ marginLeft: 'auto' }}>
           {!mine && (
-            <Button variant={'btn-icon glass-bg gap-1'} onClick={handleToggleFollow} disabled={requested}>
+            <Button variant={'btn-primary glass-bg gap-1'} onClick={handleToggleFollow} disabled={requested}>
               {requested ? (
                 <>
                   <MdPending size="24px" color="white" />

@@ -10,27 +10,19 @@ import (
 	_ "image/png"
 	"io"
 	"net/http"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"social-network/backend/models"
 )
 
-
-// set the default image based on the specific business logic 
+// set the default image based on the specific business logic
 // so the default image MUST change based on if the group or the profile for example!!!
 
 func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string, setDefault bool) (string, *models.ErrorJson) {
-	defaultPath := ""
-	if setDefault {
-		defaultPath = filepath.Join("static", "default", "default.jpg")
-		defaultPath = strings.TrimPrefix(defaultPath, "static/")
-	}
 	file, _, err := r.FormFile(fileName)
 	if err != nil {
 		if err == http.ErrMissingFile {
-			return defaultPath, nil
+			return "", nil
 		}
 		return "", &models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v 111111", err)}
 	}
@@ -54,7 +46,7 @@ func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string, setDe
 	}
 	// the string returned here is the actual format (we can do another check to see if the mimeType is
 	// on harmony with the format but no need !!
-	_,_, err = image.Decode(bytes.NewReader(buf.Bytes()))
+	_, _, err = image.Decode(bytes.NewReader(buf.Bytes()))
 	if err != nil {
 		return "", &models.ErrorJson{Status: 400, Message: "Error!! Invalid Image Content"}
 	}
