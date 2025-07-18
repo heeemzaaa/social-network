@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -104,10 +103,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Session cookie:", r.Header.Get("Cookie"))
-
 	w.Header().Set("Content-Type", "application/json")
-
 	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 
 	if len(pathParts) < 2 || pathParts[0] != "api" || pathParts[1] != "posts" {
@@ -115,21 +111,24 @@ func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postID := ""
+	thirdEndPoint := ""
 	if len(pathParts) >= 3 {
-		postID = pathParts[2]
+		thirdEndPoint = pathParts[2]
 	}
-
 	switch r.Method {
 
 	case http.MethodGet:
-		if postID == "" {
+		if thirdEndPoint == "" {
 			h.GetAllPosts(w, r)
 		} else {
-			h.GetPostByID(w, r, postID)
+			h.GetPostByID(w, r, thirdEndPoint)
 		}
 	case http.MethodPost:
-		if postID == "" {
+		if thirdEndPoint != "" {
+			if len(pathParts) >= 3 && pathParts[2] == "like" {
+				h.LikePost(w, r)
+				return
+			}
 			h.CreatePost(w, r)
 		} else {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed on this endpoint"})
@@ -137,4 +136,31 @@ func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed"})
 	}
+}
+
+func (h *PostHandler) LikePost(w http.ResponseWriter, r *http.Request) {
+	postID, err := utils.GetUUIDFromPath(r, "id")
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: http.StatusBadRequest, Message: "Invalid post ID"})
+		return
+	}
+
+	userID, err := middleware.GetUserIDFromContext(r.Context())
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: http.StatusUnauthorized, Message: "Unauthorized"})
+		return
+	}
+
+	err = h.service.HandleLike(postID, userID)
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: http.StatusInternalServerError, Message: "Failed to like post"})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]any{
+		"success": true,
+		"message": "Post like updated successfully",
+		"postId" : postID,
+		})
 }

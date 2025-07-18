@@ -26,3 +26,7 @@ func (s *PostService) GetAllPosts(userID uuid.UUID) ([]models.Post, error) {
 func (s *PostService) GetPostByID(postID string) (models.Post, error) {
 	return s.repo.GetPostByID(postID)
 }
+
+func (s *PostService) HandleLike(postID uuid.UUID, userID uuid.UUID) error {
+	return s.repo.HandleLike(postID, userID)
+}
