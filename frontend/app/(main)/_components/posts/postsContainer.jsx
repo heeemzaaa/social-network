@@ -20,6 +20,7 @@ export function PostsContainer({ post }) {
                     return;
                 }
                 const data = await resp.json();
+                console.log(data)
                 setPosts(data); 
             } catch (error) {
                 console.log("error fetching posts", error);

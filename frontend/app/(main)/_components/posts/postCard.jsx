@@ -12,6 +12,9 @@ export default function PostCard({ post }) {
             <div className="post-card-header">
                 <Avatar />
             </div>
+             <div className="post-card-content-nickname">
+                    {post.user.nickname}
+             </div>
             <div className="post-card-content">
                  <div className="post-card-content-privacy">
                     {post.privacy}

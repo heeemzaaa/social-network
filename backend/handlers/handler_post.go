@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"social-network/backend/middleware"
 	"social-network/backend/models"
@@ -83,28 +84,23 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
+	var user models.User
+	user.Id = usID.String()
 	post := models.Post{
-		ID:            utils.NewUUID(),
-		UserID:        usID.String(),
+		Id:            utils.NewUUID(),
+		User:          user,
 		Content:       r.FormValue("content"),
 		Privacy:       r.FormValue("privacy"),
 		Img:           "/" + imagePath,
 		SelectedUsers: selectedUserIDs,
+		CreatedAt:     time.Now().String(),
 	}
 
 	if err := h.service.CreatePost(&post); err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to create post"})
 		return
 	}
-
-	utils.WriteDataBack(w, map[string]string{
-		"message": "Post created successfully",
-		"postId":  post.ID,
-		"content": post.Content,
-		"privacy": post.Privacy,
-		"img":     post.Img,
-	})
+	utils.WriteDataBack(w, post)
 }
 
 func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
