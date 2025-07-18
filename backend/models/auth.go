@@ -14,6 +14,7 @@ type User struct {
 	Visibility      string `json:"visibility,omitempty"`
 	LastMessage     string `json:"last_message,omitempty"`
 	LastInteraction string `json:"last_interaction,omitempty"`
+	Notifications   int   `json:"notifications,omitempty"`
 }
 
 func NewUser() *User {

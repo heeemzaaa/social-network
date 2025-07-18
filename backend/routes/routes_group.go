@@ -33,9 +33,24 @@ import (
 // POST /api/groups/{group_id}/events/{event-id}/ (show interest to  an event to a specific group)
 /**********************************************************/
 // GET /groups/{group_id}/members  GET the members of a specific group
-// GET /groups/{group_id}/members/{id} to the profile of a user of a specific group
 /**********************************************************/
 // POST  /groups/{group_id}/react
+
+/*******************************************************************************************/
+// for the requests  
+
+// POST   /groups/{group_id}/join-request  (the userID here is gotten from the context)
+// DELETE  /groups/{group_id}/join-request  (the same here)
+
+
+// for the requests acceptation  (to the admin of the group)
+
+// POST  
+
+
+
+
+
 
 func SetGroupRoutes(mux *http.ServeMux, db *sql.DB, authService *authService.AuthService) {
 	//  auth service

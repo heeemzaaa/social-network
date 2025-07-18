@@ -16,69 +16,132 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 	return &ChatRepository{db: db}
 }
 
-func (repo *ChatRepository) GetUsers(offset, user_id int) ([]models.User, *models.ErrorJson) {
+func (repo *ChatRepository) GetID(sessionID string) (string, *models.ErrorJson) {
+	query := `SELECT userID FROM sessions WHERE userID = ?`
+	var userID string
+	err := repo.db.QueryRow(query, sessionID).Scan(&userID)
+	if err != nil {
+		return "", &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	return userID, nil
+}
+
+func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models.ErrorJson) {
 	var users []models.User
-	query := `
-		WITH 
-		cte_latest_interaction AS (
-    		SELECT
-        		CASE 
-            		WHEN sender_id = ? THEN target_id 
-            		ELSE sender_id 
-        		END AS userID,
-        	MAX(created_at) AS lastInteraction,
-        	message
-    	FROM messages
-    		WHERE (sender_id = ? OR target_id = ?)
-      		AND type = 'private'
-    		GROUP BY userID
-		),
-		cte_ordered_users AS (
-    		SELECT 
-       			 i.message, 
-       			 COALESCE(i.lastInteraction, 0) AS lastInteraction,  
-        		u.userID, 
-        		u.firstName
-    		FROM users u 
-    		LEFT JOIN cte_latest_interaction i 
-       		ON i.userID = u.userID
-    	WHERE u.userID != ?
-		),
-		cte_notifications AS (
-    		SELECT 
-        		sender_id,
-        		COUNT(*) AS notifications 
-    		FROM messages 
-    		WHERE readStatus = 0
-      			AND target_id = ?
-      			AND type = 'private'
-    			GROUP BY sender_id
-		)
-		SELECT 
-    		u.userID, 
-    		u.firstName,
-    	COALESCE(u.message, '') AS message, 
-   			u.lastInteraction, 
-    	COALESCE(n.notifications, 0) AS notifications
-		FROM cte_ordered_users u
-			LEFT JOIN cte_notifications n ON u.userID = n.sender_id
-			ORDER BY u.lastInteraction DESC, u.firstName, u.lastName;
+
+	query := `WITH 
+	cte_latest_interaction AS (
+    SELECT
+        CASE 
+            WHEN sender_id = ? THEN target_id 
+            ELSE sender_id 
+        END AS userID,
+        MAX(created_at) AS lastInteraction,
+        content
+    FROM messages
+    WHERE (sender_id = ? OR target_id = ?)
+      AND type = 'private'
+    GROUP BY userID
+	),
+	cte_connections AS (
+    SELECT userID FROM followers WHERE followerID = ?     
+    UNION
+    SELECT followerID AS userID FROM followers WHERE userID = ?  
+	),
+	cte_ordered_users AS (
+    SELECT 
+        i.content, 
+        COALESCE(i.lastInteraction, CURRENT_TIMESTAMP) AS lastInteraction,  
+        u.userID, 
+        u.firstName,
+        u.lastName
+    FROM users u 
+    JOIN cte_connections f ON u.userID = f.userID
+    LEFT JOIN cte_latest_interaction i ON i.userID = u.userID
+    WHERE u.userID != ?
+	),
+	cte_notifications AS (
+    SELECT 
+        sender_id,
+        COUNT(*) AS notifications 
+    FROM messages 
+    WHERE readStatus = 0
+      AND target_id = ?
+      AND type = 'private'
+    GROUP BY sender_id
+	)
+	SELECT 
+   		u.userID, 
+    	u.firstName,
+    	u.lastName,
+    COALESCE(u.content, '') AS content, 
+    	u.lastInteraction, 
+    COALESCE(n.notifications, 0) AS notifications
+	FROM cte_ordered_users u
+	LEFT JOIN cte_notifications n ON u.userID = n.sender_id
+	ORDER BY u.lastInteraction DESC, u.firstName, u.lastName;
 `
 
-	rows, err := repo.db.Query(query, user_id, user_id, user_id, user_id, user_id)
+	rows, err := repo.db.Query(query, authUserID, authUserID, authUserID, authUserID, authUserID, authUserID, authUserID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var user models.User
-		if err := rows.Scan(&user.Id, &user.Nickname, &user.LastMessage, &user.LastInteraction); err != nil {
-			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v ", err)}
+		if err := rows.Scan(
+			&user.Id,
+			&user.FirstName,
+			&user.LastName,
+			&user.LastMessage,
+			&user.LastInteraction,
+			&user.Notifications,
+		); err != nil {
+			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("scan error: %v", err)}
 		}
 		users = append(users, user)
 	}
-	defer rows.Close()
 
-	return users, nil
+	return &users, nil
+}
+
+func (repo *ChatRepository) GetGroups(authUserID string) (*[]models.Group, *models.ErrorJson) {
+	var groups []models.Group
+	query := `WITH
+	cte_latest_interaction AS (
+    SELECT
+        CASE 
+            WHEN sender_id = ? THEN target_id 
+            ELSE sender_id 
+        END AS userID,
+        MAX(created_at) AS lastInteraction,
+        content
+    FROM messages
+    WHERE (sender_id = ? OR target_id = ?)
+      AND type = 'group'
+    GROUP BY userID
+	),
+	cte_my_groups AS (
+		SELECT groupID WHERE userID = ?
+	),
+	`
+
+	rows, err := repo.db.Query(query, authUserID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+
+	for rows.Next() {
+		var group models.Group
+		err := rows.Scan()
+		if err != nil {
+			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		}
+		groups = append(groups, group)
+	}
+
+	return &groups, nil
 }
 
 // here I will get the session Id by the token given by the browser to check the auth
@@ -207,6 +270,7 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 				return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 			}
 		}
+		message.SenderID = sender_id
 		messages = append(messages, message)
 	}
 
@@ -270,4 +334,22 @@ func (repo *ChatRepository) GroupExists(groupID string) (bool, *models.ErrorJson
 		return false, &models.ErrorJson{Status: 500, Error: "", Message: fmt.Sprintf("%v", err)}
 	}
 	return exists, nil
+}
+
+func (repo *ChatRepository) EditReadStatus(sender_id, receiver_id string) *models.ErrorJson {
+	query := `
+	UPDATE messages
+	SET
+		readStatus = 1
+	WHERE
+		sender_iD = ?
+		AND target_id = ?
+		AND type = 'private'
+		AND readStatus = 0
+	`
+	_, err := repo.db.Exec(query, receiver_id, sender_id)
+	if err != nil {
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	return nil
 }
