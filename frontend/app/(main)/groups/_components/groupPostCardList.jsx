@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import Button from "@/app/_components/button";
-import PostCard from "../../_components/posts/post_card";
+import PostCard from "../../test/postCard";
+import PostCardList from "../../test/postCardList";
 
 export default function GroupPostCardList({ groupId }) {
     const [data, setData] = useState([]);

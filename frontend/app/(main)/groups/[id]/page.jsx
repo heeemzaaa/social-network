@@ -1,7 +1,8 @@
 "use client"; // Required for client-side rendering in Next.js
 
 import React, { useEffect, useState } from "react";
-import { HiCalendar, HiDocumentPlus, HiMiniUserPlus, HiMiniUsers } from "react-icons/hi2";
+import { HiCalendar, HiDocumentPlus, HiMiniUserPlus, HiMiniUsers, HiOutlineDocumentPlus, HiOutlineUserPlus } from "react-icons/hi2";
+import { LuCalendarPlus } from "react-icons/lu";
 import Tag from "../../_components/tag";
 import Tabs from "../../_components/tab/tabs";
 import Tab from "../../_components/tab/tab";
@@ -29,18 +30,18 @@ export default function GroupPage({ params }) {
   const actionButtons = [
     {
       label: "Invite Friend",
-      icon: <HiMiniUserPlus size={"24"} />,
-      onClick: () => openModal(<InviteFriendForm/>)
+      icon:<HiOutlineUserPlus size={24} />,
+      onClick: () => openModal(<InviteFriendForm />)
     },
     {
       label: "Add Post",
-      icon: <HiDocumentPlus size={"24"} />,
-      onClick: () => openModal(<CreatePostForm groupId={groupId}/>)
+      icon:<HiOutlineDocumentPlus size={24}/>,
+      onClick: () => openModal(<CreatePostForm groupId={groupId} />)
     },
     {
       label: "Add Event",
-      icon: <HiCalendar size={"24"} />,
-      onClick: () => openModal(<CreateEventForm groupId={groupId}/>)
+      icon: <LuCalendarPlus size={"24"} />,
+      onClick: () => openModal(<CreateEventForm groupId={groupId} />)
     }
   ]
 
@@ -71,7 +72,7 @@ export default function GroupPage({ params }) {
   if (error) return <p className="text-danger text-center">Error: {error}</p>;
 
   return (
-    <main className="group-page-section flex gap-2">
+    <main className="group-page-section flex gap-1">
       <div className="col" >
         {/* Group Info */}
         <Avatar size={250} />
@@ -89,18 +90,18 @@ export default function GroupPage({ params }) {
             </Tag>
           </div>
         </div>
-        <div className="flex-col p4 gap-1">
-          {actionButtons.map((button,index) =>
+      </div>
+
+      {/* tabs for posts and  */}
+      <div className="flex-grow h-full ">
+        <div className="flex gap-1">
+          {actionButtons.map((button, index) =>
             <Button onClick={button.onClick} key={index}>
               {button.icon}
               <span style={{ marginLeft: "5px" }}>{button.label}</span>
             </Button>
           )}
         </div>
-      </div>
-
-      {/* tabs for posts and  */}
-      <div className="flex-grow ">
         <Tabs className={"h-full"}>
           <Tab label={"Posts"} />
           <Tab label={"Events"} />
@@ -115,4 +116,3 @@ export default function GroupPage({ params }) {
     </main>
   );
 }
-
