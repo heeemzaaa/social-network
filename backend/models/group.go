@@ -106,6 +106,10 @@ type UserEventAction struct {
 	// if it is done 0 won't be displayed because it is considered empty
 }
 
+type UserErr struct {
+	UserId string `json:"user"`
+}
+
 type UserEventActionErr struct {
 	Action string `json:"action,omitempty"`
 }

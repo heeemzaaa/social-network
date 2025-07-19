@@ -10,10 +10,10 @@ import (
 // generic somehow
 // we need to specify  the type aftewards ;)
 // it will be used for the nickname , session and also the email checking
-func (appRep *GroupRepository) GetItem(typ string, field string, value string) ([]any, bool, *models.ErrorJson) {
+func (gRepo *GroupRepository) GetItem(typ string, field string, value string) ([]any, bool, *models.ErrorJson) {
 	data := make([]any, 0)
 	query := fmt.Sprintf(`SELECT %v FROM %v WHERE %v=?`, field, typ, field)
-	stmt, err := appRep.db.Prepare(query)
+	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
 		return nil, false, &models.ErrorJson{Status: 500, Error: "ERROR!! Internal Server error"}
 	}
@@ -34,4 +34,20 @@ func (appRep *GroupRepository) GetItem(typ string, field string, value string) (
 		return data, true, nil
 	}
 	return nil, false, nil
+}
+
+func (gRepo *GroupRepository) IsAdmin(groupId, userId string) (bool, *models.ErrorJson) {
+	query := `SELECT groups.groupCreatorID FROM groups WHERE groups.groupID = ?`
+	stmt, err := gRepo.db.Prepare(query)
+	if err != nil {
+		return false, &models.ErrorJson{Status: 500, Error: "ERROR!! Internal Server error"}
+	}
+	defer stmt.Close()
+	var groupAdminId string
+	err = stmt.QueryRow(groupId).Scan(&groupAdminId)
+	if err != nil {
+		return false, &models.ErrorJson{Status: 500, Error: "ERROR!! Internal Server error"}
+	}
+
+	return groupAdminId == userId, nil
 }

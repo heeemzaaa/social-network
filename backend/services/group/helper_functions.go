@@ -51,3 +51,11 @@ func (service *GroupService) GroupExists(groupID string) *models.ErrorJson {
 func IsValidType(typeEntity string) bool {
 	return typeEntity == "post" || typeEntity == "comment"
 }
+
+func (service *GroupService) IsAdmin(groupId, userId string) (bool, *models.ErrorJson) {
+	isAdmin, errJson := service.gRepo.IsAdmin(groupId, userId)
+	if errJson != nil {
+		return false, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	}
+	return isAdmin, nil
+}
