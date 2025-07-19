@@ -56,7 +56,6 @@ export default function Page({ params }) {
         setFollows(info.isFollower)
         setMine(info.isMyProfile)
         setRequested(info.isRequested)
-        setAccess(info.access)
         
 
 
