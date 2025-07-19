@@ -21,7 +21,7 @@ export default function Header() {
 
       <div className='flex gap-2'>
         <Popover trigger={<HiMiniPlusCircle size={24} />}>
-          <Button style={"w-full"} variant='btn-tertiary' onClick={() => openModal("test")}>
+          <Button className={"w-full"} variant='btn-tertiary' onClick={() => openModal("test")}>
             <HiMiniPlusSmall size={"30px"} />
             <span>
               Add post
