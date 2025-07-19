@@ -17,6 +17,10 @@ import (
 // need to come back at night
 
 /***   /api/groups/   ***/
+// DONE 
+// REDONE
+// REDONE AGAIN
+
 
 type GroupHanlder struct {
 	gService *gservice.GroupService
@@ -30,26 +34,26 @@ func NewGroupHandler(gservice *gservice.GroupService) *GroupHanlder {
 func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: errParse.Error()})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 	filter := r.URL.Query().Get("filter")
 	if !utils.IsValidFilter(filter) {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect filter by field!!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Incorrect filter by field!!"})
 		return
 	}
 	offset, errOffset := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
 	if errOffset != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect Offset Format!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Incorrect Offset Format!"})
 		return
 	}
 	groups, errJson := Ghandler.gService.GetGroups(filter, offset, userID.String())
 	if errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
 		return
 	}
 	if err := json.NewEncoder(w).Encode(groups); err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 }
@@ -60,14 +64,14 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: errParse.Error()})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 	var group_to_create *models.Group
 
 	data := r.FormValue("data")
 	if err := json.Unmarshal([]byte(data), &group_to_create); err != nil {
-		if err == io.EOF {
+		if err == io.EOF || group_to_create == (&models.Group{}) {
 			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
 				Message: models.ErrGroup{
@@ -86,15 +90,16 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 	}
 
 	// handle the image encoding in the phase that comes before the adding process
-	path, errUploadImg := utils.HanldeUploadImage(r, "group", "groups", true)
+	path, errUploadImg := utils.HanldeUploadImage(r, "group", "groups")
 	if errUploadImg != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message, Error: errUploadImg.Error})
 		return
 	}
+
 	group_to_create.GroupCreatorId, group_to_create.ImagePath = userID.String(), path
 	group, errJson := Ghandler.gService.AddGroup(group_to_create)
 	if errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
 		return
 	}
 	utils.WriteDataBack(w, group)
@@ -102,9 +107,6 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 
 func (Ghandler *GroupHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
-	fmt.Println("requested path:", r.URL.Path)
-	fmt.Println("method", r.Method)
 	switch r.Method {
 	case http.MethodGet:
 		Ghandler.GetGroups(w, r)
@@ -113,7 +115,7 @@ func (Ghandler *GroupHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		Ghandler.CreateGroup(w, r)
 		return
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method Not Allowed!"})
 		return
 	}
 }

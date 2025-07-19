@@ -3,17 +3,20 @@ package handlers
 import (
 	"net/http"
 
-	service "social-network/backend/services"
+	group "social-network/backend/services/group"
+	profile "social-network/backend/services/profile"
 )
 
-type UserHandler struct {
-	service *service.AppService
+type NotificationsHandler struct {
+	gService *group.GroupService
+	pService *profile.ProfileService
 }
 
-func NewUserHandler(service *service.AppService) *UserHandler {
-	return &UserHandler{service: service}
+func NewNotificationsHandler(gService *group.GroupService, pService *profile.ProfileService) *NotificationsHandler {
+	return &NotificationsHandler{gService: gService, pService: pService}
 }
 
-func (Ghandler *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	
+func (Nhandler *NotificationsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	groupID := "0a3b66fc-367c-43e3-bb42-c28c5ec161d3"
+	Nhandler.gService.GetGroupInfo(groupID)
 }

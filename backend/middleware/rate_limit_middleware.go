@@ -1,16 +1,12 @@
 package middleware
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 	"time"
 
 	"social-network/backend/models"
 )
-
-
-
 
 func (rl *RateLimitMiddleWare) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -35,7 +31,7 @@ func (rl *RateLimitMiddleWare) ServeHTTP(w http.ResponseWriter, r *http.Request)
 			clientInfo.LastRequest = time.Now()
 		} else {
 			if clientInfo.Count >= rl.MaxRequests {
-				fmt.Println("", clientInfo.Count)
+
 				WriteJsonErrors(w, models.ErrorJson{
 					Status:  http.StatusTooManyRequests,
 					Message: "ERROR!! Too many Requests",

@@ -1,67 +1,94 @@
+import { useCallback, useEffect, useState, useRef } from "react";
 import GroupCard from "./groupCard";
+import Button from "@/app/_components/button";
 
-let groups = [
-    {
-        title: "Hiking Enthusiasts",
-        description: "A group for people who love exploring nature trails and going on hikes.",
-        membersCount: 128
-    },
-    {
-        title: "JavaScript Developers",
-        description: "A place to discuss JavaScript, share resources, and collaborate on projects.",
-        membersCount: 342
-    },
-    {
-        title: "Bookworms United",
-        description: "For those who love reading and sharing book recommendations.",
-        membersCount: 89
-    },
-    {
-        title: "Fitness & Wellness",
-        description: "A community focused on health, fitness routines, and mindfulness.",
-        membersCount: 210
-    },
-    {
-        title: "Digital Nomads",
-        description: "Connect with remote workers traveling the world and sharing tips.",
-        membersCount: 154
-    },
-    {
-        title: "Photography Pros",
-        description: "Share your best shots, learn techniques, and review gear with fellow photographers.",
-        membersCount: 277
-    },
-    {
-        title: "Indie Game Developers",
-        description: "A supportive space for indie game devs to share progress, feedback, and ideas.",
-        membersCount: 196
-    },
-    {
-        title: "Startup Founders Hub",
-        description: "Connect with fellow entrepreneurs, share startup stories, and seek advice.",
-        membersCount: 311
-    },
-    {
-        title: "Sustainable Living",
-        description: "Tips and discussions around eco-friendly habits and sustainable practices.",
-        membersCount: 134
-    },
-    {
-        title: "Language Learners",
-        description: "Practice and exchange languages with people from around the world.",
-        membersCount: 402
-    }
-];
+export default function GroupCardList({ filter }) {
+    const [data, setData] = useState([]);
+    const [page, setPage] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [error, setError] = useState(null);
+    const abortControllerRef = useRef(null);
 
-
-export default function GroupCardList() {
-    return (
-        <div className="grp-cards-list flex flex-wrap  gap-4 justify-center h-full">
-            {
-                groups.map((grp, index) => <GroupCard key={index} {...grp} />)
+    const fetchData = useCallback(
+        async (currentPage) => {
+            if (isLoading || !hasMore) return;
+            setIsLoading(true);
+            abortControllerRef.current = new AbortController();
+            const signal = abortControllerRef.current.signal;
+            try {
+                const response = await fetch(`http://localhost:8080/api/groups?filter=${filter}&offset=${currentPage * 20}`,
+                    { credentials: "include", signal });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const result = await response.json();
+                if (result.length === 0) {
+                    setHasMore(false); // No more data to fetch
+                } else {
+                    if (result.length < 20) setHasMore(false);
+                    setData((prevData) => [...prevData, ...result]); // Append new data
+                }
+            } catch (err) {
+                if (err.name === "AbortError") {
+                    return; // Ignore AbortError
+                }
+                console.error(err);
+                setError(err.message);
+            } finally {
+                setIsLoading(false);
             }
-        </div>
+        },
+        [filter]
+    );
+
+    // Reset data and fetch initial page when filter changes
+    useEffect(() => {
+        setData([]);
+        setPage(0);
+        setHasMore(true);
+        setError(null);
+        fetchData(0);
+
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+                abortControllerRef.current = null;
+            }
+        };
+    }, [filter, fetchData]);
+
+    // Fetch data when page changes
+    useEffect(() => {
+        if (page > 0) {
+            fetchData(page);
+        }
+    }, [page, fetchData]);
+
+    // Load more handler
+    const loadMore = () => {
+        setPage((prevPage) => prevPage + 1);
+    };
+
+    if (error) return <p className="text-danger text-center">Error: {error}</p>;
+    if (data.length === 0) (
+        <img
+            className="w-half mx-auto"
+            src="/no-data-animate.svg"
+            alt="No data"
+        />
     )
+    return (
+        <div className="list-container flex flex-wrap gap-4 justify-center items-start overflow-y-auto">
+            {
+                data.map((item, index) => <GroupCard key={item.id || index} type={filter} {...item} />)
+            }
+            {isLoading && <p className="text-center w-full">Loading...</p>}
+            {hasMore && !isLoading && (
+                <div className="w-full" style={{ textAlign: "" }}>
+                    <Button variant={"btn-tertiary"} onClick={loadMore}> Load More... </Button>
+                </div>
+            )}
+        </div>
+    );
 }
-
-

@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"social-network/backend/models"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -20,18 +22,6 @@ func isValidName(name string) error {
 	return nil
 }
 
-func isValidBirthDate(date string) error {
-	if strings.TrimSpace(date) == "" {
-		return errors.New("BirthDate is required")
-	}
-
-	_, err := time.Parse("2006-01-02", date)
-	if err != nil {
-		return errors.New("birth date must be in YYYY-MM-DD format and valid")
-	}
-
-	return nil
-}
 
 func (s *AuthService) isValidEmail(email string) error {
 	if strings.TrimSpace(email) == "" {
@@ -98,4 +88,25 @@ func CheckPasswordHash(password, hash string) bool {
 		fmt.Println("error comparing the password and the hash", err)
 	}
 	return err == nil
+}
+
+func ValidateDateRegister(date string) error {
+	s := strings.Trim(date, `"`)
+	timeParsed, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return errors.New("date format is incorrect: YYYY-MM-DD")
+	}
+
+	if timeParsed.IsZero() {
+		return errors.New("the date is not set up")
+	}
+	if timeParsed.After(time.Now()) {
+		return fmt.Errorf("please set a date that comes before %v", models.NewDate(time.Now()).Format("2006-01-02"))
+	}
+	// minimum to have 14 yo if u wanna join us 
+	if time.Since(timeParsed) < time.Duration(float64(time.Hour)*24*365.25*14) {
+		return errors.New("too young! go play outside and enjoy your childhood")
+	}
+
+	return nil
 }

@@ -19,19 +19,18 @@ func (repo *GroupRepository) JoinGroup(group *models.Group, userId string) *mode
 	`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		if sqlite3Err, ok := err.(sqlite3.Error); ok {
-			if sqlite3Err.Code == sqlite3.ErrConstraint {
-				return &models.ErrorJson{Status: 403, Message: "user already joined the group!"}
-			}
-		}
-
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 3", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(group.GroupId, userId)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 4", err)}
+		if sqlite3Err, ok := err.(sqlite3.Error); ok {
+			if sqlite3Err.Code == sqlite3.ErrConstraint {
+				return &models.ErrorJson{Status: 403, Error: "ERROR!! User already joined the group!"}
+			}
+		}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	return nil
 }
@@ -40,12 +39,11 @@ func (repo *GroupRepository) JoinGroup(group *models.Group, userId string) *mode
 //
 // the number of posts created !!
 func (repo *GroupRepository) GetGroupDetails(groupId string) (*models.Group, *models.ErrorJson) {
-	var groupDetails *models.Group
+	groupDetails := models.Group{}
 	query := `
 	WITH
     cte_members AS (
         SELECT
-            concat (users.firstName, " ", users.lastName) AS FullName,
             group_membership.groupID AS Id,
             count(group_membership.groupID) AS Nbr_Members
         FROM
@@ -54,27 +52,27 @@ func (repo *GroupRepository) GetGroupDetails(groupId string) (*models.Group, *mo
         GROUP BY
             Id
     )
-	SELECT
-		groups.title,
-		groups.description,
-		groups.imagePath,
-		cte_members.FullName,
-		cte_members.Nbr_Members
-	FROM
-		groups
-		INNER JOIN cte_members ON groups.groupID = cte_members.Id
-		AND groups.groupID = "f90492c4-a062-4160-a934-7c06c12c4499"
+		SELECT
+			groups.title,
+			groups.description,
+			groups.imagePath,
+			cte_members.Nbr_Members
+		FROM
+			groups
+			INNER JOIN cte_members ON groups.groupID = cte_members.Id
+			AND groups.groupID = ?
 	
 	`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 4", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	_, err = stmt.Query()
-	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 4", err)}
+	if err = stmt.QueryRow(groupId).Scan(&groupDetails.Title,
+		&groupDetails.Description, &groupDetails.ImagePath, &groupDetails.Total_Members); err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-	return groupDetails, nil
+
+	return &groupDetails, nil
 }

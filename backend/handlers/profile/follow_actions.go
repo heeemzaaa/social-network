@@ -43,7 +43,7 @@ func (fa *FollowActionHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteDataBack(w, "Done")
+	utils.WriteDataBack(w, "done !")
 }
 
 // POST api/profile/id/actions/unfollow
