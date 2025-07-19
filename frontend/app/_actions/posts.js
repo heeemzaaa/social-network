@@ -98,8 +98,6 @@ export async function createPostAction(prevState, formData) {
 }
 
 
-
-
 export async function likePostAction(prevState, formData) {
     const postId = formData.get("postId");
 
@@ -119,12 +117,17 @@ export async function likePostAction(prevState, formData) {
         const data = await res.json();
 
         if (data.success) {
-            return { message: "Liked successfully!" };
+            return {
+                message: "Liked successfully!",
+                liked: data.liked,       
+                likes: data.total_likes, 
+            };
         } else {
-            return { message: data.message || "Failed to like post." };
+            return { ...prevState, message: data.message || "Failed to like post." };
         }
     } catch (err) {
         console.error("Error liking post:", err);
-        return { message: "Server error." };
+        return { ...prevState, message: "Server error." };
     }
 }
+

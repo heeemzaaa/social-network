@@ -22,7 +22,7 @@ func (h *PostHandler) LikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.HandleLike(postID, userID)
+	liked, totalLikes, err := h.service.HandleLike(postID, userID)
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: http.StatusInternalServerError, Message: "Failed to like post"})
 		return
@@ -30,8 +30,10 @@ func (h *PostHandler) LikePost(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]any{
-		"success": true,
-		"message": "Post like updated successfully",
-		"postId":  postID,
+		"success":     true,
+		"message":     "Post like updated successfully",
+		"postId":      postID,
+		"liked":       liked,
+		"total_likes": totalLikes,
 	})
 }
