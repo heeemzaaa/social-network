@@ -1,5 +1,6 @@
 package models
 
+// notification structure
 type Notification struct {
 	Id          string
 	Reciever_Id string
@@ -14,7 +15,7 @@ func NewNotification() *Notification {
 	return &Notification{}
 }
 
-// requested notification data structure
+// new notification request data structure
 type Notif struct {
 	Sender_Id   string // user-id // credencials
 	Reciever_Id string // user-profile-id // user-profile-id // group-id [AllGpMb] // group-id [admin] // user-target-id
@@ -23,4 +24,14 @@ type Notif struct {
 }
 func NewNotif() *Notif {
 	return &Notif{}
+}
+
+// update notification request data structure
+type Unotif struct {
+	Notif_Id   string // notification id
+	Status      string // accept || reject
+
+}
+func UpdateNotif() *Unotif {
+	return &Unotif{}
 }

@@ -14,65 +14,64 @@ func NewNotifRepository(db *sql.DB) *NotifRepository {
 	return &NotifRepository{db: db}
 }
 
-// 3 -- function check if user has notification containe false seen
-func (repo *NotifRepository) IsHasSeenFalse(user_id string) (int, *models.ErrorJson) {
+// function check if user has notification containe false seen
+func (repo *NotifRepository) IsHasSeenFalse(user_id string) (bool, *models.ErrorJson) {
+	var exists bool
 
-	// get data with query param request
-	// private := models.Notification{}
-	// private.Id = "YYYYYYYYhed111c6487eb"
-	// private.Reciever_Id = "555555dddddddd863-ed111c6487eb"
-	// private.Sender_Id = "uuid.New().String()"
-	// private.Seen = false
-	// private.Type = "follow-private"
-	// private.Status = "later"
-	// private.Content = "SENDER_NAME sent follow request"
-	return 0, nil
-}
-// 4 -- function update status
-func (repo *NotifRepository) UpdateStatus(notif_id, user_id string) (bool, *models.ErrorJson) {
-
-	// get data with query param request
-	// private := models.Notification{}
-	// private.Id = "YYYYYYYYhed111c6487eb"
-	// private.Reciever_Id = "555555dddddddd863-ed111c6487eb"
-	// private.Sender_Id = "uuid.New().String()"
-	// private.Seen = false
-	// private.Type = "follow-private"
-	// private.Status = "later"
-	// private.Content = "SENDER_NAME sent follow request"
-	return true, nil
-}
-// 5 -- function update seen
-func (repo *NotifRepository) UpdateSeen(notif_id, user_id string) (bool, *models.ErrorJson) {
-
-	// get data with query param request
-	// private := models.Notification{}
-	// private.Id = "YYYYYYYYhed111c6487eb"
-	// private.Reciever_Id = "555555dddddddd863-ed111c6487eb"
-	// private.Sender_Id = "uuid.New().String()"
-	// private.Seen = false
-	// private.Type = "follow-private"
-	// private.Status = "later"
-	// private.Content = "SENDER_NAME sent follow request"
-	return true, nil
+	query := `SELECT EXISTS (SELECT 1 FROM notifications WHERE reciever_Id = ? AND seen = 0 LIMIT 1)`
+	err := repo.db.QueryRow(query, user_id).Scan(&exists)
+	if err != nil {
+		return false, &models.ErrorJson{Status: 500, Error: "", Message: fmt.Sprintf("%v", err)}
+	}
+	return exists, nil
 }
 
+// update notification status value by notif id
+func (repo *NotifRepository) UpdateStatus(notif_id, value string) *models.ErrorJson {
+	// log.Println("START UPDATE === value === ", value)
 
+	query := `UPDATE notifications SET notif_state = ? WHERE notif_id = ?`
+	_, err := repo.db.Exec(query, value, notif_id)
+	if err != nil {
+		fmt.Println("ERROR UPDATE === > ", err)
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	// fmt.Println("sssssssssssssssssss")
+	return nil
+}
+
+// update notification seen by notif id
+func (repo *NotifRepository) UpdateSeen(notif_id string) *models.ErrorJson {
+	query := `UPDATE notifications SET seen = 1 WHERE notif_id = ?`
+	_, err := repo.db.Exec(query, notif_id)
+	if err != nil {
+		fmt.Println("ERROR UPDATE === > ", err)
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	fmt.Println("sssssssssssssssssss")
+	return nil
+}
 
 // select notification by notif_id
 func (repo *NotifRepository) SelectNotification(notif_id string) (models.Notification, *models.ErrorJson) {
+	query := `SELECT * FROM notifications WHERE notif_id = ?`
 
-	// get data with query param request
-	private := models.Notification{}
-	private.Id = "YYYYYYYYhed111c6487eb"
-	private.Reciever_Id = "555555dddddddd863-ed111c6487eb"
-	private.Sender_Id = "uuid.New().String()"
-	private.Seen = false
-	private.Type = "follow-private"
-	private.Status = "later"
-	private.Content = "SENDER_NAME sent follow request"
-	return private, nil
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		fmt.Println("error 11111 ==== ", err)
+		return models.Notification{}, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	var notification models.Notification
+	err = stmt.QueryRow(notif_id).Scan(&notification.Id, &notification.Reciever_Id, &notification.Sender_Id, &notification.Seen, &notification.Type, &notification.Status, &notification.Content)
+	if err != nil {
+		fmt.Println("error 22222 ==== ", err)
+		return notification, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
+	}
+	return notification, nil
 }
+
 // insert new notification
 func (repo *NotifRepository) InsertNewNotification(data models.Notification) *models.ErrorJson {
 	// fmt.Println("INSERT NEW NOTIFICATION: -------- data = ", data)
@@ -95,6 +94,7 @@ func (repo *NotifRepository) InsertNewNotification(data models.Notification) *mo
 	}
 	return nil
 }
+
 // selct all notifications by userid
 func (repo *NotifRepository) SelectAllNotification(userid string) ([]models.Notification, *models.ErrorJson) {
 	all := []models.Notification{}
@@ -117,7 +117,6 @@ func (repo *NotifRepository) SelectAllNotification(userid string) ([]models.Noti
 	defer rows.Close()
 
 	for rows.Next() {
-		// fmt.Println("inside rows.next -----")
 		var notification models.Notification
 		err = rows.Scan(&notification.Id, &notification.Reciever_Id, &notification.Sender_Id, &notification.Seen, &notification.Type, &notification.Status, &notification.Content)
 		if err != nil {
@@ -126,12 +125,8 @@ func (repo *NotifRepository) SelectAllNotification(userid string) ([]models.Noti
 		}
 		all = append(all, notification)
 	}
-
-	// fmt.Println("allNotifications: --------", all)
-
 	return all, nil
 }
-
 
 // func (repo *NotifRepository) GetUserNameByUserId(user_id string) (bool, string, *models.ErrorJson) {
 // 	var nickname string

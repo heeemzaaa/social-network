@@ -2,10 +2,10 @@
 "use client"
 
 let LoadPosts = async () => {
-  const getRequest = {
-    method: "GET",
-    credentials: "include"
-  }
+  // const getRequest = {
+  //   method: "GET",
+  //   credentials: "include"
+  // }
   const postRequest = {
       method: "POST",
       credentials: "include",
@@ -13,13 +13,11 @@ let LoadPosts = async () => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        Sender_Id: "ffc54fb8-2d14-4f83-a196-062c976e3243",
-        Reciever_Id: "ffc54fb8-2d14-4f83-a196-062c976e3243",
-        Type: "group-join",
-        Content: ""
+        Notif_Id: "de6bd98b-7aab-4899-ae1d-e2f14555d30b",
+        Status: "reject",
       })
     }
-  let response = await fetch("http://localhost:8080/api/notifications/", postRequest)
+  let response = await fetch("http://localhost:8080/api/notifications/update/", postRequest)
   let data = await response.json()
   console.log("Fetched notifications:", data)
 }

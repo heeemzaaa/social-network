@@ -23,7 +23,7 @@ func NewNotificationHandler(ns *NS.NotificationService) *NotificationHandler {
 func (NH *NotificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	fmt.Println("requested path:", r.URL.Path)
+	fmt.Println("requested main path:", r.URL.Path)
 	fmt.Println("method", r.Method)
 
 	switch r.Method {
@@ -84,16 +84,17 @@ func (NH *NotificationHandler) CreateNotification(w http.ResponseWriter, r *http
 		return
 	}
 
-	if errJson := NH.NS.UpdateService(Data, user_Id.String()); errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
-		return
-	}
+	// if errJson := NH.NS.UpdateService(Data, user_Id.String()); errJson != nil {
+	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+	// 	return
+	// }
 	
-	_, errJson := NH.NS.PostService(Data, user_Id.String())
+	errJson := NH.NS.PostService(Data, user_Id.String())
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
 	}
 
-	// utils.WriteDataBack(w, notification)
+	utils.WriteDataBack(w, nil)
 }
+
