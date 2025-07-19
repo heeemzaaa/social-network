@@ -39,9 +39,13 @@ func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			h.CreatePost(w, r)
 			return
 		}
-
 		if len(pathParts) == 4 && pathParts[2] == "like" {
 			h.LikePost(w, r)
+			return
+		}
+		if pathParts[2] == "comment" {
+
+			h.CommentPost(w, r)
 			return
 		}
 

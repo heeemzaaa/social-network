@@ -5,6 +5,7 @@ import Avatar from "../avatar";
 import { useModal } from "../../_context/ModalContext";
 import { likePostAction } from "@/app/_actions/posts";
 import { useActionState } from "react";
+import CommentsContainer from "../comments/commentsContainer";
 export default function PostCard({
     id,
     user,
@@ -27,7 +28,6 @@ export default function PostCard({
     const [state, formAction] = useActionState(likePostAction, initialState);
 
     return (
-
         <div className="post-card">
             <div className="post-card-body">
                 <div className="post-card-header">
@@ -56,7 +56,7 @@ export default function PostCard({
                             </button>
                         </div>
                     </form>
-                    <div className="glass-bg" onClick={() => { openModal("pass comments component here") }}>
+                    <div className="glass-bg" onClick={() => { openModal(<CommentsContainer id={id}/>) }}>
                         <div style={actionStyle}>
                             <FaRegComment />
                             <span>
