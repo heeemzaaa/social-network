@@ -37,13 +37,13 @@ func (fa *FollowActionHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errFollow := fa.service.Follow(request.ProfileID, authSessionID.String())
+	user, errFollow := fa.service.Follow(request.ProfileID, authSessionID.String())
 	if errFollow != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errFollow.Status, Message: errFollow.Message})
 		return
 	}
 
-	utils.WriteDataBack(w, "done !")
+	utils.WriteDataBack(w, user)
 }
 
 // POST api/profile/id/actions/unfollow
@@ -65,13 +65,13 @@ func (fa *FollowActionHandler) Unfollow(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	errUnfollow := fa.service.Unfollow(request.ProfileID, authSessionID.String())
+	user, errUnfollow := fa.service.Unfollow(request.ProfileID, authSessionID.String())
 	if errUnfollow != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUnfollow.Status, Message: errUnfollow.Message})
 		return
 	}
 
-	utils.WriteDataBack(w, "Done!")
+	utils.WriteDataBack(w, user)
 }
 
 func (fa *FollowActionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

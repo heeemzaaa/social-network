@@ -3,6 +3,7 @@ package chat
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"social-network/backend/models"
 	"social-network/backend/utils"
@@ -28,6 +29,7 @@ func (repo *ChatRepository) GetID(sessionID string) (string, *models.ErrorJson) 
 
 func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models.ErrorJson) {
 	var users []models.User
+	var lastInteractionStr string
 
 	query := `WITH 
 	cte_latest_interaction AS (
@@ -49,7 +51,7 @@ func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models
 	),
 	cte_ordered_users AS (
     SELECT 
-        COALESCE(i.lastInteraction, CURRENT_TIMESTAMP) AS lastInteraction,  
+		i.lastInteraction,
         u.userID, 
         u.firstName,
         u.lastName,
@@ -93,11 +95,17 @@ func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models
 			&user.Id,
 			&user.FirstName,
 			&user.LastName,
-			&user.LastInteraction,
+			&lastInteractionStr,
 			&user.ImagePath,
 			&user.Notifications,
 		); err != nil {
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("scan error: %v", err)}
+		}
+		if lastInteractionStr != "" {
+			user.LastInteraction, err = time.Parse(time.RFC3339, lastInteractionStr)
+			if err != nil {
+				return nil, &models.ErrorJson{Status: 400, Error: "Invalid time format !"}
+			}
 		}
 		users = append(users, user)
 	}
@@ -107,6 +115,7 @@ func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models
 
 func (repo *ChatRepository) GetGroups(authUserID string) (*[]models.Group, *models.ErrorJson) {
 	var groups []models.Group
+	lastInteractionStr := ""
 	query := `
 	WITH cte_latest_group_messages AS (
     	SELECT
@@ -138,9 +147,16 @@ func (repo *ChatRepository) GetGroups(authUserID string) (*[]models.Group, *mode
 
 	for rows.Next() {
 		var group models.Group
-		err := rows.Scan(&group.Title, &group.ImagePath, &group.LastInteraction)
+		err := rows.Scan(&group.Title, &group.ImagePath, &lastInteractionStr)
 		if err != nil {
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		}
+		
+		if lastInteractionStr != "" {
+			group.LastInteraction, err = time.Parse(time.RFC3339, lastInteractionStr)
+			if err != nil {
+				return nil, &models.ErrorJson{Status: 400, Error: "Invalid time format !"}
+			}
 		}
 		groups = append(groups, group)
 	}
@@ -203,7 +219,7 @@ func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message
 
 // the one logged in trying to see the messages will not be got from the query
 // sender and receiver and the offset and limit als
-func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, type_ string) ([]models.Message, *models.ErrorJson) {
+func (repo *ChatRepository) GetMessages(sender_id, target_id string, lastMessageTime time.Time, type_ string) ([]models.Message, *models.ErrorJson) {
 	var messages []models.Message
 	var query string
 	var args []any
@@ -221,14 +237,17 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 		INNER JOIN users s ON m.sender_id = s.userID
 		INNER JOIN users r ON m.target_id = r.userID
 		WHERE m.type = 'private'
-		  AND m.sender_id IN (?, ?)
-		  AND m.target_id IN (?, ?)
-		`
-		args = append(args, sender_id, target_id, sender_id, target_id)
+		 AND (
+  			(m.sender_id = ? AND m.target_id = ?)
+  		OR
+  			(m.sender_id = ? AND m.target_id = ?)
+		)
+`
+		args = append(args, sender_id, target_id, target_id, sender_id)
 
-		if lastMessageTime != "" {
+		if !lastMessageTime.IsZero() {
 			query += " AND m.created_at < ?"
-			args = append(args, lastMessageTime)
+			args = append(args, lastMessageTime.Format(time.RFC3339))
 		}
 
 		query += " ORDER BY m.created_at DESC LIMIT 10"
@@ -246,9 +265,9 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 		`
 		args = append(args, target_id)
 
-		if lastMessageTime != "" {
+		if !lastMessageTime.IsZero() {
 			query += " AND m.created_at < ?"
-			args = append(args, lastMessageTime)
+			args = append(args, lastMessageTime.Format(time.RFC3339))
 		}
 
 		query += " ORDER BY m.created_at DESC LIMIT 10"
@@ -261,7 +280,6 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 	defer rows.Close()
 
 	for rows.Next() {
-		// comment
 		var message models.Message
 		if type_ == "private" {
 			err := rows.Scan(&message.SenderName, &message.ReceiverName, &message.Content, &message.CreatedAt, &message.ID)
@@ -274,6 +292,8 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 				return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 			}
 		}
+		message.Type = type_
+		message.TargetID = target_id
 		message.SenderID = sender_id
 		messages = append(messages, message)
 	}
