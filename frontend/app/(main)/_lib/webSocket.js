@@ -9,7 +9,7 @@ export default function UserProvider({ children }) {
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
   const socketRef = useRef(null);
 
-  // Step 1: Fetch the logged-in user
+  // STEP 1: Fetch logged-in user once on mount
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
@@ -17,7 +17,7 @@ export default function UserProvider({ children }) {
           credentials: "include",
         });
         const data = await res.json();
-        console.log("🚀 Fetched logged-in user:", data);
+        console.log("✅ Logged in user:", data);
 
         if (data.is_logged_in) {
           setAuthenticatedUser({
@@ -25,100 +25,81 @@ export default function UserProvider({ children }) {
             username: data.Nickname,
           });
         } else {
+          setAuthenticatedUser(null);
           console.warn("🚫 User not logged in");
-          setAuthenticatedUser(null); // explicitly clear on no login
         }
       } catch (err) {
-        console.error("❌ Error fetching logged-in user:", err);
-        setAuthenticatedUser(null);
+        console.error("❌ Error fetching user:", err);
       }
     };
-
     fetchLoggedInUser();
   }, []);
 
-  // Step 2: Setup WebSocket and users/messages after user is fetched
+  // STEP 2: Setup WebSocket and fetch users after login
   useEffect(() => {
-    if (!authenticatedUser) {
-      // Clear users and messages when no authenticated user
-      setUsers([]);
-      setMessages({});
-      if (socketRef.current) {
-        socketRef.current.close();
-        socketRef.current = null;
-      }
-      return;
-    }
+    if (!authenticatedUser) return;
 
-    // Initialize WebSocket connection
-    socketRef.current = new WebSocket("ws://localhost:8080/ws/chat/");
+    const socket = new WebSocket("ws://localhost:8080/ws/chat/");
+    socketRef.current = socket;
 
-    socketRef.current.onopen = () => {
-      console.log("✅ WebSocket connected");
-      // Optional: send initial message here
+    socket.onopen = () => {
+      console.log("🟢 WebSocket connected");
     };
 
-    socketRef.current.onmessage = (event) => {
+    socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        console.log("📨 Message received:", data);
 
-        // Update online users list
-        /*if (data.type === "online" && Array.isArray(data.data)) {
-          const newUsers = data.data
-            .map((user) => ({
-              userID: user.id,
-              username: user.firstname + " " + user.lastname,
-              online: true,
-            }));
-
-          setUsers(newUsers);
-        }*/
-
-        // Update messages state
         if (
           typeof data.content === "string" &&
           data.content !== "" &&
-          (data.type === "private" || data.type === "group") &&
-          (data.sender_id === authenticatedUser.id)
+          (data.type === "private" || data.type === "group")
         ) {
-          const from = data.sender_id;
-          const msg = {
+          const isMe = data.sender_id === authenticatedUser.id;
+          const chatPartner = isMe ? data.target_id : data.sender_id;
+
+          const newMsg = {
             content: data.content,
-            sender: from === authenticatedUser.id ? "me" : "them",
+            sender: isMe ? "me" : "them",
+            createdAt: data.created_at,
           };
 
           setMessages((prev) => ({
             ...prev,
-            [from]: [...(prev[from] || []), msg],
+            [chatPartner]: [...(prev[chatPartner] || []), newMsg],
           }));
         }
       } catch (err) {
-        console.error("❌ Error parsing WebSocket message:", err);
+        console.error("❌ Failed to parse WebSocket message:", err);
       }
     };
 
-    socketRef.current.onerror = (err) => {
+    socket.onerror = (err) => {
       console.error("❌ WebSocket error:", err);
     };
 
-    socketRef.current.onclose = (event) => {
-      console.log(`🔌 WebSocket closed. Code: ${event.code}`);
+    socket.onclose = () => {
+      console.log("🔌 WebSocket closed");
     };
 
-    // Fetch users initially via REST
+    // Fetch user list except current user
     const fetchUsers = async () => {
       try {
         const res = await fetch("http://localhost:8080/api/get-users/", {
           credentials: "include",
         });
         const usersList = await res.json();
+
         const filtered = usersList.filter((u) => u.id !== authenticatedUser.id);
         const mapped = filtered.map((user) => ({
           userID: user.id,
           username: user.firstname + " " + user.lastname,
+          img: user.img || "/no-profile.png",
         }));
+
         setUsers(mapped);
-        console.log("Updated users list:", mapped);
+        console.log("👥 Users list updated:", mapped);
       } catch (err) {
         console.error("❌ Error fetching users:", err);
       }
@@ -126,9 +107,8 @@ export default function UserProvider({ children }) {
 
     fetchUsers();
 
-    // Cleanup on component unmount or user change
     return () => {
-      socketRef.current?.close();
+      socket.close();
       socketRef.current = null;
     };
   }, [authenticatedUser]);

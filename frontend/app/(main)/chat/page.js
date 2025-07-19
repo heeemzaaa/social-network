@@ -13,6 +13,7 @@ export default function Chat() {
   const [currentUser, setCurrentUser] = useState({
     username: "",
     ID: "",
+    type: "private",
   });
   const [newMessage, setNewMessage] = useState("");
   const { users, socket, messages, setMessages } = useUserContext();
@@ -31,53 +32,24 @@ export default function Chat() {
 
   const [view, setView] = useState("Users");
 
-  // This effect resets currentUser if they disappear from users list
+  // Reset currentUser if they disappear from users list
   useEffect(() => {
     if (
       currentUser.ID &&
       !users.some((user) => user.userID === currentUser.ID)
     ) {
-      setCurrentUser({ username: "", ID: "" });
+      setCurrentUser({ username: "", ID: "", type: "private" });
     }
   }, [users, currentUser.ID]);
 
-  const handleUserClick = (user) => {
-    setCurrentUser({
-      username: user.username,
-      ID: user.userID,
-      type: "private",
-    });
-    console.log("Selected user:", user);
-  };
-
-  const sendMessage = () => {
-    if (!newMessage || !currentUser.ID || socket?.readyState !== 1) return;
-
-    const messagePayload = {
-      content: newMessage,
-      target_id: currentUser.ID,
-      type: "private",
-    };
-
-    socket.send(JSON.stringify(messagePayload));
-
-    setMessages((prev) => ({
-      ...prev,
-      [currentUser.ID]: [
-        ...(prev[currentUser.ID] || []),
-        { content: newMessage, sender: "me" },
-      ],
-    }));
-
-    setNewMessage("");
-  };
-
+  // Load message history when currentUser changes
   useEffect(() => {
     if (!currentUser.ID) return;
 
     const loadMessages = async () => {
       const msgs = await fetchMessages(currentUser.ID, currentUser.type);
       if (!msgs) return;
+
       setMessages((prev) => ({
         ...prev,
         [currentUser.ID]: msgs.map((msg) => ({
@@ -90,7 +62,41 @@ export default function Chat() {
     loadMessages();
   }, [currentUser.ID]);
 
-  console.log("Current user messages:", messages);
+  const handleUserClick = (user) => {
+    setCurrentUser({
+      username: user.username,
+      ID: user.userID,
+      type: "private",
+    });
+  };
+
+  // Send message to backend via WebSocket and update messages locally optimistically
+  const sendMessage = () => {
+    if (!newMessage || !currentUser.ID || socket?.readyState !== 1) return;
+
+    const messagePayload = {
+      content: newMessage,
+      target_id: currentUser.ID,
+      type: "private",
+    };
+
+    // Send to backend (which will verify, save, then broadcast)
+    socket.send(JSON.stringify(messagePayload));
+
+    // Optimistically add message to current chat as "me"
+    setMessages((prev) => ({
+      ...prev,
+      [currentUser.ID]: [
+        ...(prev[currentUser.ID] || []),
+        { content: newMessage, sender: "me" },
+      ],
+    }));
+
+    setNewMessage("");
+  };
+
+  // Update messages when receiving WebSocket message (this is also handled in UserProvider,
+  // but you may also handle here if your architecture requires)
 
   return (
     <main className="chat_main_container p4 flex-row">

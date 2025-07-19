@@ -144,7 +144,7 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 	defer user.chatServer.Unlock()
 
 	switch message.Type {
-	case "message":
+	case "private":
 		for _, conn := range user.chatServer.client[user.session.UserId] {
 			if conn.connection != user.connection {
 				conn.Message <- message
