@@ -28,7 +28,7 @@ export default function UserProvider({ children }) {
           setAuthenticatedUser(null);
           console.warn("🚫 User not logged in");
         }
-		console.log("Authenticated user set:", data.id);
+        console.log("Authenticated user set:", data.id);
       } catch (err) {
         console.error("❌ Error fetching user:", err);
       }
@@ -92,8 +92,7 @@ export default function UserProvider({ children }) {
         });
         const usersList = await res.json();
 
-        const filtered = usersList.filter((u) => u.id !== authenticatedUser.id);
-        const mapped = filtered.map((user) => ({
+        const mapped = usersList.map((user) => ({
           userID: user.id,
           username: user.firstname + " " + user.lastname,
           img: user.img || "/no-profile.png",
@@ -106,6 +105,27 @@ export default function UserProvider({ children }) {
       }
     };
 
+    const fetchGroup = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/get-groups/", {
+          credentials: "include",
+        });
+        const usersListG = await res.json();
+
+        const mappedG = usersListG.map((user) => ({
+          userID: user.id,
+          username: user.firstname + " " + user.lastname,
+          img: user.img || "/no-profile.png",
+        }));
+
+        setUsers(mappedG);
+		console.log("👥 Groups list updated:", mappedG);
+      } catch (err) {
+        console.error("❌ Error fetching users:", err);
+      }
+    };
+
+	fetchGroup();
     fetchUsers();
 
     return () => {

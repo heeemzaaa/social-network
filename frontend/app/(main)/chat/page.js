@@ -88,9 +88,9 @@ export default function Chat() {
 
     // Optimistically add message to current chat as "me"
     
-
     setNewMessage("");
-  };
+};
+
 
   return (
     <main className="chat_main_container p4 flex-row">
