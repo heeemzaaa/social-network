@@ -1,6 +1,7 @@
 package group
 
 import (
+	"database/sql"
 	"fmt"
 
 	"social-network/backend/models"
@@ -29,13 +30,13 @@ func (gRepo *GroupRepository) RequestToJoin(userId, groupId string) *models.Erro
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(requestId, userId, groupId, groupId, "join-request")
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	return nil
 }
@@ -48,13 +49,48 @@ func (gRepo *GroupRepository) RequestToCancel(userId, groupId string) *models.Er
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(userId, groupId, groupId, "join-request")
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	return nil
+}
+
+func (gRepo *GroupRepository) GetRequests(groupId string) ([]models.User, *models.ErrorJson) {
+	users := []models.User{}
+	query := `
+	SELECT users.userID, concat(users.firstName, " ", users.lastName) FROM users
+	INNER JOIN group_requests  ON users.senderID = users.userID
+	WHERE group_requests.receiverID =  (SELECT
+	       groups.groupCreatorID FROM groups
+		   WHERE  groups.groupID = ?)
+	`
+	stmt, err := gRepo.db.Prepare(query)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(groupId, "join-request")
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return users, nil
+		}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		user := models.User{}
+		if err := rows.Scan(&user.Id, &user.FullName); err != nil {
+			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
 }

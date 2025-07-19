@@ -44,8 +44,13 @@ import (
 // POST   /groups/{group_id}/join-request  (the userID here is gotten from the context the one who is sending the request and the)
 // one who will be processing it (the receiver_id) is the admin of the group
 // DELETE  /groups/{group_id}/join-request  (the same here)
-
+// GET /groups/{group_id}/join-request where the receiver is always the group admin
 // for the requests acceptation  (to the admin of the group)
+// POST  /groups/{group_id}/join-request/{user_id}
+// DELETE  /groups/{group_id}/join-request/{user_id}
+// But the admin has to have always access to be able to accept them (so the get ??????)
+/********************************************************/
+// invitations
 // POST /groups/{group_id}/accept
 // DELETE  /groups/{group_id}/decline
 
@@ -65,11 +70,15 @@ func SetGroupRoutes(mux *http.ServeMux, db *sql.DB, authService *authService.Aut
 	GroupReactionHandler := group.NewReactionHandler(groupService)
 	MembersHandler := group.NewMembersHanlder(groupService)
 	RequestHandler := group.NewGroupRequestsHandler(groupService)
+	DeclineApproveHandler := group.NewApproveDeclineReqHandler(groupService)
+	InvitationsHandler := group.NewGroupInvitationHandler(groupService)
 	mux.Handle("/api/groups/{group_id}/events/{event_id}/", middleware.NewMiddleWare(GroupEventIDHandler, authService))
 	mux.Handle("/api/groups/{group_id}/posts/{post_id}/comments/", middleware.NewMiddleWare(GroupCommentHandler, authService))
 	mux.Handle("/api/groups/{group_id}/posts/", middleware.NewMiddleWare(GroupPostHandler, authService))
 	mux.Handle("/api/groups/{group_id}/events/", middleware.NewMiddleWare(GroupEventHandler, authService))
 	mux.Handle("/api/groups/{group_id}/react/like", middleware.NewMiddleWare(GroupReactionHandler, authService))
+	mux.Handle("/api/groups/{group_id}/join-request/admin", middleware.NewMiddleWare(DeclineApproveHandler, authService))
+	mux.Handle("/api/groups/{group_id}/invitations/", middleware.NewMiddleWare(InvitationsHandler, authService))
 	mux.Handle("/api/groups/{group_id}/join-request", middleware.NewMiddleWare(RequestHandler, authService))
 	mux.Handle("/api/groups/{group_id}/members", middleware.NewMiddleWare(MembersHandler, authService))
 	mux.Handle("/api/groups/{group_id}/", middleware.NewMiddleWare(GroupIDHandler, authService))
