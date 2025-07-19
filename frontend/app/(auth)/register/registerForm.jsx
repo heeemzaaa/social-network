@@ -1,9 +1,10 @@
 "use client"
-import styles from "../auth.module.css"
+import styles from "@/app/page.module.css"
 import { useActionState, useState } from "react";
 import { registerUser } from "@/app/_actions/user";
 import SubmitButton from "@/app/_components/subimtButton";
-import { redirect } from "next/navigation"
+import Link from 'next/link';
+
 
 const initialData = {
     email: "",
@@ -21,7 +22,7 @@ export default function RegisterForm() {
     const [data, setData] = useState(initialData);
 
     return (
-        <form noValidate action={action} className={`${styles.form} glass-bg`}>
+        <form noValidate action={action} className={`${styles.form}`}>
             <div className="flex gap-3">
                 <div className="flex-col gap-1">
                     {/* first name */}
@@ -111,7 +112,7 @@ export default function RegisterForm() {
                         />
                         {state.errors?.avatar && <span className="field-error">{state.errors.avatar}</span>}
                     </div>
-                    
+
                     {/* nickname */}
                     <div className={styles.formGrp}>
                         <label htmlFor="nickname">Nickname (Optional):</label>
@@ -125,7 +126,7 @@ export default function RegisterForm() {
                         />
                         {state.errors?.nickname && <span className="field-error">{state.errors.nickname}</span>}
                     </div>
-                    
+
                     {/* about me */}
                     <div className={styles.formGrp}>
                         <label htmlFor="about_me">About Me (Optional):</label>
@@ -145,6 +146,11 @@ export default function RegisterForm() {
             <SubmitButton />
             {state.error && <span className="field-error">{state.error}</span>}
             {state.message && <span className="field-success">{state.message}</span>}
+            <div className="text-sm font-medium ">
+                <span>Don't have an account ? </span>
+                <Link href={"/register"} style={{ color: "var(--color-primary)", textDecoration: "underline" }}
+                > Register Now </Link>
+            </div>
         </form>
     );
 }

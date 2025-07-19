@@ -566,16 +566,21 @@ main {
   /* This makes main scrollable */
 }
 
-.login,
+main.login,
+main.register {
+  grid-row: 1/4;
+  grid-column: 1/4;
+}
+
+/* .login,
 .register {
   grid-row: 1/4;
   grid-column: 1/4;
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* justify-content: center; */
   gap: 2rem;
-}
+} */
 
 .field-error {
   font-size: var(--font-size-sm);
