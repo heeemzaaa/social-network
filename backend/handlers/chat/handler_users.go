@@ -51,6 +51,7 @@ func (ChatNav *ChatNavigation) GetGroups(w http.ResponseWriter, r *http.Request)
 }
 
 func (chatNav *ChatNavigation) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("*********************here*******************")
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodGet {

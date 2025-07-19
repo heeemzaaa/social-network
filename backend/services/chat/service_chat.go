@@ -98,11 +98,20 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 }
 
 // get the messages between specific users
-func (service *ChatService) GetMessages(sender_id, target_id, lastMessageTime, type_ string) ([]models.Message, *models.ErrorJson) {
+func (service *ChatService) GetMessages(sender_id, target_id, lastMessageStr, type_ string) ([]models.Message, *models.ErrorJson) {
 	if sender_id == "" || target_id == "" || type_ == "" {
-		return nil, &models.ErrorJson{Status: 400, Message: "Invalid data format !"}
+		return []models.Message{}, &models.ErrorJson{Status: 400, Message: "Invalid data format !"}
 	}
-
+	var lastMessageTime time.Time
+	if lastMessageStr != "" {
+		layout := time.RFC3339
+		var err error
+		lastMessageTime, err = time.Parse(layout, lastMessageStr)
+		if err != nil {
+			return []models.Message{}, &models.ErrorJson{Status: 400, Error: "Bad time format !"}
+		}
+	}
+	
 	messages, errJson := service.repo.GetMessages(sender_id, target_id, lastMessageTime, type_)
 	if errJson != nil {
 		return nil, errJson
@@ -203,4 +212,3 @@ func (service *ChatService) EditReadStatus(sender_id, target_id string) *models.
 	}
 	return nil
 }
-

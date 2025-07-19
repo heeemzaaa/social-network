@@ -17,6 +17,7 @@ type User struct {
 	LastMessage     string    `json:"last_message,omitempty"`
 	LastInteraction time.Time `json:"last_interaction,omitempty"`
 	Notifications   int       `json:"notifications,omitempty"`
+	Access          bool      `json:"access"`
 }
 
 func NewUser() *User {

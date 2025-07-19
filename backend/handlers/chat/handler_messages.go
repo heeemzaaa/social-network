@@ -28,24 +28,25 @@ func (messages *MessagesHandler) GetMessages(w http.ResponseWriter, r *http.Requ
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "type is not specified"})
 		return
 	}
-
+	
 	exists, errJson := messages.service.CheckExistance(type_, target_id)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, *errJson)
 		return
 	}
-
+	
 	if !exists {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "", Message: "the target given doesn't exist"})
 		return
 	}
-
+	
 	sender_id, errJson := messages.service.GetUserIdFromSession(r)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, *errJson)
 		return
 	}
-
+	
+	
 	mesages, errJson := messages.service.GetMessages(sender_id, target_id, lastMessageStr, type_)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, *models.NewErrorJson(errJson.Status, "", errJson.Message))
