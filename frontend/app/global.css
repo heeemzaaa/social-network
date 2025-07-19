@@ -296,6 +296,10 @@ a {
   height: 100vh;
 }
 
+.h-auto {
+  height: auto
+}
+
 /* Gaps for Flex and Grid */
 .gap-1 {
   gap: 0.5rem;

@@ -15,7 +15,7 @@ export default function Header() {
     <header className='p3 flex justify-between align-center' >
       <div>
         <h2>
-          Welcome User!!
+          Welcome user!!
         </h2>
       </div>
 

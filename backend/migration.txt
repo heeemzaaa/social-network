@@ -16,7 +16,7 @@ export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$PATH
 export GOBIN=$GOPATH/bin
 
-5- run to prevent hadakshi li lfu9 kaml just run source install.sh 
+5- run to prevent hadakshi li lfu9 kaml just run: source install.sh 
 4- Run the command to create the migrations 
 cd backend 
 migrate create -ext sql -dir database/migrations -seq create_users_table

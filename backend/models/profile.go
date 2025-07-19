@@ -9,5 +9,6 @@ type Profile struct {
 	IsMyProfile       bool   `json:"is_my_profile,omitempty"`
 	IsFollower        bool   `json:"is_follower,omitempty"`
 	IsRequested       bool   `json:"is_requested,omitempty"`
+	Access            bool   `json:"access,omitempty"`
 	Visibility        string `json:"visibility,omitempty"`
 }
