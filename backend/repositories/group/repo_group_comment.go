@@ -16,7 +16,7 @@ func (gRepo *GroupRepository) CreateComment(comment *models.CommentGroup) (*mode
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	if err := stmt.QueryRow(comment.PostId, comment.UserId, comment.Content).Scan(
+	if err := stmt.QueryRow(comment.PostId, comment.User.Id, comment.Content).Scan(
 		&comment_created.Id, &comment_created.Content,
 		&comment_created.CreatedAt); err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
@@ -25,52 +25,52 @@ func (gRepo *GroupRepository) CreateComment(comment *models.CommentGroup) (*mode
 }
 
 // But hna comments dyal wa7d l post specific
-func (gRepo *GroupRepository) GetComments(userId, postId string, offset int) ([]models.CommentGroup, *models.ErrorJson) {
-	var where string
-	if offset == 0 {
-		where = `comments.postID = ?`
-	} else {
-		where = `comments.postID = ? AND comments.commentID < ?`
-	}
+func (gRepo *GroupRepository) GetComments(userId, postId, groupId  string, offset int) ([]models.CommentGroup, *models.ErrorJson) {
+	
 	var comments []models.CommentGroup
-	query := fmt.Sprintf(`
-	with
+	query := `
+	WITH
     cte_likes as (
-        SELECT
+        select
             entityID,
             count(*) as total_likes
-        FROM
-            reactions
+        from
+            group_reactions
         WHERE
-            reactions.entityTypeID = 2
-			AND reactions.reaction = 1
-        GROUP BY
+            group_reactions.entityType = "comment"
+            AND group_reactions.reaction = 1
+        group by
             entityID
-    )
+    ),
 	SELECT
+		concat (users.firstName, " ", users.lastName),
 		users.nickname,
-		comments.commentID,
-		content,
-		comments.createdAt,
+		users.userID,
+		group_posts_comments.postID,
+		group_posts_comments.createdAt,
+		group_posts_comments.content,
 		coalesce(cte_likes.total_likes, 0) as total_likes,
-        coalesce(reactions.userID,0) as liked
+		coalesce(group_reactions.userID, 0) as liked
 	FROM
-		comments
-		INNER JOIN users ON comments.userID = users.userID
-		LEFT JOIN cte_likes ON cte_likes.entityID = comments.commentID
-        LEFT JOIN reactions ON comments.commentID = reactions.entityID 
-        AND reactions.userID = ?  AND reactions.reaction =1 AND reactions.entityTypeID = 2
-	WHERE 
-		%v
+		group_posts_comments
+		INNER JOIN users ON group_posts_comments.userID = users.userID
+		LEFT JOIN cte_likes ON group_posts_comments.commentID = cte_likes.entityID
+		LEFT JOIN group_reactions ON group_reactions.entityID = group_posts_comments.commentID
+		AND group_reactions.userID = ?
+		AND group_reactions.reaction = 1
+		AND group_reactions.entityType = "comment"
+	WHERE group_posts_comments.groupID = ?
 	ORDER BY
-		comments.createdAt DESC
+		group_posts_comments.createdAt DESC
 	LIMIT
-		10;
-	`, where)
+		20
+	OFFSET
+		?;
+	`
 
 	rows, err := gRepo.db.Query(query, userId, postId, offset)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500 , Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	if rows.Err() == sql.ErrNoRows {
 		return comments, nil
@@ -78,9 +78,9 @@ func (gRepo *GroupRepository) GetComments(userId, postId string, offset int) ([]
 
 	for rows.Next() {
 		var comment models.CommentGroup
-		if err = rows.Scan(&comment.Username, &comment.Id, &comment.Content,
+		if err = rows.Scan(&comment.User.FullName, &comment.User.Id, &comment.User.Nickname, &comment.Id, &comment.Content,
 			&comment.CreatedAt, &comment.TotalLikes, &comment.Liked); err != nil {
-			return comments,  &models.ErrorJson{Status: 500 , Error: fmt.Sprintf("%v", err)}
+			return comments, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 		comments = append(comments, comment)
 	}

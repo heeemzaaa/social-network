@@ -68,8 +68,7 @@ type CommentGroup struct {
 	Id         string    `json:"id,omitempty"`
 	GroupId    string    `json:"group_id,omitempty"`
 	PostId     string    `json:"post_id"`
-	UserId     string    `json:"user_id,omitempty"`
-	Username   string    `json:"user_name,omitempty"`
+	User       User      `json:"user"`
 	Content    string    `json:"content"`
 	ImagePath  string    `json:"image_path,omitempty"`
 	Image      string    `json:"image,omitempty"`
