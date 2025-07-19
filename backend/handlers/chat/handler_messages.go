@@ -47,6 +47,7 @@ func (messages *MessagesHandler) GetMessages(w http.ResponseWriter, r *http.Requ
 	}
 
 	mesages, errJson := messages.service.GetMessages(sender_id, target_id, lastMessageStr, type_)
+	fmt.Println("Messages fetched:", mesages)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, *models.NewErrorJson(errJson.Status, "", errJson.Message))
 		return

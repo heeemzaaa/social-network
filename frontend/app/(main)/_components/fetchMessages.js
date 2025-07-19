@@ -1,6 +1,5 @@
 
 export async function fetchMessages(targetId, type) {
-	console.log("Fetching messages for targetId:", targetId, "type:", type);
   try {
     const response = await fetch(`http://localhost:8080/api/messages?target_id=${targetId}&type=${type}`, {
       cache: "no-store",
