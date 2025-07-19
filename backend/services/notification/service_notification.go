@@ -6,7 +6,9 @@ import (
 	"social-network/backend/models"
 	"social-network/backend/repositories/notification"
 	"social-network/backend/utils"
+	"sort"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -27,6 +29,9 @@ func (NS *NotificationService) GetService(userid, queryParam string) ([]models.N
 
 	len := len(all)
 	nbr, _ := strconv.Atoi(queryParam)
+	sort.Slice(all, func(i, j int) bool {
+		return all[i].CreatedAt.After(all[j].CreatedAt) // Newest first
+	})
 
 	// sort data before slice ////////////////:
 
@@ -105,6 +110,7 @@ func (NS *NotificationService) FollowPrivateProfile(data models.Notif, sender_na
 	notification.Reciever_Id = data.Reciever_Id
 	notification.Status = "later"
 	notification.Content = fmt.Sprintf("%v sent follow request", sender_name)
+	notification.CreatedAt = time.Now()
 
 	if err := NS.repo.InsertNewNotification(notification); err != nil {
 		fmt.Println("error = insertion ---------", err)
@@ -118,6 +124,7 @@ func (NS *NotificationService) FollowPrivateProfile(data models.Notif, sender_na
 
 	return nil
 }
+
 // 2 - follow public profile request
 // event : follow profile button : onclick()
 func (NS *NotificationService) FollowPublicProfile(data models.Notif, sender_name string) *models.ErrorJson {
@@ -133,6 +140,7 @@ func (NS *NotificationService) FollowPublicProfile(data models.Notif, sender_nam
 	notification.Status = "none"
 	notification.Reciever_Id = data.Reciever_Id
 	notification.Content = sender_name + " follow you"
+	notification.CreatedAt = time.Now()
 
 	if err := NS.repo.InsertNewNotification(notification); err != nil {
 		fmt.Println("error = insertion ---------", err)
@@ -145,6 +153,7 @@ func (NS *NotificationService) FollowPublicProfile(data models.Notif, sender_nam
 	// brodcast ==> notification
 	return nil
 }
+
 // 3 - group invitation request
 // event : select invitation button : onclick()
 func (NS *NotificationService) GroupInvitationRequest(data models.Notif, sender_name string) *models.ErrorJson {
@@ -166,6 +175,7 @@ func (NS *NotificationService) GroupInvitationRequest(data models.Notif, sender_
 	notification.Status = "later"
 	notification.Reciever_Id = data.Reciever_Id
 	notification.Content = sender_name + " invite you to join club " + group_name
+	notification.CreatedAt = time.Now()
 
 	if err := NS.repo.InsertNewNotification(notification); err != nil {
 		fmt.Println("error = insertion ---------", err)
@@ -178,6 +188,7 @@ func (NS *NotificationService) GroupInvitationRequest(data models.Notif, sender_
 	// brodcast ==> notification
 	return nil
 }
+
 // 4 - group join request [admin] //// ------ get reciever id from admin_group
 // event : group join button : onclick()
 func (NS *NotificationService) GroupJoinRequest(data models.Notif, sender_name string) *models.ErrorJson {
@@ -197,6 +208,7 @@ func (NS *NotificationService) GroupJoinRequest(data models.Notif, sender_name s
 	notification.Status = "later"
 	notification.Reciever_Id = data.Reciever_Id // reciever id = group id = admin id
 	notification.Content = sender_name + " want join club " + group_name
+	notification.CreatedAt = time.Now()
 
 	if err := NS.repo.InsertNewNotification(notification); err != nil {
 		fmt.Println("error = insertion ---------", err)
@@ -209,6 +221,7 @@ func (NS *NotificationService) GroupJoinRequest(data models.Notif, sender_name s
 	// brodcast ==> notification
 	return nil
 }
+
 // 5 - group event created [group-members]
 // event : create group event button : onclick()
 func (NS *NotificationService) GroupEventRequest(data models.Notif, sender_name string) *models.ErrorJson {
@@ -241,6 +254,7 @@ func (NS *NotificationService) GroupEventRequest(data models.Notif, sender_name 
 		notification.Status = "later"
 
 		notification.Content = sender_name + " create event at club " + group_name
+		notification.CreatedAt = time.Now()
 
 		notification.Reciever_Id = member_Id
 

@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // notification structure
 type Notification struct {
 	Id          string
@@ -9,8 +11,9 @@ type Notification struct {
 	Type        string // follow request // invite group // join group to admin // event notif for members group // public request . bonus
 	Status      string // accepted or rejected or "" for public request
 	Content     string
-	// Created_at time.Time
+	CreatedAt   time.Time
 }
+
 func NewNotification() *Notification {
 	return &Notification{}
 }
@@ -22,16 +25,18 @@ type Notif struct {
 	Type        string // follow-private // follow-public // group-event // group-join // group-invitation
 	Content     string // notification informations
 }
+
 func NewNotif() *Notif {
 	return &Notif{}
 }
 
 // update notification request data structure
 type Unotif struct {
-	Notif_Id   string // notification id
-	Status      string // accept || reject
+	Notif_Id string // notification id
+	Status   string // accept || reject
 
 }
+
 func UpdateNotif() *Unotif {
 	return &Unotif{}
 }
