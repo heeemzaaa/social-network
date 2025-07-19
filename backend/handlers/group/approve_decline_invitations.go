@@ -12,15 +12,15 @@ import (
 	"social-network/backend/utils"
 )
 
-type ApproveDeclineInvHandler struct {
+type AcceptRejectInvHandler struct {
 	gService *gservice.GroupService
 }
 
-func NewApproveDeclineInvHandler(service *gservice.GroupService) *ApproveDeclineInvHandler {
-	return &ApproveDeclineInvHandler{gService: service}
+func NewAcceptRejectInvHandler(service *gservice.GroupService) *AcceptRejectInvHandler {
+	return &AcceptRejectInvHandler{gService: service}
 }
 
-func (decAppInvHandler *ApproveDeclineInvHandler) Accept(w http.ResponseWriter, r *http.Request) {
+func (AcceptRejectInvHandler *AcceptRejectInvHandler) Accept(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
@@ -44,13 +44,13 @@ func (decAppInvHandler *ApproveDeclineInvHandler) Accept(w http.ResponseWriter, 
 		return
 	}
 
-	if errJson := decAppInvHandler.gService.Accept(userID.String(), groupID.String(), userToBeAdded); errJson != nil {
+	if errJson := AcceptRejectInvHandler.gService.Accept(userID.String(), groupID.String(), userToBeAdded); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
 }
 
-func (decAppInvHandler *ApproveDeclineInvHandler) Reject(w http.ResponseWriter, r *http.Request) {
+func (AcceptRejectInvHandler *AcceptRejectInvHandler) Reject(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
@@ -74,20 +74,20 @@ func (decAppInvHandler *ApproveDeclineInvHandler) Reject(w http.ResponseWriter, 
 		return
 	}
 
-	if errJson := decAppInvHandler.gService.Reject(userID.String(), groupID.String(), userToBeRejected); errJson != nil {
+	if errJson := AcceptRejectInvHandler.gService.Reject(userID.String(), groupID.String(), userToBeRejected); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
 }
 
-func (decAppInvHandler *ApproveDeclineInvHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (AcceptRejectInvHandler *AcceptRejectInvHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case http.MethodPost:
-		decAppInvHandler.Accept(w, r)
+		AcceptRejectInvHandler.Accept(w, r)
 		return
 	case http.MethodDelete:
-		decAppInvHandler.Reject(w, r)
+		AcceptRejectInvHandler.Reject(w, r)
 		return
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method Not Allowed!"})
