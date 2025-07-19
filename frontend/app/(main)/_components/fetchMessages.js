@@ -13,7 +13,9 @@ export async function fetchMessages(targetId, type) {
     }
 
     const messages = await response.json();
-	console.log("Fetched messages:", messages);
+	if (Array.isArray(messages)) {
+		messages.reverse();
+	}
     return messages || [];
   } catch (error) {
     console.error("❌ Error fetching messages:", error);

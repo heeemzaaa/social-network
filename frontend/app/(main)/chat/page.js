@@ -16,7 +16,7 @@ export default function Chat() {
     type: "private",
   });
   const [newMessage, setNewMessage] = useState("");
-  const { users, socket, messages, setMessages } = useUserContext();
+  const { users, socket, messages, setMessages, authenticatedUser } = useUserContext();
 
   const groups = {
     groups: [
@@ -44,23 +44,26 @@ export default function Chat() {
 
   // Load message history when currentUser changes
   useEffect(() => {
-    if (!currentUser.ID) return;
+    if (!currentUser.ID || !authenticatedUser) return;
 
     const loadMessages = async () => {
       const msgs = await fetchMessages(currentUser.ID, currentUser.type);
       if (!msgs) return;
-
+      
       setMessages((prev) => ({
         ...prev,
-        [currentUser.ID]: msgs.map((msg) => ({
-          content: msg.content,
-          sender: msg.sender_id === currentUser.ID ? "them" : "me",
-        })),
+        [currentUser.ID]: msgs.map((msg) => {
+          const isMe = msg.sender_id === authenticatedUser.id;
+          return {
+            content: msg.content,
+            sender: isMe ? "me" : "them", // FIXED: Use authenticatedUser.id instead of currentUser.ID
+          };
+        }),
       }));
     };
 
     loadMessages();
-  }, [currentUser.ID]);
+  }, [currentUser.ID, authenticatedUser]); // Added authenticatedUser as dependency
 
   const handleUserClick = (user) => {
     setCurrentUser({
@@ -84,19 +87,10 @@ export default function Chat() {
     socket.send(JSON.stringify(messagePayload));
 
     // Optimistically add message to current chat as "me"
-    setMessages((prev) => ({
-      ...prev,
-      [currentUser.ID]: [
-        ...(prev[currentUser.ID] || []),
-        { content: newMessage, sender: "me" },
-      ],
-    }));
+    
 
     setNewMessage("");
   };
-
-  // Update messages when receiving WebSocket message (this is also handled in UserProvider,
-  // but you may also handle here if your architecture requires)
 
   return (
     <main className="chat_main_container p4 flex-row">

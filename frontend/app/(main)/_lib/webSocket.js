@@ -21,13 +21,14 @@ export default function UserProvider({ children }) {
 
         if (data.is_logged_in) {
           setAuthenticatedUser({
-            id: data.Id,
+            id: data.id,
             username: data.Nickname,
           });
         } else {
           setAuthenticatedUser(null);
           console.warn("🚫 User not logged in");
         }
+		console.log("Authenticated user set:", data.id);
       } catch (err) {
         console.error("❌ Error fetching user:", err);
       }
