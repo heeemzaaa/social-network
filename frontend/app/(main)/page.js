@@ -13,10 +13,10 @@ let LoadPosts = async () => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        Sender_Id: "67e3fbfb-e5f9-4eb1-ab7e-c738f69d3580",
-        Reciever_Id: "67e3fbfb-e5f9-4eb1-ab7e-c738f69d3580",
-        Type: "follow-private",
-        Content: "Hello, please accept."
+        Sender_Id: "ffc54fb8-2d14-4f83-a196-062c976e3243",
+        Reciever_Id: "ffc54fb8-2d14-4f83-a196-062c976e3243",
+        Type: "group-join",
+        Content: ""
       })
     }
   let response = await fetch("http://localhost:8080/api/notifications/", postRequest)

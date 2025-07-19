@@ -1,4 +1,5 @@
-import Button from '@/app/_components/button'
+import Button from '../../_components/button'
+import NotificationsPopover from './notifications/NotificationsPopover'
 import {
   HiBell,
   HiChatBubbleOvalLeftEllipsis,
@@ -10,7 +11,6 @@ import { useModal } from '../_context/ModalContext';
 import CreatePost from './posts/createPost';
 import { CreateGroup } from '../groups/_components/createGroup';
 
-import NotificationsPopover from './notifications/NotificationsPopover'
 
 export default function Header() {
   let { openModal } = useModal()

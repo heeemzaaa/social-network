@@ -7,10 +7,51 @@ export default function NotificationsPopover() {
   const [hasMore, setHasMore] = useState(true);
   const containerRef = useRef();
 
+  // Test function
+  const test = () => {
+    console.log("Test function called!");
+    
+    // إذا كان container فارغ، زيد notification جديدة
+    if (notifications.length === 0) {
+      const newNotification = {
+        Content: "This is a test notification",
+        Type: "test",
+        Status: "new",
+        id: Date.now() // temporary id
+      };
+      setNotifications([newNotification]);
+      console.log("Added new notification because container was empty");
+    } else {
+      console.log("Container is not empty, notifications count:", notifications.length);
+    }
+  };
+
   // Load notifications
   useEffect(() => {
     loadNotifications(page);
   }, [page]);
+
+  // Add event listener for button clicks
+  useEffect(() => {
+    const handleButtonClick = (event) => {
+      // Check if clicked element is a button
+      if (event.target.tagName === 'BUTTON') {
+        test();
+      }
+    };
+
+    // Add event listener to container
+    if (containerRef.current) {
+      containerRef.current.addEventListener('click', handleButtonClick);
+    }
+
+    // Cleanup event listener
+    return () => {
+      if (containerRef.current) {
+        containerRef.current.removeEventListener('click', handleButtonClick);
+      }
+    };
+  }, [notifications.length]); // Re-run when notifications change
 
   const loadNotifications = async (data_length) => {
     try {
@@ -20,6 +61,8 @@ export default function NotificationsPopover() {
         credentials: "include"
       });
       const data = await res.json();
+
+      console.log(data)
 
       if (data.length === 0) {
         setHasMore(false);
@@ -51,8 +94,9 @@ export default function NotificationsPopover() {
     >
       {notifications.length === 0 && <p>No notifications</p>}
 
-      {notifications.map((notif) => (
+      {notifications.map((notif, index) => (
         <div
+            key={notif.id || index}
             className={`notification-card ${notif.Type} ${notif.Status}`}
             >
             <p>{notif.Content}</p>

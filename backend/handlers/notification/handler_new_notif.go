@@ -79,15 +79,21 @@ func (NH *NotificationHandler) CreateNotification(w http.ResponseWriter, r *http
 	err = json.NewDecoder(r.Body).Decode(&Data)
 	if err != nil {
 		fmt.Println("invalide decode lol", Data)
+		
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "bad request", Message: fmt.Sprintf("%v", err)})
 		return
 	}
 
-	notification, errJson := NH.NS.PostService(Data, user_Id.String())
+	if errJson := NH.NS.UpdateService(Data, user_Id.String()); errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		return
+	}
+	
+	_, errJson := NH.NS.PostService(Data, user_Id.String())
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
 	}
 
-	utils.WriteDataBack(w, notification)
+	// utils.WriteDataBack(w, notification)
 }
