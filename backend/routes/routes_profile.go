@@ -11,7 +11,7 @@ import (
 	middleware  "social-network/backend/middleware"
 )
 
-func SetProfileRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService) *http.ServeMux {
+func SetProfileRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService) (*http.ServeMux, *s.ProfileService) {
 	repo := r.NewProfileRepository(db)
 	service := s.NewProfileService(repo)
 	profile := h.NewProfileHandler(service)
@@ -30,5 +30,5 @@ func SetProfileRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthServ
 	mux.Handle("/api/profile/{id}/actions/", middleware.NewMiddleWare(actions, authService))
 
 	
-	return mux
+	return mux, service
 }

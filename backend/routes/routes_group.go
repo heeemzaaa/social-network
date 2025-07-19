@@ -9,6 +9,7 @@ import (
 	gRepo "social-network/backend/repositories/group"
 	authService "social-network/backend/services/auth"
 	gService "social-network/backend/services/group"
+	profileService "social-network/backend/services/profile"
 )
 
 // ##### routes i have to implement to all the users #####
@@ -54,13 +55,13 @@ import (
 // POST /groups/{group_id}/accept
 // DELETE  /groups/{group_id}/decline
 
-func SetGroupRoutes(mux *http.ServeMux, db *sql.DB, authService *authService.AuthService) {
+func SetGroupRoutes(mux *http.ServeMux, db *sql.DB, authService *authService.AuthService, profileService *profileService.ProfileService) {
 	//  auth service
 	// authRepo := ra.NewAuthRepository(db)
 	// authService := sa.NewAuthServer(authRepo)
 	// other setups
 	groupRepo := gRepo.NewGroupRepository(db)
-	groupService := gService.NewGroupService(groupRepo)
+	groupService := gService.NewGroupService(groupRepo, profileService)
 	GroupHandler := group.NewGroupHandler(groupService)
 	GroupIDHandler := group.NewGroupIDHandler(groupService)
 	GroupEventHandler := group.NewGroupEventHandler(groupService)

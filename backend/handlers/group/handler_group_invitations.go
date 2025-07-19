@@ -3,6 +3,7 @@ package group
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"social-network/backend/middleware"
@@ -30,7 +31,20 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	if errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String()); errJson != nil {
+	var userToInvite *models.User
+	if err := json.NewDecoder(r.Body).Decode(userToInvite); err != nil {
+		if err == io.EOF {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: models.UserErr{
+				UserId: "empty user_id field",
+			}})
+			return
+		}
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
+		return
+
+	}
+
+	if errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String(), userToInvite); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
@@ -48,7 +62,19 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 		return
 	}
 
-	if errJson := invHanlder.gService.CancelTheInvitation(userID.String(), groupID.String()); errJson != nil {
+	var invitedUser *models.User
+	if err := json.NewDecoder(r.Body).Decode(invitedUser); err != nil {
+		if err == io.EOF {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: models.UserErr{
+				UserId: "empty user_id field",
+			}})
+			return
+		}
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
+		return
+
+	}
+	if errJson := invHanlder.gService.CancelTheInvitation(userID.String(), groupID.String(), invitedUser); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}

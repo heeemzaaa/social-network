@@ -44,7 +44,7 @@ func (decAppInvHandler *ApproveDeclineInvHandler) Accept(w http.ResponseWriter, 
 		return
 	}
 
-	if errJson := decAppInvHandler.gService.Approve(userID.String(), groupID.String(), userToBeAdded); errJson != nil {
+	if errJson := decAppInvHandler.gService.Accept(userID.String(), groupID.String(), userToBeAdded); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
@@ -74,7 +74,7 @@ func (decAppInvHandler *ApproveDeclineInvHandler) ReJect(w http.ResponseWriter, 
 		return
 	}
 
-	if errJson := decAppInvHandler.gService.Decline(userID.String(), groupID.String(), userToBeRejected); errJson != nil {
+	if errJson := decAppInvHandler.gService.ReJect(userID.String(), groupID.String(), userToBeRejected); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
