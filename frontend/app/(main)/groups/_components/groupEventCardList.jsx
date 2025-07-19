@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import Button from "@/app/_components/button";
 import GroupEventCard from "./groupEventCard";
+import { useModal } from "../../_context/ModalContext";
 
 export default function GroupEventCardList({ groupId }) {
     const [data, setData] = useState([]);
@@ -9,6 +10,15 @@ export default function GroupEventCardList({ groupId }) {
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState(null);
     const abortControllerRef = useRef(null);
+
+    const { getModalData, setModalData } = useModal()
+
+    useEffect(() => {
+        let data = getModalData()
+        if (data?.type === "groupEvent") {
+            setData(prev => [data, ...prev])
+        }
+    }, [setModalData])
 
     // Memoized function to generate API URL
     const getUrl = useCallback(

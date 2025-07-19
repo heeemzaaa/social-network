@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import Button from "@/app/_components/button";
 import PostCard from "../../test/postCard";
-import PostCardList from "../../test/postCardList";
+import { useModal } from "../../_context/ModalContext";
 
 export default function GroupPostCardList({ groupId }) {
     const [data, setData] = useState([]);
@@ -10,6 +10,15 @@ export default function GroupPostCardList({ groupId }) {
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState(null);
     const abortControllerRef = useRef(null);
+
+    const { getModalData, setModalData } = useModal()
+
+    useEffect(() => {
+        let data = getModalData()
+        if (data?.type === "groupPost") {
+            setData(prev => [data, ...prev])
+        }
+    }, [setModalData])
 
     // Memoized function to generate API URL
     const getUrl = useCallback(
@@ -31,7 +40,7 @@ export default function GroupPostCardList({ groupId }) {
             const signal = abortControllerRef.current.signal;
             try {
                 const url = getUrl(currentPage);
-                console.log("url: ", url)
+                console.log("url: ", currentPage * 20)
                 const response = await fetch(url, { credentials: "include", signal });
                 if (!response.ok) {
                     console.log(await response.json())
@@ -39,11 +48,11 @@ export default function GroupPostCardList({ groupId }) {
                 }
                 const result = await response.json();
                 console.log(result)
-
                 if (result.length === 0) {
                     setHasMore(false); // No more data to fetch
                 } else {
                     if (result.length < 20) setHasMore(false);
+                    console.log(result)
                     setData((prevData) => [...prevData, ...result]); // Append new data
                 }
             } catch (err) {
@@ -85,22 +94,16 @@ export default function GroupPostCardList({ groupId }) {
     // Load more handler
     const loadMore = () => {
         setPage((prevPage) => prevPage + 1);
-    };
+    }
 
     if (error) return <p className="text-danger text-center">Error: {error}</p>;
-    if (data.length === 0 && !isLoading) return (
-        <img
-            className="w-half mx-auto"
-            src="/no-data-animate.svg"
-            alt="No data"
-        />
-    );
 
     return (
         <div className="list-container flex flex-wrap gap-4 justify-center overflow-y-auto">
-            {data.map((item, index) => (
-                <PostCard {...item} key={item.id}/>
+            {data.map(item => (
+                <PostCard {...item} key={item.id} />
             ))}
+            {data.length === 0 && <img className="w-half mx-auto" src="/no-data-animate.svg" alt="No data" />}
             {isLoading && <p className="text-center w-full">Loading...</p>}
             {hasMore && !isLoading && (
                 <div className="w-full" style={{ textAlign: "center" }}>

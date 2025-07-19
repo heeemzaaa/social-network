@@ -20,14 +20,17 @@ import (
 // so the default image MUST change based on if the group or the profile for example!!!
 
 func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string) (string, *models.ErrorJson) {
+	fmt.Println("==> Inside the image handler", fileName)
 	file, _, err := r.FormFile(fileName)
 	if err != nil {
 		if err == http.ErrMissingFile {
+			fmt.Printf("err: %v\n", err)
 			return "", nil
 		}
+		fmt.Printf("err: %v\n", err)
 		return "", &models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)}
 	}
-
+	fmt.Println("file: ", file)
 	defer file.Close()
 
 	buf := bytes.NewBuffer(nil)
@@ -60,7 +63,7 @@ func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string) (stri
 	if errJson != nil {
 		return "", &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
-
+	fmt.Printf("path: %v\nerr: %v\n", path, errJson)
 	return path, nil
 }
 

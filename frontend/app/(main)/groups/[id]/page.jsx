@@ -1,7 +1,7 @@
 "use client"; // Required for client-side rendering in Next.js
 
 import React, { useEffect, useState } from "react";
-import { HiCalendar, HiDocumentPlus, HiMiniUserPlus, HiMiniUsers, HiOutlineDocumentPlus, HiOutlineUserPlus } from "react-icons/hi2";
+import { HiMiniUsers, HiOutlineDocumentPlus, HiOutlineUserPlus } from "react-icons/hi2";
 import { LuCalendarPlus } from "react-icons/lu";
 import Tag from "../../_components/tag";
 import Tabs from "../../_components/tab/tabs";
@@ -21,12 +21,10 @@ export default function GroupPage({ params }) {
   const [data, setData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const resolvedParams = React.use(params);
   const groupId = resolvedParams.id;
 
   const { openModal } = useModal()
-
   const actionButtons = [
     {
       label: "Invite Friend",

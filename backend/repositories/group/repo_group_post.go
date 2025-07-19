@@ -37,7 +37,7 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
 
 // all the posts
 // add the offset and the limit after
-func (grepo *GroupRepository) GetPosts(userId, groupId string ,offset int) ([]models.PostGroup, *models.ErrorJson) {
+func (grepo *GroupRepository) GetPosts(userId, groupId string, offset int) ([]models.PostGroup, *models.ErrorJson) {
 	posts := []models.PostGroup{}
 	// query needs an update because the reactions table does not exist
 	// also the tables names are not correct
@@ -71,6 +71,7 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string ,offset int) ([]mo
 		group_posts.postID,
 		group_posts.createdAt,
 		group_posts.content,
+		group_posts.imagePath,
 		coalesce(cte_likes.total_likes, 0) as total_likes,
 		coalesce(cte_comments.total_comments, 0) as total_comments,
 		coalesce(group_reactions.userID, 0) as liked
@@ -98,7 +99,7 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string ,offset int) ([]mo
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(userId,groupId, offset)
+	rows, err := stmt.Query(userId, groupId, offset)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return posts, nil
@@ -112,8 +113,10 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string ,offset int) ([]mo
 		if err := rows.Scan(&post.User.FullName,
 			&post.User.Nickname,
 			&post.User.Id,
-			&post.Id, &post.CreatedAt,
+			&post.Id,
+			&post.CreatedAt,
 			&post.Content,
+			&post.ImagePath,
 			&post.TotalLikes,
 			&post.TotalComments,
 			&post.Liked); err != nil {
