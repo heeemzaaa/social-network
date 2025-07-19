@@ -50,7 +50,7 @@ func (decAppInvHandler *ApproveDeclineInvHandler) Accept(w http.ResponseWriter, 
 	}
 }
 
-func (decAppInvHandler *ApproveDeclineInvHandler) ReJect(w http.ResponseWriter, r *http.Request) {
+func (decAppInvHandler *ApproveDeclineInvHandler) Reject(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
@@ -74,7 +74,7 @@ func (decAppInvHandler *ApproveDeclineInvHandler) ReJect(w http.ResponseWriter, 
 		return
 	}
 
-	if errJson := decAppInvHandler.gService.ReJect(userID.String(), groupID.String(), userToBeRejected); errJson != nil {
+	if errJson := decAppInvHandler.gService.Reject(userID.String(), groupID.String(), userToBeRejected); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
@@ -87,7 +87,7 @@ func (decAppInvHandler *ApproveDeclineInvHandler) ServeHTTP(w http.ResponseWrite
 		decAppInvHandler.Accept(w, r)
 		return
 	case http.MethodDelete:
-		decAppInvHandler.ReJect(w, r)
+		decAppInvHandler.Reject(w, r)
 		return
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method Not Allowed!"})
