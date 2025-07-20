@@ -60,3 +60,21 @@ func (repo *ProfileRepository) Unfollow(userID string, authUserID string) *model
 	}
 	return nil
 }
+
+func (repo *ProfileRepository) CancelFollow(userID string, authUserID string) *models.ErrorJson {
+	query := `DELETE FROM follow_requests WHERE userID = ? and requestorID = ?`
+
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		log.Println("Error preparing the query to delete the follow request: ", err)
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+
+	_, err = stmt.Exec(userID, authUserID)
+	if err != nil {
+		log.Println("Error executing the deleting the follow request: ", err)
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+
+	return nil
+}

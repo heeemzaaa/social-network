@@ -39,13 +39,13 @@ func (ep *EditProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	errUpdate := ep.service.UpdatePrivacy(request.ProfileID, authSessionID.String(), request.WantedStatus)
+	profile, errUpdate := ep.service.UpdatePrivacy(request.ProfileID, authSessionID.String(), request.WantedStatus)
 	if errUpdate != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUpdate.Status, Message: errUpdate.Message})
 		return
 	}
 
-	utils.WriteDataBack(w, "done !")
+	utils.WriteDataBack(w, profile)
 }
 
 // PATCH api/profile/id/edit/update-profile

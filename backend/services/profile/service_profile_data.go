@@ -37,7 +37,7 @@ func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*m
 
 	profile.Access = access
 
-	profile.Visibility, err = s.repo.Visibility(profileID)
+	profile.User.Visibility, err = s.repo.Visibility(profileID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
