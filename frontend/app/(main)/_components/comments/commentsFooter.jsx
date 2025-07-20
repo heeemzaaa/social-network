@@ -13,8 +13,9 @@ export default function CommentsFooter({ id , setComments}) {
         success: false,
         content: '',
         firstName: '',
-        userImage: '',
+        imagePath: '',
         createdAt: '',
+        userImage : '',
         likes: 0,
     };
     const [state, formAction] = useActionState(commentPostAction, initialState)
@@ -24,7 +25,7 @@ export default function CommentsFooter({ id , setComments}) {
                 content: state.content,
                 firstName: state.firstName,
                 lastName:  "",
-                userImage: state.userImage,
+                imagePath: state.userImage,
                 createdAt: state.createdAt || new Date().toISOString(),
                 likes: state.likes || 0,
             };

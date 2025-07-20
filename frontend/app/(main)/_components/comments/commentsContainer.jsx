@@ -14,11 +14,12 @@ export default function CommentsContainer({ id }) {
           credentials: 'include',
         });
         const raw = await res.json();
-        
+
         const data = raw.map(comment => ({
           content: comment.content,
           firstName: comment.user.nickname = "" || `${comment.user?.firstname || ""} ${comment.user?.lastname || ""}`,
-          userImage: comment.user?.userImage || '',
+          imagePath: comment.img,
+          userImage : comment.user.avatar,
           createdAt: comment.created_at || new Date().toISOString(),
           likes: comment.likes || 0,
         }));
