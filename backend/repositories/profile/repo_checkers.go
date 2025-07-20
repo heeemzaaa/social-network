@@ -19,6 +19,7 @@ func (repo *ProfileRepository) IsFollower(userID string, authUserID string) (boo
 		log.Println("Error preparing the query the check if the user is a follower :", err)
 		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	err = stmt.QueryRow(userID, authUserID).Scan(&exist)
 	if err != nil {
@@ -37,9 +38,10 @@ func (repo *ProfileRepository) Visibility(userID string) (string, *models.ErrorJ
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
 		log.Println("Error preparing the query to see the visibility: ", err)
-		return "" , &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return "", &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-	
+	defer stmt.Close()
+
 	err = stmt.QueryRow(userID).Scan(&visibility)
 	if err != nil {
 		log.Println("Error checking visibility: ", err)
@@ -85,6 +87,8 @@ func (repo *ProfileRepository) IsRequested(profileID string, authUserID string) 
 		log.Println("Error preparing the query to check if there's a request: ", err)
 		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
+
 	err = stmt.QueryRow(profileID, authUserID).Scan(&isRequested)
 	if err != nil {
 		log.Println("Error checking if there's a request: ", err)

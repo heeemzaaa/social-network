@@ -2,6 +2,7 @@ package chat
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"social-network/backend/models"
@@ -15,22 +16,37 @@ func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message
 	message_created := &models.Message{}
 	message.ID = utils.NewUUID()
 	query := `INSERT INTO messages (id, sender_id,target_id, type, content, created_at) 
-	VALUES (?,?,?,?,?,?) RETURNING sender_id ,target_id ,content, created_at;`
+			VALUES (?,?,?,?,?,?) RETURNING sender_id ,target_id ,content, created_at;
+			`
+
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, models.NewErrorJson(500, "", fmt.Sprintf("%v", err))
+		log.Println("Error preparing the query to add the message: ", err)
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
+
 	if err = stmt.QueryRow(message.ID, message.SenderID, message.TargetID, message.Type, message.Content, message.CreatedAt).Scan(
 		&message_created.SenderID, &message_created.TargetID,
 		&message_created.Content, &message_created.CreatedAt); err != nil {
-		return nil, models.NewErrorJson(500, "", fmt.Sprintf("%v 1", err))
+		log.Println("Error adding the message to the database: ", err)
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+
 	var firstName, lastName string
 	query = `SELECT firstName, lastName FROM users WHERE userID = ?`
-	err = repo.db.QueryRow(query, message.SenderID).Scan(&firstName, &lastName)
+
+	stmt, err = repo.db.Prepare(query)
 	if err != nil {
-		return nil, models.NewErrorJson(500, "", fmt.Sprintf("%v", err))
+		log.Println("Error preparing the query to fetch the user: ", err)
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(message.SenderID).Scan(&firstName, &lastName)
+	if err != nil {
+		log.Println("Error getting the fullname of the user: ", err)
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	message_created.SenderName = firstName + " " + lastName
 	return message_created, nil
@@ -92,9 +108,17 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id string, lastMessage
 		query += " ORDER BY m.created_at DESC LIMIT 10"
 	}
 
-	rows, err := repo.db.Query(query, args...)
+	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		log.Println("Error preparing the query to get the messages: ", err)
+		return messages, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(args...)
+	if err != nil {
+		log.Println("Error getting the messages: ", err)
+		return messages, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer rows.Close()
 
@@ -103,12 +127,14 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id string, lastMessage
 		if type_ == "private" {
 			err := rows.Scan(&message.SenderName, &message.ReceiverName, &message.Content, &message.CreatedAt, &message.ID)
 			if err != nil {
-				return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+				log.Println("Error scanning the private messages: ", err)
+				return []models.Message{}, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 			}
 		} else {
 			err := rows.Scan(&message.SenderName, &message.Content, &message.CreatedAt, &message.ID)
 			if err != nil {
-				return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+				log.Println("Error scanning the group messages: ", err)
+				return []models.Message{}, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 			}
 		}
 		message.Type = type_
@@ -131,8 +157,17 @@ func (repo *ChatRepository) EditReadStatus(sender_id, receiver_id string) *model
 		AND type = 'private'
 		AND readStatus = 0
 	`
-	_, err := repo.db.Exec(query, receiver_id, sender_id)
+
+	stmt, err := repo.db.Prepare(query)
 	if err != nil {
+		log.Println("Error preparing the query to edit the read status: ", err)
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	_, err = repo.db.Exec(query, receiver_id, sender_id)
+	if err != nil {
+		log.Println("Error executting the query to edit the seen status: ", err)
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	return nil

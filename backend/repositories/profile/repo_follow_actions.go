@@ -16,6 +16,8 @@ func (repo *ProfileRepository) FollowDone(userID string, authUserID string) *mod
 		log.Println("Error preparing the query to do the follow action: ", err)
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
+
 	_, err = stmt.Exec(userID, authUserID)
 	if err != nil {
 		log.Println("Error completing the follow action: ", err)
@@ -34,6 +36,7 @@ func (repo *ProfileRepository) FollowPrivate(userID string, authUserID string) *
 		log.Println("Error preparing the query to do the follow private action: ", err)
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(userID, authUserID)
 	if err != nil {
@@ -52,6 +55,7 @@ func (repo *ProfileRepository) Unfollow(userID string, authUserID string) *model
 		log.Println("Error preparing the query to do the unfollow action: ", err)
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(userID, authUserID)
 	if err != nil {
@@ -69,6 +73,7 @@ func (repo *ProfileRepository) CancelFollow(userID string, authUserID string) *m
 		log.Println("Error preparing the query to delete the follow request: ", err)
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(userID, authUserID)
 	if err != nil {

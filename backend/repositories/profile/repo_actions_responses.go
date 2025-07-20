@@ -3,6 +3,7 @@ package profile
 import (
 	"fmt"
 	"log"
+
 	"social-network/backend/models"
 )
 
@@ -15,6 +16,7 @@ func (repo *ProfileRepository) DeleteRequest(userID string, authUserID string) *
 		log.Println("Error preparing the query to delete the request: ", err)
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(userID, authUserID)
 	if err != nil {
@@ -24,7 +26,6 @@ func (repo *ProfileRepository) DeleteRequest(userID string, authUserID string) *
 
 	return nil
 }
-
 
 // if the user accepted the follow request
 // I will delete it from the table and add him to the following list
