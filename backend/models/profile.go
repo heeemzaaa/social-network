@@ -10,5 +10,4 @@ type Profile struct {
 	IsFollower        bool   `json:"is_follower,omitempty"`
 	IsRequested       bool   `json:"is_requested,omitempty"`
 	Access            bool   `json:"access,omitempty"`
-	Visibility        string `json:"visibility,omitempty"`
 }
