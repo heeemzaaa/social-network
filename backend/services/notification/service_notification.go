@@ -21,6 +21,24 @@ func NewNotifService(repo *notification.NotifRepository) *NotificationService {
 	return &NotificationService{repo: repo}
 }
 
+func (NS *NotificationService) ToggleSeenFalse(notifications []models.Notification) *models.ErrorJson {
+	for _, notification := range notifications {
+		if errJson := NS.repo.UpdateSeen(notification.Id); errJson != nil {
+			return errJson
+		}
+	}
+	return nil
+}
+
+func (NS *NotificationService) IsHasSeenFalse(user_id string) (bool, *models.ErrorJson) {
+	isValid, errJson := NS.repo.IsHasSeenFalse(user_id)
+	if errJson != nil {
+		return false, errJson
+	}
+	fmt.Println("isValid ====== ", isValid)
+	return isValid, nil
+}	
+
 func (NS *NotificationService) GetService(userid, queryParam string) ([]models.Notification, *models.ErrorJson) {
 	all, err := NS.repo.SelectAllNotification(userid)
 	if err != nil {
@@ -30,31 +48,26 @@ func (NS *NotificationService) GetService(userid, queryParam string) ([]models.N
 	len := len(all)
 	nbr, _ := strconv.Atoi(queryParam)
 	sort.Slice(all, func(i, j int) bool {
-		return all[i].CreatedAt.After(all[j].CreatedAt) // Newest first
+		return all[i].CreatedAt.After(all[j].CreatedAt) // sort notification by time
 	})
-
-	// sort data before slice ////////////////:
 
 	switch {
 	case len <= 10:
 		return all, nil
-
 	case nbr <= 0:
 		fmt.Println("nbr <= 0")
 		return all[:10], nil
-
 	case len <= nbr:
 		fmt.Println("greates than notifications : len <= nbr")
 		return []models.Notification{}, nil
-
 	case len < nbr+10:
 		fmt.Println("len < nbr + 10")
 		return all[nbr:], nil
-
 	default:
 		fmt.Println("default = [nbr : nbr + 10]")
 		return all[nbr : nbr+10], nil
 	}
+	return []models.Notification{}, nil
 }
 func (NS *NotificationService) PostService(data models.Notif, user_id string) *models.ErrorJson {
 	// fmt.Println("POST SERVICE 000 : data reciever = : ", data)

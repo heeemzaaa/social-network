@@ -4,7 +4,7 @@
 import { NextResponse } from "next/server";
 
 export async function middleware(request) {
-    console.log("====> Inside middlware: ", request.headers.get('cookie'))
+    // console.log("====> Inside middlware: ", request.headers.get('cookie'))
     try {
         // Fetch authentication status from the external API
         const response = await fetch('http://localhost:8080/api/loggedin', {

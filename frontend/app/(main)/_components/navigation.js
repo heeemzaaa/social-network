@@ -6,17 +6,20 @@ import { usePathname } from 'next/navigation'
 import "./components.css"
 import Logo from "@/app/_components/logo";
 import { logout } from "@/app/_actions/user";
-import { getID } from "@/lib/global";
 import { useEffect, useState } from "react";
 
 export default function Navigation() {
   const currentPath = usePathname()
 
-  const [id, setId] = useState(null);
+  const [id, setId] = useState(null)
 
   useEffect(() => {
-    const uid = getID();
-    setId(uid);
+    async function GetUserInfo() {
+      let res = await fetch("http://localhost:8080/api/loggedin", {credentials: 'include'})
+      let data = await res.json()
+      setId(data.id)
+    }
+    GetUserInfo()
   }, []);
 
 

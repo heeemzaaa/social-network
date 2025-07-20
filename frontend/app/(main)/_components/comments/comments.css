@@ -1,0 +1,37 @@
+.comments_container {
+    max-width: 900px;
+    height: 70vh;
+    border: 1px solid var(--color-light-gray);
+}
+
+.user_image {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.comments_image {
+    width: 150px;
+    height: 150px;
+    border-radius: 20px;
+}
+
+.all_comments {
+    overflow-y: auto;
+}
+
+.comments_card {
+    border-radius: var(--border-radius-xl);
+    border: 1px solid var(--color-light-gray);
+}
+
+.card_body {
+    text-align: justify;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.comment {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}

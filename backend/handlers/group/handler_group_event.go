@@ -1,14 +1,15 @@
 package group
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
+	"social-network/backend/middleware"
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
 	"social-network/backend/utils"
-
-	"github.com/google/uuid"
 )
 
 /***  /api/groups/{group_id}/events/{event-id}/  ***/
@@ -23,54 +24,67 @@ func NewGroupEventIDHandler(service *gservice.GroupService) *GroupEventIDHandler
 }
 
 func (gEventIDHandler *GroupEventIDHandler) AddInterestIntoEvent(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	userID, errParse := uuid.Parse(userIDVal.(string))
+	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		fmt.Println("errors", errParse)
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 
-	groupId := r.PathValue("group_id")
-	groupID, err := uuid.Parse(groupId)
+	groupID, err := utils.GetUUIDFromPath(r, "group_id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of groupID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
 
-	eventId := r.PathValue("event_id")
-	eventID, err := uuid.Parse(eventId)
+	eventID, err := utils.GetUUIDFromPath(r, "event_id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of postID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-
-	fmt.Println("", eventID, userID, groupID)
+	actionChosen:=&models.UserEventAction{}
+	if err := json.NewDecoder(r.Body).Decode(&actionChosen); err != nil {
+		if err == io.EOF {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: models.UserEventActionErr{
+				Action: "please specify an action (going:1/not going:-1)",
+			}})
+			return
+		}
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
+		return
+	}
+    actionChosen.UserId, actionChosen.GroupId, actionChosen.EventId = userID.String(), groupID.String(), eventID.String()
+	action, errJson := gEventIDHandler.gService.HandleActionChosen(actionChosen)
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		return
+	}
+	utils.WriteDataBack(w, action)
 }
 
 func (gEventIDHandler *GroupEventIDHandler) GetEventDetails(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value("userID")
-	userID, errParse := uuid.Parse(userIDVal.(string))
+	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		fmt.Println("errors", errParse)
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 
-	groupId := r.PathValue("group_id")
-	groupID, err := uuid.Parse(groupId)
+	groupID, err := utils.GetUUIDFromPath(r, "group_id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of groupID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
 
-	eventId := r.PathValue("event_id")
-	eventID, err := uuid.Parse(eventId)
+	eventID, err := utils.GetUUIDFromPath(r, "event_id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of postID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	gEventIDHandler.gService.GetEventDetails(eventID.String(), userID.String(), groupID.String())
+	event, errJson := gEventIDHandler.gService.GetEventDetails(eventID.String(), userID.String(), groupID.String())
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		return
+	}
+	utils.WriteDataBack(w, event)
 }
 
 func (gEventIDHandler *GroupEventIDHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +97,7 @@ func (gEventIDHandler *GroupEventIDHandler) ServeHTTP(w http.ResponseWriter, r *
 		gEventIDHandler.GetEventDetails(w, r)
 		return
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method not allowed!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method not allowed!"})
 		return
 	}
 }

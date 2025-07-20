@@ -17,12 +17,6 @@ func NewNotifServiceUpdate(repo *notification.NotifRepository) *NotificationServ
 func (NUS *NotificationServiceUpdate) UpdateService(data models.Unotif, user_id string) *models.ErrorJson {
 	log.Println("START UPDATE SERVICE ----- REQUEST DATA = ", data)
 
-	// isValid, errJson := NUS.repo.IsHasSeenFalse(user_id)
-	// if errJson != nil {
-	// 	return errJson
-	// }
-	// fmt.Println("isValid ====== ", isValid)
-
 	if data.Status != "accept" && data.Status != "reject" {
 		return models.NewErrorJson(400, "Bad-Request 400", "Invalid----Status")
 	}
@@ -32,7 +26,7 @@ func (NUS *NotificationServiceUpdate) UpdateService(data models.Unotif, user_id 
 		return models.NewErrorJson(errJson.Status, errJson.Error, errJson.Message)
 	}
 
-	if notification.Reciever_Id == user_id || notification.Status != "later" {
+	if  notification.Status != "later" { // notification.Reciever_Id == user_id ||
 		return models.NewErrorJson(400, "Bad-Request 400", "Invalid----Operation")
 	}
 	if errJson = NUS.repo.UpdateStatus(notification.Id, data.Status); errJson != nil {

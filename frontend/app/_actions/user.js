@@ -58,7 +58,7 @@ export async function registerUser(prevState, formData) {
     const lastname = formData.get("lastname")?.trim();
     const birthdate = formData.get("birthdate")?.trim();
     const nickname = formData.get("nickname")?.trim() || null;
-    const aboutMe = formData.get("about_me")?.trim() || null;
+    const about_me = formData.get("about_me")?.trim() || null;
     const avatar = formData.get("avatar");
 
     if (!email) {
@@ -104,7 +104,7 @@ export async function registerUser(prevState, formData) {
 
     const newFormData = new FormData()
     newFormData.append('data', JSON.stringify(
-        { firstname, lastname, birthdate, email, password, nickname, aboutMe }
+        { firstname, lastname, birthdate, email, password, nickname, about_me }
     ))
     if (avatar && avatar.size > 0) {
         newFormData.append('profile_img', avatar);

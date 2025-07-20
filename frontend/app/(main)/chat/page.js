@@ -61,7 +61,6 @@ export default function Chat() {
         <div className='chosing_param'>
           {view === 'Users' ? <UserList {...users} /> : <GroupList {...groups} />}
         </div>
-
       </section>
 
       <section className='chat_place flex-col'>

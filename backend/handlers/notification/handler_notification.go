@@ -47,7 +47,24 @@ func (NH *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 	}
 
 	queryParam := r.URL.Query().Get("Count")
-	if queryParam == "" || !utils.IsValidQueryParam(queryParam) {
+	if queryParam == "" {
+		hasSeen, errJson := NH.NS.IsHasSeenFalse(user_Id.String())
+		if errJson != nil {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+			return
+
+		}
+		fmt.Println("has new Notification====" , hasSeen)
+
+		data := models.HasSeen{
+			Status: hasSeen,
+			Message: "has new notifications",
+		}
+		utils.WriteDataBack(w, data)
+		return
+	}
+
+	if !utils.IsValidQueryParam(queryParam) {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect QueryParam by field!!"})
 		return
 	}
@@ -57,8 +74,11 @@ func (NH *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
 	}
-
-	// for range all notifications rendred to seen false in back-end //////////////////////////
+	errJson = NH.NS.ToggleSeenFalse(notifications)
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)})
+		return 
+	}
 
 	if err = json.NewEncoder(w).Encode(notifications); err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)})
@@ -83,11 +103,6 @@ func (NH *NotificationHandler) CreateNotification(w http.ResponseWriter, r *http
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "bad request", Message: fmt.Sprintf("%v", err)})
 		return
 	}
-
-	// if errJson := NH.NS.UpdateService(Data, user_Id.String()); errJson != nil {
-	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
-	// 	return
-	// }
 	
 	errJson := NH.NS.PostService(Data, user_Id.String())
 	if errJson != nil {

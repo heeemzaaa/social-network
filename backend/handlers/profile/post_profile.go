@@ -20,15 +20,20 @@ func NewProfilePostsHandler(service *ps.ProfileService) *ProfilePostHandler {
 
 // GET /api/profile/id/data/posts
 func (p *ProfilePostHandler) GetPostsOfTheProfile(w http.ResponseWriter, r *http.Request, profileID string) {
-	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
+	authUserID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
 	}
 
-	posts, errPosts := p.service.GetPosts(profileID, authSessionID.String())
+	posts, access, errPosts := p.service.GetPosts(profileID, authUserID.String())
 	if errPosts != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errPosts.Error})
+		return
+	}
+	if !access {
+		utils.WriteDataBack(w, access)
+		return
 	}
 
 	utils.WriteDataBack(w, posts)
@@ -49,7 +54,7 @@ func (p *ProfilePostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch path {
-	case "/posts":
+	case "posts":
 		p.GetPostsOfTheProfile(w, r, profileID)
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})

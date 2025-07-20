@@ -40,3 +40,8 @@ type Unotif struct {
 func UpdateNotif() *Unotif {
 	return &Unotif{}
 }
+
+type HasSeen struct {
+	Status bool
+	Message string
+}

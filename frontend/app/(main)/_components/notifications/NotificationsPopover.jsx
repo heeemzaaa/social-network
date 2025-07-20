@@ -8,18 +8,40 @@ export default function NotificationsPopover() {
   const containerRef = useRef();
 
   // Test function
-  const test = () => {
+  const test = async () => {
     console.log("Test function called!");
     
-    // إذا كان container فارغ، زيد notification جديدة
     if (notifications.length === 0) {
-      const newNotification = {
-        Content: "This is a test notification",
-        Type: "test",
-        Status: "new",
-        id: Date.now() // temporary id
-      };
-      setNotifications([newNotification]);
+      // const newNotification = {
+      //   Content: "This is a test notification",
+      //   Type: "test",
+      //   Status: "new",
+      //   id: Date.now() // temporary id
+      // };
+      // const getRequest = {
+      //   method: "GET",
+      //   credentials: "include"
+      // }
+      // const postRequest = {
+      //   method: "POST",
+      //   credentials: "include",
+      //   headers: {
+      //     "Content-Type": "application/json"
+      //   },
+      //   body: JSON.stringify({
+      //     Notif_Id: "164583ba-52ad-4f54-9599-f55f2fe0a93e", // get notification_id
+      //     Status: "reject",
+      //   })
+      // }
+
+      // let response1 = await fetch("http://localhost:8080/api/notifications/update/", postRequest)
+      // let data1 = await response1.json()
+      // console.log("Fetched EVENT post new notification:", data1)
+      // let res1 = await fetch("http://localhost:8080/api/notifications/", getRequest)
+      // let ddd1 = await res1.json()
+      // console.log("Fetched EVENT get seen notifications:", ddd1)
+
+      setNotifications(notifications);
       console.log("Added new notification because container was empty");
     } else {
       console.log("Container is not empty, notifications count:", notifications.length);

@@ -11,7 +11,7 @@ import (
 	s "social-network/backend/services/chat"
 )
 
-func SetChatRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService) *http.ServeMux {
+func SetChatRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService) {
 	repo := r.NewChatRepository(db)
 	service := s.NewChatService(repo)
 	handlerChat := h.NewChatServer(service)
@@ -22,5 +22,4 @@ func SetChatRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService
 	mux.Handle("/api/messages", middleware.NewMiddleWare(handlerMessage, authService))
 	mux.Handle("/api/get-users", middleware.NewMiddleWare(handlerChatNav, authService))
 
-	return mux
 }

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -33,12 +34,12 @@ func (authHandler *AuthHandler) Register(w http.ResponseWriter, r *http.Request)
 		})
 		return
 	}
-	path, errUploadImg := utils.HanldeUploadImage(r, "profile_img", "avatars", true)
+	path, errUploadImg := utils.HanldeUploadImage(r, "profile_img", "avatars")
 	if errUploadImg != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
 	}
-
+	fmt.Println("user in handler: ", user.AboutMe)
 	user.ImagePath = path
 	errJson := authHandler.service.Register(&user)
 	if errJson != nil {
