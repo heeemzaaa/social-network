@@ -10,6 +10,7 @@ import (
 )
 
 func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGroup, *models.ErrorJson) {
+	fmt.Println("post", post.User.Id)
 	post_created := &models.PostGroup{}
 	postId := uuid.New()
 	query := `
@@ -28,7 +29,7 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
         FROM
             users
         WHERE
-            users.userID = userID
+            users.userID = ?
     ) AS fullName,
     (
         SELECT
@@ -36,17 +37,16 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
         FROM
             users
         WHERE
-            users.userID = userID
+            users.userID = ?
     );
 
 	`
 	stmt, err := grepo.db.Prepare(query)
 	if err != nil {
-		fmt.Println("WHY? 1", err.Error())
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	errScan := stmt.QueryRow( postId, post.GroupId, post.User.Id, post.Content, post.ImagePath).Scan(
+	errScan := stmt.QueryRow(postId, post.GroupId, post.User.Id, post.Content, post.ImagePath, post.User.Id, post.User.Id).Scan(
 		&post_created.Id,
 		&post_created.GroupId,
 		&post_created.User.Id,
