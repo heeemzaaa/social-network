@@ -59,5 +59,6 @@ func (h *PostHandler) CommentPost(w http.ResponseWriter, r *http.Request) {
 	comment.Id = commID
 	comment.User.Nickname = fullName
 	w.Header().Set("Content-Type", "application/json")
+	fmt.Println(comment, "this is the comment comes form the back end ....")
 	json.NewEncoder(w).Encode(comment)
 }

@@ -1,20 +1,36 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import "./comments.css"
 import { MdPermMedia } from "react-icons/md";
 import { FaPaperPlane } from "react-icons/fa";
 
 import { useActionState } from 'react'
 import { commentPostAction } from '@/app/_actions/posts'
-import post from '../posts';
 
 
-export default function CommentsFooter({ id }) {
+export default function CommentsFooter({ id , setComments}) {
     const initialState = {
         message: '',
-        success: false
-
-    }
+        success: false,
+        content: '',
+        firstName: '',
+        userImage: '',
+        createdAt: '',
+        likes: 0,
+    };
     const [state, formAction] = useActionState(commentPostAction, initialState)
+    useEffect(() => {
+        if (state.success) {
+            const newComment = {
+                content: state.content,
+                firstName: state.firstName,
+                lastName:  "",
+                userImage: state.userImage,
+                createdAt: state.createdAt || new Date().toISOString(),
+                likes: state.likes || 0,
+            };
+            setComments(prev => [...prev, newComment]);
+        }
+    }, [state]);
 
     return (
         <form
@@ -27,7 +43,7 @@ export default function CommentsFooter({ id }) {
                 type="file"
                 id='commentImg'
                 name='commentImg'
-                style={{display:'none'}}
+                style={{ display: 'none' }}
             />
             <input type="hidden" name="postID" value={id} />
             <input

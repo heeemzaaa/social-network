@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -25,13 +26,18 @@ func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Not found"})
 		return
 	}
-
+	fmt.Println(r.URL.Path, "//////***//////")
 	switch r.Method {
 	case http.MethodGet:
 		if len(pathParts) == 2 {
 			h.GetAllPosts(w, r)
 			return
 		}
+		if pathParts[2] == "comments" {
+			h.GetComments(w, r)
+			return
+		}
+
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Not found"})
 
 	case http.MethodPost:
@@ -43,8 +49,8 @@ func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			h.LikePost(w, r)
 			return
 		}
-		if pathParts[2] == "comment" {
 
+		if pathParts[2] == "comment" {
 			h.CommentPost(w, r)
 			return
 		}

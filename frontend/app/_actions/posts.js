@@ -193,17 +193,17 @@ export async function commentPostAction(prevState, formData) {
         }
 
         const response = await resp.json();
-        console.log(response, "+++++++++++++++++++++++++++++")
-        if (response.success) {
-            return {
-                ...state,
-                message: "Commented successfully",
-                comment: response.comment,
-                commentator: response.fullName,
-            };
-        } else {
-            return { ...state, message: "Comment failed on backend." };
-        }
+        const now = new Date();
+        const formatted = now.toISOString().slice(0, 16).replace('T', ' ');
+        return {
+            ...state,
+            message: "Commented successfully",
+            content: response.content,
+            firstName: response.user.nickname,
+            success: true,
+            createdAt: formatted,
+            userImage: response.Img,
+        };
     } catch (err) {
         return { ...prevState, message: "Server error." };
     }

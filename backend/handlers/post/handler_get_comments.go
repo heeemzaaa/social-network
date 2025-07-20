@@ -1,24 +1,19 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"social-network/backend/models"
-	s "social-network/backend/services/post"
 	"social-network/backend/utils"
 )
 
-type CommentsHandler struct {
-	service *s.PostService
-}
-
-func NewCommentsHandler(service *s.PostService) *CommentsHandler {
-	return &CommentsHandler{service: service}
-}
-
-func (h *CommentsHandler) GetComments(w http.ResponseWriter, r *http.Request) {
+func (h *PostHandler) GetComments(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("**********************************")
 	postID, err := utils.GetUUIDFromPath(r, "id")
+	fmt.Println(postID.String())
 	if err != nil {
+		fmt.Println(err)
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "invalid path"})
 		return
 	}
@@ -30,16 +25,4 @@ func (h *CommentsHandler) GetComments(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteDataBack(w, comments)
-}
-
-func (h *CommentsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		h.GetComments(w, r)
-	case http.MethodPost:
-		// hna zid dyal add comment
-	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method not allowed !"})
-		return
-	}
 }

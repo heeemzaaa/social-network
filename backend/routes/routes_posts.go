@@ -19,5 +19,5 @@ func SetPostRoutes(mux *http.ServeMux, db *sql.DB, authService *sa.AuthService) 
 	mux.Handle("/api/posts", middleware.NewMiddleWare(postHandler, authService))
 	mux.Handle("/api/posts/like/{id}", middleware.NewMiddleWare(postHandler, authService))
 	mux.Handle("/api/posts/comment", middleware.NewMiddleWare(postHandler, authService))
-	// mux.Handle("/api/posts/comments", middleware.NewMiddleWare(postHandler, authService))
+	mux.Handle("/api/posts/comments/{id}", middleware.NewMiddleWare(postHandler, authService))
 }
