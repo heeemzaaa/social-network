@@ -79,6 +79,7 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfi
 		log.Println("Error preparing the query to get posts of the profile: ", err)
 		return posts, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	rows, err := stmt.Query(args...)
 	if err != nil {

@@ -1,5 +1,5 @@
 'use client'
-import Posts_container from '@/app/(main)/_components/posts/postsContainer'
+import PostCard from '@/app/(main)/_components/posts/postCard'
 import React, { useEffect, useState } from 'react'
 
 export default function UserPosts({ id, access }) {
@@ -35,7 +35,9 @@ export default function UserPosts({ id, access }) {
             {posts.length === 0 ? (
                 <img src="/no-posts.svg" style={{ height: '90%' }} />
             ) : (
-                <Posts_container posts={posts}/>
+                posts.map((post) => {
+                    <PostCard {...post} />
+                })
             )}
         </section>
     )

@@ -23,6 +23,7 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 			log.Println("Error preparing the query to get the profile data: ", err)
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
+		defer stmt.Close()
 
 		err = stmt.QueryRow(profileID).Scan(
 			&profile.User.FirstName,
@@ -64,6 +65,7 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 		log.Println("Error preparing the query to get the profile data: ", err)
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	err = stmt.QueryRow(profileID).Scan(
 		&profile.User.Email,
@@ -86,7 +88,7 @@ func (repo *ProfileRepository) GetProfileData(profileID string, access bool) (*m
 		log.Println("Error getting the data of the user: ", err)
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-	
+
 	profile.User.Id = profileID
 	return &profile, nil
 }

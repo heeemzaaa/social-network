@@ -18,6 +18,7 @@ func (repo *ProfileRepository) AcceptAllrequest(userID string) *models.ErrorJson
 		log.Println("Error preparing the query to get the profile data: ", err)
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	rows, err := stmt.Query(userID)
 	if err != nil {
@@ -49,6 +50,7 @@ func (repo *ProfileRepository) AcceptAllrequest(userID string) *models.ErrorJson
 			log.Println("Error preparing the query to add the user to the followers: ", err)
 			return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
+		defer stmt.Close()
 
 		_, err = stmt.Exec(userID, user.Id)
 		if err != nil {
@@ -64,6 +66,7 @@ func (repo *ProfileRepository) AcceptAllrequest(userID string) *models.ErrorJson
 		log.Println("Error preparing the query to delete the request: ", err)
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(userID)
 	if err != nil {
@@ -83,6 +86,7 @@ func (repo *ProfileRepository) ToPublicAccount(userID string) *models.ErrorJson 
 		log.Println("Error preparing the query to change visibility to public: ", err)
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec("public", userID)
 	if err != nil {
@@ -102,6 +106,7 @@ func (repo *ProfileRepository) ToPrivateAccount(userID string) *models.ErrorJson
 		log.Println("Error preparing the query to change visibility to private: ", err)
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec("private", userID)
 	if err != nil {

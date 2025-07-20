@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react"
 import InfosDiv from "./_components/profileData/userInfo"
 import AboutUser from "./_components/profileData/abouUser"
-import UserPosts from "./_components/profileData/userPosts"
+import UserPosts from "./_components/profilePosts/userPosts"
 import { FaLockOpen, FaLock } from "react-icons/fa"
 import { RiUserFollowFill, RiUserUnfollowFill } from "react-icons/ri"
 import { MdPending } from "react-icons/md"

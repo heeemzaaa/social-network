@@ -23,6 +23,8 @@ func (repo *ProfileRepository) GetFollowers(profileID string) ([]models.User, *m
 		log.Println("Error preparing a query to get the followers: ", err)
 		return users, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+		defer stmt.Close()
+
 
 	rows, err := stmt.Query(profileID)
 	if err != nil {
@@ -71,6 +73,7 @@ func (repo *ProfileRepository) GetFollowing(profileID string) ([]models.User, *m
 		log.Println("Error preparing the query to get the following users: ", err)
 		return users, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	rows, err := stmt.Query(profileID)
 	if err != nil {

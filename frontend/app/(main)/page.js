@@ -1,7 +1,5 @@
 // frontend/app/(main)/page.js 
 "use client"
-import PostsContainer from "./_components/posts/postsContainer";
-import Loading from "./loading";
 
 export default function Home() {
 
