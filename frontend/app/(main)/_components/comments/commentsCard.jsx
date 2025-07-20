@@ -8,6 +8,9 @@ import { FaHeart } from "react-icons/fa";
 export default function CommentsCard({ comment }) {
     let parsedTime = new Date(comment.createdAt)
     console.log("comment",comment)
+    if(comment.lastName==undefined) {
+        comment.lastName = ""
+    }
     return (
         <div className='comments_card w-full p3 flex-col gap-3 shadow-lg'>
             <div className='card_header flex align-center gap-1'>
