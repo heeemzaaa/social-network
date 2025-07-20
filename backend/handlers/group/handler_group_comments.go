@@ -96,7 +96,7 @@ func (gCommentHandler *GroupCommentHandler) GetGroupComments(w http.ResponseWrit
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", errConvoff)})
 		return
 	}
-
+    
 	comments, errJson := gCommentHandler.gService.GetComments(groupID.String(), userID.String(), postID.String(), offset)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})

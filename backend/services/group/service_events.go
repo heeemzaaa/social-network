@@ -19,7 +19,7 @@ func (gService *GroupService) GetGroupEvents(groupID, userID string, offset int6
 	}
 	// if the one trying to access is a member wlla laa
 
-	events, errJson := gService.gRepo.GetGroupEvents(groupID,userID, offset)
+	events, errJson := gService.gRepo.GetGroupEvents(groupID, userID, offset)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
@@ -34,7 +34,7 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	// always check the membership and also the the group is a valid one
-	if errMembership := gService.CheckMembership(event.GroupId, event.EventCreatorId); errMembership != nil {
+	if errMembership := gService.CheckMembership(event.GroupId, event.EventCreator.Id); errMembership != nil {
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 	// here we'll be checking if the input is valid
