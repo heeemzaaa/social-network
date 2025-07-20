@@ -1,8 +1,10 @@
 package group
 
-import "social-network/backend/models"
+import (
+	"social-network/backend/models"
+)
 
-func (gService *GroupService) InviteToJoin(userId, groupId string) *models.ErrorJson {
+func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite *models.User) *models.ErrorJson {
 	// check the group if a valid one
 	// check the user is member before he can invite
 	// check if the invited one is one of the followers of the user
@@ -15,19 +17,40 @@ func (gService *GroupService) InviteToJoin(userId, groupId string) *models.Error
 		return &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 
-	gService.gRepo.InviteToJoin(userId, groupId)
+	isFollower, errJson := gService.sProfile.IsFollower(userId, userToInvite.Id)
+	if errJson != nil {
+		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	}
+	if !isFollower {
+		return &models.ErrorJson{Status: 403, Error: "ERROR!! it is not from your followers!"}
+	}
+
+	if err := gService.gRepo.InviteToJoin(userId, groupId, userToInvite); err != nil {
+		return &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
+	}
 	return nil
 }
 
-func (gService *GroupService) CancelTheInvitation(userId, groupId string) *models.ErrorJson {
+func (gService *GroupService) CancelTheInvitation(userId, groupId string, invitedUser *models.User) *models.ErrorJson {
 	// check the group if a valid one
 	// check the user is member before he can invite
-	// check if the invited one is one of the followers of the user
+	// we need to check if the request of invitation is there before canceling it
 	// delete  the invitation from the table of the requests
-	gService.gRepo.CancelTheInvitation(userId, groupId)
+	if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
+		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	}
+	// always check the membership and also the the group is a valid one
+	if errMembership := gService.CheckMembership(groupId, userId); errMembership != nil {
+		return &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+	}
+
+	if errJson := gService.gRepo.CancelTheInvitation(userId, groupId, invitedUser); errJson != nil {
+		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	}
 	return nil
 }
 
 func (gService *GroupService) GetInvitations(userId, groupId string) ([]models.User, *models.ErrorJson) {
+	gService.gRepo.GetInvitations()
 	return nil, nil
 }

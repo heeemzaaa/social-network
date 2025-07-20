@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS group_requests(
   FOREIGN KEY (senderID) REFERENCES users(userID) ON DELETE CASCADE,
   FOREIGN KEY (receiverID)  REFERENCES users(userID) ON DELETE CASCADE,
   FOREIGN KEY (groupID) REFERENCES groups(groupID) ON DELETE CASCADE,
-  UNIQUE (senderID,senderID ,groupID)
+  UNIQUE (senderID,receiverID ,groupID,typeRequest)
 );

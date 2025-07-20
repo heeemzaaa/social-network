@@ -8,6 +8,8 @@ import (
 	"social-network/backend/utils"
 )
 
+// let's edit all this shit to return the data needed
+
 type GroupRepository struct {
 	db *sql.DB
 }
@@ -19,27 +21,58 @@ func NewGroupRepository(db *sql.DB) *GroupRepository {
 
 func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *models.ErrorJson) {
 	groupID := utils.NewUUID()
-	query := `INSERT INTO groups 
-	(groupID, groupCreatorID,title,imagePath,description)
-	VALUES (?,?,?,?,?)`
+	query := `
+	INSERT INTO
+    group_posts (postID, groupID, userID, content, imagePath)
+    VALUES (?, ?, ?, ?, ?) RETURNING postID,
+    groupID,
+    userID,
+    content,
+    imagePath,
+    createdAt,
+    (
+        SELECT
+            concat (firstName, ' ', lastName)
+        FROM
+            users
+        WHERE
+            users.userID = userID
+    ) AS fullName,
+    (
+        SELECT
+            nickname
+        FROM
+            users
+        WHERE
+            users.userID = userID
+    );
+
+	`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(groupID, group.GroupCreatorId,
-		group.Title, group.ImagePath, group.Description)
+	groupCreated := models.Group{}
+	err = stmt.QueryRow(groupID, group.GroupCreatorId,
+		group.Title, group.ImagePath, group.Description).Scan(
+		&groupCreated.GroupId,
+		&groupCreated.GroupCreatorId,
+		&groupCreated.Title,
+		&groupCreated.ImagePath,
+		&groupCreated.Description,
+		&groupCreated.CreatedAt,
+		&groupCreated.GroupCreatorFullName,
+		&groupCreated.GroupCreatorNickname,
+	)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-
-	group.GroupId = groupID
-	if errJson := repo.JoinGroup(group, group.GroupCreatorId); errJson != nil {
+	if errJson := repo.JoinGroup(&groupCreated, group.GroupCreatorId); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
-
-	return group, nil
+	return &groupCreated, nil
 }
 
 // all these functions are needed to handle the user
@@ -60,15 +93,19 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 	SELECT
 	DISTINCT
 		groups.groupID,
+		groups.groupCreatorID,
+		concat(users.firstName, ' ', users.lastName),
+		users.nickname,
 		title,
 		imagePath,
 		description,
-		createdAt,
+		groups.createdAt,
 		cte_members.Nbr_Members
 	FROM
 		groups
 		INNER JOIN group_membership ON group_membership.groupID = groups.groupID
 		INNER JOIN cte_members ON  cte_members.Id = groups.groupID
+		INNER JOIN users ON users.userID = groups.groupCreatorID
 	WHERE groups.groupCreatorID != ?
 	AND  group_membership.userID = ?
     ORDER BY groups.createdAt DESC
@@ -94,8 +131,16 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 	defer rows.Close()
 	for rows.Next() {
 		group := &models.Group{}
-		errScan := rows.Scan(&group.GroupId, &group.Title, &group.ImagePath,
-			&group.Description, &group.CreatedAt, &group.Total_Members)
+		errScan := rows.Scan(
+			&group.GroupId,
+			&group.GroupCreatorId,
+			&group.GroupCreatorFullName,
+			&group.GroupCreatorNickname,
+			&group.Title,
+			&group.ImagePath,
+			&group.Description,
+			&group.CreatedAt,
+			&group.Total_Members)
 		if errScan != nil {
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", errScan)}
 		}
@@ -121,14 +166,18 @@ func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]
     )
 	SELECT
 		groupID,
+		groups.groupCreatorID,
+		concat(users.firstName, ' ', users.lastName),
+		users.nickname,
 		title,
 		imagePath,
 		description,
-		createdAt ,
+		groups.createdAt ,
 		cte_members.Nbr_Members
 	FROM
 		groups
 		INNER JOIN cte_members ON groups.groupID = cte_members.Id
+		INNER JOIN users ON users.userID = groups.groupCreatorID
 	WHERE
 		groups.groupID NOT IN (
 			SELECT
@@ -160,8 +209,16 @@ func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]
 	defer rows.Close()
 	for rows.Next() {
 		group := &models.Group{}
-		errScan := rows.Scan(&group.GroupId, &group.Title, &group.ImagePath,
-			&group.Description, &group.CreatedAt, &group.Total_Members)
+		errScan := rows.Scan(
+			&group.GroupId,
+			&group.GroupCreatorId,
+			&group.GroupCreatorFullName,
+			&group.GroupCreatorNickname,
+			&group.Title,
+			&group.ImagePath,
+			&group.Description,
+			&group.CreatedAt,
+			&group.Total_Members)
 		if errScan != nil {
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", errScan)}
 		}
@@ -170,6 +227,8 @@ func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]
 
 	return availabeGroups, nil
 }
+
+// here we won't be needing to get the name
 
 func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]models.Group, *models.ErrorJson) {
 	createdGroups := []models.Group{}
@@ -222,8 +281,14 @@ func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]mo
 
 	for rows.Next() {
 		group := &models.Group{}
-		errScan := rows.Scan(&group.GroupId, &group.Title,
-			&group.ImagePath, &group.Description, &group.CreatedAt, &group.Total_Members)
+		errScan := rows.Scan(
+			&group.GroupId,
+			&group.Title,
+			&group.ImagePath,
+			&group.Description,
+			&group.CreatedAt,
+			&group.Total_Members,
+		)
 		if errScan != nil {
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", errScan)}
 		}

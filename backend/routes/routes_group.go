@@ -9,7 +9,10 @@ import (
 	gRepo "social-network/backend/repositories/group"
 	authService "social-network/backend/services/auth"
 	gService "social-network/backend/services/group"
+	profileService "social-network/backend/services/profile"
 )
+// cleaning the code and fixing the bugs !!
+
 
 // ##### routes i have to implement to all the users #####
 // POST /groups/  create a group done
@@ -54,13 +57,13 @@ import (
 // POST /groups/{group_id}/accept
 // DELETE  /groups/{group_id}/decline
 
-func SetGroupRoutes(mux *http.ServeMux, db *sql.DB, authService *authService.AuthService) {
+func SetGroupRoutes(mux *http.ServeMux, db *sql.DB, authService *authService.AuthService, profileService *profileService.ProfileService) {
 	//  auth service
 	// authRepo := ra.NewAuthRepository(db)
 	// authService := sa.NewAuthServer(authRepo)
 	// other setups
 	groupRepo := gRepo.NewGroupRepository(db)
-	groupService := gService.NewGroupService(groupRepo)
+	groupService := gService.NewGroupService(groupRepo, profileService)
 	GroupHandler := group.NewGroupHandler(groupService)
 	GroupIDHandler := group.NewGroupIDHandler(groupService)
 	GroupEventHandler := group.NewGroupEventHandler(groupService)
@@ -72,13 +75,15 @@ func SetGroupRoutes(mux *http.ServeMux, db *sql.DB, authService *authService.Aut
 	RequestHandler := group.NewGroupRequestsHandler(groupService)
 	DeclineApproveHandler := group.NewApproveDeclineReqHandler(groupService)
 	InvitationsHandler := group.NewGroupInvitationHandler(groupService)
+	AcceptRejectHanlder := group.NewAcceptRejectInvHandler(groupService)
 	mux.Handle("/api/groups/{group_id}/events/{event_id}/", middleware.NewMiddleWare(GroupEventIDHandler, authService))
 	mux.Handle("/api/groups/{group_id}/posts/{post_id}/comments/", middleware.NewMiddleWare(GroupCommentHandler, authService))
 	mux.Handle("/api/groups/{group_id}/posts/", middleware.NewMiddleWare(GroupPostHandler, authService))
 	mux.Handle("/api/groups/{group_id}/events/", middleware.NewMiddleWare(GroupEventHandler, authService))
 	mux.Handle("/api/groups/{group_id}/react/like", middleware.NewMiddleWare(GroupReactionHandler, authService))
 	mux.Handle("/api/groups/{group_id}/join-request/admin", middleware.NewMiddleWare(DeclineApproveHandler, authService))
-	mux.Handle("/api/groups/{group_id}/invitations/", middleware.NewMiddleWare(InvitationsHandler, authService))
+	mux.Handle("/api/groups/{group_id}/invitations/{invitation_id}", middleware.NewMiddleWare(InvitationsHandler, authService))
+	mux.Handle("/api/groups/{group_id}/invitations/", middleware.NewMiddleWare(AcceptRejectHanlder, authService))
 	mux.Handle("/api/groups/{group_id}/join-request", middleware.NewMiddleWare(RequestHandler, authService))
 	mux.Handle("/api/groups/{group_id}/members", middleware.NewMiddleWare(MembersHandler, authService))
 	mux.Handle("/api/groups/{group_id}/", middleware.NewMiddleWare(GroupIDHandler, authService))

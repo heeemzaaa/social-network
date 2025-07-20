@@ -5,14 +5,16 @@ import (
 
 	"social-network/backend/models"
 	"social-network/backend/repositories/group"
+	"social-network/backend/services/profile"
 	"social-network/backend/utils"
 )
 
 type GroupService struct {
-	gRepo *group.GroupRepository
+	gRepo    *group.GroupRepository
+	sProfile *profile.ProfileService
 }
 
-func NewGroupService(grepo *group.GroupRepository) *GroupService {
+func NewGroupService(grepo *group.GroupRepository, sProfile *profile.ProfileService) *GroupService {
 	return &GroupService{gRepo: grepo}
 }
 
@@ -35,6 +37,7 @@ func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *mod
 		}
 		return nil, &models.ErrorJson{Status: 400, Message: errGroup}
 	}
+	group.Title, group.Description = trimmedTitle, trimmedDesc
 	groupCreated, errJson := gService.gRepo.CreateGroup(group)
 	if errJson != nil {
 		if group.ImagePath != "" {

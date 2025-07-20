@@ -12,7 +12,6 @@ import (
 // (groupID, userID ) had l combinaison khssha tkun unique
 // to detect if a user aleady a part of group and returns a 403
 func (repo *GroupRepository) JoinGroup(group *models.Group, userId string) *models.ErrorJson {
-	fmt.Println("group", group)
 	query := `
 	INSERT INTO group_membership (groupID, userID)
 	VALUES (?, ?)
@@ -53,14 +52,20 @@ func (repo *GroupRepository) GetGroupDetails(groupId string) (*models.Group, *mo
             Id
     )
 		SELECT
+		    groups.groupID,
+			groups.groupCreatorID,
 			groups.title,
 			groups.description,
 			groups.imagePath,
+			groups.createdAt,
+			concat(users.firstName , " " , users.lastName),
+			users.nickname,
 			cte_members.Nbr_Members
 		FROM
 			groups
 			INNER JOIN cte_members ON groups.groupID = cte_members.Id
-			AND groups.groupID = ?
+			INNER JOIN users ON users.userID = groups.groupCreatorID 
+			WHERE groups.groupID = ?
 	
 	`
 
@@ -69,8 +74,16 @@ func (repo *GroupRepository) GetGroupDetails(groupId string) (*models.Group, *mo
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	if err = stmt.QueryRow(groupId).Scan(&groupDetails.Title,
-		&groupDetails.Description, &groupDetails.ImagePath, &groupDetails.Total_Members); err != nil {
+	if err = stmt.QueryRow(groupId).Scan(
+		&groupDetails.GroupId,
+		&groupDetails.GroupCreatorId,
+		&groupDetails.Title,
+		&groupDetails.Description,
+		&groupDetails.ImagePath,
+		&groupDetails.CreatedAt,
+		&groupDetails.GroupCreatorFullName,
+		&groupDetails.GroupCreatorNickname,
+		&groupDetails.Total_Members); err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 

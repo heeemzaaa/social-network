@@ -94,10 +94,6 @@ func (GrpReqHandler *GroupRequestsHandler) ServeHTTP(w http.ResponseWriter, r *h
 	case http.MethodDelete:
 		GrpReqHandler.RequestToCancel(w, r)
 		return
-	case http.MethodGet:
-		// for the admin to be able to see the requests he got from
-		// the users
-		GrpReqHandler.GetRequests(w, r)
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method Not Allowed!"})
 		return
