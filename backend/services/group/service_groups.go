@@ -37,6 +37,7 @@ func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *mod
 		}
 		return nil, &models.ErrorJson{Status: 400, Message: errGroup}
 	}
+	group.Title, group.Description = trimmedTitle, trimmedDesc
 	groupCreated, errJson := gService.gRepo.CreateGroup(group)
 	if errJson != nil {
 		if group.ImagePath != "" {

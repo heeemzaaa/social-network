@@ -13,27 +13,32 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
 	post_created := &models.PostGroup{}
 	postId := uuid.New()
 	query := `
-	with
-    cte_info    AS(
+	 INSERT INTO
+    group_posts (postID, groupID, userID, content, imagePath)
+    VALUES
+    (?, ?, ?, ?, ?) RETURNING postID,
+    groupID,
+    userID,
+    content,
+    imagePath,
+    createdAt,
+    (
         SELECT
-            
-                concat(users.firstName, " ", users.lastName) as fullName,
-                users.nickname as username
-            
-            FROM users
-            WHERE users.userID = ?
-    )
-	INSERT INTO
-		group_posts (postID, groupID, userID, content, imagePath)
-	VALUES
-		(?, ?, ?, ?, ?) RETURNING postID,
-		groupID,
-		userID,
-		content,
-		imagePath,
-		createdAt,
-		cte_info.fullName,
-		cte_info.username;	
+            concat (firstName, ' ', lastName)
+        FROM
+            users
+        WHERE
+            users.userID = userID
+    ) AS fullName,
+    (
+        SELECT
+            nickname
+        FROM
+            users
+        WHERE
+            users.userID = userID
+    );
+
 	`
 	stmt, err := grepo.db.Prepare(query)
 	if err != nil {
@@ -41,7 +46,7 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	errScan := stmt.QueryRow(post.User.Id, postId, post.GroupId, post.User.Id, post.Content, post.ImagePath).Scan(
+	errScan := stmt.QueryRow( postId, post.GroupId, post.User.Id, post.Content, post.ImagePath).Scan(
 		&post_created.Id,
 		&post_created.GroupId,
 		&post_created.User.Id,

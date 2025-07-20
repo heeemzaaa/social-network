@@ -112,8 +112,6 @@ func (invHanlder *GroupInvitationHandler) ServeHTTP(w http.ResponseWriter, r *ht
 	case http.MethodPost:
 		invHanlder.InviteToJoin(w, r)
 		return
-	case http.MethodGet:
-		invHanlder.GetInvitations(w, r)
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method not allowed!"})
 		return

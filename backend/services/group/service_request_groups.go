@@ -45,6 +45,7 @@ func (gService *GroupService) GetRequests(userId, groupId string) ([]models.User
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	// if is not the admin he has no right to see the resources
+	
 	if !isAdmin {
 		return nil, &models.ErrorJson{Status: 403, Error: "ERROR!! Access Forbidden"}
 	}

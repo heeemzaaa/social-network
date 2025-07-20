@@ -53,21 +53,28 @@ func (gRepo *GroupRepository) RequestToCancel(userId, groupId string) *models.Er
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(userId, groupId, groupId, "join-request")
+	res, err := stmt.Exec(userId, groupId, groupId, "join-request")
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
+	if count, _ := res.RowsAffected(); count == 0 {
+		return &models.ErrorJson{Status: 404, Error: "Invitation not found"}
+	}
+
 	return nil
 }
 
 func (gRepo *GroupRepository) GetRequests(groupId string) ([]models.User, *models.ErrorJson) {
 	users := []models.User{}
 	query := `
-	SELECT users.userID, concat(users.firstName, " ", users.lastName) FROM users
-	INNER JOIN group_requests  ON users.senderID = users.userID
+	SELECT users.userID, 
+	concat(users.firstName, " ", users.lastName)
+	FROM users
+	INNER JOIN group_requests  ON group_requests.senderID = users.userID
 	WHERE group_requests.receiverID =  (SELECT
 	       groups.groupCreatorID FROM groups
 		   WHERE  groups.groupID = ?)
+	AND typeRequest = ? 
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {

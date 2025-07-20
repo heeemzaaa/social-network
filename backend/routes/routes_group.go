@@ -11,6 +11,8 @@ import (
 	gService "social-network/backend/services/group"
 	profileService "social-network/backend/services/profile"
 )
+// cleaning the code and fixing the bugs !!
+
 
 // ##### routes i have to implement to all the users #####
 // POST /groups/  create a group done
