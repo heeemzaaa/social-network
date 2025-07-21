@@ -119,9 +119,9 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 
 		if type_ == "private" {
 			err := rows.Scan(
-				&message.ID,       // [CHANGED] New: scan real message ID
-				&message.SenderID, // [CHANGED] New: scan real sender_id
-				&message.TargetID, // [CHANGED] New: scan real target_id
+				&message.ID,
+				&message.SenderID, 
+				&message.TargetID, 
 				&message.SenderName,
 				&message.ReceiverName,
 				&message.Content,
@@ -132,9 +132,9 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 			}
 		} else { // group
 			err := rows.Scan(
-				&message.ID,       // [CHANGED] New: scan real message ID
-				&message.SenderID, // [CHANGED] New: scan real sender_id
-				&message.TargetID, // [CHANGED] New: scan real target_id
+				&message.ID,       
+				&message.SenderID, 
+				&message.TargetID, 
 				&message.SenderName,
 				&message.Content,
 				&message.CreatedAt,
