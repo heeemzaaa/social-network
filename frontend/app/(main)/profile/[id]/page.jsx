@@ -116,9 +116,9 @@ export default function Page({ params }) {
           wanted_status: newPrivacy,
         }),
       })
-      
+
       if (!res.ok) return console.error("Failed to update privacy")
-        const profile = await res.json()
+      const profile = await res.json()
       setUserInfos(prev => ({
         ...prev,
         visibility: newPrivacy,
@@ -128,12 +128,11 @@ export default function Page({ params }) {
       console.error("Error:", err)
     }
   }
-  
+
   if (loading) return <p>Loading user info...</p>
   if (!userInfos) return <p>Failed to load user info.</p>
-  
-  console.log('****************************************************')
-  console.log('userInfos', userInfos)
+
+  console.log('userInfos.img', userInfos.img)
   return (
     <main className='profile_page_section flex h-full p4 gap-4'>
       <InfosDiv userInfos={userInfos}>
@@ -179,9 +178,7 @@ export default function Page({ params }) {
 
       <div className="data-container scrollable-section flex-col w-full align-center gap-4">
         {userInfos.aboutMe && <AboutUser aboutMe={userInfos.aboutMe} />}
-        <div className="flex-col align-center h-full w-full p2">
-          <UserPosts id={userInfos.id} access={userInfos.access} />
-        </div>
+        <UserPosts id={userInfos.id} access={userInfos.access} />
       </div>
     </main>
   )

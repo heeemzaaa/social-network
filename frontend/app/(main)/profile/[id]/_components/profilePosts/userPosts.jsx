@@ -12,18 +12,19 @@ export default function UserPosts({ id, access }) {
                 if (res.ok) {
                     const data = await res.json()
                     if (data) setPosts(data)
-                }
+                    }
             } catch (err) {
                 console.error("Error fetching posts:", err)
             }
         }
-
+        
         getPosts()
     }, [id])
-
+    
+    console.log('posts.image_url', posts)
     if (access === false) {
         return (
-            <section className='post_container w-full h-full flex-col justify-center align-center'>
+            <section  className='posts_container w-full h-full flex-col justify-center align-center'>
                 <img src="/forbidden-posts.svg" style={{ height: '100%' }} />
                 <p className='text-2xl'>You must follow to see the posts</p>
             </section>
@@ -31,12 +32,12 @@ export default function UserPosts({ id, access }) {
     }
 
     return (
-        <section className='post_container w-full h-full flex-col justify-center align-center'>
+        <section style={{overflowY: "auto"}} className='posts_container flex flex-wrap'>
             {posts.length === 0 ? (
                 <img src="/no-posts.svg" style={{ height: '90%' }} />
             ) : (
                 posts.map((post) => {
-                    <PostCard {...post} />
+                   return <PostCard {...post} key={post.id} />
                 })
             )}
         </section>

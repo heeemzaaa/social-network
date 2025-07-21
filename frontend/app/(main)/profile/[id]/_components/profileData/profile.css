@@ -81,7 +81,7 @@
 }
 
 .data-container {
-    overflow-y: auto;
+    overflow: hidden
 }
 
 .scrollable-section::-webkit-scrollbar {

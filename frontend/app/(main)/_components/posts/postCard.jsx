@@ -1,10 +1,9 @@
 "use client "
-import Button from "@/app/_components/button";
-import Tag from "../_components/tag";
+
 import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa";
 import "./style.css"
-import Avatar from "../_components/avatar";
-import { useModal } from "../_context/ModalContext";
+import Avatar from "../avatar";
+import { useModal } from "../../_context/ModalContext";
 import { useState } from "react";
 
 export default function PostCard({
@@ -21,7 +20,7 @@ export default function PostCard({
 
     const { openModal } = useModal()
     const [isLiked, setIsLiked] = useState(liked === 1);
-    const [likes, setLikes] = useState(total_likes);
+    const [likes, setLikes] = useState(total_likes || 0);
 
     const handleToggleLike = (id) => {
         setIsLiked(prev => !prev);
