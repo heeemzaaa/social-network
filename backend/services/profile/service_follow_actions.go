@@ -32,6 +32,12 @@ func (s *ProfileService) Follow(userID string, authUserID string) (*models.Profi
 		if err != nil {
 			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 		}
+
+		// type Notif struct {
+		// 	senderId   string [authUserID]
+		// 	ReceiverId string [userID]
+		// 	Type       string [follow private]
+		// }
 	case "public":
 		err := s.repo.FollowDone(userID, authUserID)
 		if err != nil {

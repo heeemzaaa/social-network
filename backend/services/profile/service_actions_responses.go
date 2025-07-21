@@ -16,7 +16,7 @@ func (s *ProfileService) AcceptedRequest(userID string, authUserID string) *mode
 	}
 
 	if isFollower {
-		return &models.ErrorJson{Status: 401, Error: "The user is already following you !"}
+		return &models.ErrorJson{Status: 403, Error: "The user is already following you !"}
 	}
 
 	err := s.repo.AcceptedRequest(userID, authUserID)
@@ -38,7 +38,7 @@ func (s *ProfileService) RejectedRequest(userID string, authUserID string) *mode
 	}
 
 	if isFollower {
-		return &models.ErrorJson{Status: 401, Error: "The user is already following you !"}
+		return &models.ErrorJson{Status: 403, Error: "The user is already following you !"}
 	}
 
 	err := s.repo.RejectedRequest(userID, authUserID)

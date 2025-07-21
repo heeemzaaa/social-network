@@ -54,8 +54,7 @@ export default function Page({ params }) {
 
   async function handleToggleFollow() {
     let endpoint = ""
-    console.log("is requested ", userInfos.isRequested)
-    console.log("is follower ", userInfos.isFollower)
+    
     if (userInfos.isRequested) {
       endpoint = `http://localhost:8080/api/profile/${id}/actions/cancel`
     } else if (userInfos.isFollower) {
@@ -75,7 +74,6 @@ export default function Page({ params }) {
       if (!res.ok) return console.error("Follow/unfollow/cancel failed")
 
       const updated = await res.json()
-      console.log('updated', updated)
 
       setUserInfos(prev => ({
         ...prev,
