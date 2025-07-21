@@ -2,7 +2,6 @@ package chat
 
 import (
 	"strings"
-	"time"
 
 	"social-network/backend/models"
 )
@@ -81,17 +80,17 @@ func (service *ChatService) GetMessages(sender_id, target_id, lastMessageStr, ty
 	if sender_id == "" || target_id == "" || type_ == "" {
 		return []models.Message{}, &models.ErrorJson{Status: 400, Error: "Invalid data format !"}
 	}
-	var lastMessageTime time.Time
-	if lastMessageStr != "" {
-		layout := time.RFC3339
-		var err error
-		lastMessageTime, err = time.Parse(layout, lastMessageStr)
-		if err != nil {
-			return []models.Message{}, &models.ErrorJson{Status: 400, Error: "Bad time format !"}
-		}
-	}
+	// var lastMessageTime time.Time
+	// if lastMessageStr != "" {
+	// 	layout := time.RFC3339
+	// 	var err error
+	// 	lastMessageTime, err = time.Parse(layout, lastMessageStr)
+	// 	if err != nil {
+	// 		return []models.Message{}, &models.ErrorJson{Status: 400, Error: "Bad time format !"}
+	// 	}
+	// }
 
-	messages, errJson := service.repo.GetMessages(sender_id, target_id, lastMessageTime, type_)
+	messages, errJson := service.repo.GetMessages(sender_id, target_id, lastMessageStr, type_)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}
