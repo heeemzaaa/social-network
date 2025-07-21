@@ -3,7 +3,6 @@ package chat
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"social-network/backend/models"
 	"social-network/backend/utils"
@@ -54,7 +53,7 @@ func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message
 
 // the one logged in trying to see the messages will not be got from the query
 // sender and receiver and the offset and limit als
-func (repo *ChatRepository) GetMessages(sender_id, target_id string, lastMessageTime time.Time, type_ string) ([]models.Message, *models.ErrorJson) {
+func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, type_ string) ([]models.Message, *models.ErrorJson) {
 	var messages []models.Message
 	var query string
 	var args []any
@@ -63,26 +62,25 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id string, lastMessage
 	case "private":
 		query = `
 		SELECT
+			m.id,                                 -- [CHANGED] Added message ID to SELECT
+			m.sender_id,                          -- [CHANGED] Added sender_id to SELECT
+			m.target_id,                          -- [CHANGED] Added target_id to SELECT
 			s.firstName || ' ' || s.lastName AS sender_name,
 			r.firstName || ' ' || r.lastName AS receiver_name,
 			m.content,
-			m.created_at,
-			m.id
+			m.created_at
 		FROM messages m
 		INNER JOIN users s ON m.sender_id = s.userID
 		INNER JOIN users r ON m.target_id = r.userID
 		WHERE m.type = 'private'
-		 AND (
-  			(m.sender_id = ? AND m.target_id = ?)
-  		OR
-  			(m.sender_id = ? AND m.target_id = ?)
-		)
-`
-		args = append(args, sender_id, target_id, target_id, sender_id)
+		  AND m.sender_id IN (?, ?)
+		  AND m.target_id IN (?, ?)
+		`
+		args = append(args, sender_id, target_id, sender_id, target_id)
 
-		if !lastMessageTime.IsZero() {
+		if lastMessageTime != "" {
 			query += " AND m.created_at < ?"
-			args = append(args, lastMessageTime.Format(time.RFC3339))
+			args = append(args, lastMessageTime)
 		}
 
 		query += " ORDER BY m.created_at DESC LIMIT 10"
@@ -90,56 +88,63 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id string, lastMessage
 	case "group":
 		query = `
 		SELECT
+			m.id,                                 -- [CHANGED] Added message ID to SELECT
+			m.sender_id,                          -- [CHANGED] Added sender_id to SELECT
+			m.target_id,                          -- [CHANGED] Added target_id to SELECT
 			s.firstName || ' ' || s.lastName AS sender_name,
 			m.content,
-			m.created_at,
-			m.id
+			m.created_at
 		FROM messages m
 		INNER JOIN users s ON m.sender_id = s.userID
 		WHERE m.type = 'group' AND m.target_id = ?
 		`
 		args = append(args, target_id)
 
-		if !lastMessageTime.IsZero() {
+		if lastMessageTime != "" {
 			query += " AND m.created_at < ?"
-			args = append(args, lastMessageTime.Format(time.RFC3339))
+			args = append(args, lastMessageTime)
 		}
 
 		query += " ORDER BY m.created_at DESC LIMIT 10"
 	}
 
-	stmt, err := repo.db.Prepare(query)
+	rows, err := repo.db.Query(query, args...)
 	if err != nil {
-		log.Println("Error preparing the query to get the messages: ", err)
-		return messages, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Query(args...)
-	if err != nil {
-		log.Println("Error getting the messages: ", err)
-		return messages, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var message models.Message
+
 		if type_ == "private" {
-			err := rows.Scan(&message.SenderName, &message.ReceiverName, &message.Content, &message.CreatedAt, &message.ID)
+			err := rows.Scan(
+				&message.ID,       // [CHANGED] New: scan real message ID
+				&message.SenderID, // [CHANGED] New: scan real sender_id
+				&message.TargetID, // [CHANGED] New: scan real target_id
+				&message.SenderName,
+				&message.ReceiverName,
+				&message.Content,
+				&message.CreatedAt,
+			)
 			if err != nil {
-				log.Println("Error scanning the private messages: ", err)
-				return []models.Message{}, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+				return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 			}
-		} else {
-			err := rows.Scan(&message.SenderName, &message.Content, &message.CreatedAt, &message.ID)
+		} else { // group
+			err := rows.Scan(
+				&message.ID,       // [CHANGED] New: scan real message ID
+				&message.SenderID, // [CHANGED] New: scan real sender_id
+				&message.TargetID, // [CHANGED] New: scan real target_id
+				&message.SenderName,
+				&message.Content,
+				&message.CreatedAt,
+			)
 			if err != nil {
-				log.Println("Error scanning the group messages: ", err)
-				return []models.Message{}, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+				return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 			}
 		}
-		message.Type = type_
-		message.TargetID = target_id
-		message.SenderID = sender_id
+
+
 		messages = append(messages, message)
 	}
 
