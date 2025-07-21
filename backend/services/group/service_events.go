@@ -67,6 +67,9 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 	}
 
 	for _, user := range members {
+		if user.Id == event.EventCreator.Id {
+			continue
+		}
 		//  add the notification for the adding of the event so we need the func of amine too
 		//  group_id / sender_id (the one who creted the event / group-event)
 		// {event}
@@ -75,7 +78,7 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 			RecieverId:       user.Id,
 			SenderFullName:   event.EventCreator.FullName,
 			ReceiverFullName: user.FullName,
-			Type: "group-event",
+			Type:             "group-event",
 		}, event.EventCreator.Id)
 		if errNot != nil {
 			return nil, errNot
