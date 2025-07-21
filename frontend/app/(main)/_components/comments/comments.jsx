@@ -10,5 +10,6 @@ export default function Comments({ comments }) {
                 <CommentsCard key={index} comment={comment} />
             ))}
         </section>
+
     )
 }

@@ -19,12 +19,12 @@ export default function CommentsCard({ comment }) {
             </div>
 
             <div className='card_body flex justify-center align-center gap-1'>
-                {comment.imagePath && <img src={comment.imagePath} className='comments_image' />}
+                {comment.imagePath && <img src={`http://localhost:8080/${comment.imagePath}`}  className='comments_image' />}
                 <h4 className='comment'>{comment.content}</h4>
             </div>
 
             <div className='card_footer flex justify-between'>
-                {comment.isLiked === true ?
+                {/* {comment.isLiked === true ?
                     <div className='flex align-center justify-center gap-1'>
                         <FaHeart size={'24px'} color='red' />
                         <span>{comment.likes}</span>
@@ -33,7 +33,7 @@ export default function CommentsCard({ comment }) {
                         <FaRegHeart size={'24px'} />
                         <span>{comment.likes}</span>
                     </div>
-                }
+                } */}
                 <p className='time text-md'>{parsedTime.toLocaleString()}</p>
             </div>
         </div>

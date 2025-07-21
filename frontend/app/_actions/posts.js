@@ -202,7 +202,7 @@ export async function commentPostAction(prevState, formData) {
             firstName: response.user.nickname,
             success: true,
             createdAt: formatted,
-            userImage: response.Img,
+            userImage: response.img,
         };
     } catch (err) {
         return { ...prevState, message: "Server error." };
