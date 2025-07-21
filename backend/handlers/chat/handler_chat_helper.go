@@ -12,7 +12,6 @@ import (
 
 type (
 	ClientList   map[string][]*Client
-	GroupMembers map[string][]string // her I will handle kola user o l connections dyalo kamlin key: groupID, value: slice of user IDs
 )
 
 type OnlineUsers struct {
@@ -90,8 +89,6 @@ func (client *Client) ReadMessages() {
 			}
 			if isLogoutError(err) {
 				logged_out = true
-				// fmt.Println("after", logged_out)
-				// delete(client.chatServer.clients, client.userId)
 				break
 			}
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) || err == io.EOF {

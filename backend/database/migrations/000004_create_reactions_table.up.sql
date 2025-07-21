@@ -1,7 +1,7 @@
 PRAGMA foreign_keys = ON;
 
 
-CREATE TABLE IF NOT EXISTS group_reactions(
+CREATE TABLE IF NOT EXISTS reactions(
   reactionID TEXT NOT NULL  PRIMARY KEY, 
   entityType TEXT NOT NULL DEFAULT 'post' CHECK (entityType IN ('post', 'comment')),
   entityID  TEXT NOT NULL,

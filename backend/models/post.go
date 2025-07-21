@@ -7,7 +7,7 @@ type Post struct {
 	User          User      `json:"user"`
 	Content       string    `json:"content,omitempty"`
 	CreatedAt     time.Time `json:"created_at,omitempty"`
-	Img           string    `json:"img,omitempty"`
+	Img           string    `json:"image_path,omitempty"`
 	TotalLikes    int       `json:"total_likes,omitempty"`
 	TotalComments int       `json:"total_comments"`
 	Privacy       string    `json:"privacy"`
