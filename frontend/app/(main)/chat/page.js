@@ -8,6 +8,8 @@ import UserList from "../_components/chat/user_list";
 import GroupList from "../_components/group_list";
 import { useUserContext } from "../_context/userContext";
 import { fetchMessages } from "../_components/fetchMessages";
+import { create } from "domain";
+const emojis = ["😀", "😂", "😍", "🔥", "🥺", "👍", "❤️", "🎉"];
 
 export default function Chat() {
   const [currentUser, setCurrentUser] = useState({
@@ -16,7 +18,9 @@ export default function Chat() {
     type: "private",
   });
   const [newMessage, setNewMessage] = useState("");
-  const { users, socket, messages, setMessages, authenticatedUser } = useUserContext();
+  const { users, socket, messages, setMessages, authenticatedUser } =
+    useUserContext();
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const groups = {
     groups: [
@@ -48,20 +52,24 @@ export default function Chat() {
 
     const loadMessages = async () => {
       const msgs = await fetchMessages(currentUser.ID, currentUser.type);
+
       if (!msgs) return;
-      
+
       setMessages((prev) => ({
         ...prev,
         [currentUser.ID]: msgs.map((msg) => {
           const isMe = msg.sender_id === authenticatedUser.id;
           return {
             content: msg.content,
-            sender: isMe ? "me" : "them", // FIXED: Use authenticatedUser.id instead of currentUser.ID
+            sender: isMe ? "me" : "them",
+            createdAt: msg.created_at,
+            username: isMe ? msg.sender_name : msg.receiver_name,
           };
         }),
       }));
     };
 
+    console.log("📤 Message sent:", messages);
     loadMessages();
   }, [currentUser.ID, authenticatedUser]); // Added authenticatedUser as dependency
 
@@ -87,10 +95,13 @@ export default function Chat() {
     socket.send(JSON.stringify(messagePayload));
 
     // Optimistically add message to current chat as "me"
-    
-    setNewMessage("");
-};
 
+    setNewMessage("");
+  };
+
+  const handleEmojiClick = (emojiData) => {
+    setNewMessage((prev) => prev + emojiData);
+  };
 
   return (
     <main className="chat_main_container p4 flex-row">
@@ -133,13 +144,41 @@ export default function Chat() {
               key={i}
               className={`message ${msg.sender === "me" ? "sent" : "received"}`}
             >
+              {msg.username && <span className="username">{msg.username}</span>}
               {msg.content}
+              <span className="timestamp">
+                {new Date(msg.createdAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
             </div>
           ))}
         </div>
 
         <div className="chat_footer p2">
-          <HiMiniFaceSmile size={"30px"} />
+          <div style={{ position: "relative" }}>
+            <HiMiniFaceSmile
+              size={"30px"}
+              onClick={() => setShowEmojiPicker((prev) => !prev)}
+              style={{ cursor: "pointer" }}
+            />
+
+            {showEmojiPicker && (
+              <div className="emoji-picker">
+                {emojis.map((emoji, index) => (
+                  <span
+                    key={index}
+                    className="emoji"
+                    onClick={() => handleEmojiClick(emoji)}
+                  >
+                    {emoji}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
           <textarea
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
