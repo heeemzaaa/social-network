@@ -49,7 +49,7 @@ func (s *GroupService) GetPosts(userId, groupId string, offset int) ([]models.Po
 	if errMembership := s.CheckMembership(groupId, userId); errMembership != nil {
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
-	posts, err := s.gRepo.GetPosts(userId, offset)
+	posts, err := s.gRepo.GetPosts(userId,groupId, offset)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Message: err.Message, Error: err.Error}
 	}

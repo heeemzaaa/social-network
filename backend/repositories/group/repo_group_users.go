@@ -7,7 +7,7 @@ import (
 )
 
 // SELECT EXISTS(SELECT 1 FROM users WHERE userID = ?);
-func (gRepo *GroupRepository) IsMemberGroup(groupId, userId string) (bool, *models.ErrorJson) {
+func (gRepo *GroupRepository) IsMemberGroup(groupId, userId string) (bool, *models.ErrorJson) { ///// check sender or reciever if already in group
 	var exists bool
 	query := ` 
 		SELECT EXISTS(SELECT 1 FROM  group_membership

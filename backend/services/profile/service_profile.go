@@ -60,11 +60,12 @@ func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*m
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 
+	profile.Access = access
+
 	profile.Visibility, err = s.repo.Visibility(profileID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
-
 	return profile, nil
 }
 
@@ -132,7 +133,6 @@ func (s *ProfileService) Follow(userID string, authUserID string) *models.ErrorJ
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
-
 	switch visibility {
 	case "private":
 		err := s.repo.FollowPrivate(userID, authUserID)
@@ -225,7 +225,7 @@ func (s *ProfileService) UpdatePrivacy(userID string, requestorID any, wantedSta
 	}
 
 	if userID != requestorID {
-		return &models.ErrorJson{Status: 401, Message: "You can't update another user's profile"}
+		return &models.ErrorJson{Status: 403, Message: "You can't update another user's profile"}
 	}
 
 	if wantedStatus == "" || (wantedStatus != "public" && wantedStatus != "private") {
@@ -262,20 +262,26 @@ func (s *ProfileService) UpdatePrivacy(userID string, requestorID any, wantedSta
 }
 
 // custom posts to each users lil2assaf
-func (s *ProfileService) GetPosts(profileID string, authSessionID string) (*[]models.Post, *models.ErrorJson) {
-	var posts *[]models.Post
+func (s *ProfileService) GetPosts(profileID string, authUserID string) ([]models.Post, bool, *models.ErrorJson) {
+	var posts []models.Post
+	var isMine bool
 
-	authUserID, err := s.repo.GetID(authSessionID)
-	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	if profileID == authUserID {
+		isMine = true
 	}
 
-	posts, err = s.repo.GetPosts(profileID, authUserID)
+	posts, err := s.repo.GetPosts(profileID, authUserID, isMine)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, false, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	
+	access, errAccess := s.CheckProfileAccess(profileID, authUserID)
+	if errAccess != nil {
+		fmt.Println("error: ", errAccess)
+		return nil, false, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 
-	return posts, nil
+	return posts, access, nil
 }
 
 func (s *ProfileService) IsFollower(userID, authUserID string) (bool, *models.ErrorJson) {

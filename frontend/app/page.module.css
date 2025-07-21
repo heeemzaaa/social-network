@@ -2,6 +2,62 @@
   border: solid red;
 }
 
+
+
+.form {
+  padding: 2rem;
+  width: 100%;
+  min-width: max-content;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 1;
+  background: var(--glass-background);
+  box-shadow: var(--shadow-light-lg);
+}
+
+.formGrp {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGrp>label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: bold;
+}
+
+.input {
+  all: unset;
+  padding: .5rem;
+  outline: solid 1px var(--color-white);
+  font-size: var(--font-size-sm);
+  border-radius: var(--border-radius-sm);
+}
+
+.input:focus {
+  outline: solid 1px var(--color-primary);
+  border-radius: var(--border-radius-sm);
+}
+
+.form>button {
+  justify-content: center;
+  transition: all .2s;
+  margin-top: 1rem;
+}
+
+.form>button:hover {
+  box-shadow: var(--shadow-primary-sm);
+  border: solid 1px var(--color-secondary);
+  transform: translate(-1px, -1px);
+}
+
+
+
+
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
   a.primary:hover {
@@ -20,10 +76,6 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 600px) {}
 
-}
-
-@media (max-width: 1000px) {
-  
-}
+@media (max-width: 1000px) {}

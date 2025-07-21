@@ -61,23 +61,25 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 
-
-
-
-	_ , errJson = gService.gRepo.GetGroupMembers(event.GroupId)
+	members, errJson := gService.gRepo.GetGroupMembers(event.GroupId)
 	if errJson != nil {
 		return nil, errJson
 	}
 
-
-	// for _ , user := range members {
-	// 	//  add the notification for the adding of the event so we need the func of amine too 
-	// 	//  group_id / sender_id (the one who creted the event / group-event)
-	// 	// {event}
-
-		
-	// }
-
+	for _, user := range members {
+		//  add the notification for the adding of the event so we need the func of amine too
+		//  group_id / sender_id (the one who creted the event / group-event)
+		// {event}
+		errNot := gService.sNotif.PostService(models.Notif{
+			SenderId:         event.EventCreator.Id,
+			RecieverId:       user.Id,
+			SenderFullName:   event.EventCreator.FullName,
+			ReceiverFullName: user.FullName,
+		}, event.EventCreator.Id)
+		if errNot != nil {
+			return nil, errNot
+		}
+	}
 
 	return event, nil
 }

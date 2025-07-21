@@ -81,9 +81,9 @@ func (client *Client) ReadMessages() {
 			if err == io.ErrUnexpectedEOF {
 				client.ErrorJson <- &models.ErrorJson{
 					Message: models.MessageErr{
-						Content:   " empty message field",
-						TargetID:  " empty receiver_id field",
-						Type:      " empty type field",
+						Content:  " empty message field",
+						TargetID: " empty receiver_id field",
+						Type:     " empty type field",
 					},
 				}
 				continue
@@ -144,15 +144,15 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 	defer user.chatServer.Unlock()
 
 	switch message.Type {
-	case "message":
+	case "private":
 		for _, conn := range user.chatServer.client[user.session.UserId] {
 			if conn.connection != user.connection {
 				conn.Message <- message
 			}
 		}
 		// dyal receiver
-		for _, value := range user.chatServer.client[message.TargetID] {
-			value.Message <- message
+		for _, conn := range user.chatServer.client[message.TargetID] {
+			conn.Message <- message
 		}
 	case "group":
 		members, err := user.service.GetMembersOfGroup(message.TargetID)
@@ -172,9 +172,7 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 				continue
 			}
 			for _, conn := range user.chatServer.client[member] {
-				if conn.connection != user.connection {
-					conn.Message <- message
-				}
+				conn.Message <- message
 			}
 		}
 	}

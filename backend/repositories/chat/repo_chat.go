@@ -36,8 +36,7 @@ func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models
             WHEN sender_id = ? THEN target_id 
             ELSE sender_id 
         END AS userID,
-        MAX(created_at) AS lastInteraction,
-        content
+        MAX(created_at) AS lastInteraction
     FROM messages
     WHERE (sender_id = ? OR target_id = ?)
       AND type = 'private'
@@ -50,11 +49,11 @@ func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models
 	),
 	cte_ordered_users AS (
     SELECT 
-        i.content, 
         COALESCE(i.lastInteraction, CURRENT_TIMESTAMP) AS lastInteraction,  
         u.userID, 
         u.firstName,
-        u.lastName
+        u.lastName,
+		u.avatarPath
     FROM users u 
     JOIN cte_connections f ON u.userID = f.userID
     LEFT JOIN cte_latest_interaction i ON i.userID = u.userID
@@ -74,8 +73,8 @@ func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models
    		u.userID, 
     	u.firstName,
     	u.lastName,
-    COALESCE(u.content, '') AS content, 
     	u.lastInteraction, 
+		u.avatarPath,
     COALESCE(n.notifications, 0) AS notifications
 	FROM cte_ordered_users u
 	LEFT JOIN cte_notifications n ON u.userID = n.sender_id
@@ -94,8 +93,8 @@ func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models
 			&user.Id,
 			&user.FirstName,
 			&user.LastName,
-			&user.LastMessage,
 			&user.LastInteraction,
+			&user.ImagePath,
 			&user.Notifications,
 		); err != nil {
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("scan error: %v", err)}
@@ -108,23 +107,28 @@ func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models
 
 func (repo *ChatRepository) GetGroups(authUserID string) (*[]models.Group, *models.ErrorJson) {
 	var groups []models.Group
-	query := `WITH
-	cte_latest_interaction AS (
-    SELECT
-        CASE 
-            WHEN sender_id = ? THEN target_id 
-            ELSE sender_id 
-        END AS userID,
-        MAX(created_at) AS lastInteraction,
-        content
-    FROM messages
-    WHERE (sender_id = ? OR target_id = ?)
-      AND type = 'group'
-    GROUP BY userID
+	query := `
+	WITH cte_latest_group_messages AS (
+    	SELECT
+        	m.target_id AS groupID,
+        	MAX(m.created_at) AS lastInteraction
+    	FROM messages m
+    	WHERE m.type = 'group'
+    	GROUP BY m.target_id
 	),
 	cte_my_groups AS (
-		SELECT groupID WHERE userID = ?
-	),
+    	SELECT g.groupID, g.title, g.imagePath
+    	FROM groups g
+    	INNER JOIN group_membership gm ON gm.groupID = g.groupID
+    	WHERE gm.userID = ?
+	)
+	SELECT 
+    	g.title,
+    	g.imagePath,
+    	COALESCE(lgm.lastInteraction, CURRENT_TIMESTAMP) AS lastInteraction
+	FROM cte_my_groups g
+		LEFT JOIN cte_latest_group_messages lgm ON lgm.groupID = g.groupID
+		ORDER BY lgm.lastInteraction DESC NULLS LAST, g.title ASC;
 	`
 
 	rows, err := repo.db.Query(query, authUserID)
@@ -134,7 +138,7 @@ func (repo *ChatRepository) GetGroups(authUserID string) (*[]models.Group, *mode
 
 	for rows.Next() {
 		var group models.Group
-		err := rows.Scan()
+		err := rows.Scan(&group.Title, &group.ImagePath, &group.LastInteraction)
 		if err != nil {
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}

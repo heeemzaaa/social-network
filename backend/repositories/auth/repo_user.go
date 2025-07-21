@@ -12,6 +12,7 @@ import (
 // y9dr ay wa7d ydiiruuu
 
 func (repo *AuthRepository) CreateUser(user *models.User) *models.ErrorJson {
+	fmt.Println("user in repo:" , user.AboutMe)
 	query := `INSERT INTO users (userID, email, firstName, lastName, password, birthDate, nickname, avatarPath, aboutMe, visibility) VALUES (?,?,?,?,?,?,?,?,?,?)`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -53,7 +54,7 @@ func (appRep *AuthRepository) GetUser(login *models.Login) (*models.User, *model
 }
 
 // get the username from the userId
-func (appRep *AuthRepository) GetUserNameById(user_id int) (string, *models.ErrorJson) {
+func (appRep *AuthRepository) GetUserNameById(user_id string) (string, *models.ErrorJson) {
 	var username string
 	query := `SELECT nickname FROM users WHERE userID = ?`
 	err := appRep.db.QueryRow(query, user_id).Scan(&username)

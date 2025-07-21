@@ -71,7 +71,7 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 
 	data := r.FormValue("data")
 	if err := json.Unmarshal([]byte(data), &group_to_create); err != nil {
-		if err == io.EOF  || group_to_create ==(&models.Group{}){
+		if err == io.EOF || group_to_create == (&models.Group{}) {
 			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
 				Message: models.ErrGroup{

@@ -1,7 +1,6 @@
 .form {
     padding: 2rem;
-    width: 100%;
-    max-width: 600px;
+    width: 100% !important;
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -60,14 +59,10 @@
 }
 
 .create_bouton {
-    
 }
 
-
 .container_1{
-
 }
 
 .container_2{
-
 }

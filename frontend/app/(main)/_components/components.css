@@ -1,4 +1,101 @@
+.notification {
+    border: 2px solid red;
+    width: 6rem;
+    height: 4rem;
+}
 
+/* Common card styling */
+.notification-card {
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+/* follow-public — simple style */
+.follow-public {
+  background-color: #e6f7ff;
+  border: 1px solid #91d5ff;
+}
+
+/* follow-private — different base color */
+.follow-private {
+  background-color: #fff7e6;
+  border: 1px solid #ffe58f;
+}
+
+/* group-invitation — another color */
+.group-invitation {
+  background-color: #f9f0ff;
+  border: 1px solid #d3adf7;
+}
+
+/* Status accepted — faded or "success" look */
+.accepted {
+  opacity: 0.7;
+  border-color: #52c41a;
+}
+
+/* Status declined — faded or "error" look */
+.declined {
+  opacity: 0.7;
+  border-color: #ff4d4f;
+}
+
+/* Action buttons container */
+.notification-card .action-buttons {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Buttons styling */
+.notification-card .accept-btn {
+  background-color: #52c41a;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.notification-card .reject-btn {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* Hover effect */
+.notification-card .accept-btn:hover {
+  background-color: #389e0d;
+}
+
+.notification-card .reject-btn:hover {
+  background-color: #cf1322;
+}
+
+/* Specific filter for popup-style notification */
+.notification-card.popup {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  width: 18rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Optional animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 /* navigation style */
 
@@ -8,7 +105,7 @@ nav {
 }
 
 .link {
-    padding: 1rem .5rem; 
+    padding: 1rem .5rem;
     font-weight: var(--font-weight-bold);
     letter-spacing: 1px;
     display: flex;
@@ -39,7 +136,7 @@ nav {
     background-color: var(--color-primary);
     z-index: 2;
     box-shadow: 2px 0px 20px 3px var(--color-primary);
-     /* filter: drop-shadow(10px 10px 200px $tod-tri) drop-shadow(-10px -10px 50px $tod-tri) */
+    /* filter: drop-shadow(10px 10px 200px $tod-tri) drop-shadow(-10px -10px 50px $tod-tri) */
 }
 
 
@@ -56,23 +153,120 @@ nav {
     width: max-content;
     border-radius: var(--border-radius-lg);
 }
+
+/* this part is for the left section of the user infos */
+.profileLeftSection {
+    width: 350px;
+}
+
+.ProfileContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: center;
+    width: 350px;
+    min-width: max-content;
+    height: 70%;
+    border-radius: var(--border-radius-lg);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+
+.ProfileData {
+    background: rgba(148, 147, 147, 0.33);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(6.3px);
+    -webkit-backdrop-filter: blur(6.3px);
+    border: 1px solid rgba(255, 255, 255, 0.57);
+    width: 100%;
+    border-radius: var(--border-radius-lg);
+    color: var(--color-white);
+    /* z-index: 10000; */
+}
+
+.UserNumbers {
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(6.3px);
+    -webkit-backdrop-filter: blur(6.3px);
+    border: 1px solid rgba(255, 255, 255, 0.57);
+    margin-top: 20px;
+    border-radius: var(--border-radius-lg);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.UserNumbers>div {
+    width: calc(50% - 10px);
+    background-color: var(--color-white);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--border-radius-lg);
+}
+
+/* Now this side is for the about user part in the profile page */
+.about_me_container {
+    border-radius: var(--border-radius-lg);
+    background-color: var(--color-white);
+    box-shadow: var(--shadow-md);
+    color: var(--color-dark);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: max-content;
+}
+
+.about_me_container>span {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-lg);
+}
+
+.about_me_container>p {
+    text-align: justify;
+}
+
+
+.user_item {
+    display: flex;
+    align-items: center;
+}
+
+.user_item>img {
+    border-radius: 50%;
+    height: 35px;
+    width: 35px;
+}
+
+.sep {
+    height: 2px;
+    background: linear-gradient(to left,
+            var(--color-white) 0%,
+            var(--color-dark) 50%,
+            var(--color-white) 100%);
+}
+
 /* avatar styles */
 
 .avatar {
-    width : 50px ;
-    height: 50px ;
+    width: 50px;
+    height: 50px;
     border-radius: var(--border-radius-full);
     background-position: left;
     background-repeat: no-repeat;
     background-size: 10%;
-    background-color: red;
 }
-
 
 /* post card style */
 .post-card-container {
     position: relative;
-    border: solid red;
     width: 100%;
     max-width: 650px;
     padding: 1rem;
@@ -80,28 +274,86 @@ nav {
     margin-left: auto !important;
 }
 
-.post-card-header {
+.post-card-header {}
 
-}
+.post-card-content {}
 
-.post-card-content {
-
-}
-
-.post-card-content-text { 
-
-}
+.post-card-content-text {}
 
 .post-card-content-img {
     background-position: center;
     background-repeat: no-repeat;
     background-size: fill;
     position: absolute;
-    width:  20%;  
-    height:  50%;
+    width: 20%;
+    height: 50%;
     top: 0;
     overflow: hidden;
+
     img {
         width: 100%;
+    }
+}
+
+
+@media (max-width: 500px) {
+    nav {
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+        padding: .5rem 2rem;
+        background-color: var(--color-secondary);
+        margin: .5rem;
+        border-radius: var(--border-radius-full);
+    }
+
+    .link {
+        width: 45px;
+        height: 45px;
+        font-weight: var(--font-weight-bold);
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all ease-in .1s;
+        color: var(--color-dark);
+
+        span {
+            display: none;
+        }
+    }
+
+    .link> :first-child {
+        transform: translateX(-2px);
+    }
+
+    .link:not(.link-active) {
+        background-color: unset;
+    }
+
+    /* .link:hover {
+        background-color: unset;
+    } */
+
+    .link-active {
+        color: var(--color-primary);
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--border-radius-full);
+        background-color: var(--color-dark);
+    }
+
+    .link-active::after {
+        position: absolute;
+        content: "";
+        left: 0;
+        top: calc(100% - 5px);
+        width: 100%;
+        height: 5px;
+        background-color: var(--color-primary);
+        z-index: 2;
+        box-shadow: 2px 0px 20px 3px var(--color-primary);
+        /* filter: drop-shadow(10px 10px 200px $tod-tri) drop-shadow(-10px -10px 50px $tod-tri) */
     }
 }
