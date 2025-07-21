@@ -50,8 +50,6 @@ export default function UserProvider({ children }) {
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log("📨 Message received:", data);
-
         if (
           typeof data.content === "string" &&
           data.content !== "" &&
@@ -64,6 +62,7 @@ export default function UserProvider({ children }) {
             content: data.content,
             sender: isMe ? "me" : "them",
             createdAt: data.created_at,
+			username: data.sender_name || data.receiver_name,
           };
 
           setMessages((prev) => ({
@@ -99,7 +98,6 @@ export default function UserProvider({ children }) {
         }));
 
         setUsers(mapped);
-        console.log("👥 Users list updated:", mapped);
       } catch (err) {
         console.error("❌ Error fetching users:", err);
       }

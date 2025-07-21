@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./chat.css";
 import Button from "@/app/_components/button";
 import { HiMiniFaceSmile, HiPaperAirplane } from "react-icons/hi2";
@@ -21,6 +21,7 @@ export default function Chat() {
   const { users, socket, messages, setMessages, authenticatedUser } =
     useUserContext();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const bottomRef = useRef(null);
 
   const groups = {
     groups: [
@@ -63,13 +64,12 @@ export default function Chat() {
             content: msg.content,
             sender: isMe ? "me" : "them",
             createdAt: msg.created_at,
-            username: isMe ? msg.sender_name : msg.receiver_name,
+            username: msg.sender_name,
           };
         }),
       }));
     };
 
-    console.log("📤 Message sent:", messages);
     loadMessages();
   }, [currentUser.ID, authenticatedUser]); // Added authenticatedUser as dependency
 
@@ -102,6 +102,10 @@ export default function Chat() {
   const handleEmojiClick = (emojiData) => {
     setNewMessage((prev) => prev + emojiData);
   };
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   return (
     <main className="chat_main_container p4 flex-row">
@@ -152,6 +156,7 @@ export default function Chat() {
                   minute: "2-digit",
                 })}
               </span>
+              <div ref={bottomRef} />
             </div>
           ))}
         </div>
