@@ -35,6 +35,7 @@ func (chatNav *ChatNavigation) GetUsers(w http.ResponseWriter, r *http.Request) 
 }
 
 func (ChatNav *ChatNavigation) GetGroups(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Fetching groups for authenticated user")
 	authUserID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
@@ -61,7 +62,7 @@ func (chatNav *ChatNavigation) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	case "/api/get-users/":
 		chatNav.GetUsers(w, r)
 	case "/api/get-groups/":
-		chatNav.GetGroups(w,r)
+		chatNav.GetGroups(w, r)
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "ERROR!! Page Not Found!"})
 		return

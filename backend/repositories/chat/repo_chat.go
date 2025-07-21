@@ -3,6 +3,7 @@ package chat
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"social-network/backend/models"
 	"social-network/backend/utils"
@@ -27,6 +28,7 @@ func (repo *ChatRepository) GetID(sessionID string) (string, *models.ErrorJson) 
 }
 
 func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models.ErrorJson) {
+	var lastInteractionStr string
 	var users []models.User
 
 	query := `WITH 
@@ -93,11 +95,22 @@ func (repo *ChatRepository) GetUsers(authUserID string) (*[]models.User, *models
 			&user.Id,
 			&user.FirstName,
 			&user.LastName,
-			&user.LastInteraction,
+			&lastInteractionStr,
 			&user.ImagePath,
 			&user.Notifications,
 		); err != nil {
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("scan error: %v", err)}
+		}
+		if lastInteractionStr != "" {
+			// Try RFC3339 first, then fallback to standard datetime format
+			user.LastInteraction, err = time.Parse(time.RFC3339, lastInteractionStr)
+			if err != nil {
+				user.LastInteraction, err = time.Parse("2006-01-02 15:04:05", lastInteractionStr)
+				if err != nil {
+					fmt.Println("Error parsing time:", err)
+					return nil, &models.ErrorJson{Status: 400, Error: "Invalid time format !"}
+				}
+			}
 		}
 		users = append(users, user)
 	}
@@ -212,11 +225,13 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 	case "private":
 		query = `
 		SELECT
+			m.id,                                 -- [CHANGED] Added message ID to SELECT
+			m.sender_id,                          -- [CHANGED] Added sender_id to SELECT
+			m.target_id,                          -- [CHANGED] Added target_id to SELECT
 			s.firstName || ' ' || s.lastName AS sender_name,
 			r.firstName || ' ' || r.lastName AS receiver_name,
 			m.content,
-			m.created_at,
-			m.id
+			m.created_at
 		FROM messages m
 		INNER JOIN users s ON m.sender_id = s.userID
 		INNER JOIN users r ON m.target_id = r.userID
@@ -236,10 +251,12 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 	case "group":
 		query = `
 		SELECT
+			m.id,                                 -- [CHANGED] Added message ID to SELECT
+			m.sender_id,                          -- [CHANGED] Added sender_id to SELECT
+			m.target_id,                          -- [CHANGED] Added target_id to SELECT
 			s.firstName || ' ' || s.lastName AS sender_name,
 			m.content,
-			m.created_at,
-			m.id
+			m.created_at
 		FROM messages m
 		INNER JOIN users s ON m.sender_id = s.userID
 		WHERE m.type = 'group' AND m.target_id = ?
@@ -261,20 +278,37 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 	defer rows.Close()
 
 	for rows.Next() {
-		// comment
 		var message models.Message
+
 		if type_ == "private" {
-			err := rows.Scan(&message.SenderName, &message.ReceiverName, &message.Content, &message.CreatedAt, &message.ID)
+			err := rows.Scan(
+				&message.ID,       // [CHANGED] New: scan real message ID
+				&message.SenderID, // [CHANGED] New: scan real sender_id
+				&message.TargetID, // [CHANGED] New: scan real target_id
+				&message.SenderName,
+				&message.ReceiverName,
+				&message.Content,
+				&message.CreatedAt,
+			)
 			if err != nil {
 				return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 			}
-		} else {
-			err := rows.Scan(&message.SenderName, &message.Content, &message.CreatedAt, &message.ID)
+		} else { // group
+			err := rows.Scan(
+				&message.ID,       // [CHANGED] New: scan real message ID
+				&message.SenderID, // [CHANGED] New: scan real sender_id
+				&message.TargetID, // [CHANGED] New: scan real target_id
+				&message.SenderName,
+				&message.Content,
+				&message.CreatedAt,
+			)
 			if err != nil {
 				return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 			}
 		}
-		message.SenderID = sender_id
+
+		// message.SenderID = sender_id        -- [REMOVED] This incorrect line was removed (it forced all messages to look like they were sent by the current user)
+
 		messages = append(messages, message)
 	}
 
