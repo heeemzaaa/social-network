@@ -70,6 +70,7 @@ func (repo *NotifRepository) SelectNotification(notif_id string) (models.Notific
 
 // insert new notification
 func (repo *NotifRepository) InsertNewNotification(data models.Notification) *models.ErrorJson {
+	fmt.Println("dataaaa", data)
 	query := `
 	INSERT INTO notifications (notif_id, reciever_Id, sender_Id, seen, notif_type, notif_state, content, createdAt)
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?)

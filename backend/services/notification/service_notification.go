@@ -2,7 +2,6 @@ package notification
 
 import (
 	"fmt"
-	"slices"
 	"sort"
 	"strconv"
 	"time"
@@ -254,43 +253,39 @@ func (NS *NotificationService) GroupEventRequest(data models.Notif, sender_name 
 
 	// get group members ///////////////:
 
-	group_name := "GROUP_NAME"
-	groupMembers := []string{"ffc54fb8-2d14-4f83-a196-062c976e3243", "e2e47e63-ff05-473d-a2af-4c5d9366c1a7", "61b2ae60-1aae-48e6-8997-e2943ebb4e74", "80710ff4-8b05-4b5d-8fb9-b34b98022e0c", "c56c4546-b5ae-4c96-8c70-8f6b2e36f69c", "05dd2f42-bb69-4375-a661-353217a0d574"} // get group_admin_user_id from groups where group_name = data.content [group_name]
+	// group_name := "GROUP_NAME"
+	// groupMembers := []string{"ffc54fb8-2d14-4f83-a196-062c976e3243", "e2e47e63-ff05-473d-a2af-4c5d9366c1a7", "61b2ae60-1aae-48e6-8997-e2943ebb4e74", "80710ff4-8b05-4b5d-8fb9-b34b98022e0c", "c56c4546-b5ae-4c96-8c70-8f6b2e36f69c", "05dd2f42-bb69-4375-a661-353217a0d574"} // get group_admin_user_id from groups where group_name = data.content [group_name]
 
-	// check if the sender in the group
-	if !slices.Contains(groupMembers, data.SenderId) {
-		fmt.Println("error : bad request")
+	// // check if the sender in the group
+	// if !slices.Contains(groupMembers, data.SenderId) {
+	// 	fmt.Println("error : bad request")
+	// }
+
+	// if member_Id == data.SenderId {
+	// 	continue
+	// }
+
+	notification := models.Notification{}
+
+	notification.Sender_Id = data.SenderId
+	notification.Id = uuid.New().String()
+	notification.Seen = false
+	notification.Type = data.Type
+	notification.Status = "later"
+
+	notification.Content = sender_name + " create event at club " + "saalaaam"
+	notification.CreatedAt = time.Now()
+
+	notification.Reciever_Id = data.RecieverId
+
+	// check if reciever id has web socket connection ///////////////////
+
+	// brodcast ==> notification
+
+	if err := NS.repo.InsertNewNotification(notification); err != nil {
+		fmt.Println("error = insertion ---------", err)
+		return err
 	}
-
-	for _, member_Id := range groupMembers {
-
-		if member_Id == data.SenderId {
-			continue
-		}
-
-		notification := models.Notification{}
-
-		notification.Sender_Id = data.SenderId
-		notification.Id = uuid.New().String()
-		notification.Seen = false
-		notification.Type = data.Type
-		notification.Status = "later"
-
-		notification.Content = sender_name + " create event at club " + group_name
-		notification.CreatedAt = time.Now()
-
-		notification.Reciever_Id = member_Id
-
-		if err := NS.repo.InsertNewNotification(notification); err != nil {
-			fmt.Println("error = insertion ---------", err)
-			return err
-		}
-
-		// check if reciever id has web socket connection ///////////////////
-
-		// brodcast ==> notification
-	}
-
 	// fmt.Println("SERVICE 222 : event : INSERT END ")
 	return nil
 }

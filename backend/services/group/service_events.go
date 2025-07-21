@@ -75,6 +75,7 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 			RecieverId:       user.Id,
 			SenderFullName:   event.EventCreator.FullName,
 			ReceiverFullName: user.FullName,
+			Type: "group-event",
 		}, event.EventCreator.Id)
 		if errNot != nil {
 			return nil, errNot
