@@ -23,6 +23,7 @@ func (gService *GroupService) GetGroupEvents(groupID, userID string, offset int6
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
+
 	return events, nil
 }
 
@@ -59,5 +60,24 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
+
+
+
+
+	_ , errJson = gService.gRepo.GetGroupMembers(event.GroupId)
+	if errJson != nil {
+		return nil, errJson
+	}
+
+
+	// for _ , user := range members {
+	// 	//  add the notification for the adding of the event so we need the func of amine too 
+	// 	//  group_id / sender_id (the one who creted the event / group-event)
+	// 	// {event}
+
+		
+	// }
+
+
 	return event, nil
 }

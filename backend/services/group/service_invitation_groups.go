@@ -28,6 +28,8 @@ func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite 
 	if err := gService.gRepo.InviteToJoin(userId, groupId, userToInvite); err != nil {
 		return &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
 	}
+	// add the notification service method to be able to add a user 
+	// {sneder_id, receiver_id , "group-invitation"}  
 	return nil
 }
 
@@ -48,9 +50,6 @@ func (gService *GroupService) CancelTheInvitation(userId, groupId string, invite
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return nil
+	// {sneder_id, receiver_id , "group-invitation"}  
 }
 
-func (gService *GroupService) GetInvitations(userId, groupId string) ([]models.User, *models.ErrorJson) {
-	gService.gRepo.GetInvitations()
-	return nil, nil
-}

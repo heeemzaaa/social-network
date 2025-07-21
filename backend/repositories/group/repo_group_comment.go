@@ -20,7 +20,7 @@ func (gRepo *GroupRepository) CreateComment(comment *models.CommentGroup) (*mode
         content,
         imageContent
     )
-VALUES
+    VALUES
     (?, ?, ?, ?, ?, ?) RETURNING commentID,
     postID,
     groupID,

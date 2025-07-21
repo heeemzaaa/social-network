@@ -31,6 +31,7 @@ func (gService *GroupService) RequestToJoin(userId, groupId string) *models.Erro
 	if errJson := gService.gRepo.RequestToJoin(userId, groupId); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
+	
 	return nil
 }
 

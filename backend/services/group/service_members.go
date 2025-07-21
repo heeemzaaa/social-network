@@ -11,7 +11,7 @@ func (gService *GroupService) GetGroupMembers(groupId, userId string) ([]models.
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 
-	users, errJson := gService.gRepo.GetGroupMembers(groupId, userId)
+	users, errJson := gService.gRepo.GetGroupMembers(groupId)
 	if errJson != nil {
 		return nil, errJson
 	}
