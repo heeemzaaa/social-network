@@ -42,7 +42,7 @@ export default function PostCard({
                 <p className="post-content">{content}</p>
                 {img && (
                     <div className="post-card-img">
-                        <img src={`http://localhost:8080/static/${img}`} alt={img} />
+                        <img src={`http://localhost:8080/${img}`} alt={img} />
                     </div>
                 )}
                 <span>{new Date(created_at).toISOString().slice(0, 16).replace('T', ' ')}</span>
