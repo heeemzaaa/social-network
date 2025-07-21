@@ -54,5 +54,7 @@ func (NUH *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
 	}
+
+	
 	utils.WriteDataBack(w, nil)
 }

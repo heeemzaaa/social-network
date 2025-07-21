@@ -8,14 +8,16 @@ import (
 	"social-network/backend/services/auth"
 
 	h "social-network/backend/handlers/notification"
-	r "social-network/backend/repositories/notification"
-	s "social-network/backend/services/notification"
+	ar "social-network/backend/repositories/auth"
+	nr "social-network/backend/repositories/notification"
+	ns "social-network/backend/services/notification"
 )
 
 func SetNotificationsRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService) *http.ServeMux {
-	repo := r.NewNotifRepository(db)
-	service := s.NewNotifService(repo)
-	service_update := s.NewNotifServiceUpdate(repo)
+	repo := nr.NewNotifRepository(db)
+	auth_repo := ar.NewAuthRepository(db)
+	service := ns.NewNotifService(repo, auth_repo)
+	service_update := ns.NewNotifServiceUpdate(repo)
 
 	multi := h.NewNotificationHandler(service)
 	solo := h.NewUpdateHandler(service_update)

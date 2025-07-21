@@ -5,6 +5,7 @@ import (
 	"slices"
 	"social-network/backend/models"
 	"social-network/backend/repositories/notification"
+	"social-network/backend/repositories/auth"
 	"social-network/backend/utils"
 	"sort"
 	"strconv"
@@ -14,11 +15,15 @@ import (
 )
 
 type NotificationService struct {
+	repo2 *auth.AuthRepository
 	repo *notification.NotifRepository
 }
 
-func NewNotifService(repo *notification.NotifRepository) *NotificationService {
-	return &NotificationService{repo: repo}
+func NewNotifService(repo *notification.NotifRepository, repo2 *auth.AuthRepository) *NotificationService {
+	return &NotificationService{
+		repo: repo,
+		repo2: repo2,
+	}
 }
 
 func (NS *NotificationService) ToggleSeenFalse(notifications []models.Notification) *models.ErrorJson {
@@ -35,12 +40,11 @@ func (NS *NotificationService) IsHasSeenFalse(user_id string) (bool, *models.Err
 	if errJson != nil {
 		return false, errJson
 	}
-	fmt.Println("isValid ====== ", isValid)
 	return isValid, nil
-}	
+}
 
-func (NS *NotificationService) GetService(userid, queryParam string) ([]models.Notification, *models.ErrorJson) {
-	all, err := NS.repo.SelectAllNotification(userid)
+func (NS *NotificationService) GetService(user_id, queryParam string) ([]models.Notification, *models.ErrorJson) {
+	all, err := NS.repo.SelectAllNotification(user_id)
 	if err != nil {
 		return nil, err
 	}
@@ -55,29 +59,33 @@ func (NS *NotificationService) GetService(userid, queryParam string) ([]models.N
 	case len <= 10:
 		return all, nil
 	case nbr <= 0:
-		fmt.Println("nbr <= 0")
+		// fmt.Println("nbr <= 0")
 		return all[:10], nil
 	case len <= nbr:
-		fmt.Println("greates than notifications : len <= nbr")
+		// fmt.Println("greates than notifications : len <= nbr")
 		return []models.Notification{}, nil
 	case len < nbr+10:
-		fmt.Println("len < nbr + 10")
+		// fmt.Println("len < nbr + 10")
 		return all[nbr:], nil
-	default:
-		fmt.Println("default = [nbr : nbr + 10]")
-		return all[nbr : nbr+10], nil
 	}
-	return []models.Notification{}, nil
+	// fmt.Println("default = [nbr : nbr + 10]")
+	return all[nbr : nbr+10], nil
+	// return []models.Notification{}, nil
 }
 func (NS *NotificationService) PostService(data models.Notif, user_id string) *models.ErrorJson {
-	// fmt.Println("POST SERVICE 000 : data reciever = : ", data)
-
 	if user_id != data.Sender_Id {
-		fmt.Println("error : sender id : bad request")
+		return models.NewErrorJson(400, "bad - request - 400", "sender != current user")
 	}
 
-	// get user_name by user_id //////////////////////
-	sender_name := "AMINE"
+	sender_name, errJson := NS.repo2.GetUserNameById(user_id)
+	if errJson != nil {
+		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+	}
+	// reciever_name, errJson := NH.US.GetUserName(user_Id.String())
+	// if errJson != nil {
+	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+	// 	return
+	// }
 
 	var errInse *models.ErrorJson
 	switch data.Type {
@@ -92,9 +100,9 @@ func (NS *NotificationService) PostService(data models.Notif, user_id string) *m
 	case "group-event":
 		errInse = NS.GroupEventRequest(data, sender_name)
 	default:
-		fmt.Println("error: bad request = invalid type ---------")
 		return models.NewErrorJson(400, "Bad Request - 400", "invalid type")
 	}
+
 	if errInse != nil {
 		return errInse
 	}

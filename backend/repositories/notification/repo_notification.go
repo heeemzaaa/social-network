@@ -56,7 +56,6 @@ func (repo *NotifRepository) SelectNotification(notif_id string) (models.Notific
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		fmt.Println("error 11111 ==== ", err)
 		return models.Notification{}, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
@@ -64,7 +63,6 @@ func (repo *NotifRepository) SelectNotification(notif_id string) (models.Notific
 	var notification models.Notification
 	err = stmt.QueryRow(notif_id).Scan(&notification.Id, &notification.Reciever_Id, &notification.Sender_Id, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.CreatedAt)
 	if err != nil {
-		fmt.Println("error 22222 ==== ", err)
 		return notification, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
 	}
 	return notification, nil
@@ -72,23 +70,18 @@ func (repo *NotifRepository) SelectNotification(notif_id string) (models.Notific
 
 // insert new notification
 func (repo *NotifRepository) InsertNewNotification(data models.Notification) *models.ErrorJson {
-	// fmt.Println("INSERT NEW NOTIFICATION: -------- data = ", data)
-	fmt.Println(data.CreatedAt)
 	query := `
 	INSERT INTO notifications (notif_id, reciever_Id, sender_Id, seen, notif_type, notif_state, content, createdAt)
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 	`
-
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		fmt.Println("INSERT: ERR 111 ", err)
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 3", err)}
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(data.Id, data.Reciever_Id, data.Sender_Id, data.Seen, data.Type, data.Status, data.Content, data.CreatedAt)
 	if err != nil {
-		fmt.Println("INSERT: ERR 222 ", err)
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 4", err)}
 	}
 	return nil
@@ -131,7 +124,6 @@ func (repo *NotifRepository) SelectAllNotification(userid string) ([]models.Noti
 // 	var nickname string
 // 	query := `SELECT * FROM users WHERE userID = ?`
 // 	row := repo.db.QueryRow(query, user_id)
-// 	// fmt.Println("row : ", row)
 // 	err := row.Scan(&nickname)
 // 	if err != nil {
 // 		if err == sql.ErrNoRows {

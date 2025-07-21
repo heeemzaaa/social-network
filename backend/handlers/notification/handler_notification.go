@@ -6,18 +6,18 @@ import (
 	"net/http"
 	"social-network/backend/middleware"
 	"social-network/backend/models"
-	US "social-network/backend/services/auth"
 	NS "social-network/backend/services/notification"
 	"social-network/backend/utils"
 )
 
 type NotificationHandler struct {
 	NS *NS.NotificationService
-	Us *US.AuthService
 }
 
-func NewNotificationHandler(ns *NS.NotificationService) *NotificationHandler {
-	return &NotificationHandler{NS: ns}
+func NewNotificationHandler( ns *NS.NotificationService) *NotificationHandler {
+	return &NotificationHandler{
+		NS: ns,
+	}
 }
 
 func (NH *NotificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +31,7 @@ func (NH *NotificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		NH.GetNotifications(w, r)
 		return
 	case http.MethodPost:
-		NH.CreateNotification(w, r) // web socket here //
+		NH.CreateNotification(w, r)
 		return
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
@@ -99,8 +99,7 @@ func (NH *NotificationHandler) CreateNotification(w http.ResponseWriter, r *http
 	err = json.NewDecoder(r.Body).Decode(&Data)
 	if err != nil {
 		fmt.Println("invalide decode lol", Data)
-		
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "bad request", Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "bad - request - 400", Message: fmt.Sprintf("%v", err)})
 		return
 	}
 	
@@ -110,6 +109,10 @@ func (NH *NotificationHandler) CreateNotification(w http.ResponseWriter, r *http
 		return
 	}
 
-	utils.WriteDataBack(w, nil)
+	response := models.HasSeen{
+		Status: true,
+		Message: "insert succesefly",
+	}
+	utils.WriteDataBack(w, response)
 }
 
