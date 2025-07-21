@@ -99,7 +99,7 @@ export default function GroupPostCardList({ groupId }) {
     if (error) return <p className="text-danger text-center">Error: {error}</p>;
 
     return (
-        <div className="list-container flex flex-wrap gap-4 justify-center overflow-y-auto">
+        <div className="list-container flex align-start flex-wrap gap-4 justify-center overflow-y-auto">
             {data.map(item => (
                 <PostCard {...item} key={item.id} />
             ))}

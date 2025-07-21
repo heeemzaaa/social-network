@@ -14,7 +14,7 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
 	post_created := &models.PostGroup{}
 	postId := uuid.New()
 	query := `
-	 INSERT INTO
+	INSERT INTO
     group_posts (postID, groupID, userID, content, imagePath)
     VALUES
     (?, ?, ?, ?, ?) RETURNING postID,
@@ -38,15 +38,22 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
             users
         WHERE
             users.userID = ?
+    ),
+	(
+        SELECT
+            avatarPath
+        FROM
+            users
+        WHERE
+            users.userID = ?
     );
-
 	`
 	stmt, err := grepo.db.Prepare(query)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	errScan := stmt.QueryRow(postId, post.GroupId, post.User.Id, post.Content, post.ImagePath, post.User.Id, post.User.Id).Scan(
+	errScan := stmt.QueryRow(postId, post.GroupId, post.User.Id, post.Content, post.ImagePath, post.User.Id, post.User.Id, post.User.Id).Scan(
 		&post_created.Id,
 		&post_created.GroupId,
 		&post_created.User.Id,
@@ -55,6 +62,7 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
 		&post_created.CreatedAt,
 		&post_created.User.FullName,
 		&post_created.User.Nickname,
+		&post_created.User.ImagePath,
 	)
 	if errScan != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", errScan)}

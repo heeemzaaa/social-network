@@ -22,9 +22,11 @@ func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *mod
 	errGroup := models.ErrGroup{}
 	trimmedTitle := strings.TrimSpace(group.Title)
 	trimmedDesc := strings.TrimSpace(group.Description)
+
 	if err := gService.ValidateGroupTitle(trimmedTitle); err != nil {
 		errGroup.Title = err.Error()
 	}
+
 	if err := utils.ValidateDesc(trimmedDesc); err != nil {
 		errGroup.Description = err.Error()
 	}
@@ -60,12 +62,10 @@ func (gService *GroupService) GetGroups(filter string, offset int64, userID stri
 		groups, err = gService.gRepo.GetAvailableGroups(offset, userID)
 	case "joined":
 		groups, err = gService.gRepo.GetJoinedGroups(offset, userID)
-
 	}
 
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
 	}
-
 	return groups, nil
 }

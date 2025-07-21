@@ -624,7 +624,7 @@ main.register {
 }
 
 
-@media (max-width: 500px) {
+@media (max-width: 1000px) {
   body {
     color: var(--color-white);
     background: var(--color-dark);

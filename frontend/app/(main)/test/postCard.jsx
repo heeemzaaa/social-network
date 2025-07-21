@@ -26,7 +26,6 @@ export default function PostCard({
     const handleToggleLike = (id) => {
         setIsLiked(prev => !prev);
         setLikes(prev => isLiked ? prev - 1 : prev + 1);
-
         // TODO: send to backend
     };
 

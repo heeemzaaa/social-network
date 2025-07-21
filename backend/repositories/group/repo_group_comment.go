@@ -44,6 +44,13 @@ VALUES
             users
         WHERE
             users.userID = ?
+    ),(
+        SELECT
+            avatarPath
+        FROM
+            users
+        WHERE
+            users.userID = ?
     );`
 
 	stmt, err := gRepo.db.Prepare(query)
@@ -59,6 +66,7 @@ VALUES
 		comment.ImagePath,
 		comment.User.Id,
 		comment.User.Id,
+		comment.User.Id,
 	).Scan(
 		&comment_created.Id,
 		&comment_created.PostId,
@@ -68,7 +76,8 @@ VALUES
 		&comment_created.ImagePath,
 		&comment_created.CreatedAt,
 		&comment_created.User.FullName,
-		&comment_created.User.Nickname); err != nil {
+		&comment_created.User.Nickname,
+		&comment_created.User.ImagePath); err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 2", err)}
 	}
 	return comment_created, nil

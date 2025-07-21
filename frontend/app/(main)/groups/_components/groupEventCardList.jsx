@@ -15,12 +15,12 @@ export default function GroupEventCardList({ groupId }) {
 
     useEffect(() => {
         let data = getModalData()
+        console.log("Modal Data:", data)
         if (data?.type === "groupEvent") {
             setData(prev => [data, ...prev])
         }
     }, [setModalData])
 
-    // Memoized function to generate API URL
     const getUrl = useCallback(
         (page) => {
             const params = new URLSearchParams({
@@ -32,7 +32,7 @@ export default function GroupEventCardList({ groupId }) {
     );
 
     // Fetch data function
-    const fetchData = useCallback(
+    const fetchData = useCallback (
         async (currentPage) => {
             if (isLoading || !hasMore) return;
             setIsLoading(true);
@@ -42,11 +42,11 @@ export default function GroupEventCardList({ groupId }) {
                 const url = getUrl(currentPage);
                 console.log("url: ", url)
                 const response = await fetch(url, { credentials: "include", signal });
+                const result = await response.json();
                 if (!response.ok) {
-                    console.log(await response.json())
+                    console.log(result)
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                const result = await response.json();
                 console.log(result)
 
                 if (result.length === 0) {
@@ -66,7 +66,7 @@ export default function GroupEventCardList({ groupId }) {
                 setIsLoading(false);
             }
         },
-        [getUrl]
+        [getUrl,groupId]
     );
 
     // Reset data and fetch initial page when groupId changes
@@ -107,10 +107,9 @@ export default function GroupEventCardList({ groupId }) {
     );
 
     return (
-        <div className="list-container flex flex-wrap gap-4 justify-center overflow-y-auto h-full">
+        <div className="list-container flex flex-wrap gap-2 align-center justify-center overflow-y-auto h-full">
             {data.map((event, index) => (
                 <GroupEventCard {...event} key={index} />
-                // <GroupCard key={item.id || index} {...item} />
             ))}
             {isLoading && <p className="text-center w-full">Loading...</p>}
             {hasMore && !isLoading && (
@@ -123,4 +122,3 @@ export default function GroupEventCardList({ groupId }) {
         </div>
     );
 }
-

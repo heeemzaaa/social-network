@@ -197,7 +197,7 @@ nav {
 }
 
 
-@media (max-width: 500px) {
+@media (max-width: 1000px) {
     nav {
         display: flex;
         flex-direction: row;
