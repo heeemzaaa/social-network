@@ -2,7 +2,6 @@
 
 
 import { cookies } from "next/headers";
-import post from "../(main)/_components/posts";
 
 export async function createPostAction(prevState, formData) {
     let state = {

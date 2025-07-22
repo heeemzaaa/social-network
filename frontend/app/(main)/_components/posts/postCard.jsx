@@ -4,7 +4,7 @@ import "./style.css"
 import Avatar from "../avatar";
 import { useModal } from "../../_context/ModalContext";
 import { likePostAction } from "@/app/_actions/posts";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import CommentsContainer from "../comments/commentsContainer";
 export default function PostCard({
     id,
@@ -17,7 +17,12 @@ export default function PostCard({
     liked,
     privacy
 }) {
+    const [totalComments, setTotalComments] = useState(total_comments);
 
+    const handleCommentMessage = (msg) => {
+        console.log(msg); 
+        setTotalComments(prev => prev + 1);
+    };
     const { openModal } = useModal()
     const initialState = {
         liked: liked === 1,
@@ -56,11 +61,11 @@ export default function PostCard({
                             </button>
                         </div>
                     </form>
-                    <div className="glass-bg" onClick={() => { openModal(<CommentsContainer id={id}/>) }}>
+                    <div className="glass-bg" onClick={() => { openModal(<CommentsContainer id={id} onCommentMessage={handleCommentMessage} />) }}>
                         <div style={actionStyle}>
                             <FaRegComment />
                             <span>
-                                {total_comments}
+                                {totalComments}
                             </span>
                         </div>
                     </div>
