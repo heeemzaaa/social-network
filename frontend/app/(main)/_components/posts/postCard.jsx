@@ -5,6 +5,7 @@ import "./style.css"
 import Avatar from "../avatar";
 import { useModal } from "../../_context/ModalContext";
 import { useState } from "react";
+import  CommentsContainer  from "@/app/(main)/_components/comments/commentsContainer"
 
 export default function PostCard({
     id,
@@ -40,7 +41,7 @@ export default function PostCard({
                             <span className="post-user">
                                 {user.fullname ? `${user.fullname}` : `${user.firstname} ${user.lastname}`}
                             </span>
-                            <span>{`@_${user.nickname}`}</span>
+                            <span>{`@${user.nickname}`}</span>
                         </div>
                     </div>
                     <span className="post-privacy">{privacy}</span>
@@ -58,7 +59,7 @@ export default function PostCard({
                             {likes}
                         </span>
                     </div>
-                    <div className="glass-bg" onClick={() => { openModal("pass comments component here") }}>
+                    <div className="glass-bg" onClick={() => { openModal(<CommentsContainer id={id} />) }}>
                         <div style={actionStyle}>
                             <FaRegComment />
                             <span>

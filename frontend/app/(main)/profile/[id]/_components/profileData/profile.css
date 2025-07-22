@@ -79,12 +79,8 @@
     text-align: justify;
 }
 
-.posts-container {
+.data-container {
     overflow-y: auto;
-}
-
-.scrollable-section::-webkit-scrollbar {
-    display: none;
 }
 
 
