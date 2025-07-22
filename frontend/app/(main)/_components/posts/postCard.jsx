@@ -37,7 +37,7 @@ export default function PostCard({
             <div className="post-card-body">
                 <div className="post-card-header">
                     <div className="flex align-center gap-1">
-                        <Avatar size="42" />
+                        <Avatar img={image_path} size="42" />
                         <h3 className="post-user">
                             {user.firstname} {user.lastname}
                         </h3>
@@ -47,7 +47,7 @@ export default function PostCard({
                 <p className="post-content">{content}</p>
                 {image_path && (
                     <div className="post-card-img">
-                        <img src={`http://localhost:8080/${image_path}`} alt={image_path} />
+                        <img src={`http://localhost:8080/static/${image_path}`} alt={image_path} />
                     </div>
                 )}
                 <span>{new Date(created_at).toISOString().slice(0, 16).replace('T', ' ')}</span>
@@ -57,7 +57,7 @@ export default function PostCard({
                         <div className="post-actions flex gap-2 align-center">
                             <button type="submit" style={actionStyle}>
                                 {state.liked ? <FaHeart color="red" /> : <FaRegHeart />}
-                                <span>{state.likes}</span>
+                                <span>{state.likes || 0}</span>
                             </button>
                         </div>
                     </form>

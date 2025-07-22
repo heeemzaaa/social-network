@@ -31,7 +31,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 likes: state.likes || 0,
             };
 
-            setComments(prev => [...prev, newComment]);
+            setComments(prev => [newComment, ...prev]);
 
             if (onCommentMessage) {
                 onCommentMessage("A new comment was added");
