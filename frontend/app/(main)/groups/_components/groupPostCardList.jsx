@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import Button from "@/app/_components/button";
-import PostCard from "../../test/postCard";
+import PostCard from "../../_components/posts/postCard";
 import { useModal } from "../../_context/ModalContext";
 
 export default function GroupPostCardList({ groupId }) {

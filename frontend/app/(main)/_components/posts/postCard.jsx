@@ -1,12 +1,11 @@
 "use client "
-
 import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa";
 import "./style.css"
 import Avatar from "../avatar";
 import { useModal } from "../../_context/ModalContext";
-import { useState } from "react";
-import  CommentsContainer  from "@/app/(main)/_components/comments/commentsContainer"
-
+import { likePostAction } from "@/app/_actions/posts";
+import { useActionState, useState } from "react";
+import CommentsContainer from "../comments/commentsContainer";
 export default function PostCard({
     id,
     user,
@@ -18,51 +17,55 @@ export default function PostCard({
     liked,
     privacy
 }) {
-    console.log('user', user)
-    const { openModal } = useModal()
-    const [isLiked, setIsLiked] = useState(liked === 1);
-    const [likes, setLikes] = useState(total_likes || 0);
+    const [totalComments, setTotalComments] = useState(total_comments);
 
-    const handleToggleLike = (id) => {
-        setIsLiked(prev => !prev);
-        setLikes(prev => isLiked ? prev - 1 : prev + 1);
-        // TODO: send to backend
+    const handleCommentMessage = (msg) => {
+        console.log(msg); 
+        setTotalComments(prev => prev + 1);
+    };
+    const { openModal } = useModal()
+    const initialState = {
+        liked: liked === 1,
+        likes: total_likes,
+        message: null,
     };
 
-    return (
+    const [state, formAction] = useActionState(likePostAction, initialState);
 
+    return (
         <div className="post-card">
             <div className="post-card-body">
                 <div className="post-card-header">
                     <div className="flex align-center gap-1">
-                        <Avatar img={user.avatar ? `http://localhost:8080/static/${user.avatar}` : '/no-profile.png'} size="42"  />
-                        <div className="flex-col text-sm">
-                            <span className="post-user">
-                                {user.fullname ? `${user.fullname}` : `${user.firstname} ${user.lastname}`}
-                            </span>
-                            <span>{`@_${user.nickname}`}</span>
-                        </div>
+                        <Avatar size="42" />
+                        <h3 className="post-user">
+                            {user.firstname} {user.lastname}
+                        </h3>
                     </div>
                     <span className="post-privacy">{privacy}</span>
                 </div>
                 <p className="post-content">{content}</p>
                 {image_path && (
                     <div className="post-card-img">
-                        <img src={`http://localhost:8080/static/${image_path}`} alt="Post" />
+                        <img src={`http://localhost:8080/${image_path}`} alt={image_path} />
                     </div>
                 )}
+                <span>{new Date(created_at).toISOString().slice(0, 16).replace('T', ' ')}</span>
                 <div className="post-actions flex gap-2 align-center" >
-                    <div style={actionStyle} onClick={handleToggleLike} >
-                        {isLiked ? <FaHeart color="red" /> : <FaRegHeart />}
-                        <span>
-                            {likes}
-                        </span>
-                    </div>
-                    <div className="glass-bg" onClick={() => { openModal(<CommentsContainer id={id} />) }}>
+                    <form action={formAction}>
+                        <input type="hidden" name="postId" value={id} />
+                        <div className="post-actions flex gap-2 align-center">
+                            <button type="submit" style={actionStyle}>
+                                {state.liked ? <FaHeart color="red" /> : <FaRegHeart />}
+                                <span>{state.likes}</span>
+                            </button>
+                        </div>
+                    </form>
+                    <div className="glass-bg" onClick={() => { openModal(<CommentsContainer id={id} onCommentMessage={handleCommentMessage} />) }}>
                         <div style={actionStyle}>
                             <FaRegComment />
                             <span>
-                                {total_comments}
+                                {totalComments}
                             </span>
                         </div>
                     </div>

@@ -1,57 +1,42 @@
 "use client";
+import { useEffect, useState } from "react";
 import PostCard from "./postCard";
 
-export default function PostCardList({ url }) {
-    // const posts = [
-    //     {
-    //         id: "1",
-    //         user: {
-    //             first_name: "Alice",
-    //             last_name: "Johnson",
-    //             avatar_path: "/avatar1.png",
-    //         },
-    //         content: "Just had a great day at the beach!",
-    //         created_at: new Date().toISOString(),
-    //         img: "/no-profile.png",
-    //         total_likes: 12,
-    //         total_comments: 3,
-    //         privacy: "public",
-    //         liked: 1,
-    //     },
-    //     {
-    //         id: "2",
-    //         user: {
-    //             first_name: "Bob",
-    //             last_name: "Smith",
-    //             avatar_path: "/avatar2.png",
-    //         },
-    //         content: "Reading a fascinating book about space exploration.",
-    //         created_at: new Date().toISOString(),
-    //         img: "/no-profile.png",
-    //         total_likes: 8,
-    //         total_comments: 0,
-    //         privacy: "private",
-    //         liked: 0,
-    //     },
-    //     {
-    //         id: "3",
-    //         user: {
-    //             first_name: "Claire",
-    //             last_name: "Lee",
-    //             avatar_path: "/avatar3.png",
-    //         },
-    //         content: "Here’s my latest painting. Hope you like it!",
-    //         created_at: new Date().toISOString(),
-    //         total_likes: 20,
-    //         total_comments: 5,
-    //         privacy: "public",
-    //         liked: 1,
-    //     },
-    // ];
+export default function PostCardList({post}) {
+    const [posts, setPosts] = useState([])
+    
+        useEffect(() => {
+            async function fetchPosts() {
+                console.log("fetch posts here.");
+                try {
+                    const resp = await fetch("http://localhost:8080/api/posts", {
+                        method: "GET",
+                        credentials: "include",
+                    });
+    
+                    if (!resp.ok) {
+                        console.log("error fetching posts 1");
+                        return;
+                    }
+                    const data = await resp.json();
+                    console.log(data)
+                    setPosts(data); 
+                } catch (error) {
+                    console.log("error fetching posts", error);
+                }
+            }
+    
+            fetchPosts(); 
+        }, []);
+    
+        useEffect(() => {
+            if (!post) return;
+            setPosts(prev => [post, ...prev])
+        }, [post])
 
     return (
         <div className="list-container " style={{ overflowY: "auto" }}>
-            {posts.map((post) => (
+            {posts?.map((post) => (
                 <PostCard key={post.id} {...post} />
             ))}
         </div>

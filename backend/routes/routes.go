@@ -10,6 +10,7 @@ func SetRoutes(db *sql.DB) *http.ServeMux {
 	mux, authService := SetAuthRoutes(mux, db)
 	mux, profileService := SetProfileRoutes(mux, db, authService)
 	mux, notifService := SetNotificationsRoutes(mux, db, authService)
+	SetPostRoutes(mux, db, authService)
 	SetGroupRoutes(mux, db, authService, profileService, notifService)
 	SetChatRoutes(mux, db, authService)
 

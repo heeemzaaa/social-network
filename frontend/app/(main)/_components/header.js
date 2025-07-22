@@ -8,7 +8,8 @@ import {
 } from "react-icons/hi2";
 import Popover from './popover';
 import { useModal } from '../_context/ModalContext';
-import CreateGroupForm from '../groups/_components/createGroupForm';
+import CreatePost from './posts/createPost';
+import { createPostAction } from '@/app/_actions/posts';
 
 
 export default function Header() {
@@ -23,7 +24,7 @@ export default function Header() {
 
       <div className='flex gap-2'>
         <Popover trigger={<HiMiniPlusCircle size={24} />}>
-          <Button className={"w-full"} variant='btn-tertiary' onClick={() => openModal("test")}>
+          <Button className={"w-full"} variant='btn-tertiary' onClick={() => openModal(<CreatePost postAction={createPostAction} />)}>
             <HiMiniPlusSmall size={"30px"} />
             <span>
               Add post

@@ -3,7 +3,7 @@ import "./comments.css"
 import Comments from './comments'
 import CommentsFooter from './commentsFooter'
 
-export default function CommentsContainer({ id }) {
+export default function CommentsContainer({ id, onCommentMessage }){
   const [comments, setComments] = useState([]);
 
 
@@ -37,7 +37,7 @@ export default function CommentsContainer({ id }) {
   return (
     <section className="comments_container w-full flex-col gap-2">
       <Comments comments={comments} />
-      <CommentsFooter id={id} setComments={setComments} />
+      <CommentsFooter id={id} setComments={setComments}  onCommentMessage={onCommentMessage}/>
     </section>
   );
 }
