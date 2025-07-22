@@ -32,7 +32,7 @@ export default function UserPosts({ id, access }) {
     }
 
     return (
-        <section style={{overflowY: "auto"}} className='posts_container w-full h-full flex flex-wrap'>
+        <section className='posts_container w-full h-full flex flex-wrap'>
             {posts.length === 0 ? (
                 <img src="/no-posts.svg" className='w-full h-full'  />
             ) : (

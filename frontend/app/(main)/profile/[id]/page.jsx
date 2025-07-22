@@ -174,7 +174,7 @@ export default function Page({ params }) {
         </section>
       </InfosDiv>
 
-      <div className="data-container scrollable-section flex-col w-full align-center gap-4">
+      <div className="data-container flex-col w-full align-center gap-4">
         {userInfos.aboutMe && <AboutUser aboutMe={userInfos.aboutMe} />}
         <UserPosts id={userInfos.id} access={userInfos.access} />
       </div>
