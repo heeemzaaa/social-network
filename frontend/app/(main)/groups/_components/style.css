@@ -1,5 +1,3 @@
-
-
 .grp-card {
     --img-width: 150px;
     --margin-left: calc(var(--img-width) / 2);
@@ -41,12 +39,10 @@
     background-position: center;
     background-size: contain;
     box-shadow: var(--shadow-lg);
-    /* display: none; */
     border-radius: var(--border-radius-md)
 }
 
 .grp-card-body {
-    /* height: 100%; */
 }
 
 .grp-card-body .grp-description {

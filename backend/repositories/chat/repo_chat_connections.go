@@ -126,7 +126,7 @@ func (repo *ChatRepository) GetGroups(authUserID string) ([]models.Group, *model
 	SELECT 
     	g.title,
     	g.imagePath,
-    	COALESCE(lgm.lastInteraction, CURRENT_TIMESTAMP) AS lastInteraction
+    	COALESCE(lgm.lastInteraction, "") AS lastInteraction
 	FROM cte_my_groups g
 		LEFT JOIN cte_latest_group_messages lgm ON lgm.groupID = g.groupID
 		ORDER BY lgm.lastInteraction DESC NULLS LAST, g.title ASC;

@@ -109,6 +109,14 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
             users
         WHERE
             users.userID = ?
+    ),
+	(
+        SELECT
+            avatarPath
+        FROM
+            users
+        WHERE
+            users.userID = ?
     );
 	`
 	stmt, err := gRepo.db.Prepare(query)
@@ -119,7 +127,7 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 	event_created := models.Event{}
 	if err = stmt.QueryRow(eventId, event.EventCreator.Id,
 		event.GroupId, event.Title, event.Description, event.EventDate,
-		event.EventCreator.Id, event.EventCreator.Id).Scan(
+		event.EventCreator.Id, event.EventCreator.Id, event.EventCreator.Id).Scan(
 		&event_created.EventId,
 		&event_created.EventCreator.Id,
 		&event_created.GroupId,
@@ -129,6 +137,7 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 		&event_created.CreatedAt,
 		&event_created.EventCreator.FullName,
 		&event_created.EventCreator.Nickname,
+		&event_created.EventCreator.ImagePath,
 	); err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}

@@ -3,9 +3,8 @@ package group
 import (
 	"fmt"
 
-	"social-network/backend/models"
-
 	"github.com/mattn/go-sqlite3"
+	"social-network/backend/models"
 )
 
 // in the group membership table we have a composite key
@@ -52,7 +51,7 @@ func (repo *GroupRepository) GetGroupDetails(groupId string) (*models.Group, *mo
             Id
     )
 		SELECT
-		    groups.groupID,
+		 	groups.groupID,
 			groups.groupCreatorID,
 			groups.title,
 			groups.description,
@@ -66,7 +65,6 @@ func (repo *GroupRepository) GetGroupDetails(groupId string) (*models.Group, *mo
 			INNER JOIN cte_members ON groups.groupID = cte_members.Id
 			INNER JOIN users ON users.userID = groups.groupCreatorID 
 			WHERE groups.groupID = ?
-	
 	`
 
 	stmt, err := repo.db.Prepare(query)

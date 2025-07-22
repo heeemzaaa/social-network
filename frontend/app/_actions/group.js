@@ -10,80 +10,12 @@ import { cookies } from "next/headers"
     }
 */
 
-export async function createGroupPostAction(prevState, formData) {
-    const state = {
-        errors: {},
-        error: null,
-        message: null
-    }
-
-    const content = formData.get("content")?.trim();
-    const groupId = formData.get("groupId")?.trim();
-    console.log("group id: ", groupId)
-    const img = formData.get("img");
-
-    if (!content) {
-        state.errors.content = "Content is required";
-    }
-
-    if (img && img.size > 0) {
-        const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
-        const maxSize = 3 * 1024 * 1024; // 3MB
-        if (!allowedTypes.includes(img.type)) {
-            state.errors.img = "Image must be a JPEG, PNG, or GIF";
-        } else if (img.size > maxSize) {
-            state.errors.img = "Image file size must be less than 3MB";
-        }
-    }
-
-    if (Object.keys(state.errors).length > 0) {
-        return {
-            ...prevState,
-            errors: state.errors
-        };
-    }
-
-    const newFormData = new FormData();
-    newFormData.append('data', JSON.stringify({ content }));
-
-    if (img && img.size > 0) {
-        newFormData.append('group_img', img);
-    }
-
-    try {
-        const cookieStore = await cookies();
-        const sessionCookie = cookieStore.get("session")?.value;
-        const res = await fetch(`http://localhost:8080/api/groups/${groupId}/posts/`, {
-            method: "POST",
-            body: newFormData,
-            credentials: 'include',
-            headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {}
-        })
-        const data = await res.json();
-        if (!res.ok) {
-            return {
-                ...prevState,
-                error: data.error || "Group creation failed",
-                errors: data.errors || null
-            };
-        }
-        return {
-            ...prevState,
-            message: "Group created successfully",
-        }
-    } catch (error) {
-        return {
-            ...prevState,
-            error: "An unexpected error occurred",
-        };
-    }
-}
-
 // Creates a new group by validating form data and sending it to the group creation API Endpoint.
 export async function createGroupAction(prevState, formData) {
     const state = {
         errors: {},
         error: null,
+        data: null,
         message: null
     }
 
@@ -117,13 +49,13 @@ export async function createGroupAction(prevState, formData) {
         return {
             ...prevState,
             errors: state.errors
-        };
+        }
     }
 
     const newFormData = new FormData();
     newFormData.append('data', JSON.stringify({ title, description }));
     if (img && img.size > 0) {
-        newFormData.append('group_img', img);
+        newFormData.append('group', img);
     }
 
     try {
@@ -133,7 +65,78 @@ export async function createGroupAction(prevState, formData) {
             body: newFormData,
             credentials: 'include',
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {}
-        });
+        })
+        const data = await res.json();
+        if (!res.ok) {
+            return {
+                ...prevState,
+                error: data.error || "Group creation failed",
+                errors: data.errors || null
+            }
+        }
+
+        return {
+            ...state,
+            message: `${title} Group has been created successfuly.`,
+            data
+        }
+    } catch (error) {
+        return {
+            ...prevState,
+            error: "An unexpected error occurred while creating a new group",
+        };
+    }
+}
+
+export async function createGroupPostAction(prevState, formData) {
+    const state = {
+        errors: {},
+        error: null,
+        message: null
+    }
+
+    const content = formData.get("content")?.trim();
+    const groupId = formData.get("groupId")?.trim();
+    const img = formData.get("image");
+
+    if (!content) {
+        state.errors.content = "Content is required";
+    }
+
+    if (img && img.size > 0) {
+        const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+        const maxSize = 3 * 1024 * 1024; // 3MB
+        if (!allowedTypes.includes(img.type)) {
+            state.errors.img = "Image must be a JPEG, PNG, or GIF";
+        } else if (img.size > maxSize) {
+            state.errors.img = "Image file size must be less than 3MB";
+        }
+    }
+
+    if (Object.keys(state.errors).length > 0) {
+        return {
+            ...prevState,
+            errors: state.errors
+        };
+    }
+
+    const newFormData = new FormData();
+    newFormData.append('data', JSON.stringify({ content }));
+
+    if (img && img.size > 0) {
+        console.log("post image: ", img)
+        newFormData.append('post', img);
+    }
+
+    try {
+        const cookieStore = await cookies();
+        const sessionCookie = cookieStore.get("session")?.value;
+        const res = await fetch(`http://localhost:8080/api/groups/${groupId}/posts/`, {
+            method: "POST",
+            body: newFormData,
+            credentials: 'include',
+            headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {}
+        })
         const data = await res.json();
         if (!res.ok) {
             return {
@@ -142,13 +145,13 @@ export async function createGroupAction(prevState, formData) {
                 errors: data.errors || null
             };
         }
-
+        console.log("post created: ", data)
         return {
-            ...prevState,
-            message: "Group created successfully",
-        };
+            ...state,
+            message: `Post has been created successfuly.`,
+            data
+        }
     } catch (error) {
-        console.error(error);
         return {
             ...prevState,
             error: "An unexpected error occurred",
@@ -161,13 +164,14 @@ export async function createGroupEventAction(prevState, formData) {
     const state = {
         errors: {},
         error: null,
+        data: null,
         message: null
     }
 
-    const title = formData.get("title")?.trim();
-    const description = formData.get("description")?.trim();
-    const date = formData.get("date")?.trim();
-    const groupId = formData.get("groupId")?.trim();
+    let title = formData.get("title")?.trim();
+    let description = formData.get("description")?.trim();
+    let event_date = formData.get("event_date")?.trim();
+    let groupId = formData.get("groupId")?.trim();
 
     if (!title) {
         state.errors.title = "Title is required";
@@ -177,14 +181,14 @@ export async function createGroupEventAction(prevState, formData) {
         state.errors.description = "Description is required";
     }
 
-    if (!date) {
-        state.errors.date = "Event date is required";
+    if (!event_date) {
+        state.errors.event_date = "Event date is required";
     } else {
-        const eventDate = new Date(date);
+        const eventDate = new Date(event_date);
         if (isNaN(eventDate.getTime())) {
-            state.errors.date = "Invalid date format";
+            state.errors.event_date = "Invalid date format";
         } else if (eventDate < new Date()) {
-            state.errors.date = "Event date must be in the future";
+            state.errors.event_date = "Event date must be in the future";
         }
     }
 
@@ -195,12 +199,21 @@ export async function createGroupEventAction(prevState, formData) {
         };
     }
 
+    console.log("date before format: ", event_date)
+    event_date = formatDate(event_date)
+    console.log("date after format: ", event_date)
+
+
+
+
+
+
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
         const res = await fetch(`http://localhost:8080/api/groups/${groupId}/events/`, {
             method: "POST",
-            body: JSON.stringify({ title, description, date }),
+            body: JSON.stringify({ title, description, event_date }),
             credentials: 'include',
             headers: {
                 "Content-Type": "application/json",
@@ -217,8 +230,9 @@ export async function createGroupEventAction(prevState, formData) {
             };
         }
         return {
-            ...prevState,
-            message: "Event created successfully",
+            ...state,
+            data,
+            message: "New Event created successfully",
         };
     } catch (error) {
         console.error(error);
@@ -230,9 +244,6 @@ export async function createGroupEventAction(prevState, formData) {
 }
 
 export async function joinGroupAction(prevState, formData) {
-
-    
-
 }
 
 export async function inviteUsersAction(prevState, formData) {
@@ -243,4 +254,16 @@ export async function inviteUsersAction(prevState, formData) {
     }
     console.log('Inviting users:', userIds, 'to group:', groupId);
     return { success: true, message: `Invited ${userIds.length} user(s) to group ${groupId}` };
+}
+
+
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }

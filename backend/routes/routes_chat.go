@@ -21,5 +21,6 @@ func SetChatRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService
 	mux.Handle("/ws/chat/", middleware.NewMiddleWare(handlerChat, authService))
 	mux.Handle("/api/messages", middleware.NewMiddleWare(handlerMessage, authService))
 	mux.Handle("/api/get-users/", middleware.NewMiddleWare(handlerChatNav, authService))
+	mux.Handle("/api/get-groups/", middleware.NewMiddleWare(handlerChatNav, authService))
 
 }

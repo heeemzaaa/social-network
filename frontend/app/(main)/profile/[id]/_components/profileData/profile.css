@@ -10,7 +10,7 @@
     align-items: center;
     width: 350px;
     min-width: max-content;
-    height: 70%;
+    height: 470px;
     border-radius: var(--border-radius-lg);
     background-position: center;
     background-size: cover;
@@ -30,7 +30,6 @@
     width: 100%;
     border-radius: var(--border-radius-lg);
     color: var(--color-white);
-    /* z-index: 10000; */
 }
 
 .UserNumbers {
@@ -84,6 +83,33 @@
     overflow: hidden
 }
 
-.scrollable-section::-webkit-scrollbar {
-  display: none; 
+
+@media only screen and (max-width: 768px) {
+    body {
+        overflow-y: auto;
+    }
+
+    .profile_page_section {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow-y: auto;
+        min-height: 100vh;
+        height: max-content;
+    }
+
+    .ProfileContainer {
+        width: 100%;
+        height: 450px;
+    }
+
+    .UserNumbers {
+        width: 100%;
+    }
+    
+    .posts_container {
+        height: max-content;
+        overflow: hidden;
+    }
 }
