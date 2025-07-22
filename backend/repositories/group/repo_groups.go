@@ -23,20 +23,21 @@ func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *m
 	groupID := utils.NewUUID()
 	query := `
 	INSERT INTO
-    group_posts (postID, groupID, userID, content, imagePath)
-    VALUES (?, ?, ?, ?, ?) RETURNING postID,
-    groupID,
-    userID,
-    content,
+    groups (groupID, groupCreatorID, title, imagePath , description )
+    VALUES (?, ?, ?, ?, ?) RETURNING 
+	groupID,
+    groupCreatorID,
+    title,
     imagePath,
-    createdAt,
+    description,
+	createdAt,
     (
         SELECT
             concat (firstName, ' ', lastName)
         FROM
             users
         WHERE
-            users.userID = userID
+            users.userID = ?
     ) AS fullName,
     (
         SELECT
@@ -44,30 +45,30 @@ func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *m
         FROM
             users
         WHERE
-            users.userID = userID
+            users.userID = ?
     );
 
 	`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 2", err)}
 	}
 	defer stmt.Close()
 	groupCreated := models.Group{}
 	err = stmt.QueryRow(groupID, group.GroupCreatorId,
-		group.Title, group.ImagePath, group.Description).Scan(
+		group.Title, group.ImagePath, group.Description, group.GroupCreatorId, group.GroupCreatorId).Scan(
 		&groupCreated.GroupId,
 		&groupCreated.GroupCreatorId,
 		&groupCreated.Title,
 		&groupCreated.ImagePath,
 		&groupCreated.Description,
 		&groupCreated.CreatedAt,
-		&groupCreated.GroupCreatorFullName,
-		&groupCreated.GroupCreatorNickname,
+		&groupCreated.User.FullName,
+		&groupCreated.User.Nickname,
 	)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	if errJson := repo.JoinGroup(&groupCreated, group.GroupCreatorId); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
@@ -134,8 +135,8 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 		errScan := rows.Scan(
 			&group.GroupId,
 			&group.GroupCreatorId,
-			&group.GroupCreatorFullName,
-			&group.GroupCreatorNickname,
+			&group.User.FullName,
+			&group.User.Nickname,
 			&group.Title,
 			&group.ImagePath,
 			&group.Description,
@@ -212,8 +213,8 @@ func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]
 		errScan := rows.Scan(
 			&group.GroupId,
 			&group.GroupCreatorId,
-			&group.GroupCreatorFullName,
-			&group.GroupCreatorNickname,
+			&group.User.FullName,
+			&group.User.Nickname,
 			&group.Title,
 			&group.ImagePath,
 			&group.Description,
