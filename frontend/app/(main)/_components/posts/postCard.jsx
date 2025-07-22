@@ -5,6 +5,7 @@ import "./style.css"
 import Avatar from "../avatar";
 import { useModal } from "../../_context/ModalContext";
 import { useState } from "react";
+import  CommentsContainer  from "@/app/(main)/_components/comments/commentsContainer"
 
 export default function PostCard({
     id,
@@ -17,7 +18,7 @@ export default function PostCard({
     liked,
     privacy
 }) {
-
+    console.log('user', user)
     const { openModal } = useModal()
     const [isLiked, setIsLiked] = useState(liked === 1);
     const [likes, setLikes] = useState(total_likes || 0);
@@ -34,7 +35,7 @@ export default function PostCard({
             <div className="post-card-body">
                 <div className="post-card-header">
                     <div className="flex align-center gap-1">
-                        <Avatar size="42" />
+                        <Avatar img={user.avatar ? `http://localhost:8080/static/${user.avatar}` : '/no-profile.png'} size="42"  />
                         <div className="flex-col text-sm">
                             <span className="post-user">
                                 {user.fullname ? `${user.fullname}` : `${user.firstname} ${user.lastname}`}
@@ -57,7 +58,7 @@ export default function PostCard({
                             {likes}
                         </span>
                     </div>
-                    <div className="glass-bg" onClick={() => { openModal("pass comments component here") }}>
+                    <div className="glass-bg" onClick={() => { openModal(<CommentsContainer id={id} />) }}>
                         <div style={actionStyle}>
                             <FaRegComment />
                             <span>

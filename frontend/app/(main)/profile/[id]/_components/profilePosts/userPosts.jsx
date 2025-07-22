@@ -21,7 +21,7 @@ export default function UserPosts({ id, access }) {
         getPosts()
     }, [id])
     
-    console.log('posts.image_url', posts)
+    console.log('posts', posts)
     if (access === false) {
         return (
             <section  className='posts_container w-full h-full flex-col justify-center align-center'>
@@ -32,9 +32,9 @@ export default function UserPosts({ id, access }) {
     }
 
     return (
-        <section style={{overflowY: "auto"}} className='posts_container flex flex-wrap'>
+        <section className='posts_container scrollable-section w-full h-full flex flex-wrap'>
             {posts.length === 0 ? (
-                <img src="/no-posts.svg" style={{ height: '90%' }} />
+                <img src="/no-posts.svg" className='w-full h-full'  />
             ) : (
                 posts.map((post) => {
                    return <PostCard {...post} key={post.id} />

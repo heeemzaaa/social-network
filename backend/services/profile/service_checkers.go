@@ -17,3 +17,11 @@ func (s *ProfileService) CheckProfileAccess(profileID string, authUserID string)
 
 	return access, nil
 }
+
+func (s *ProfileService) IsFollower(userID, authUserID string) (bool, *models.ErrorJson) {
+	isFollower, err := s.repo.IsFollower(userID, authUserID)
+	if err != nil {
+		return false, &models.ErrorJson{Status: 500, Error: err.Error}
+	}
+	return isFollower, nil
+}

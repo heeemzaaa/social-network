@@ -1,6 +1,5 @@
 // frontend/app/(main)/page.js 
 "use client"
-<<<<<<< HEAD
 
 let LoadPosts = async () => {
   const getRequest = {
@@ -28,8 +27,6 @@ let LoadPosts = async () => {
   console.log("fetch is has seen api, respone = ", ddd)
   
 }
-=======
->>>>>>> main
 
 export default function Home() {
 
