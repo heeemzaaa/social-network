@@ -9,7 +9,7 @@ const initialPostData = {
     selectedFollowers: []
 };
 
-export default function CreatePost({ type, postAction }) {
+export default function CreatePost({postAction}) {
     const [state, action] = useActionState(postAction, {});
     const [data, setData] = useState(initialPostData);
     const [followers, setFollowers] = useState([]);
@@ -19,6 +19,7 @@ export default function CreatePost({ type, postAction }) {
 
     useEffect(() => {
         if (!state.data) return
+        state.data.type = 'post';
         // console.log("data", state.data)
         setModalData(state.data)
         closeModal()
@@ -29,7 +30,7 @@ export default function CreatePost({ type, postAction }) {
         const fetchFollowers = async () => {
             try {
                 //TODO:  make the id dynamic by getting the current userId ...
-                const id = "cbb58c6a-035c-4a08-b460-5fce382a012d"
+                const id = "0ebd4f28-fcbd-409d-bb31-f0b4db121074"
                 const res = await fetch(`http://localhost:8080/api/profile/${id}/connections/followers`, {
                     method: 'GET',
                     credentials: 'include',
