@@ -9,6 +9,10 @@ func (s *ProfileService) GetPosts(profileID string, authUserID string) ([]models
 	var posts []models.Post
 	var isMine bool
 
+	if profileID == "" || authUserID == "" {
+		return posts, false, &models.ErrorJson{Status: 400, Error: "Invalid data !"}
+	}
+
 	if profileID == authUserID {
 		isMine = true
 	}

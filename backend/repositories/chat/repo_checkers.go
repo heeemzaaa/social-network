@@ -65,7 +65,7 @@ func (repo *ChatRepository) GroupExists(groupID string) (bool, *models.ErrorJson
 	err = stmt.QueryRow(groupID).Scan(&exists)
 	if err != nil {
 		log.Println("Error checking if the group exists: ", err)
-		return false, &models.ErrorJson{Status: 500, Error: "", Message: fmt.Sprintf("%v", err)}
+		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	return exists, nil
 }

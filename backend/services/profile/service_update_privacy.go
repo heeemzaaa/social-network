@@ -18,7 +18,7 @@ func (s *ProfileService) UpdatePrivacy(userID string, requestorID string, wanted
 	}
 
 	if wantedStatus == "" || (wantedStatus != "public" && wantedStatus != "private") {
-		return nil, &models.ErrorJson{Status: 400, Error: "Invalid data !"}
+		return nil, &models.ErrorJson{Status: 400, Error: "Invalid wanted visibility !"}
 	}
 
 	visibility, err := s.repo.Visibility(userID)
@@ -46,7 +46,6 @@ func (s *ProfileService) UpdatePrivacy(userID string, requestorID string, wanted
 		if err != nil {
 			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 		}		
-		fmt.Println("profile: ", profile)
 	case "private":
 		err := s.repo.ToPrivateAccount(userID)
 		if err != nil {
