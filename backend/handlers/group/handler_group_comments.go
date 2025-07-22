@@ -64,7 +64,7 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return
 	}
-	comment.UserId, comment.GroupId, comment.PostId, comment.ImagePath = userID.String(), groupID.String(), postID.String(), path
+	comment.User.Id, comment.GroupId, comment.PostId, comment.ImagePath = userID.String(), groupID.String(), postID.String(), path
 	// even if the userid is given wrong we insert the correct one
 	postCreated, err_ := gCommentHandler.gService.AddComment(comment)
 	if err_ != nil {
@@ -96,7 +96,7 @@ func (gCommentHandler *GroupCommentHandler) GetGroupComments(w http.ResponseWrit
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", errConvoff)})
 		return
 	}
-
+    
 	comments, errJson := gCommentHandler.gService.GetComments(groupID.String(), userID.String(), postID.String(), offset)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})

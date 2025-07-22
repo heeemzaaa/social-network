@@ -1,19 +1,30 @@
 import { createGroupEventAction } from '@/app/_actions/group';
-import { useActionState, useState } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import styles from "@/app/page.module.css"
 import Button from '@/app/_components/button';
+import { useModal } from '../../_context/ModalContext';
 
 
 const event = {
     title : "",
     description : "",
-    date: ""
+    event_date: ""
 }
 
 export default function CreateEventForm({groupId}) {
     console.log(groupId)
     const [state, action] = useActionState(createGroupEventAction, {});
     const [eventData, setEventData] = useState(event)
+    const { setModalData, closeModal } = useModal()
+
+    useEffect(() => {
+        if (state.message) {
+            state.data.type = "groupEvent"
+            setModalData(state.data)
+            closeModal()
+        }
+    }, [state])
+
     return (
         <form noValidate action={action} className={`${styles.form} glass-bg w-full`}>
             <input type="hidden" name="groupId" value={groupId} />
@@ -43,14 +54,14 @@ export default function CreateEventForm({groupId}) {
                     {state.errors?.description && <span className="field-error">{state.errors.description}</span>}
                 </div>
                 <div className={styles.formGrp}>
-                    <label htmlFor="date">Event Date:</label>
+                    <label htmlFor="event_date">Event Date:</label>
                     <input
                         className={styles.input}
-                        name="date"
-                        id="date"
+                        name="event_date"
+                        id="event_date"
                         type='datetime-local'
-                        value={eventData.date}
-                        onChange={(e) => setEventData((prev) => ({ ...prev, date: e.target.value }))}
+                        value={eventData.event_date}
+                        onChange={(e) => setEventData((prev) => ({ ...prev, event_date: e.target.value }))}
                     />
                     {state.errors?.date && <span className="field-error">{state.errors.date}</span>}
                 </div>

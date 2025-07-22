@@ -10,24 +10,60 @@ import (
 )
 
 func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGroup, *models.ErrorJson) {
+	fmt.Println("post", post.User.Id)
 	post_created := &models.PostGroup{}
 	postId := uuid.New()
-	query := `INSERT INTO group_posts (postID, groupID, userID, content, imagePath) 
-	VALUES (?, ?, ?, ?, ?) 
-	RETURNING postID, groupID, userID, content, imagePath, createdAt`
+	query := `
+	INSERT INTO
+    group_posts (postID, groupID, userID, content, imagePath)
+    VALUES
+    (?, ?, ?, ?, ?) RETURNING postID,
+    groupID,
+    userID,
+    content,
+    imagePath,
+    createdAt,
+    (
+        SELECT
+            concat (firstName, ' ', lastName)
+        FROM
+            users
+        WHERE
+            users.userID = ?
+    ) AS fullName,
+    (
+        SELECT
+            nickname
+        FROM
+            users
+        WHERE
+            users.userID = ?
+    ),
+	(
+        SELECT
+            avatarPath
+        FROM
+            users
+        WHERE
+            users.userID = ?
+    );
+	`
 	stmt, err := grepo.db.Prepare(query)
 	if err != nil {
-		fmt.Println("WHY? 1", err.Error())
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	errScan := stmt.QueryRow(postId, post.GroupId, post.User.Id, post.Content, post.ImagePath).Scan(
+	errScan := stmt.QueryRow(postId, post.GroupId, post.User.Id, post.Content, post.ImagePath, post.User.Id, post.User.Id, post.User.Id).Scan(
 		&post_created.Id,
 		&post_created.GroupId,
 		&post_created.User.Id,
 		&post_created.Content,
 		&post_created.ImagePath,
-		&post_created.CreatedAt)
+		&post_created.CreatedAt,
+		&post_created.User.FullName,
+		&post_created.User.Nickname,
+		&post_created.User.ImagePath,
+	)
 	if errScan != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", errScan)}
 	}
@@ -37,7 +73,7 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
 
 // all the posts
 // add the offset and the limit after
-func (grepo *GroupRepository) GetPosts(userId, groupId string ,offset int) ([]models.PostGroup, *models.ErrorJson) {
+func (grepo *GroupRepository) GetPosts(userId, groupId string, offset int) ([]models.PostGroup, *models.ErrorJson) {
 	posts := []models.PostGroup{}
 	// query needs an update because the reactions table does not exist
 	// also the tables names are not correct
@@ -71,6 +107,7 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string ,offset int) ([]mo
 		group_posts.postID,
 		group_posts.createdAt,
 		group_posts.content,
+		group_posts.imagePath,
 		coalesce(cte_likes.total_likes, 0) as total_likes,
 		coalesce(cte_comments.total_comments, 0) as total_comments,
 		coalesce(group_reactions.userID, 0) as liked
@@ -98,7 +135,7 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string ,offset int) ([]mo
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(userId,groupId, offset)
+	rows, err := stmt.Query(userId, groupId, offset)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return posts, nil
@@ -112,8 +149,10 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string ,offset int) ([]mo
 		if err := rows.Scan(&post.User.FullName,
 			&post.User.Nickname,
 			&post.User.Id,
-			&post.Id, &post.CreatedAt,
+			&post.Id,
+			&post.CreatedAt,
 			&post.Content,
+			&post.ImagePath,
 			&post.TotalLikes,
 			&post.TotalComments,
 			&post.Liked); err != nil {

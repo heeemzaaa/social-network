@@ -64,6 +64,10 @@ func GetUUIDFromPath(r *http.Request, key string) (uuid.UUID, error) {
 	return uuid.Parse(val)
 }
 
+func IsValidUUID(id string) error {
+	return uuid.Validate(id)
+}
+
 func NewUUID() string {
 	return uuid.New().String()
 }

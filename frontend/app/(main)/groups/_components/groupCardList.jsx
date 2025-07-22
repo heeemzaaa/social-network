@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import GroupCard from "./groupCard";
 import Button from "@/app/_components/button";
+import { useModal } from "../../_context/ModalContext";
 
 export default function GroupCardList({ filter }) {
     const [data, setData] = useState([]);
@@ -9,6 +10,15 @@ export default function GroupCardList({ filter }) {
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState(null);
     const abortControllerRef = useRef(null);
+
+    const {getModalData, setModalData} = useModal()
+
+    useEffect(()=>{
+        let data = getModalData()
+        if (data?.type === "groupCard" && filter === "owned") {
+            setData(prev=> [data,...prev])
+        }
+    },[setModalData])
 
     const fetchData = useCallback(
         async (currentPage) => {

@@ -1,14 +1,12 @@
 import Logo from '@/app/_components/logo'
 
 import LoginForm from './loginForm';
-import Link from 'next/link';
 
 export default function Login() {
   return (
-    <div className='login'>
+    <main className='login flex-col justify-center align-center' style={{borderRadius : "unset", margin: "unset"}}>
       <Logo />
       <LoginForm />
-      <span>Don&apost have an account ?  <Link href={"/register"}> Register </Link></span>
-    </div>
+    </main>
   )
 }

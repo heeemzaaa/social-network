@@ -1,5 +1,5 @@
 import React, { useActionState, useState, useEffect, use } from 'react';
-import styles from "../../../(auth)/auth.module.css";
+import styles from "@/app/page.module.css"
 import { useModal } from '../../_context/ModalContext';
 
 const initialPostData = {
