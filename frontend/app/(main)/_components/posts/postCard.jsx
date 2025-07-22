@@ -1,10 +1,9 @@
 "use client "
-import Button from "@/app/_components/button";
-import Tag from "../_components/tag";
+
 import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa";
 import "./style.css"
-import Avatar from "../_components/avatar";
-import { useModal } from "../_context/ModalContext";
+import Avatar from "../avatar";
+import { useModal } from "../../_context/ModalContext";
 import { useState } from "react";
 
 export default function PostCard({
@@ -12,7 +11,7 @@ export default function PostCard({
     user,
     content,
     created_at,
-    img,
+    image_path,
     total_likes,
     total_comments,
     liked,
@@ -21,7 +20,7 @@ export default function PostCard({
 
     const { openModal } = useModal()
     const [isLiked, setIsLiked] = useState(liked === 1);
-    const [likes, setLikes] = useState(total_likes);
+    const [likes, setLikes] = useState(total_likes || 0);
 
     const handleToggleLike = (id) => {
         setIsLiked(prev => !prev);
@@ -37,16 +36,19 @@ export default function PostCard({
                 <div className="post-card-header">
                     <div className="flex align-center gap-1">
                         <Avatar size="42" />
-                        <h3 className="post-user">
-                            {user.first_name} {user.last_name}
-                        </h3>
+                        <div className="flex-col text-sm">
+                            <span className="post-user">
+                                {user.fullname ? `${user.fullname}` : `${user.firstname} ${user.lastname}`}
+                            </span>
+                            <span>{`@_${user.nickname}`}</span>
+                        </div>
                     </div>
                     <span className="post-privacy">{privacy}</span>
                 </div>
                 <p className="post-content">{content}</p>
-                {img && (
+                {image_path && (
                     <div className="post-card-img">
-                        <img src={img} alt="Post" />
+                        <img src={`http://localhost:8080/static/${image_path}`} alt="Post" />
                     </div>
                 )}
                 <div className="post-actions flex gap-2 align-center" >

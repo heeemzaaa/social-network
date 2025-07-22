@@ -61,7 +61,7 @@ func (chatNav *ChatNavigation) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	case "/api/get-users/":
 		chatNav.GetUsers(w, r)
 	case "/api/get-groups/":
-		chatNav.GetGroups(w,r)
+		chatNav.GetGroups(w, r)
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "ERROR!! Page Not Found!"})
 		return
