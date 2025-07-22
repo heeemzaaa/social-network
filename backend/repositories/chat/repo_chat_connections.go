@@ -75,7 +75,7 @@ func (repo *ChatRepository) GetUsers(authUserID string) ([]models.User, *models.
 	rows, err := stmt.Query(authUserID, authUserID, authUserID, authUserID, authUserID, authUserID, authUserID)
 	if err != nil {
 		log.Println("Error getting the users: ", err)
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer rows.Close()
 
@@ -90,7 +90,7 @@ func (repo *ChatRepository) GetUsers(authUserID string) ([]models.User, *models.
 			&user.Notifications,
 		); err != nil {
 			log.Println("Error scanning the users: ", err)
-			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 		if lastInteractionStr != "" {
 			user.LastInteraction, err = time.Parse(time.RFC3339, lastInteractionStr)
@@ -100,6 +100,11 @@ func (repo *ChatRepository) GetUsers(authUserID string) ([]models.User, *models.
 			}
 		}
 		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Println("Error in the whole process of scan => in get users: ", err)
+		return []models.User{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	return users, nil
@@ -142,7 +147,7 @@ func (repo *ChatRepository) GetGroups(authUserID string) ([]models.Group, *model
 	rows, err := stmt.Query(authUserID)
 	if err != nil {
 		log.Println("Error getting groups: ", err)
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	for rows.Next() {
@@ -150,7 +155,7 @@ func (repo *ChatRepository) GetGroups(authUserID string) ([]models.Group, *model
 		err := rows.Scan(&group.Title, &group.ImagePath, &lastInteractionStr)
 		if err != nil {
 			log.Println("Error scanning groups: ", err)
-			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 
 		if lastInteractionStr != "" {
@@ -161,6 +166,11 @@ func (repo *ChatRepository) GetGroups(authUserID string) ([]models.Group, *model
 			}
 		}
 		groups = append(groups, group)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Println("Error in the whole process of scan => in get groups: ", err)
+		return []models.Group{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	return groups, nil
@@ -194,6 +204,11 @@ func (repo *ChatRepository) GetMembersOfGroup(groupID string) ([]string, *models
 		}
 
 		users = append(users, userID)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Println("Error in the whole process of scan => in get members of groups: ", err)
+		return []string{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	return users, nil

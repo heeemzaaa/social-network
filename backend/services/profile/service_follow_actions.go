@@ -106,6 +106,10 @@ func (s *ProfileService) Unfollow(userID string, authUserID string) (*models.Pro
 func (s *ProfileService) CancelFollow(userID string, authUserID string) (*models.Profile, *models.ErrorJson) {
 	var profile models.Profile
 
+	if userID == "" || authUserID == "" {
+		return  nil, &models.ErrorJson{Status: 400, Error: "Invalid data !"}
+	}
+
 	err := s.repo.CancelFollow(userID, authUserID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}

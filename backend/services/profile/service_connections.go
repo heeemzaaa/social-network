@@ -14,7 +14,7 @@ func (s *ProfileService) GetFollowers(profileID string, authUserID string) ([]mo
 
 	access, accessErr := s.CheckProfileAccess(profileID, authUserID)
 	if !access && accessErr == nil {
-		return users, &models.ErrorJson{Status: 401, Error: "the user is not a follower !"}
+		return users, &models.ErrorJson{Status: 403, Error: "the user is not a follower !"}
 	} else if !access && accessErr != nil {
 		return users, &models.ErrorJson{Status: accessErr.Status, Error: accessErr.Error}
 	}
@@ -37,7 +37,7 @@ func (s *ProfileService) GetFollowing(profileID string, authUserID string) ([]mo
 
 	access, accessErr := s.CheckProfileAccess(profileID, authUserID)
 	if !access && accessErr == nil {
-		return users, &models.ErrorJson{Status: 401, Error: "the user is not a follower !"}
+		return users, &models.ErrorJson{Status: 403, Error: "the user is not a follower !"}
 	} else if !access && accessErr != nil {
 		return users, &models.ErrorJson{Status: accessErr.Status, Error: accessErr.Error}
 	}

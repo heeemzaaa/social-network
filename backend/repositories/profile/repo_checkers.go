@@ -75,7 +75,7 @@ func (repo *ProfileRepository) CheckProfileAccess(userID string, authUserID stri
 		return isFollower, nil
 	}
 
-	return false, &models.ErrorJson{Status: 500, Error: "Invalid visibility type !"}
+	return false, &models.ErrorJson{Status: 400, Error: "Invalid visibility type !"}
 }
 
 func (repo *ProfileRepository) IsRequested(profileID string, authUserID string) (bool, *models.ErrorJson) {

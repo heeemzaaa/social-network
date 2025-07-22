@@ -31,13 +31,13 @@ export default function PostCard({
     };
 
     const [state, formAction] = useActionState(likePostAction, initialState);
-
+    console.log('user.avatar', user.avatar)
     return (
         <div className="post-card">
             <div className="post-card-body">
                 <div className="post-card-header">
                     <div className="flex align-center gap-1">
-                        <Avatar img={image_path} size="42" />
+                        <Avatar img={user.avatar} size="42" />
                         <h3 className="post-user">
                             {user.firstname} {user.lastname}
                         </h3>
