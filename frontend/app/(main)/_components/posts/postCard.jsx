@@ -41,7 +41,7 @@ export default function PostCard({
                             <span className="post-user">
                                 {user.fullname ? `${user.fullname}` : `${user.firstname} ${user.lastname}`}
                             </span>
-                            <span>{`@${user.nickname}`}</span>
+                            <span>{`@_${user.nickname}`}</span>
                         </div>
                     </div>
                     <span className="post-privacy">{privacy}</span>

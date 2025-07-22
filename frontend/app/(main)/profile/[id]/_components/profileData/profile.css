@@ -80,7 +80,7 @@
 }
 
 .data-container {
-    overflow-y: auto;
+    overflow: hidden
 }
 
 

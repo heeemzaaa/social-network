@@ -5,15 +5,19 @@ import (
 
 	"social-network/backend/models"
 	"social-network/backend/repositories/group"
+	"social-network/backend/services/notification"
+	"social-network/backend/services/profile"
 	"social-network/backend/utils"
 )
 
 type GroupService struct {
-	gRepo *group.GroupRepository
+	gRepo    *group.GroupRepository
+	sProfile *profile.ProfileService
+	sNotif   *notification.NotificationService
 }
 
-func NewGroupService(grepo *group.GroupRepository) *GroupService {
-	return &GroupService{gRepo: grepo}
+func NewGroupService(grepo *group.GroupRepository, sProfile *profile.ProfileService, sNotif *notification.NotificationService) *GroupService {
+	return &GroupService{gRepo: grepo, sProfile: sProfile, sNotif: sNotif}
 }
 
 func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *models.ErrorJson) {
@@ -35,6 +39,7 @@ func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *mod
 		}
 		return nil, &models.ErrorJson{Status: 400, Message: errGroup}
 	}
+	group.Title, group.Description = trimmedTitle, trimmedDesc
 	groupCreated, errJson := gService.gRepo.CreateGroup(group)
 	if errJson != nil {
 		if group.ImagePath != "" {

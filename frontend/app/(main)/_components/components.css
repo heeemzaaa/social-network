@@ -1,3 +1,102 @@
+.notification {
+    border: 2px solid red;
+    width: 6rem;
+    height: 4rem;
+}
+
+/* Common card styling */
+.notification-card {
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+/* follow-public — simple style */
+.follow-public {
+  background-color: #e6f7ff;
+  border: 1px solid #91d5ff;
+}
+
+/* follow-private — different base color */
+.follow-private {
+  background-color: #fff7e6;
+  border: 1px solid #ffe58f;
+}
+
+/* group-invitation — another color */
+.group-invitation {
+  background-color: #f9f0ff;
+  border: 1px solid #d3adf7;
+}
+
+/* Status accepted — faded or "success" look */
+.accepted {
+  opacity: 0.7;
+  border-color: #52c41a;
+}
+
+/* Status declined — faded or "error" look */
+.declined {
+  opacity: 0.7;
+  border-color: #ff4d4f;
+}
+
+/* Action buttons container */
+.notification-card .action-buttons {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Buttons styling */
+.notification-card .accept-btn {
+  background-color: #52c41a;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.notification-card .reject-btn {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* Hover effect */
+.notification-card .accept-btn:hover {
+  background-color: #389e0d;
+}
+
+.notification-card .reject-btn:hover {
+  background-color: #cf1322;
+}
+
+/* Specific filter for popup-style notification */
+.notification-card.popup {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  width: 18rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Optional animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* navigation style */
 
 nav {
