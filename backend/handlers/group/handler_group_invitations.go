@@ -78,29 +78,10 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
-}
 
-func (invHanlder *GroupInvitationHandler) GetInvitations(w http.ResponseWriter, r *http.Request) {
-	userID, errParse := middleware.GetUserIDFromContext(r.Context())
-	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
-		return
-	}
-	groupID, err := utils.GetUUIDFromPath(r, "group_id")
-	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
-		return
-	}
-	users, errJson := invHanlder.gService.GetInvitations(userID.String(), groupID.String())
-	if errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
-		return
-	}
 
-	if err := json.NewEncoder(w).Encode(&users); err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)})
-		return
-	}
+	// delete the notification from the database 
+	
 }
 
 func (invHanlder *GroupInvitationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

@@ -1,7 +1,6 @@
 package group
 
 import (
-	"database/sql"
 	"fmt"
 
 	"social-network/backend/models"
@@ -21,7 +20,7 @@ func (gRepo *GroupRepository) CreateComment(comment *models.CommentGroup) (*mode
         content,
         imageContent
     )
-VALUES
+    VALUES
     (?, ?, ?, ?, ?, ?) RETURNING commentID,
     postID,
     groupID,
@@ -118,7 +117,9 @@ func (gRepo *GroupRepository) GetComments(userId, postId, groupId string, offset
 		AND group_reactions.userID = ?
 		AND group_reactions.reaction = 1
 		AND group_reactions.entityType = "comment"
-	WHERE  group_posts_comments.groupID = ? AND group_posts_comments.groupID
+	WHERE
+		group_posts_comments.groupID = ?
+		AND group_posts_comments.postID = ?
 	ORDER BY
 		group_posts_comments.createdAt DESC
 	LIMIT
@@ -134,22 +135,27 @@ func (gRepo *GroupRepository) GetComments(userId, postId, groupId string, offset
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(userId, postId, offset)
+	rows, err := stmt.Query(userId, groupId, postId, offset)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return comments, nil
-		}
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	for rows.Next() {
-		var comment models.CommentGroup
-		if err = rows.Scan(&comment.User.FullName, &comment.User.Id, &comment.User.Nickname, &comment.Id, &comment.Content,
-			&comment.CreatedAt, &comment.TotalLikes, &comment.Liked); err != nil {
+		comment := models.CommentGroup{}
+		if err = rows.Scan(&comment.User.FullName,
+			&comment.User.Nickname,
+			&comment.User.Id,
+			&comment.Id,
+			&comment.PostId,
+			&comment.CreatedAt,
+			&comment.Content,
+			&comment.TotalLikes,
+			&comment.Liked); err != nil {
 			return comments, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 		comments = append(comments, comment)
 	}
+
 	defer rows.Close()
 	return comments, nil
 }

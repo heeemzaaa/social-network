@@ -26,7 +26,8 @@ func (gRepo *GroupRepository) RequestToJoin(userId, groupId string) *models.Erro
         typeRequest
     )
 	VALUES
-    (?, ?, (SELECT groups.groupCreatorID FROM groups WHERE groups.groupID = ?), ?, ?);
+    (?, ?, (SELECT groups.groupCreatorID FROM groups WHERE groups.groupID = ?), ?, ?)
+	;
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
@@ -38,6 +39,10 @@ func (gRepo *GroupRepository) RequestToJoin(userId, groupId string) *models.Erro
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
+
+
+	
+
 	return nil
 }
 
