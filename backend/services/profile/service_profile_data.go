@@ -43,3 +43,11 @@ func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*m
 	}
 	return profile, nil
 }
+
+func (s *ProfileService) IsFollower(userID, authUserID string) (bool, *models.ErrorJson) {
+	isFollower, errJson := s.repo.IsFollower(userID, authUserID)
+	if errJson != nil {
+		return false, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
+	}
+	return isFollower, nil
+}
