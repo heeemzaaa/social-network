@@ -21,13 +21,13 @@ func NewChatNavigation(service *chat.ChatService) *ChatNavigation {
 func (chatNav *ChatNavigation) GetUsers(w http.ResponseWriter, r *http.Request) {
 	authUserID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
 	users, errUsers := chatNav.service.GetUsers(authUserID.String())
 	if errUsers != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUsers.Status, Message: errUsers.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUsers.Status, Error: errUsers.Error})
 		return
 	}
 
@@ -37,13 +37,13 @@ func (chatNav *ChatNavigation) GetUsers(w http.ResponseWriter, r *http.Request) 
 func (ChatNav *ChatNavigation) GetGroups(w http.ResponseWriter, r *http.Request) {
 	authUserID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
-	groups, errGroups := ChatNav.service.GetUsers(authUserID.String())
+	groups, errGroups := ChatNav.service.GetGroups(authUserID.String())
 	if errGroups != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errGroups.Status, Error: errGroups.Error})
 		return
 	}
 
@@ -54,7 +54,7 @@ func (chatNav *ChatNavigation) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodGet {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method not allowed !"})
 		return
 	}
 	switch r.URL.Path {
@@ -63,7 +63,7 @@ func (chatNav *ChatNavigation) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	case "/api/get-groups/":
 		chatNav.GetGroups(w, r)
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "ERROR!! Page Not Found!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "ERROR!! Page Not Found!"})
 		return
 	}
 }
