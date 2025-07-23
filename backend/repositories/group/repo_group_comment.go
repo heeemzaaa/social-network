@@ -52,6 +52,8 @@ func (gRepo *GroupRepository) CreateComment(comment *models.CommentGroup) (*mode
             users.userID = ?
     );`
 
+	
+
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
