@@ -10,13 +10,11 @@ export default function NotificationsPopover() {
 
   // Handle accept/reject notification
   const handleNotificationAction = async (notification, status) => {
-    // Check different possible ID field names
-    const notificationId = notification.Id // || notification.Id || notification.Notif_Id || notification.notification_id;
     
     console.log(`${status} notification:`, notification);
-    console.log(`Notification ID:`, notificationId);
+    console.log(`Notification ID:`, notification.Id);
     
-    if (!notificationId) {
+    if (!notification.Id) {
       console.error('No notification ID found. Available fields:', Object.keys(notification));
       return;
     }
@@ -29,7 +27,7 @@ export default function NotificationsPopover() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          Notif_Id: notificationId,
+          Notif_Id: notification.Id,
           Status: status, // "accept" or "reject"
         })
       };
@@ -38,8 +36,8 @@ export default function NotificationsPopover() {
       let data = await response.json();
       console.log(`Notification ${status} response:`, data);
 
-      // Update the notification in the state (optional)
-      setNotifications(prev => prev.map(notif => notif.Id === notificationId ? { ...notif, Status: status } : notif));
+      // Update the notification in the state
+      setNotifications(prev => prev.map(notif => notif.Id === notification.Id ? { ...notif, Status: status } : notif));
 
     } catch (error) {
       console.error(`Error ${status}ing notification:`, error);
@@ -93,23 +91,33 @@ export default function NotificationsPopover() {
   };
 
   return (
-    <div ref={containerRef} onScroll={handleScroll} style={{ maxHeight: "300px", overflowY: "auto", width: "250px" }} className="bg-white shadow p-2 rounded">
+    
+    <div ref={containerRef} onScroll={handleScroll} style={{ maxHeight: "350px", overflowY: "auto", width: "300px" }} className="bg-white shadow p-2 rounded">
 
       {notifications.length === 0 && <p>No notifications</p>}
 
-      {notifications.map((notif, index) => (
+      {notifications.map((notif) => (
 
-        <div key={notif.Id || index} className={`notification-card ${notif.Type} ${notif.Status}`}>
+        <div key={notif.Id} className={`notification-card ${notif.Type} ${notif.Status} ${notif.Seen ? "seen" : "unseen"}`}>
+
           <p>{notif.Content}</p>
 
           {notif.Status === "later" && notif.Type !== "follow-public" && (
             <div className="action-buttons">
               <button className="accept-btn" onClick={() => handleNotificationAction(notif, "accept")}>
-                Accept
+                ✔
               </button>
               <button className="reject-btn" onClick={() => handleNotificationAction(notif, "reject")}>
-                Reject
+                ✘
               </button>
+            </div>
+          )}
+          {notif.Status === "accept" && (
+            <div className="green-dote">
+            </div>
+          )}
+          {notif.Status === "reject" && (
+            <div className="red-dote">
             </div>
           )}
 

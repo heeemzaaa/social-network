@@ -20,12 +20,12 @@ func NewNotification() *Notification {
 
 // new notification request data structure
 type Notif struct {
-	Sender_Id        string // user-id // credencials
+	SenderId        string // user-id // credencials
 	SenderFullName   string
-	Reciever_Id      string // user-profile-id // user-profile-id // group-id [AllGpMb] // group-id [admin] // user-target-id
+	RecieverId      string // user-profile-id // user-profile-id // group-id [AllGpMb] // group-id [admin] // user-target-id
 	ReceiverFullName string
 	Type             string // follow-private // follow-public // group-event // group-join // group-invitation
-	Content          string // notification informations
+	GroupName          string // notification informations
 }
 
 func NewNotif() *Notif {

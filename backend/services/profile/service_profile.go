@@ -5,6 +5,7 @@ import (
 
 	"social-network/backend/models"
 	pr "social-network/backend/repositories/profile"
+	ns "social-network/backend/services/notification"
 )
 
 type ProfileService struct {
@@ -115,7 +116,7 @@ func (s *ProfileService) GetFollowing(profileID string, authUserID string) (*[]m
 }
 
 // here we will handle the logic of following a user
-func (s *ProfileService) Follow(userID string, authUserID string) *models.ErrorJson {
+func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.NotificationService) *models.ErrorJson {
 	if userID == "" || authUserID == "" {
 		return &models.ErrorJson{Status: 400, Message: "Invalid data !"}
 	}
@@ -139,11 +140,17 @@ func (s *ProfileService) Follow(userID string, authUserID string) *models.ErrorJ
 		if err != nil {
 			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}
+		// insert new private notification for recieverId = userID
+		NS.PostService(models.Notif{SenderId: authUserID, RecieverId: userID, Type: "follow-private", SenderFullName: "test_PRV"})
+
 	case "public":
 		err := s.repo.FollowDone(userID, authUserID)
 		if err != nil {
 			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}
+		// insert new public notification for recieverId = userID
+		NS.PostService(models.Notif{SenderId: authUserID, RecieverId: userID, Type: "follow-public", SenderFullName: "pubName"})
+
 	default:
 		return &models.ErrorJson{Status: 500, Message: "This is not a valid status of visibility"}
 	}
@@ -219,7 +226,7 @@ func (s *ProfileService) Unfollow(userID string, authUserID string) *models.Erro
 }
 
 // here we will handle the logic of updating the privacy of a user
-func (s *ProfileService) UpdatePrivacy(userID string, requestorID any, wantedStatus string) *models.ErrorJson {
+func (s *ProfileService) UpdatePrivacy(userID string, requestorID any, wantedStatus string, NS *ns.NotificationService) *models.ErrorJson {
 	if userID == "" || requestorID == "" {
 		return &models.ErrorJson{Status: 400, Message: "Invalid data !"}
 	}
@@ -252,6 +259,17 @@ func (s *ProfileService) UpdatePrivacy(userID string, requestorID any, wantedSta
 		if err != nil {
 			return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}
+
+		// get all notifications that has type follow-private and toggle status "accept"
+		all, errJson := NS.GetAllNotifService(userID, "follow-private")
+		if errJson != nil {
+			return errJson
+		}
+		errJson = NS.ToggleAllStaus(all, "accept", "follow-private")
+		if errJson != nil {
+			return errJson
+		}
+
 	case "private":
 		err := s.repo.ToPrivateAccount(userID)
 		if err != nil {
@@ -274,7 +292,7 @@ func (s *ProfileService) GetPosts(profileID string, authUserID string) ([]models
 	if err != nil {
 		return nil, false, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
-	
+
 	access, errAccess := s.CheckProfileAccess(profileID, authUserID)
 	if errAccess != nil {
 		fmt.Println("error: ", errAccess)

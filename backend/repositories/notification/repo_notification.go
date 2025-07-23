@@ -27,11 +27,22 @@ func (repo *NotifRepository) IsHasSeenFalse(user_id string) (bool, *models.Error
 }
 
 // update notification status value by notif id
-func (repo *NotifRepository) UpdateStatus(notif_id, value string) *models.ErrorJson {
+func (repo *NotifRepository) UpdateStatusById(notif_id, value string) *models.ErrorJson {
 	query := `UPDATE notifications SET notif_state = ? WHERE notif_id = ?`
 	_, err := repo.db.Exec(query, value, notif_id)
 	if err != nil {
 		fmt.Println("ERROR UPDATE === > ", err)
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	fmt.Println("UPDATE STATE SECCES")
+	return nil
+}
+// update notification status value by notif id and type
+func (repo *NotifRepository) UpdateStatusByType(userID, recieverID, value, notifType string) *models.ErrorJson {
+	query := `UPDATE notifications SET notif_state = ? WHERE sender_Id = ? AND reciever_Id = ? AND notif_type = ?`
+	_, err := repo.db.Exec(query, value, userID, recieverID, notifType)
+	if err != nil {
+		fmt.Println("ERROR UPDATE STATUS BY TYPE === > ", err)
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	fmt.Println("UPDATE STATE SECCES")
@@ -46,7 +57,7 @@ func (repo *NotifRepository) UpdateSeen(notif_id string) *models.ErrorJson {
 		fmt.Println("ERROR UPDATE === > ", err)
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
-	fmt.Println("UPDATE SEEN SECCES")
+	// fmt.Println("UPDATE SEEN SECCES")
 	return nil
 }
 
@@ -120,17 +131,55 @@ func (repo *NotifRepository) SelectAllNotification(userid string) ([]models.Noti
 	return all, nil
 }
 
-// func (repo *NotifRepository) GetUserNameByUserId(user_id string) (bool, string, *models.ErrorJson) {
-// 	var nickname string
-// 	query := `SELECT * FROM users WHERE userID = ?`
-// 	row := repo.db.QueryRow(query, user_id)
-// 	err := row.Scan(&nickname)
-// 	if err != nil {
-// 		if err == sql.ErrNoRows {
-// 			return false, "res 11111", nil
-// 		}
-// 		fmt.Printf("Scan error: %v\n", err)
-// 		return false, "res 22222", &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
-// 	}
-// 	return true, nickname, nil
-// }
+// selct all notifications by userid
+func (repo *NotifRepository) SelectAllNotificationByType(userid, notifType string) ([]models.Notification, *models.ErrorJson) {
+	all := []models.Notification{}
+	query := `SELECT * FROM notifications WHERE reciever_Id = ? AND notif_type = ?`
+
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(userid, notifType)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Println("sql.no.rows: no exist data -----")
+			return nil, nil
+		}
+		fmt.Println("sql.no.error: no exist data -----")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var notification models.Notification
+		err = rows.Scan(&notification.Id, &notification.Reciever_Id, &notification.Sender_Id, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.CreatedAt)
+		if err != nil {
+			fmt.Println("error: ------ rows : next")
+			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		}
+		all = append(all, notification)
+	}
+	return all, nil
+}
+
+// delete the request works in both cases , accept and decline
+func (repo *NotifRepository) DeleteNotification(userID, authUserID, notifType string) error {
+	query := `DELETE FROM notifications WHERE userID = ? AND requestorID = ? AND notif_type = ?`
+	_, err := repo.db.Exec(query, userID, authUserID, notifType)
+	if err != nil {
+		return fmt.Errorf("error deleting the notification from the notifications table: %v", err)
+	}
+	return nil
+}
+
+// delete the request works in both cases , accept and decline
+func (repo *NotifRepository) DeleteNotifById(notifID string) error {
+	query := `DELETE FROM notifications WHERE noti_id = ?`
+	_, err := repo.db.Exec(query, notifID)
+	if err != nil {
+		return fmt.Errorf("error deleting the notification from the notifications table: %v", err)
+	}
+	return nil
+}

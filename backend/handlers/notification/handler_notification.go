@@ -15,9 +15,7 @@ type NotificationHandler struct {
 }
 
 func NewNotificationHandler( ns *NS.NotificationService) *NotificationHandler {
-	return &NotificationHandler{
-		NS: ns,
-	}
+	return &NotificationHandler{NS: ns}
 }
 
 func (NH *NotificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -26,17 +24,11 @@ func (NH *NotificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	fmt.Println("requested main path:", r.URL.Path)
 	fmt.Println("method", r.Method)
 
-	switch r.Method {
-	case http.MethodGet:
-		NH.GetNotifications(w, r)
-		return
-	case http.MethodPost:
-		NH.CreateNotification(w, r)
-		return
-	default:
+	if r.Method != "GET" {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
 		return
 	}
+	NH.GetNotifications(w, r)
 }
 
 func (NH *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +66,7 @@ func (NH *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
 	}
-	errJson = NH.NS.ToggleSeenFalse(notifications)
+	errJson = NH.NS.ToggleAllSeenFalse(notifications)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)})
 		return 
@@ -87,32 +79,27 @@ func (NH *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 
 }
 
-func (NH *NotificationHandler) CreateNotification(w http.ResponseWriter, r *http.Request) {
-	user_Id, err := middleware.GetUserIDFromContext(r.Context())
-	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: err.Error()})
-		return
-	}
-
-	var Data models.Notif
-
-	err = json.NewDecoder(r.Body).Decode(&Data)
-	if err != nil {
-		fmt.Println("invalide decode lol", Data)
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "bad - request - 400", Message: fmt.Sprintf("%v", err)})
-		return
-	}
-	
-	errJson := NH.NS.PostService(Data, user_Id.String())
-	if errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
-		return
-	}
-
-	response := models.HasSeen{
-		Status: true,
-		Message: "insert succesefly",
-	}
-	utils.WriteDataBack(w, response)
-}
-
+// func (NH *NotificationHandler) CreateNotification(w http.ResponseWriter, r *http.Request) {
+	// user_Id, err := middleware.GetUserIDFromContext(r.Context())
+	// if err != nil {
+	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: err.Error()})
+	// 	return
+	// }
+	// var Data models.Notif
+	// err = json.NewDecoder(r.Body).Decode(&Data)
+	// if err != nil {
+	// 	fmt.Println("invalide decode lol", Data)
+	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "bad - request - 400", Message: fmt.Sprintf("%v", err)})
+	// 	return
+	// }
+	// errJson := NH.NS.PostService(Data)
+	// if errJson != nil {
+	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+	// 	return
+	// }
+	// response := models.HasSeen{
+	// 	Status: true,
+	// 	Message: "insert succesefly",
+	// }
+	// utils.WriteDataBack(w, response)
+// }
