@@ -25,7 +25,7 @@ type Notif struct {
 	RecieverId      string // user-profile-id // user-profile-id // group-id [AllGpMb] // group-id [admin] // user-target-id
 	ReceiverFullName string
 	Type             string // follow-private // follow-public // group-event // group-join // group-invitation
-	Content          string // notification informations
+	GroupName          string // notification informations
 }
 
 func NewNotif() *Notif {
