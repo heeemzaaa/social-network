@@ -8,7 +8,7 @@ import (
 func (service *ChatService) GetMembersOfGroup(groupID string) ([]string, *models.ErrorJson) {
 	members, err := service.repo.GetMembersOfGroup(groupID)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
+		return members, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 	return members, nil
 }
@@ -17,7 +17,7 @@ func (service *ChatService) GetMembersOfGroup(groupID string) ([]string, *models
 func (service *ChatService) GetUsers(authUserID string) ([]models.User, *models.ErrorJson) {
 	users, err := service.repo.GetUsers(authUserID)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
+		return users, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 
 	return users, nil
@@ -27,7 +27,7 @@ func (service *ChatService) GetUsers(authUserID string) ([]models.User, *models.
 func (service *ChatService) GetGroups(authUserID string) ([]models.Group, *models.ErrorJson) {
 	groups, err := service.repo.GetGroups(authUserID)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
+		return groups, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 	return groups, nil
 }
