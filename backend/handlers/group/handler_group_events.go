@@ -54,7 +54,7 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: err.Error()})
 		return
 	}
-	event.EventCreatorId, event.GroupId = userID.String(), groupID.String()
+	event.EventCreator.Id, event.GroupId = userID.String(), groupID.String()
 	event, errJson := gEventHandler.gService.AddGroupEvent(event)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})

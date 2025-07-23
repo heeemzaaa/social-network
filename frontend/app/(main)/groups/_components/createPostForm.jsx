@@ -1,10 +1,11 @@
 
 "use client";
 
-import React, { useActionState, useState } from "react";
+import React, { useActionState, useEffect, useState } from "react";
 import styles from "@/app/page.module.css"
 import Button from "@/app/_components/button";
 import { createGroupPostAction } from "@/app/_actions/group";
+import { useModal } from "../../_context/ModalContext";
 
 const initialData = {
     title: "",
@@ -14,6 +15,17 @@ const initialData = {
 export default function CreatePostForm({ groupId }) {
     const [state, action] = useActionState(createGroupPostAction, {});
     const [data, setData] = useState(initialData);
+    const { setModalData, closeModal } = useModal()
+
+    useEffect(() => {
+        if (state.message) {
+            state.data.type = "groupPost"
+            setModalData(state.data)
+            closeModal()
+        }
+    }, [state])
+
+
     return (
         <form noValidate action={action} className={`${styles.form} glass-bg`}>
             <input type="hidden" name="groupId" value={groupId} />

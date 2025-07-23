@@ -1,14 +1,17 @@
 import Image from 'next/image'
 import React from 'react'
 
-export default function Avatar({ img = "/no-profile.png", size }) {
+export default function Avatar({ img, size }) {
 
   let imgContainer = {
     width: `${size}px`,
     height: `${size}px`,
     borderRadius: "var(--border-radius-full)",
     overflow: "hidden",
-    display : "flex",
+    display: "flex",
+    backgroundSize: "cover",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center",
   }
 
   let avatar = {
@@ -21,8 +24,8 @@ export default function Avatar({ img = "/no-profile.png", size }) {
 
   return (
     <div className='flex align-center justify-center glass-bg' style={avatar} >
-      <div style={imgContainer}>
-        <img src={img} alt="" className="w-full" />
+      <div style={{ ...imgContainer, backgroundImage: img ? `url(http://localhost:8080/static${img})` : "url(/no-profile.png)" }} >
+        {/* <img src={`http://localhost:8080/static${img}` || "/no-profile.png"} alt="" className="w-full" /> */}
       </div>
     </div>
   )

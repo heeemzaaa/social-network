@@ -19,10 +19,11 @@ func (gService *GroupService) GetGroupEvents(groupID, userID string, offset int6
 	}
 	// if the one trying to access is a member wlla laa
 
-	events, errJson := gService.gRepo.GetGroupEvents(groupID,userID, offset)
+	events, errJson := gService.gRepo.GetGroupEvents(groupID, userID, offset)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
+
 	return events, nil
 }
 
@@ -34,7 +35,7 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	// always check the membership and also the the group is a valid one
-	if errMembership := gService.CheckMembership(event.GroupId, event.EventCreatorId); errMembership != nil {
+	if errMembership := gService.CheckMembership(event.GroupId, event.EventCreator.Id); errMembership != nil {
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 	// here we'll be checking if the input is valid
@@ -59,5 +60,30 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
+
+	members, errJson := gService.gRepo.GetGroupMembers(event.GroupId)
+	if errJson != nil {
+		return nil, errJson
+	}
+
+	for _, user := range members {
+		if user.Id == event.EventCreator.Id {
+			continue
+		}
+		//  add the notification for the adding of the event so we need the func of amine too
+		//  group_id / sender_id (the one who creted the event / group-event)
+		// {event}
+		errNot := gService.sNotif.PostService(models.Notif{
+			SenderId:         event.EventCreator.Id,
+			RecieverId:       user.Id,
+			SenderFullName:   event.EventCreator.FullName,
+			ReceiverFullName: user.FullName,
+			Type:             "group-event",
+		}, event.EventCreator.Id)
+		if errNot != nil {
+			return nil, errNot
+		}
+	}
+
 	return event, nil
 }

@@ -43,6 +43,7 @@ func (MembersH *MembersHandler) GetGroupMembers(w http.ResponseWriter, r *http.R
 }
 
 func (MembersH *MembersHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case http.MethodGet:
 		MembersH.GetGroupMembers(w, r)

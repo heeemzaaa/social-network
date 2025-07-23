@@ -58,11 +58,13 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
 		var event models.Event
 		if err := rows.Scan(
 			&event.EventId,
-			&event.EventCreatorId,
-			&event.EventCreator,
+			&event.EventCreator.Id,
+			&event.EventCreator.FullName,
 			&event.Title,
 			&event.Description,
-			&event.EventDate); err != nil {
+			&event.EventDate,
+			&event.Going,
+		); err != nil {
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 2", err)}
 		}
 		events = append(events, event)
@@ -74,19 +76,83 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
 // add an event in a specific group
 func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
 	eventId := utils.NewUUID()
-	event.EventId = eventId
-	query := `INSERT INTO group_events 
-	(eventID,eventCreatorID,groupID,title,description,eventTime)
-	VALUES (?,?,?,?,?,?)
+	query := `
+	INSERT INTO
+    group_events (
+        eventID,
+        eventCreatorID,
+        groupID,
+        title,
+        description,
+        eventTime
+    )
+    VALUES
+    (?, ?, ?, ?, ?, ?) RETURNING eventID,
+    eventCreatorID,
+    groupID,
+    title,
+    description,
+    eventTime,
+    createdAt,
+    (
+        SELECT
+            concat (firstName, ' ', lastName)
+        FROM
+            users
+        WHERE
+            users.userID = ?
+    ) AS fullName,
+    (
+        SELECT
+            nickname
+        FROM
+            users
+        WHERE
+            users.userID = ?
+    ),
+	(
+        SELECT
+            avatarPath
+        FROM
+            users
+        WHERE
+            users.userID = ?
+    );
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v huna", err)}
 	}
 	defer stmt.Close()
-	if _, err = stmt.Exec(event.EventId, event.EventCreatorId,
-		event.GroupId, event.Title, event.Description, event.EventDate); err != nil {
+	event_created := models.Event{}
+	if err = stmt.QueryRow(eventId, event.EventCreator.Id,
+		event.GroupId, event.Title, event.Description, event.EventDate,
+		event.EventCreator.Id, event.EventCreator.Id, event.EventCreator.Id).Scan(
+		&event_created.EventId,
+		&event_created.EventCreator.Id,
+		&event_created.GroupId,
+		&event_created.Title,
+		&event_created.Description,
+		&event_created.EventDate,
+		&event_created.CreatedAt,
+		&event_created.EventCreator.FullName,
+		&event_created.EventCreator.Nickname,
+		&event_created.EventCreator.ImagePath,
+	); err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	// add the user to the user_events_table
+	eventUserId := utils.NewUUID()
+	queryAdded := `INSERT INTO group_event_users 
+	(ID , eventID , groupID, userID) VALUES (?,?,?,?)`
+	stmt, err = gRepo.db.Prepare(queryAdded)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 12", err)}
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(eventUserId, eventId, event.GroupId, event.EventCreator.Id)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 2", err)}
 	}
 
 	return event, nil

@@ -1,6 +1,8 @@
 // components/Tabs.jsx
 import "./style.css";
 import React, { useEffect, useState } from "react";
+import Tab from "./tab";
+import TabContent from "./tabContent";
 
 export default function Tabs({ children, className }) {
     const [activeTab, setActiveTab] = useState(0);
@@ -15,9 +17,9 @@ export default function Tabs({ children, className }) {
     // useEffect(()=>{
 
         React.Children.forEach(children, (child) => {
-            if (child && child.type && child.type.name === "Tab") {
+            if (child && child.type === Tab) {
                 tabs.push(child);
-            } else if (child && child.type && child.type.name === "TabContent") {
+            } else if (child && child.type === TabContent) {
                 contents.push(child);
             }
         })

@@ -7,7 +7,7 @@ import (
 )
 
 // SELECT EXISTS(SELECT 1 FROM users WHERE userID = ?);
-func (gRepo *GroupRepository) IsMemberGroup(groupId, userId string) (bool, *models.ErrorJson) {
+func (gRepo *GroupRepository) IsMemberGroup(groupId, userId string) (bool, *models.ErrorJson) { ///// check sender or reciever if already in group
 	var exists bool
 	query := ` 
 		SELECT EXISTS(SELECT 1 FROM  group_membership
@@ -15,11 +15,11 @@ func (gRepo *GroupRepository) IsMemberGroup(groupId, userId string) (bool, *mode
      `
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 	if err = stmt.QueryRow(groupId, userId).Scan(&exists); err != nil {
-		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	return exists, nil
 }
