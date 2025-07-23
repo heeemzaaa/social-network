@@ -3,7 +3,6 @@ package chat
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"social-network/backend/models"
 )
@@ -11,7 +10,6 @@ import (
 // get the users that I have connection with
 func (repo *ChatRepository) GetUsers(authUserID string) ([]models.User, *models.ErrorJson) {
 	var users []models.User
-	var lastInteractionStr string
 
 	query := `WITH 
 cte_latest_interaction AS (
@@ -90,20 +88,14 @@ ORDER BY
 			&user.Id,
 			&user.FirstName,
 			&user.LastName,
-			&lastInteractionStr,
+			&user.LastInteraction,
 			&user.ImagePath,
 			&user.Notifications,
 		); err != nil {
 			log.Println("Error scanning the users: ", err)
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
-		if lastInteractionStr != "" {
-			user.LastInteraction, err = time.Parse(time.RFC3339, lastInteractionStr)
-			if err != nil {
-				log.Println("Error parsing time in get users: ", err)
-				return nil, &models.ErrorJson{Status: 400, Error: "Invalid time format !"}
-			}
-		}
+
 		users = append(users, user)
 	}
 
@@ -117,7 +109,6 @@ ORDER BY
 
 func (repo *ChatRepository) GetGroups(authUserID string) ([]models.Group, *models.ErrorJson) {
 	var groups []models.Group
-	lastInteractionStr := ""
 	query := `
 	WITH cte_latest_group_messages AS (
     SELECT
@@ -161,18 +152,10 @@ ORDER BY
 
 	for rows.Next() {
 		var group models.Group
-		err := rows.Scan(&group.Title, &group.ImagePath, &lastInteractionStr)
+		err := rows.Scan(&group.Title, &group.ImagePath, &group.LastInteraction)
 		if err != nil {
 			log.Println("Error scanning groups: ", err)
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
-		}
-
-		if lastInteractionStr != "" {
-			group.LastInteraction, err = time.Parse(time.RFC3339, lastInteractionStr)
-			if err != nil {
-				log.Println("Error parsing time in get groups: ", err)
-				return nil, &models.ErrorJson{Status: 400, Error: "Invalid time format !"}
-			}
 		}
 		groups = append(groups, group)
 	}
