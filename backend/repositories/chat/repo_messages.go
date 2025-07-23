@@ -16,16 +16,11 @@ func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message
 	message.ID = utils.NewUUID()
 
 	query := `
-	WITH inserted AS (
-		INSERT INTO messages (id, sender_id, target_id, type, content, created_at)
-		VALUES (?, ?, ?, ?, ?, ?)
-		RETURNING sender_id, target_id, content, created_at, type
-	)
-	SELECT 
-		i.sender_id, i.target_id, i.content, i.created_at,
-		u.firstName || ' ' || u.lastName AS sender_name
-	FROM inserted i
-	JOIN users u ON u.userID = i.sender_id;
+		INSERT INTO messages (id, sender_id, target_id, type, content)
+		VALUES (?, ?, ?, ?, ?)
+		RETURNING sender_id, target_id, content, created_at, type , 
+		(SELECT users.firstName || ' ' || users.lastName AS sender_name  
+		FROM users WHERE users.userID =  ?)
 	`
 
 	stmt, err := repo.db.Prepare(query)
@@ -35,7 +30,7 @@ func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message
 	}
 	defer stmt.Close()
 
-	if err = stmt.QueryRow(message.ID, message.SenderID, message.TargetID, message.Type, message.Content, message.CreatedAt).Scan(
+	if err = stmt.QueryRow(message.ID, message.SenderID, message.TargetID, message.Type, message.Content, message.SenderID).Scan(
 		&message_created.SenderID,
 		&message_created.TargetID,
 		&message_created.Content,
@@ -107,7 +102,7 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 		query += " ORDER BY m.created_at DESC LIMIT 10"
 	}
 
-	stmt , err := repo.db.Prepare(query)
+	stmt, err := repo.db.Prepare(query)
 	if err != nil {
 		return messages, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
@@ -147,11 +142,11 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 				return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 			}
 		}
-
+		message.Type = type_
 		messages = append(messages, message)
 	}
 
-		if err := rows.Err(); err != nil {
+	if err := rows.Err(); err != nil {
 		log.Println("Error in the whole process of scan => in get messages: ", err)
 		return []models.Message{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
