@@ -1,100 +1,102 @@
-.notification {
+/* .notification {
     border: 2px solid red;
     width: 6rem;
     height: 4rem;
+} */
+
+.bell-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Common card styling */
 .notification-card {
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
+  display: flex;
+  padding: 0.5rem;
+  margin-bottom: 0.3rem;
   border-radius: 8px;
   font-size: 14px;
+  border:3px solid rgb(9, 0, 181);
   transition: background-color 0.2s;
-}
-
-/* follow-public — simple style */
-.follow-public {
-  background-color: #e6f7ff;
-  border: 1px solid #91d5ff;
-}
-
-/* follow-private — different base color */
-.follow-private {
-  background-color: #fff7e6;
-  border: 1px solid #ffe58f;
-}
-
-/* group-invitation — another color */
-.group-invitation {
-  background-color: #f9f0ff;
-  border: 1px solid #d3adf7;
-}
-
-/* Status accepted — faded or "success" look */
-.accepted {
-  opacity: 0.7;
-  border-color: #52c41a;
-}
-
-/* Status declined — faded or "error" look */
-.declined {
-  opacity: 0.7;
-  border-color: #ff4d4f;
+  height: 4rem;
+  align-items: center;
 }
 
 /* Action buttons container */
 .notification-card .action-buttons {
-  margin-top: 0.5rem;
+  /* margin-top: 0.5rem; */
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
-/* Buttons styling */
+.green-dote {
+    background-color: var(--color-green);
+    border-radius: 50%;
+    width: 1rem;
+    height: 1rem;
+}
+.red-dote {
+    background-color: var(--color-red);
+    border-radius: 50%;
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Seen & Unseen Notifications */
+.notification-card.unseen {
+  background-color: var(--color-gray);
+  color: var(--color-white);
+  border: 2px solid var(--color-white);
+  box-shadow: var(--shadow-lg);
+}
+
+.notification-card.seen {
+  background-color: var(--color-secondary);
+  color: var(--color-dark);
+  border: 2px solid var(--color-white);
+  opacity: 0.85;
+}
+
+/* Enhance buttons using global tokens */
 .notification-card .accept-btn {
-  background-color: #52c41a;
-  color: white;
+  background-color: var(--color-green);
+  color: var(--color-white);
   border: none;
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
+  padding: var(--size-sm) var(--size-md);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
+  transition: background-color var(--transition-duration) var(--transition-timing);
 }
 
 .notification-card .reject-btn {
-  background-color: #ff4d4f;
-  color: white;
+  background-color: var(--color-red);
+  color: var(--color-white);
   border: none;
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
+  padding: var(--size-sm) var(--size-md);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
+  transition: background-color var(--transition-duration) var(--transition-timing);
 }
 
-/* Hover effect */
 .notification-card .accept-btn:hover {
-  background-color: #389e0d;
+  background-color: #004d2a;
 }
 
 .notification-card .reject-btn:hover {
-  background-color: #cf1322;
-}
-
-/* Specific filter for popup-style notification */
-.notification-card.popup {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  z-index: 1000;
-  width: 18rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-/* Optional animation */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  background-color: #b30000;
 }
 
 /* navigation style */

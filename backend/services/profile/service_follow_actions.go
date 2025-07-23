@@ -2,10 +2,11 @@ package profile
 
 import (
 	"social-network/backend/models"
+	ns "social-network/backend/services/notification"
 )
 
 // here we will handle the logic of following a user
-func (s *ProfileService) Follow(userID string, authUserID string) (*models.Profile, *models.ErrorJson) {
+func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.NotificationService) (*models.Profile, *models.ErrorJson) {
 	var profile models.Profile
 
 	if userID == "" || authUserID == "" {
@@ -33,17 +34,19 @@ func (s *ProfileService) Follow(userID string, authUserID string) (*models.Profi
 			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 		}
 
-		// type Notif struct {
-		// 	senderId   string [authUserID]
-		// 	ReceiverId string [userID]
-		// 	Type       string [follow private]
-		// }
+		// insert new private notification for recieverId = userID
+		NS.PostService(models.Notif{SenderId: authUserID, RecieverId: userID, Type: "follow-private", SenderFullName: "test_PRV"})
+
 	case "public":
 		err := s.repo.FollowDone(userID, authUserID)
 		if err != nil {
 			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 		}
 		profile.IsFollower = !isFollower
+
+		// insert new public notification for recieverId = userID
+		NS.PostService(models.Notif{SenderId: authUserID, RecieverId: userID, Type: "follow-public", SenderFullName: "pubName"})
+
 	default:
 		return nil, &models.ErrorJson{Status: 500, Error: "This is not a valid status of visibility"}
 	}
@@ -103,17 +106,25 @@ func (s *ProfileService) Unfollow(userID string, authUserID string) (*models.Pro
 	return &profile, nil
 }
 
-func (s *ProfileService) CancelFollow(userID string, authUserID string) (*models.Profile, *models.ErrorJson) {
+func (s *ProfileService) CancelFollow(userID string, authUserID string, NS *ns.NotificationService) (*models.Profile, *models.ErrorJson) {
 	var profile models.Profile
 
 	if userID == "" || authUserID == "" {
-		return  nil, &models.ErrorJson{Status: 400, Error: "Invalid data !"}
+		return nil, &models.ErrorJson{Status: 400, Error: "Invalid data !"}
 	}
 
 	err := s.repo.CancelFollow(userID, authUserID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
+
+	/// /// HERE REMOVE NOTIFICATION FOLLOW PRIVATE /// ///
+	// data: userID, authUserID, type
+	errJson := NS.DeleteService(userID, authUserID, "follow-private")
+	if errJson != nil {
+		return nil, errJson
+	}
+
 
 	profile.Access, err = s.CheckProfileAccess(userID, authUserID)
 	if err != nil {
