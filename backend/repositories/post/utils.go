@@ -1,18 +1,28 @@
 package repositories
 
 import (
-	"database/sql"
+	"fmt"
+	"log"
+
+	"social-network/backend/models"
 )
 
-func (r *PostsRepository)GetUserName(userID string) (string, error) {
+func (r *PostsRepository) GetUserName(userID string) (string, *models.ErrorJson) {
 	var firstName, lastName string
 	query := `SELECT firstName , lastName FROM users WHERE userID = ?`
 
-	err := r.db.QueryRow(query, userID).Scan(&firstName, &lastName)
+	stmt, err := r.db.Prepare(query)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return "", nil
-		}
+		log.Println("Error preparing the query to get the full name: ", err)
+		return "", &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(userID).Scan(&firstName, &lastName)
+	if err != nil {
+		log.Println("Error selecting the full name: ", err)
+		return "", &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+
 	return firstName + " " + lastName, nil
 }
