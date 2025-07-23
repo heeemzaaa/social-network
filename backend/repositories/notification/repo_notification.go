@@ -166,11 +166,11 @@ func (repo *NotifRepository) SelectAllNotificationByType(userid, notifType strin
 }
 
 // delete the request works in both cases , accept and decline
-func (repo *NotifRepository) DeleteNotification(userID, authUserID, notifType string) error {
-	query := `DELETE FROM notifications WHERE userID = ? AND requestorID = ? AND notif_type = ?`
+func (repo *NotifRepository) DeleteNotification(userID, authUserID, notifType string) *models.ErrorJson {
+	query := `DELETE FROM notifications WHERE sender_Id = ? AND reciever_Id = ? AND notif_type = ?`
 	_, err := repo.db.Exec(query, userID, authUserID, notifType)
 	if err != nil {
-		return fmt.Errorf("error deleting the notification from the notifications table: %v", err)
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err), Message: "error deleting the notification from the notifications"}
 	}
 	return nil
 }

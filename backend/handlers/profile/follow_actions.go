@@ -96,7 +96,7 @@ func (fa *FollowActionHandler) CancelFollow(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	profile, errCancel := fa.service.CancelFollow(request.ProfileID, authUserID.String())
+	profile, errCancel := fa.service.CancelFollow(request.ProfileID, authUserID.String(), fa.NS)
 	if errCancel != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errCancel.Status, Error: errCancel.Error})
 		return

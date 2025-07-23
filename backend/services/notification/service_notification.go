@@ -61,8 +61,10 @@ func (NS *NotificationService) GetAllNotifService(user_id, notifType string) ([]
 	return all, nil
 }
 
-func (NS *NotificationService) DeleteService(sender, reciever string) *models.ErrorJson {
-	// delete notification after delete spescefique request
+func (NS *NotificationService) DeleteService(reciever, sender, notifType string) *models.ErrorJson {
+	if errJson := NS.repo.DeleteNotification(sender, reciever, notifType); errJson != nil {
+		return errJson
+	}
 	return nil
 }
 
