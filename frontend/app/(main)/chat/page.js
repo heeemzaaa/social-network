@@ -8,33 +8,25 @@ import UserList from "../_components/chat/user_list";
 import GroupList from "../_components/group_list";
 import { useUserContext } from "../_context/userContext";
 import { fetchMessages } from "../_components/fetchMessages";
-import { create } from "domain";
 const emojis = ["😀", "😂", "😍", "🔥", "🥺", "👍", "❤️", "🎉"];
 
 export default function Chat() {
+  const [chatBodyName, setChatBodyName] = useState([]);
   const [currentUser, setCurrentUser] = useState({
     username: "",
     ID: "",
     type: "private",
   });
+  const [currentGroup, setCurrentGroup] = useState({
+    title: "",
+    group_id: "",
+    type: "group",
+  });
   const [newMessage, setNewMessage] = useState("");
-  const { users, socket, messages, setMessages, authenticatedUser } =
+  const { users, socket, messages, setMessages, authenticatedUser, groups } =
     useUserContext();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const bottomRef = useRef(null);
-
-  const groups = {
-    groups: [
-      { name: "grp1", img: "" },
-      { name: "grp2", img: "" },
-      { name: "grp3", img: "" },
-      { name: "grp4", img: "" },
-      { name: "grp5", img: "" },
-      { name: "grp6", img: "" },
-      { name: "grp7", img: "" },
-    ],
-  };
-
   const [view, setView] = useState("Users");
 
   // Reset currentUser if they disappear from users list
@@ -78,13 +70,23 @@ export default function Chat() {
       username: user.username,
       ID: user.userID,
       type: "private",
+	  body: setChatBodyName(user.username),
     });
   };
 
+  const handleGroupClick = (groups) => {
+    setCurrentGroup({
+      title: groups.title,
+      group_id: groups.group_id,
+      type: "group",
+	  body: setChatBodyName(groups.title)
+    });
+	console.log("Group clicked:", groups);
+  };
   // Send message to backend via WebSocket and update messages locally optimistically
   const sendMessage = () => {
+	console.log("Sending message:", newMessage, "to: ", currentGroup.group_id);
     if (!newMessage || !currentUser.ID || socket?.readyState !== 1) return;
-
     const messagePayload = {
       content: newMessage,
       target_id: currentUser.ID,
@@ -131,7 +133,7 @@ export default function Chat() {
           {view === "Users" ? (
             <UserList users={users} onUserClick={handleUserClick} />
           ) : (
-            <GroupList {...groups} />
+            <GroupList groups={groups} onGroupClick={handleGroupClick} />
           )}
         </div>
       </section>
@@ -139,7 +141,7 @@ export default function Chat() {
       <section className="chat_place flex-col">
         <div className="chat_header p2">
           <img src="/no-profile.png" alt="Profile" />
-          <p className="text-lg font-semibold">{currentUser.username}</p>
+          <p className="text-lg font-semibold">{chatBodyName}</p>
         </div>
 
         <div className="chat_body">

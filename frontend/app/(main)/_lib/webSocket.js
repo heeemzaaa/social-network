@@ -5,6 +5,7 @@ import { UserContext } from "../_context/userContext";
 
 export default function UserProvider({ children }) {
   const [users, setUsers] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [messages, setMessages] = useState({});
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
   const socketRef = useRef(null);
@@ -62,7 +63,7 @@ export default function UserProvider({ children }) {
             content: data.content,
             sender: isMe ? "me" : "them",
             createdAt: data.created_at,
-			username: data.sender_name || data.receiver_name,
+            username: data.sender_name || data.receiver_name,
           };
 
           setMessages((prev) => ({
@@ -108,22 +109,21 @@ export default function UserProvider({ children }) {
         const res = await fetch("http://localhost:8080/api/get-groups/", {
           credentials: "include",
         });
-        const usersListG = await res.json();
+        const groupList = await res.json();
 
-        const mappedG = usersListG.map((user) => ({
-          userID: user.id,
-          username: user.firstname + " " + user.lastname,
-          img: user.img || "/no-profile.png",
+        const mappedG = groupList.map((group) => ({
+          group_id: group.group_id,
+          title: group.title,
+          image_path: group.image_path || "/no-profile.png",
         }));
 
-        setUsers(mappedG);
-		console.log("👥 Groups list updated:", mappedG);
+        setGroups(mappedG);
       } catch (err) {
         console.error("❌ Error fetching users:", err);
       }
     };
 
-	fetchGroup();
+    fetchGroup();
     fetchUsers();
 
     return () => {
@@ -136,6 +136,7 @@ export default function UserProvider({ children }) {
     <UserContext.Provider
       value={{
         users,
+		groups,
         socket: socketRef.current,
         messages,
         setMessages,
