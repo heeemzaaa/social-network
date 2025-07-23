@@ -67,7 +67,7 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 	// even if the userid is given wrong we insert the correct one
 	postCreated, err_ := gPostHandler.gService.AddPost(post)
 
-	fmt.Println("post created", postCreated, err_)
+	// fmt.Println("post created", postCreated, err_)
 	if err_ != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: err_.Status, Error: err_.Error, Message: err_.Message})
 		return
@@ -87,6 +87,7 @@ func (gPostHandler *GroupPostHandler) GetGroupPosts(w http.ResponseWriter, r *ht
 		return
 	}
 
+	fmt.Printf("r.URL.Query().Get(\"offset\"): %v\n", r.URL.Query().Get("offset"))
 	offset, errConvoff := strconv.Atoi(r.URL.Query().Get("offset"))
 	if errConvoff != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", errConvoff)})

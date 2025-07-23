@@ -25,7 +25,7 @@ func NewFollowActionHandler(service *ps.ProfileService, NS *ns.NotificationServi
 
 // POST api/profile/id/actions/follow
 func (fa *FollowActionHandler) Follow(w http.ResponseWriter, r *http.Request) {
-	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
+	authUserID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
@@ -38,22 +38,22 @@ func (fa *FollowActionHandler) Follow(w http.ResponseWriter, r *http.Request) {
 	var request RequestBody
 	err = json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid data !"})
 		return
 	}
 
-	errFollow := fa.service.Follow(request.ProfileID, authSessionID.String(), fa.NS)
+	profile, errFollow := fa.service.Follow(request.ProfileID, authUserID.String(), fa.NS)
 	if errFollow != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errFollow.Status, Message: errFollow.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errFollow.Status, Error: errFollow.Error})
 		return
 	}
 
-	utils.WriteDataBack(w, "done !")
+	utils.WriteDataBack(w, profile)
 }
 
 // POST api/profile/id/actions/unfollow
 func (fa *FollowActionHandler) Unfollow(w http.ResponseWriter, r *http.Request) {
-	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
+	authUserID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
@@ -66,30 +66,57 @@ func (fa *FollowActionHandler) Unfollow(w http.ResponseWriter, r *http.Request) 
 	var request RequestBody
 	err = json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid data !"})
 		return
 	}
 
-	errUnfollow := fa.service.Unfollow(request.ProfileID, authSessionID.String())
+	profile, errUnfollow := fa.service.Unfollow(request.ProfileID, authUserID.String())
 	if errUnfollow != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUnfollow.Status, Message: errUnfollow.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUnfollow.Status, Error: errUnfollow.Error})
 		return
 	}
-
-	utils.WriteDataBack(w, "Done!")
+	utils.WriteDataBack(w, profile)
 }
 
+func (fa *FollowActionHandler) CancelFollow(w http.ResponseWriter, r *http.Request) {
+	authUserID, err := middleware.GetUserIDFromContext(r.Context())
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
+		return
+	}
+
+	type RequestBody struct {
+		ProfileID string `json:"profile_id"`
+	}
+
+	var request RequestBody
+	err = json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid data !"})
+		return
+	}
+
+	profile, errCancel := fa.service.CancelFollow(request.ProfileID, authUserID.String())
+	if errCancel != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errCancel.Status, Error: errCancel.Error})
+		return
+	}
+
+	utils.WriteDataBack(w, profile)
+}
+
+// handler the three cases here
 func (fa *FollowActionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodPost {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method not allowed !"})
 		return
 	}
 
 	_, path, err := GetPath(r)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid path !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid path !"})
 		return
 	}
 
@@ -98,7 +125,9 @@ func (fa *FollowActionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		fa.Follow(w, r)
 	case "unfollow":
 		fa.Unfollow(w, r)
+	case "cancel":
+		fa.CancelFollow(w, r)
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found !"})
 	}
 }

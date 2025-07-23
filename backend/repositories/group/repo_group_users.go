@@ -15,11 +15,11 @@ func (gRepo *GroupRepository) IsMemberGroup(groupId, userId string) (bool, *mode
      `
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 	if err = stmt.QueryRow(groupId, userId).Scan(&exists); err != nil {
-		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	return exists, nil
 }

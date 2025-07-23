@@ -7,7 +7,7 @@ import (
 	"social-network/backend/models"
 )
 
-func (gRepo *GroupRepository) GetGroupMembers(groupId, userId string) ([]models.User, *models.ErrorJson) { //// get group members for event
+func (gRepo *GroupRepository) GetGroupMembers(groupId string) ([]models.User, *models.ErrorJson) {
 	users := []models.User{}
 	query := `
 	 

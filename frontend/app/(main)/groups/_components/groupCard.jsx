@@ -3,6 +3,7 @@ import Tag from "../../_components/tag";
 import { HiMiniUsers } from "react-icons/hi2";
 import "./style.css"
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 export default function GroupCard({
     type,
     group_id,
@@ -11,6 +12,10 @@ export default function GroupCard({
     description,
     total_members
 }) {
+
+    useEffect(() => {
+        console.log(image_path)
+    })
 
     const router = useRouter()
     const handleJoingGrp = (groupId) => {
@@ -21,10 +26,14 @@ export default function GroupCard({
         router.push(`/groups/${groupId}`);
     }
 
+    
     return (
         <div className="grp-card w-quarter" onClick={() => navigateToGroup(group_id)}>
             <div className="grp-card-img-holder glass-bg">
-                <div className="grp-card-img" style={{ backgroundImage: `url(${'/no-profile.png'})` }}></div>
+                <div className="grp-card-img"
+                    style={{ backgroundImage: image_path ?  `url(http://localhost:8080/static/${image_path})` : `url('/no-profile.png')` }}
+                    
+                ></div>
             </div>
             <div className="grp-card-body flex-col justify-between gap-2">
                 <div className="flex-col justify-evenly flex-grow">

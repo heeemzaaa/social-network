@@ -2,9 +2,8 @@
   border: solid red;
 }
 
-
-
 .form {
+  background-color: white;
   padding: 2rem;
   width: 100%;
   min-width: max-content;
@@ -13,8 +12,7 @@
   flex-direction: column;
   gap: 15px;
   z-index: 1;
-  background: var(--glass-background);
-  box-shadow: var(--shadow-light-lg);
+  border-radius: var(--);
 }
 
 .formGrp {
@@ -36,6 +34,7 @@
   outline: solid 1px var(--color-white);
   font-size: var(--font-size-sm);
   border-radius: var(--border-radius-sm);
+  border: solid var(--color-gray) 1px;
 }
 
 .input:focus {
@@ -50,9 +49,7 @@
 }
 
 .form>button:hover {
-  box-shadow: var(--shadow-primary-sm);
-  border: solid 1px var(--color-secondary);
-  transform: translate(-1px, -1px);
+  filter: brightness(95%);
 }
 
 

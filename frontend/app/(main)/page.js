@@ -1,10 +1,13 @@
-// frontend/app/(main)/page.js 
 "use client"
 
-export default function Home() {
+import PostCardList from "./_components/posts/postCardList";
 
+
+
+export default function Home() {
   return (
-    <main className='home-page'>
+    <main className='home-page' style={{overflow : "auto"}} >
+      <PostCardList />
     </main>
   );
 }

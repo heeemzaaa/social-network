@@ -1,10 +1,12 @@
 "use client"
 // import styles from "@/app/(auth)/auth.module.css"
 import { HiMiniDocumentText } from "react-icons/hi2";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { createGroupAction } from "@/app/_actions/group";
 import Button from "@/app/_components/button";
 import styles from "@/app/page.module.css"
+import { useModal } from "../../_context/ModalContext";
+import GroupCard from "./groupCard";
 
 export default function CreateGroupForm() {
     const [state, action] = useActionState(createGroupAction, {});
@@ -14,9 +16,20 @@ export default function CreateGroupForm() {
         img: null
     });
 
+    
     const handleFileChange = (e) => {
         setData(prev => ({ ...prev, img: e.target.files[0] }));
     };
+    
+    const { setModalData, closeModal } = useModal()
+    useEffect(() => {
+        if (state.message) {
+            state.data.type = "groupCard"
+            setModalData(state.data)
+            closeModal()
+        }
+    }, [state])
+
 
     return (
         <form action={action} className={`${styles.form} glass-bg`}>
@@ -27,7 +40,7 @@ export default function CreateGroupForm() {
                 </label>
                 <input
                     className={`${styles.input}`}
-                    id='title' 
+                    id='title'
                     name='title'
                     type='text'
                     placeholder='Group Title ...'

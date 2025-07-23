@@ -2,13 +2,14 @@ package notification
 
 import (
 	"fmt"
+	"sort"
+	"strconv"
+	"time"
+
 	"social-network/backend/models"
 	"social-network/backend/repositories/auth"
 	"social-network/backend/repositories/notification"
 	"social-network/backend/utils"
-	"sort"
-	"strconv"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -34,7 +35,7 @@ func (NS *NotificationService) ToggleAllSeenFalse(notifications []models.Notific
 	return nil
 }
 
-// toggle all notifications status by type 
+// toggle all notifications status by type
 func (NS *NotificationService) ToggleAllStaus(notifications []models.Notification, value, notifType string) *models.ErrorJson {
 	for _, notification := range notifications {
 		if errJson := NS.repo.UpdateStatusById(notification.Id, value); errJson != nil {
@@ -43,7 +44,8 @@ func (NS *NotificationService) ToggleAllStaus(notifications []models.Notificatio
 	}
 	return nil
 }
-// toggle all notifications status by type 
+
+// toggle all notifications status by type
 func (NS *NotificationService) ToggleStaus(userID, reciever, value, notifType string) *models.ErrorJson {
 	if errJson := NS.repo.UpdateStatusByType(userID, reciever, value, notifType); errJson != nil {
 		return errJson

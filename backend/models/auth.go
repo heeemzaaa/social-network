@@ -6,6 +6,7 @@ type User struct {
 	Id              string    `json:"id,omitempty"`
 	FirstName       string    `json:"firstname,omitempty"`
 	LastName        string    `json:"lastname,omitempty"`
+	FullName        string    `json:"fullname,omitempty"`
 	BirthDate       string    `json:"birthdate,omitempty"`
 	Email           string    `json:"email,omitempty"`
 	Password        string    `json:"password,omitempty"`
@@ -16,7 +17,6 @@ type User struct {
 	LastMessage     string    `json:"last_message,omitempty"`
 	LastInteraction time.Time `json:"last_interaction,omitempty"`
 	Notifications   int       `json:"notifications,omitempty"`
-	FullName string
 }
 
 func NewUser() *User {
