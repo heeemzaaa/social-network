@@ -85,7 +85,8 @@ export default function Chat() {
   };
   // Send message to backend via WebSocket and update messages locally optimistically
   const sendMessage = () => {
-	console.log("Sending message:", newMessage, "to: ", currentGroup.group_id);
+
+
     if (!newMessage || !currentUser.ID || socket?.readyState !== 1) return;
     const messagePayload = {
       content: newMessage,
