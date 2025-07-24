@@ -14,40 +14,34 @@ import (
 func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message, *models.ErrorJson) {
 	message_created := &models.Message{}
 	message.ID = utils.NewUUID()
-	query := `INSERT INTO messages (id, sender_id,target_id, type, content, created_at) 
-			VALUES (?,?,?,?,?,?) RETURNING sender_id ,target_id ,content, created_at;
-			`
+
+	query := `
+		INSERT INTO messages (id, sender_id, target_id, type, content)
+		VALUES (?, ?, ?, ?, ?)
+		RETURNING sender_id, target_id, content, created_at, type , 
+		(SELECT users.firstName || ' ' || users.lastName AS sender_name  
+		FROM users WHERE users.userID =  ?)
+	`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		log.Println("Error preparing the query to add the message: ", err)
+		log.Println("Error preparing the insert message query: ", err)
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
-	if err = stmt.QueryRow(message.ID, message.SenderID, message.TargetID, message.Type, message.Content, message.CreatedAt).Scan(
-		&message_created.SenderID, &message_created.TargetID,
-		&message_created.Content, &message_created.CreatedAt); err != nil {
-		log.Println("Error adding the message to the database: ", err)
+	if err = stmt.QueryRow(message.ID, message.SenderID, message.TargetID, message.Type, message.Content, message.SenderID).Scan(
+		&message_created.SenderID,
+		&message_created.TargetID,
+		&message_created.Content,
+		&message_created.CreatedAt,
+		&message_created.Type,
+		&message_created.SenderName,
+	); err != nil {
+		log.Println("Error executing insert and select sender name: ", err)
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
-	var firstName, lastName string
-	query = `SELECT firstName, lastName FROM users WHERE userID = ?`
-
-	stmt, err = repo.db.Prepare(query)
-	if err != nil {
-		log.Println("Error preparing the query to fetch the user: ", err)
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
-	}
-	defer stmt.Close()
-
-	err = stmt.QueryRow(message.SenderID).Scan(&firstName, &lastName)
-	if err != nil {
-		log.Println("Error getting the fullname of the user: ", err)
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
-	}
-	message_created.SenderName = firstName + " " + lastName
 	return message_created, nil
 }
 
@@ -62,9 +56,9 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 	case "private":
 		query = `
 		SELECT
-			m.id,                                 -- [CHANGED] Added message ID to SELECT
-			m.sender_id,                          -- [CHANGED] Added sender_id to SELECT
-			m.target_id,                          -- [CHANGED] Added target_id to SELECT
+			m.id,                                
+			m.sender_id,                         
+			m.target_id,                 
 			s.firstName || ' ' || s.lastName AS sender_name,
 			r.firstName || ' ' || r.lastName AS receiver_name,
 			m.content,
@@ -88,9 +82,9 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 	case "group":
 		query = `
 		SELECT
-			m.id,                                 -- [CHANGED] Added message ID to SELECT
-			m.sender_id,                          -- [CHANGED] Added sender_id to SELECT
-			m.target_id,                          -- [CHANGED] Added target_id to SELECT
+			m.id,                     
+			m.sender_id,                   
+			m.target_id,                 
 			s.firstName || ' ' || s.lastName AS sender_name,
 			m.content,
 			m.created_at
@@ -108,9 +102,14 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 		query += " ORDER BY m.created_at DESC LIMIT 10"
 	}
 
-	rows, err := repo.db.Query(query, args...)
+	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return messages, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+
+	rows, err := stmt.Query(args...)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer rows.Close()
 
@@ -120,32 +119,36 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 		if type_ == "private" {
 			err := rows.Scan(
 				&message.ID,
-				&message.SenderID, 
-				&message.TargetID, 
+				&message.SenderID,
+				&message.TargetID,
 				&message.SenderName,
 				&message.ReceiverName,
 				&message.Content,
 				&message.CreatedAt,
 			)
 			if err != nil {
-				return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+				return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 			}
-		} else { // group
+		} else {
 			err := rows.Scan(
-				&message.ID,       
-				&message.SenderID, 
-				&message.TargetID, 
+				&message.ID,
+				&message.SenderID,
+				&message.TargetID,
 				&message.SenderName,
 				&message.Content,
 				&message.CreatedAt,
 			)
 			if err != nil {
-				return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+				return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 			}
 		}
-
-
+		message.Type = type_
 		messages = append(messages, message)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Println("Error in the whole process of scan => in get messages: ", err)
+		return []models.Message{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	return messages, nil
@@ -170,10 +173,10 @@ func (repo *ChatRepository) EditReadStatus(sender_id, receiver_id string) *model
 	}
 	defer stmt.Close()
 
-	_, err = repo.db.Exec(query, receiver_id, sender_id)
+	_, err = stmt.Exec(receiver_id, sender_id)
 	if err != nil {
 		log.Println("Error executting the query to edit the seen status: ", err)
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	return nil
 }

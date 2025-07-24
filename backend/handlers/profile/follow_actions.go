@@ -7,15 +7,20 @@ import (
 	"social-network/backend/middleware"
 	"social-network/backend/models"
 	ps "social-network/backend/services/profile"
+	ns "social-network/backend/services/notification"
 	"social-network/backend/utils"
 )
 
 type FollowActionHandler struct {
 	service *ps.ProfileService
+	NS *ns.NotificationService
 }
 
-func NewFollowActionHandler(service *ps.ProfileService) *FollowActionHandler {
-	return &FollowActionHandler{service: service}
+func NewFollowActionHandler(service *ps.ProfileService, NS *ns.NotificationService) *FollowActionHandler {
+	return &FollowActionHandler{
+		service: service,
+		NS: NS,
+	}
 }
 
 // POST api/profile/id/actions/follow
@@ -37,7 +42,7 @@ func (fa *FollowActionHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profile, errFollow := fa.service.Follow(request.ProfileID, authUserID.String())
+	profile, errFollow := fa.service.Follow(request.ProfileID, authUserID.String(), fa.NS)
 	if errFollow != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errFollow.Status, Error: errFollow.Error})
 		return
@@ -91,7 +96,7 @@ func (fa *FollowActionHandler) CancelFollow(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	profile, errCancel := fa.service.CancelFollow(request.ProfileID, authUserID.String())
+	profile, errCancel := fa.service.CancelFollow(request.ProfileID, authUserID.String(), fa.NS)
 	if errCancel != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errCancel.Status, Error: errCancel.Error})
 		return

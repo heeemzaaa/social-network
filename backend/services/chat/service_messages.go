@@ -44,7 +44,6 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 		if err != nil {
 			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 		}
-		message_created.Type = type_message
 		return message_created, nil
 	case "group":
 
@@ -80,15 +79,6 @@ func (service *ChatService) GetMessages(sender_id, target_id, lastMessageStr, ty
 	if sender_id == "" || target_id == "" || type_ == "" {
 		return []models.Message{}, &models.ErrorJson{Status: 400, Error: "Invalid data format !"}
 	}
-	// var lastMessageTime time.Time
-	// if lastMessageStr != "" {
-	// 	layout := time.RFC3339
-	// 	var err error
-	// 	lastMessageTime, err = time.Parse(layout, lastMessageStr)
-	// 	if err != nil {
-	// 		return []models.Message{}, &models.ErrorJson{Status: 400, Error: "Bad time format !"}
-	// 	}
-	// }
 
 	messages, errJson := service.repo.GetMessages(sender_id, target_id, lastMessageStr, type_)
 	if errJson != nil {

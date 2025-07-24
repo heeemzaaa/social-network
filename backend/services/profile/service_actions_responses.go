@@ -15,6 +15,7 @@ func (s *ProfileService) AcceptedRequest(userID string, authUserID string) *mode
 		return &models.ErrorJson{Status: errFollowers.Status, Error: errFollowers.Error}
 	}
 
+	// still need to check if its 409 or 403
 	if isFollower {
 		return &models.ErrorJson{Status: 403, Error: "The user is already following you !"}
 	}

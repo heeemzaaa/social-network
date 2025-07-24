@@ -8,7 +8,7 @@ import (
 func (service *ChatService) UserExists(targetID string) (bool, *models.ErrorJson) {
 	exists, err := service.repo.UserExists(targetID)
 	if err != nil {
-		return false, err
+		return false, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 	return exists, nil
 }
@@ -17,7 +17,7 @@ func (service *ChatService) UserExists(targetID string) (bool, *models.ErrorJson
 func (service *ChatService) GroupExists(targetID string) (bool, *models.ErrorJson) {
 	exists, err := service.repo.GroupExists(targetID)
 	if err != nil {
-		return false, err
+		return false, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 	return exists, nil
 }

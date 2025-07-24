@@ -21,7 +21,8 @@ func (repo *ChatRepository) GetID(sessionID string) (string, *models.ErrorJson) 
 
 	err = stmt.QueryRow(sessionID).Scan(&userID)
 	if err != nil {
-		return "", &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		log.Println("Error getting the session id: ", err)
+		return "", &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	return userID, nil
 }
@@ -44,7 +45,7 @@ func (repo *ChatRepository) GetSessionbyTokenEnsureAuth(token string) (*models.S
 	row := stmt.QueryRow(token).Scan(&session.UserId, &session.Token, &session.FirstName, &session.LastName)
 	if row == sql.ErrNoRows {
 		log.Println("there is no token !")
-		return nil, &models.ErrorJson{Status: 401, Message: " Unauthorized Access"}
+		return nil, &models.ErrorJson{Status: 401, Error: " Unauthorized Access"}
 	}
 	return &session, nil
 }
@@ -63,7 +64,7 @@ func (repo *ChatRepository) GetUserIdFromSession(sessionID string) (string, *mod
 	errQuery := stmt.QueryRow(sessionID).Scan(&userID)
 	if errQuery != nil {
 		log.Println("Error getting the user id: ", err)
-		return "", &models.ErrorJson{Status: 500, Error: "", Message: fmt.Sprintf("%v", errQuery)}
+		return "", &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", errQuery)}
 	}
 
 	return userID, nil
