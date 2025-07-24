@@ -79,8 +79,8 @@ func (repo *GroupRepository) GetGroupDetails(groupId string) (*models.Group, *mo
 		&groupDetails.Description,
 		&groupDetails.ImagePath,
 		&groupDetails.CreatedAt,
-		&groupDetails.GroupCreatorFullName,
-		&groupDetails.GroupCreatorNickname,
+		&groupDetails.GroupCreator.FullName,
+		&groupDetails.GroupCreator.Nickname,
 		&groupDetails.Total_Members); err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}

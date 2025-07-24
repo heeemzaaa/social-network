@@ -75,7 +75,6 @@ func (r *PostsRepository) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, 
 	`
 	err = r.db.QueryRow(countQuery, entityType, postID.String()).Scan(&totalLikes)
 	if err != nil {
-		fmt.Println("Error fetching total likes:", err)
 		return false, 0, err
 	}
 

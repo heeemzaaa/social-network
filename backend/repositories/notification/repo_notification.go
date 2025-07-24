@@ -3,6 +3,7 @@ package notification
 import (
 	"database/sql"
 	"fmt"
+
 	"social-network/backend/models"
 )
 
@@ -31,12 +32,11 @@ func (repo *NotifRepository) UpdateStatusById(notif_id, value string) *models.Er
 	query := `UPDATE notifications SET notif_state = ? WHERE notif_id = ?`
 	_, err := repo.db.Exec(query, value, notif_id)
 	if err != nil {
-		fmt.Println("ERROR UPDATE === > ", err)
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
-	fmt.Println("UPDATE STATE SECCES")
 	return nil
 }
+
 // update notification status value by notif id and type
 func (repo *NotifRepository) UpdateStatusByType(userID, recieverID, value, notifType string) *models.ErrorJson {
 	query := `UPDATE notifications SET notif_state = ? WHERE sender_Id = ? AND reciever_Id = ? AND notif_type = ?`
@@ -54,7 +54,6 @@ func (repo *NotifRepository) UpdateSeen(notif_id string) *models.ErrorJson {
 	query := `UPDATE notifications SET seen = 1 WHERE notif_id = ?`
 	_, err := repo.db.Exec(query, notif_id)
 	if err != nil {
-		fmt.Println("ERROR UPDATE === > ", err)
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	// fmt.Println("UPDATE SEEN SECCES")
