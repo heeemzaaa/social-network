@@ -35,7 +35,6 @@ func (p *ProfilePostHandler) GetPostsOfTheProfile(w http.ResponseWriter, r *http
 		utils.WriteDataBack(w, access)
 		return
 	}
-
 	utils.WriteDataBack(w, posts)
 }
 

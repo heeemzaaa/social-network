@@ -1,5 +1,7 @@
 "use server"
 import { cookies } from "next/headers"
+import post from "../(main)/_components/posts";
+import { POST } from "../api/auth/login/route";
 
 /*
     state = {
@@ -246,14 +248,38 @@ export async function createGroupEventAction(prevState, formData) {
 export async function joinGroupAction(prevState, formData) {
 }
 
+//  todo : handle the invite friend form.
 export async function inviteUsersAction(prevState, formData) {
-    const userIds = formData.getAll('userIds');
-    const groupId = formData.get('groupId');
-    if (userIds.length === 0) {
-        return { success: false, message: 'Please select at least one follower to invite.' };
+    let ids = formData.getAll("userIds")
+    if (ids.length == 0) {
+        return {
+            error:"No user has been selected"
+        }
     }
-    console.log('Inviting users:', userIds, 'to group:', groupId);
-    return { success: true, message: `Invited ${userIds.length} user(s) to group ${groupId}` };
+
+
+        let groupId = formData.get("groupId")
+        try {
+            const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
+                credentials: "include",
+                method: POST,
+                body: json.stringify({ "users_ids": ids })
+            })
+            if (res.ok) {
+                const result = await res.json()
+                console.log(result);
+
+            }
+        } catch (err) {
+            console.error("Failed to fetch followers", err)
+        } finally {
+            setLoading(false)
+        }
+    
+
+    
+
+
 }
 
 

@@ -13,7 +13,8 @@ export default function UserCard({ user, isSelected, onSelect }) {
                 backgroundColor: isSelected ? 'rgba(199, 219, 122, .2)' : '#ffffff',
                 cursor: 'pointer',
                 transition: 'background-color 0.2s',
-                marginBottom: '8px'
+                marginBottom: '8px',
+                width:'300px'
             }}
 
             onClick={() => onSelect(user.id)}
@@ -29,12 +30,12 @@ export default function UserCard({ user, isSelected, onSelect }) {
                 style={{ marginRight: '12px' }}
                 hidden
             />
-            {user.avatar ? (
-                <Avatar size={42} img={user.avatar} />
-            ) : (
-                <Avatar size={42} img={user.avatar} />
-            )}
-            <span style={{ color: '#1f2937', fontWeight: '500', fontSize: '16px', marginLeft: "5px" }}>{user.name}</span>
+
+            <Avatar size={42} img={user.avatar} />
+            <div>
+                <p style={{ color: '#1f2937', fontWeight: '500', fontSize: '16px', marginLeft: "5px" }}>{user.firstname} {user.lastname}</p>
+                <p>@{user.nickname}</p>
+            </div>
         </div>
     );
 };

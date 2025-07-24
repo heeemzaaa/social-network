@@ -42,11 +42,11 @@ export default function GroupPostCardList({ groupId }) {
                 const url = getUrl(currentPage);
                 console.log("url: ", currentPage * 20)
                 const response = await fetch(url, { credentials: "include", signal });
-                if (!response.ok) {
-                    console.log(await response.json())
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
                 const result = await response.json();
+                if (!response.ok) {
+                    console.log(result)
+                    throw new Error(`HTTP error! status: ${response.error}`);
+                }
                 console.log(result)
                 if (result.length === 0) {
                     setHasMore(false); // No more data to fetch

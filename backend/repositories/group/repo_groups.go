@@ -46,7 +46,16 @@ func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *m
             users
         WHERE
             users.userID = ?
-    );
+    ),
+	(
+        SELECT
+            avatarPath
+        FROM
+            users
+        WHERE
+            users.userID = ?
+    )
+	;
 
 	`
 
@@ -57,15 +66,16 @@ func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *m
 	defer stmt.Close()
 	groupCreated := models.Group{}
 	err = stmt.QueryRow(groupID, group.GroupCreatorId,
-		group.Title, group.ImagePath, group.Description, group.GroupCreatorId, group.GroupCreatorId).Scan(
+		group.Title, group.ImagePath, group.Description, group.GroupCreatorId, group.GroupCreatorId, group.GroupCreatorId).Scan(
 		&groupCreated.GroupId,
 		&groupCreated.GroupCreatorId,
 		&groupCreated.Title,
 		&groupCreated.ImagePath,
 		&groupCreated.Description,
 		&groupCreated.CreatedAt,
-		&groupCreated.User.FullName,
-		&groupCreated.User.Nickname,
+		&groupCreated.GroupCreator.FullName,
+		&groupCreated.GroupCreator.Nickname,
+		&groupCreated.GroupCreator.ImagePath,
 	)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
@@ -135,8 +145,8 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 		errScan := rows.Scan(
 			&group.GroupId,
 			&group.GroupCreatorId,
-			&group.User.FullName,
-			&group.User.Nickname,
+			&group.GroupCreator.FullName,
+			&group.GroupCreator.Nickname,
 			&group.Title,
 			&group.ImagePath,
 			&group.Description,
@@ -213,8 +223,8 @@ func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]
 		errScan := rows.Scan(
 			&group.GroupId,
 			&group.GroupCreatorId,
-			&group.User.FullName,
-			&group.User.Nickname,
+			&group.GroupCreator.FullName,
+			&group.GroupCreator.Nickname,
 			&group.Title,
 			&group.ImagePath,
 			&group.Description,

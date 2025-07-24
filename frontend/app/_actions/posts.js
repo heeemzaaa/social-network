@@ -88,7 +88,8 @@ export async function createPostAction(prevState, formData) {
         console.error("Backend error:", errorJson);
         return {
             ...state,
-            error: errorJson?.message || "Failed to create post",
+            errors: errorJson.errors,
+            error: errorJson?.message || "Failed to create post?????",
         };
     }
 

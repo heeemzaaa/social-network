@@ -132,7 +132,7 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string, offset int) ([]mo
 
 	stmt, err := grepo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v1", err)}
 	}
 	defer stmt.Close()
 
@@ -141,7 +141,7 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string, offset int) ([]mo
 		if err == sql.ErrNoRows {
 			return posts, nil
 		}
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v2", err)}
 	}
 	defer rows.Close()
 
@@ -157,7 +157,7 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string, offset int) ([]mo
 			&post.TotalLikes,
 			&post.TotalComments,
 			&post.Liked); err != nil {
-			return posts, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+			return posts, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v3", err)}
 		}
 		posts = append(posts, post)
 	}

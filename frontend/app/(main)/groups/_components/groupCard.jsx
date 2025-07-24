@@ -13,9 +13,6 @@ export default function GroupCard({
     total_members
 }) {
 
-    useEffect(() => {
-        console.log(image_path)
-    })
 
     const router = useRouter()
     const handleJoingGrp = (groupId) => {

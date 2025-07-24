@@ -6,10 +6,12 @@ import { ModalProvider } from './_context/ModalContext'
 
 export default function MainLayout({ children }) {
   return (
-    <ModalProvider>
-      <Header />
-      <Navigation />
-      {children}
-    </ModalProvider>
+    <>
+      <ModalProvider>
+        <Header />
+        <Navigation />
+        {children}
+      </ModalProvider>
+    </>
   )
 }

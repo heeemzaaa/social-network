@@ -5,10 +5,10 @@ import (
 )
 
 type Group struct {
-	GroupId         string `json:"group_id,omitempty"`
-	GroupCreatorId  string `json:"group_creator_id,omitempty"`
-	Title           string `json:"title"`
-	User            User
+	GroupId         string    `json:"group_id,omitempty"`
+	GroupCreatorId  string    `json:"group_creator_id,omitempty"`
+	Title           string    `json:"title"`
+	GroupCreator    User      `json:"user"`
 	Description     string    `json:"description"`
 	ImagePath       string    `json:"image_path,omitempty"`
 	Image           string    `json:"image,omitempty"`
@@ -17,7 +17,7 @@ type Group struct {
 	Members         []User    `json:"members,omitempty"`
 	Posts           []Post    `json:"posts,omitempty"`
 	Events          []Event   `json:"events,omitempty"`
-	LastInteraction time.Time `json:"last_interaction,omitempty"`
+	LastInteraction string `json:"last_interaction,omitempty"`
 }
 
 // when trying to  create a group

@@ -6,30 +6,30 @@ import { createGroupAction } from "@/app/_actions/group";
 import Button from "@/app/_components/button";
 import styles from "@/app/page.module.css"
 import { useModal } from "../../_context/ModalContext";
-import GroupCard from "./groupCard";
 
 export default function CreateGroupForm() {
     const [state, action] = useActionState(createGroupAction, {});
+    console.log("create grp state ", state);
     const [data, setData] = useState({
         title: "",
         description: "",
         img: null
     });
 
-    
     const handleFileChange = (e) => {
         setData(prev => ({ ...prev, img: e.target.files[0] }));
     };
-    
+
     const { setModalData, closeModal } = useModal()
+
     useEffect(() => {
         if (state.message) {
+            console.log("inside use effect normal");
             state.data.type = "groupCard"
             setModalData(state.data)
             closeModal()
         }
     }, [state])
-
 
     return (
         <form action={action} className={`${styles.form} glass-bg`}>

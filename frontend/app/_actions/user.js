@@ -154,7 +154,7 @@ export async function logout() {
 export async function setCookie(cookieStr) {
     const parts = cookieStr.split(';');
     const result = {};
-
+    console.log(parts);
     parts.forEach(part => {
         const trimmed = part.trim();
         if (trimmed.includes('=')) {
@@ -170,14 +170,12 @@ export async function setCookie(cookieStr) {
             result[trimmed] = true;
         }
     });
-
     const cookieStore = await cookies()
     cookieStore.set({
         name: result.name,
         value: result.value,
         path: result.Path,
         expires: new Date(result.Expires),
-        httpOnly: true,
-        sameSite: "lax"
+        httpOnly: true
     })
 }

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
+	"social-network/backend/services/notification"
 	h "social-network/backend/handlers/profile"
 	r "social-network/backend/repositories/profile"
 	auth "social-network/backend/services/auth"
@@ -11,16 +12,15 @@ import (
 	middleware  "social-network/backend/middleware"
 )
 
-func SetProfileRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService) (*http.ServeMux, *s.ProfileService) {
+func SetProfileRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService, notifService *notification.NotificationService) (*http.ServeMux, *s.ProfileService) {
 	repo := r.NewProfileRepository(db)
 	service := s.NewProfileService(repo)
 	profile := h.NewProfileHandler(service)
-	editProfile := h.NewEditProfileHandler(service)
+	editProfile := h.NewEditProfileHandler(service, notifService)
 	connections := h.NewUserConnectionHandler(service)
 	response := h.NewResponseHandler(service)
 	posts := h.NewProfilePostsHandler(service)
-	actions := h.NewFollowActionHandler(service)
-
+	actions := h.NewFollowActionHandler(service, notifService)
 
 	mux.Handle("/api/profile/{id}/info/", middleware.NewMiddleWare(profile, authService))
 	mux.Handle("/api/profile/{id}/edit/", middleware.NewMiddleWare(editProfile, authService))

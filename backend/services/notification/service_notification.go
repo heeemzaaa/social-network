@@ -26,11 +26,44 @@ func NewNotifService(repo *notification.NotifRepository, repo2 *auth.AuthReposit
 	}
 }
 
-func (NS *NotificationService) ToggleSeenFalse(notifications []models.Notification) *models.ErrorJson {
+func (NS *NotificationService) ToggleAllSeenFalse(notifications []models.Notification) *models.ErrorJson {
 	for _, notification := range notifications {
 		if errJson := NS.repo.UpdateSeen(notification.Id); errJson != nil {
 			return errJson
 		}
+	}
+	return nil
+}
+
+// toggle all notifications status by type
+func (NS *NotificationService) ToggleAllStaus(notifications []models.Notification, value, notifType string) *models.ErrorJson {
+	for _, notification := range notifications {
+		if errJson := NS.repo.UpdateStatusById(notification.Id, value); errJson != nil {
+			return errJson
+		}
+	}
+	return nil
+}
+
+// toggle all notifications status by type
+func (NS *NotificationService) ToggleStaus(userID, reciever, value, notifType string) *models.ErrorJson {
+	if errJson := NS.repo.UpdateStatusByType(userID, reciever, value, notifType); errJson != nil {
+		return errJson
+	}
+	return nil
+}
+
+func (NS *NotificationService) GetAllNotifService(user_id, notifType string) ([]models.Notification, *models.ErrorJson) {
+	all, err := NS.repo.SelectAllNotification(user_id)
+	if err != nil {
+		return nil, err
+	}
+	return all, nil
+}
+
+func (NS *NotificationService) DeleteService(reciever, sender, notifType string) *models.ErrorJson {
+	if errJson := NS.repo.DeleteNotification(sender, reciever, notifType); errJson != nil {
+		return errJson
 	}
 	return nil
 }
@@ -44,62 +77,45 @@ func (NS *NotificationService) IsHasSeenFalse(user_id string) (bool, *models.Err
 }
 
 func (NS *NotificationService) GetService(user_id, queryParam string) ([]models.Notification, *models.ErrorJson) {
+
 	all, err := NS.repo.SelectAllNotification(user_id)
 	if err != nil {
 		return nil, err
 	}
-
 	len := len(all)
 	nbr, _ := strconv.Atoi(queryParam)
 	sort.Slice(all, func(i, j int) bool {
-		return all[i].CreatedAt.After(all[j].CreatedAt) // sort notification by time
+		return all[i].CreatedAt.After(all[j].CreatedAt)
 	})
 
 	switch {
 	case len <= 10:
 		return all, nil
 	case nbr <= 0:
-		// fmt.Println("nbr <= 0")
 		return all[:10], nil
 	case len <= nbr:
-		// fmt.Println("greates than notifications : len <= nbr")
 		return []models.Notification{}, nil
 	case len < nbr+10:
-		// fmt.Println("len < nbr + 10")
 		return all[nbr:], nil
 	}
-	// fmt.Println("default = [nbr : nbr + 10]")
 	return all[nbr : nbr+10], nil
-	// return []models.Notification{}, nil
 }
 
-func (NS *NotificationService) PostService(data models.Notif, user_id string) *models.ErrorJson {
-	if user_id != data.SenderId {
-		return models.NewErrorJson(400, "bad - request - 400", "sender != current user")
-	}
-
-	sender_name, errJson := NS.repo2.GetUserNameById(user_id)
-	if errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
-	}
-	// reciever_name, errJson := NH.US.GetUserName(user_Id.String())
-	// if errJson != nil {
-	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
-	// 	return
-	// }
+// insert new notification after event hapen
+func (NS *NotificationService) PostService(data models.Notif) *models.ErrorJson {
 
 	var errInse *models.ErrorJson
 	switch data.Type {
 	case "follow-private":
-		errInse = NS.FollowPrivateProfile(data, sender_name)
+		errInse = NS.FollowPrivateProfile(data)
 	case "follow-public":
-		errInse = NS.FollowPublicProfile(data, sender_name)
+		errInse = NS.FollowPublicProfile(data)
 	case "group-invitation":
-		errInse = NS.GroupInvitationRequest(data, sender_name)
+		errInse = NS.GroupInvitationRequest(data)
 	case "group-join":
-		errInse = NS.GroupJoinRequest(data, sender_name)
+		errInse = NS.GroupJoinRequest(data)
 	case "group-event":
-		errInse = NS.GroupEventRequest(data, sender_name)
+		errInse = NS.GroupEventRequest(data)
 	default:
 		return models.NewErrorJson(400, "Bad Request - 400", "invalid type")
 	}
@@ -108,21 +124,21 @@ func (NS *NotificationService) PostService(data models.Notif, user_id string) *m
 		return errInse
 	}
 
-	// check if reciever has web socket con //// to brodcast notification
-	// result, err := NS.repo.SelectNotification(user_id)
-	// if err != nil {
-	// 	return models.Notification{}, err
-	// }
-	fmt.Println("SERVICE 333 : --------- : ")
+	
 	return nil
 }
 
 // 1 - follow private profile request
-// event : follow profile button : onclick()
-func (NS *NotificationService) FollowPrivateProfile(data models.Notif, sender_name string) *models.ErrorJson {
-	// fmt.Println("SERVICE 111 : private : INSERT START")
-
-	// check reciever id //////////////////////////:
+//
+//	var notif = models.Notif{
+//		SenderId: "current user id",
+//		SenderFullName: "full name",
+//		RecieverId: "reciever id == profile id",
+//		ReceiverFullName: "reciever full name",
+//		Type: "follow-private",
+//		GroupName: "",
+//	}
+func (NS *NotificationService) FollowPrivateProfile(data models.Notif) *models.ErrorJson {
 
 	notification := models.Notification{}
 	notification.Sender_Id = data.SenderId
@@ -131,29 +147,28 @@ func (NS *NotificationService) FollowPrivateProfile(data models.Notif, sender_na
 	notification.Type = data.Type
 	notification.Reciever_Id = data.RecieverId
 	notification.Status = "later"
-	notification.Content = fmt.Sprintf("%v sent follow request", sender_name)
+	notification.Content = fmt.Sprintf("%v sent follow request", data.SenderFullName)
 	notification.CreatedAt = time.Now()
 
 	if err := NS.repo.InsertNewNotification(notification); err != nil {
-		fmt.Println("error = insertion ---------", err)
+		fmt.Println("error private = insertion ---------", err)
 		return err
 	}
-	// fmt.Println("SERVICE 222 : private : INSERT END ")
-
-	// check if reciever id has web socket connection ///////////////////
-
-	// brodcast ==> notification
-
 	return nil
 }
 
 // 2 - follow public profile request
-// event : follow profile button : onclick()
-func (NS *NotificationService) FollowPublicProfile(data models.Notif, sender_name string) *models.ErrorJson {
-	// fmt.Println("SERVICE 111 : public : INSERT START")
-
-	// chech reciever id ///////////////
-
+//
+//	var notif = models.Notif{
+//		SenderId: "current user id",
+//		SenderFullName: "full name",
+//		RecieverId: "reciever id == profile id",
+//		ReceiverFullName: "reciever full name",
+//		Type: "follow-public",
+//		GroupName: "",
+//	}
+func (NS *NotificationService) FollowPublicProfile(data models.Notif) *models.ErrorJson {
+	///////////////////////////////////////////////////  golna madich nkhedmo 3la had l case //////////
 	notification := models.Notification{}
 	notification.Sender_Id = data.SenderId
 	notification.Id = utils.NewUUID()
@@ -161,33 +176,27 @@ func (NS *NotificationService) FollowPublicProfile(data models.Notif, sender_nam
 	notification.Type = data.Type
 	notification.Status = "none"
 	notification.Reciever_Id = data.RecieverId
-	notification.Content = sender_name + " follow you"
+	notification.Content = data.SenderFullName + " follow you"
 	notification.CreatedAt = time.Now()
 
 	if err := NS.repo.InsertNewNotification(notification); err != nil {
-		fmt.Println("error = insertion ---------", err)
+		fmt.Println("error public = insertion ---------", err)
 		return err
 	}
-	// fmt.Println("SERVICE 222 : public : INSERT END ")
-
-	// check if reciever id has web socket connection ///////////////////
-
-	// brodcast ==> notification
 	return nil
 }
 
 // 3 - group invitation request
-// event : select invitation button : onclick()
-func (NS *NotificationService) GroupInvitationRequest(data models.Notif, sender_name string) *models.ErrorJson {
-	// fmt.Println("SERVICE 111 : invitation : INSERT START")
-
-	// check if group exist from groups by group_name = data.Content //////::
-
-	// check reciever id ////////////////:::::
-
-	// check if sender id in group /////////////::
-
-	group_name := "GROUP_NAME"
+//
+//	var notif = models.Notif{
+//		SenderId: "current user id",
+//		SenderFullName: "sender full name",
+//		RecieverId: "reciever id == selected user id",
+//		ReceiverFullName: "reciever full name",
+//		Type: "group-invitation",
+//		GroupName: "group name",
+//	}
+func (NS *NotificationService) GroupInvitationRequest(data models.Notif) *models.ErrorJson {
 
 	notification := models.Notification{}
 	notification.Sender_Id = data.SenderId
@@ -196,31 +205,27 @@ func (NS *NotificationService) GroupInvitationRequest(data models.Notif, sender_
 	notification.Type = data.Type
 	notification.Status = "later"
 	notification.Reciever_Id = data.RecieverId
-	notification.Content = sender_name + " invite you to join club " + group_name
+	notification.Content = data.SenderFullName + " invite you to join club " + data.GroupName
 	notification.CreatedAt = time.Now()
 
 	if err := NS.repo.InsertNewNotification(notification); err != nil {
-		fmt.Println("error = insertion ---------", err)
+		fmt.Println("error invitation = insertion ---------", err)
 		return err
 	}
-	// fmt.Println("SERVICE 222 : invitaion : INSERT END ")
-
-	// check if reciever id has web socket connection ///////////////////
-
-	// brodcast ==> notification
 	return nil
 }
 
-// 4 - group join request [admin] //// ------ get reciever id from admin_group
-// event : group join button : onclick()
-func (NS *NotificationService) GroupJoinRequest(data models.Notif, sender_name string) *models.ErrorJson {
-	// fmt.Println("SERVICE 111 : join : INSERT START")
-
-	// check if group exist from groups by group_name = data.Content ////////////////:
-
-	// get adminID from groups ////////////////////
-
-	group_name := "GROUP_NAME"
+// 4 - group join request [admin]
+//
+//	var notif = models.Notif{
+//		SenderId: "current user id",
+//		SenderFullName: "sender full name",
+//		RecieverId: "reciever id == admin user id",
+//		ReceiverFullName: "reciever full name",
+//		Type: "group-join",
+//		GroupName: "group name",
+//	}
+func (NS *NotificationService) GroupJoinRequest(data models.Notif) *models.ErrorJson {
 
 	notification := models.Notification{}
 	notification.Sender_Id = data.SenderId
@@ -228,42 +233,28 @@ func (NS *NotificationService) GroupJoinRequest(data models.Notif, sender_name s
 	notification.Seen = false
 	notification.Type = data.Type
 	notification.Status = "later"
-	notification.Reciever_Id = data.RecieverId // reciever id = group id = admin id
-	notification.Content = sender_name + " want join club " + group_name
+	notification.Reciever_Id = data.RecieverId
+	notification.Content = data.SenderFullName + " want join club " + data.GroupName
 	notification.CreatedAt = time.Now()
 
 	if err := NS.repo.InsertNewNotification(notification); err != nil {
-		fmt.Println("error = insertion ---------", err)
+		fmt.Println("error join = insertion ---------", err)
 		return err
 	}
-	// fmt.Println("SERVICE 222 : join : INSERT END ")
-
-	// check if reciever id has web socket connection ///////////////////
-
-	// brodcast ==> notification
 	return nil
 }
 
 // 5 - group event created [group-members]
-// event : create group event button : onclick()
-func (NS *NotificationService) GroupEventRequest(data models.Notif, sender_name string) *models.ErrorJson {
-	// fmt.Println("SERVICE 111 : event : INSERT START")
-
-	// check if group exist from groups by group_name = data.Content /////////////:
-
-	// get group members ///////////////:
-
-	// group_name := "GROUP_NAME"
-	// groupMembers := []string{"ffc54fb8-2d14-4f83-a196-062c976e3243", "e2e47e63-ff05-473d-a2af-4c5d9366c1a7", "61b2ae60-1aae-48e6-8997-e2943ebb4e74", "80710ff4-8b05-4b5d-8fb9-b34b98022e0c", "c56c4546-b5ae-4c96-8c70-8f6b2e36f69c", "05dd2f42-bb69-4375-a661-353217a0d574"} // get group_admin_user_id from groups where group_name = data.content [group_name]
-
-	// // check if the sender in the group
-	// if !slices.Contains(groupMembers, data.SenderId) {
-	// 	fmt.Println("error : bad request")
-	// }
-
-	// if member_Id == data.SenderId {
-	// 	continue
-	// }
+//
+//	var notif = models.Notif{
+//		SenderId: "current user id == event maker",
+//		SenderFullName: "sender full name",
+//		RecieverId: "reciever id == one of group member",
+//		ReceiverFullName: "reciever full name",
+//		Type: "group-event",
+//		GroupName: "group name",
+//	}
+func (NS *NotificationService) GroupEventRequest(data models.Notif) *models.ErrorJson {
 
 	notification := models.Notification{}
 
@@ -273,19 +264,14 @@ func (NS *NotificationService) GroupEventRequest(data models.Notif, sender_name 
 	notification.Type = data.Type
 	notification.Status = "later"
 
-	notification.Content = sender_name + " create event at club " + "saalaaam"
+	notification.Content = data.SenderFullName + " create event at club " + data.GroupName
 	notification.CreatedAt = time.Now()
 
 	notification.Reciever_Id = data.RecieverId
 
-	// check if reciever id has web socket connection ///////////////////
-
-	// brodcast ==> notification
-
 	if err := NS.repo.InsertNewNotification(notification); err != nil {
-		fmt.Println("error = insertion ---------", err)
+		fmt.Println("error event = insertion ---------", err)
 		return err
 	}
-	// fmt.Println("SERVICE 222 : event : INSERT END ")
 	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"social-network/backend/models"
 	"social-network/backend/utils"
@@ -53,11 +54,12 @@ func (authHandler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
+	fmt.Println("setting the cookie", session.Token)
 	http.SetCookie(w, &http.Cookie{
-		Name:  "session",
-		Value: session.Token,
-		Path:  "/",
+		Name:    "session",
+		Value:   session.Token,
+		Expires: time.Now().Add(365 * 24 * time.Hour),
+		Path:    "/",
 	})
 	utils.WriteDataBack(w, models.UserData{
 		IsLoggedIn: true,
