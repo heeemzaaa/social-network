@@ -58,6 +58,11 @@ import (
 // POST /groups/{group_id}/accept
 // DELETE  /groups/{group_id}/decline
 
+
+
+//  for approving or declining a request (we need to have the id of the request or the inviatation where )
+//  it makes some sense because (having the group id and the user id is tooo much )
+// for the delete especially 
 func SetGroupRoutes(mux *http.ServeMux, db *sql.DB,
 	authService *authService.AuthService,
 	profileService *profileService.ProfileService,
