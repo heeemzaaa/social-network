@@ -6,7 +6,7 @@ import (
 	"social-network/backend/models"
 )
 
-func (gRepo *GroupRepository) Approve(groupId string, userToBeAdded *models.User) *models.ErrorJson {
+func (gRepo *GroupRepository) Approve(groupId string, userIdToBeAdded string) *models.ErrorJson {
 	query := `
 	INSERT INTO group_membership (groupID,userID) 
 	VALUES (?,?)
@@ -17,11 +17,11 @@ func (gRepo *GroupRepository) Approve(groupId string, userToBeAdded *models.User
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(groupId, userToBeAdded.Id)
+	_, err = stmt.Exec(groupId, userIdToBeAdded)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-	if errJson := gRepo.RequestToCancel(userToBeAdded.Id, groupId); errJson != nil {
+	if errJson := gRepo.RequestToCancel(userIdToBeAdded, groupId); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
 	return nil

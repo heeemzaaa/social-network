@@ -243,7 +243,28 @@ export async function createGroupEventAction(prevState, formData) {
     }
 }
 
-export async function joinGroupAction(prevState, formData) {
+export async function JoinGroupAction(groupId) {
+    console.log(groupId)
+
+    try {
+        const cookieStore = await cookies();
+        const sessionCookie = cookieStore.get("session")?.value;
+        const res = await fetch(`http://localhost:8080/api/groups/${groupId}/join-request`, {
+            method: "POST",
+            credentials: 'include',
+            headers: {
+                "Content-Type": "application/json",
+                ...(sessionCookie ? { Cookie: `session=${sessionCookie}` } : {})
+            }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            console.error("!ok" + data)
+        }
+        console.log("DATA ===== > " + data)
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 export async function inviteUsersAction(prevState, formData) {

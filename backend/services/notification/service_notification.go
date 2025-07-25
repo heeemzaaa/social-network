@@ -104,24 +104,29 @@ func (NS *NotificationService) GetService(user_id, queryParam string) ([]models.
 // insert new notification after event hapen
 func (NS *NotificationService) PostService(data models.Notif) *models.ErrorJson {
 
-	var errInse *models.ErrorJson
+	name, errJson := NS.repo2.GetUserNameById(data.SenderId)
+	if errJson  != nil {
+		return errJson
+	}
+	data.SenderFullName = name
+
 	switch data.Type {
 	case "follow-private":
-		errInse = NS.FollowPrivateProfile(data)
+		errJson = NS.FollowPrivateProfile(data)
 	case "follow-public":
-		errInse = NS.FollowPublicProfile(data)
+		errJson = NS.FollowPublicProfile(data)
 	case "group-invitation":
-		errInse = NS.GroupInvitationRequest(data)
+		errJson = NS.GroupInvitationRequest(data)
 	case "group-join":
-		errInse = NS.GroupJoinRequest(data)
+		errJson = NS.GroupJoinRequest(data)
 	case "group-event":
-		errInse = NS.GroupEventRequest(data)
+		errJson = NS.GroupEventRequest(data)
 	default:
 		return models.NewErrorJson(400, "Bad Request - 400", "invalid type")
 	}
 
-	if errInse != nil {
-		return errInse
+	if errJson != nil {
+		return errJson
 	}
 
 	fmt.Println("ADD NOTIFICATION SUCCES --------- !")
@@ -146,6 +151,7 @@ func (NS *NotificationService) FollowPrivateProfile(data models.Notif) *models.E
 	notification.Seen = false
 	notification.Type = data.Type
 	notification.Reciever_Id = data.RecieverId
+	notification.GroupId = ""
 	notification.Status = "later"
 	notification.Content = fmt.Sprintf("%v sent follow request", data.SenderFullName)
 	notification.CreatedAt = time.Now()
@@ -173,6 +179,7 @@ func (NS *NotificationService) FollowPublicProfile(data models.Notif) *models.Er
 	notification.Sender_Id = data.SenderId
 	notification.Id = utils.NewUUID()
 	notification.Seen = false
+	notification.GroupId = ""
 	notification.Type = data.Type
 	notification.Status = "none"
 	notification.Reciever_Id = data.RecieverId
@@ -206,6 +213,7 @@ func (NS *NotificationService) GroupInvitationRequest(data models.Notif) *models
 	notification.Status = "later"
 	notification.Reciever_Id = data.RecieverId
 	notification.Content = data.SenderFullName + " invite you to join club " + data.GroupName
+	notification.GroupId = data.GroupId
 	notification.CreatedAt = time.Now()
 
 	if err := NS.repo.InsertNewNotification(notification); err != nil {
@@ -232,6 +240,7 @@ func (NS *NotificationService) GroupJoinRequest(data models.Notif) *models.Error
 	notification.Id = utils.NewUUID()
 	notification.Seen = false
 	notification.Type = data.Type
+	notification.GroupId = data.GroupId
 	notification.Status = "later"
 	notification.Reciever_Id = data.RecieverId
 	notification.Content = data.SenderFullName + " want join club " + data.GroupName
@@ -261,6 +270,7 @@ func (NS *NotificationService) GroupEventRequest(data models.Notif) *models.Erro
 	notification.Sender_Id = data.SenderId
 	notification.Id = uuid.New().String()
 	notification.Seen = false
+	notification.GroupId = data.GroupId
 	notification.Type = data.Type
 	notification.Status = "later"
 

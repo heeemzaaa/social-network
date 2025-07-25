@@ -72,7 +72,7 @@ func (repo *NotifRepository) SelectNotification(notif_id string) (models.Notific
 	defer stmt.Close()
 
 	var notification models.Notification
-	err = stmt.QueryRow(notif_id).Scan(&notification.Id, &notification.Reciever_Id, &notification.Sender_Id, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.CreatedAt)
+	err = stmt.QueryRow(notif_id).Scan(&notification.Id, &notification.Reciever_Id, &notification.Sender_Id, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.CreatedAt, &notification.GroupId)
 	if err != nil {
 		return notification, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
 	}
@@ -83,8 +83,8 @@ func (repo *NotifRepository) SelectNotification(notif_id string) (models.Notific
 func (repo *NotifRepository) InsertNewNotification(data models.Notification) *models.ErrorJson {
 	fmt.Println("dataaaa", data)
 	query := `
-	INSERT INTO notifications (notif_id, reciever_Id, sender_Id, seen, notif_type, notif_state, content, createdAt)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	INSERT INTO notifications (notif_id, reciever_Id, sender_Id, seen, notif_type, notif_state, content, createdAt, groupId)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -92,7 +92,7 @@ func (repo *NotifRepository) InsertNewNotification(data models.Notification) *mo
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(data.Id, data.Reciever_Id, data.Sender_Id, data.Seen, data.Type, data.Status, data.Content, data.CreatedAt)
+	_, err = stmt.Exec(data.Id, data.Reciever_Id, data.Sender_Id, data.Seen, data.Type, data.Status, data.Content, data.CreatedAt, data.GroupId)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 4", err)}
 	}
@@ -122,7 +122,7 @@ func (repo *NotifRepository) SelectAllNotification(userid string) ([]models.Noti
 
 	for rows.Next() {
 		var notification models.Notification
-		err = rows.Scan(&notification.Id, &notification.Reciever_Id, &notification.Sender_Id, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.CreatedAt)
+		err = rows.Scan(&notification.Id, &notification.Reciever_Id, &notification.Sender_Id, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.CreatedAt, &notification.GroupId)
 		if err != nil {
 			fmt.Println("error: ------ rows : next")
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
@@ -155,7 +155,7 @@ func (repo *NotifRepository) SelectAllNotificationByType(userid, notifType strin
 
 	for rows.Next() {
 		var notification models.Notification
-		err = rows.Scan(&notification.Id, &notification.Reciever_Id, &notification.Sender_Id, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.CreatedAt)
+		err = rows.Scan(&notification.Id, &notification.Reciever_Id, &notification.Sender_Id, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.CreatedAt, &notification.GroupId)
 		if err != nil {
 			fmt.Println("error: ------ rows : next")
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}

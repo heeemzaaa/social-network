@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 	notif_type TEXT NOT NULL,
 	notif_state TEXT NOT NULL, 
 	content TEXT,
+    groupId TEXT,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (reciever_Id) REFERENCES users(userID),

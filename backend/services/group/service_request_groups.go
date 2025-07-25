@@ -1,6 +1,7 @@
 package group
 
 import (
+	"fmt"
 	"social-network/backend/models"
 )
 
@@ -19,20 +20,31 @@ func (gService *GroupService) RequestToCancel(userId, groupId string) *models.Er
 	return nil
 }
 
-func (gService *GroupService) RequestToJoin(userId, groupId string) *models.ErrorJson {
-	if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+func (gService *GroupService) RequestToJoin(userId, groupId string) (models.Notif, *models.ErrorJson) {
+	notif := models.Notif{}
+	group, errJson := gService.gRepo.GetGroupDetails(groupId)
+	if errJson != nil {
+		return notif, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	// always check the membership and also the the group is a valid one
 	if errMembership := gService.CheckNotMember(groupId, userId); errMembership != nil {
-		return &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
-	}
-
-	if errJson := gService.gRepo.RequestToJoin(userId, groupId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return notif, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 	
-	return nil
+	if errJson := gService.gRepo.RequestToJoin(userId, groupId); errJson != nil {
+		return notif, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	}
+	
+	fmt.Println("heeeeeeeeeereeeeeee")
+	notif.GroupName = group.Title
+	notif.GroupId = groupId
+	notif.RecieverId = group.GroupCreatorId
+	notif.ReceiverFullName = group.GroupCreatorFullName
+	notif.Type = "group-join"
+	notif.SenderId = userId
+	
+	fmt.Println(notif)
+	return notif, nil
 }
 
 func (gService *GroupService) GetRequests(userId, groupId string) ([]models.User, *models.ErrorJson) {
@@ -46,7 +58,7 @@ func (gService *GroupService) GetRequests(userId, groupId string) ([]models.User
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	// if is not the admin he has no right to see the resources
-	
+
 	if !isAdmin {
 		return nil, &models.ErrorJson{Status: 403, Error: "ERROR!! Access Forbidden"}
 	}

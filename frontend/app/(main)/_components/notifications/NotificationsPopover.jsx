@@ -29,6 +29,8 @@ export default function NotificationsPopover() {
         body: JSON.stringify({
           Notif_Id: notification.Id,
           Status: status, // "accept" or "reject"
+          Type: notification.Type,
+          GroupId: notification.GroupId,
         })
       };
 

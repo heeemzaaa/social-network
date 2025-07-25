@@ -8,15 +8,20 @@ import (
 	"social-network/backend/middleware"
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
+	"social-network/backend/services/notification"
 	"social-network/backend/utils"
 )
 
 type GroupRequestsHandler struct {
 	gService *gservice.GroupService
+	sNotif   *notification.NotificationService
 }
 
-func NewGroupRequestsHandler(service *gservice.GroupService) *GroupRequestsHandler {
-	return &GroupRequestsHandler{gService: service}
+func NewGroupRequestsHandler(service *gservice.GroupService, sNotif *notification.NotificationService) *GroupRequestsHandler {
+	return &GroupRequestsHandler{
+		gService: service,
+		sNotif:   sNotif,
+	}
 }
 
 // POST   /groups/{group_id}/join-request  (the userID here is gotten from the context the one who
@@ -33,19 +38,29 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
 		return
 	}
+	// fmt.Println("JJJJJJOOOOOOOIIIIIINNNNNN")
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	if errJson := GrpReqHandler.gService.RequestToJoin(userID.String(), groupID.String()); errJson != nil {
+	fmt.Println("group ID ==> ", groupID)
+	data, errJson := GrpReqHandler.gService.RequestToJoin(userID.String(), groupID.String())
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		return
+	}
+	// fmt.Println("data after join request ==> ", data)
+
+	/////////////////////
+
+	// add new notification group-join
+	if errJson := GrpReqHandler.sNotif.PostService(data); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
 
-	// 	we need to call the function of nortification of mellagui
-   // {sender_id , receiver_id, "group-join"}
-	
+	utils.WriteDataBack(w, data)
 }
 
 func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter, r *http.Request) {
@@ -65,9 +80,9 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter
 		return
 	}
 
-	// delete notification  
+	// delete notification
 	// {sender_id , receiver_id, "group-join"}
-	// 
+	//
 }
 
 func (GrpReqHandler *GroupRequestsHandler) GetRequests(w http.ResponseWriter, r *http.Request) {
