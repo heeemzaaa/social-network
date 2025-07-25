@@ -14,7 +14,7 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Failed to get userID"})
 		return
 	}
-	posts, errPosts := h.service.GetAllPosts(usID)
+	posts, errPosts := h.service.GetAllPosts(usID.String())
 	if errPosts != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errPosts.Status, Error: errPosts.Error})
 		return

@@ -9,11 +9,9 @@ import (
 )
 
 func (h *PostHandler) GetComments(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("**********************************")
 	postID, err := utils.GetUUIDFromPath(r, "id")
 	fmt.Println(postID.String())
 	if err != nil {
-		fmt.Println(err)
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "invalid path"})
 		return
 	}

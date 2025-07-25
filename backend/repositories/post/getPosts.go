@@ -5,11 +5,9 @@ import (
 	"log"
 
 	"social-network/backend/models"
-
-	"github.com/google/uuid"
 )
 
-func (r *PostsRepository) GetAllPosts(userID uuid.UUID) ([]models.Post, *models.ErrorJson) {
+func (r *PostsRepository) GetAllPosts(userID string) ([]models.Post, *models.ErrorJson) {
 	query := `
 SELECT DISTINCT  p.postID, p.userID,   p.content,   p.createdAt,   p.privacy,   p.image_url, u.firstName,   u.lastName,  
     COUNT(DISTINCT r1.reactionID) AS total_likes,
@@ -41,7 +39,7 @@ ORDER BY
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(userID.String(), userID.String(), userID.String(), userID.String())
+	rows, err := stmt.Query(userID, userID, userID, userID)
 	if err != nil {
 		log.Println("error getting the post from database: ", err)
 		return []models.Post{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}

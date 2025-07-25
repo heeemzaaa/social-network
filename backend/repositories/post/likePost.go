@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (r *PostsRepository) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, int, *models.ErrorJson) {
+func (r *PostsRepository) HandleLike(postID string, userID string) (bool, int, *models.ErrorJson) {
 	var exists bool
 	entityType := "post"
 	reactionValue := 1
@@ -29,7 +29,7 @@ func (r *PostsRepository) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, 
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(userID.String(), entityType, postID.String()).Scan(&exists)
+	err = stmt.QueryRow(userID, entityType, postID).Scan(&exists)
 	if err != nil {
 		log.Println("Error checking existing reaction:", err)
 		return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
@@ -52,9 +52,9 @@ func (r *PostsRepository) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, 
 		_, err = stmt.Exec(
 			uuid.New().String(),
 			entityType,
-			postID.String(),
+			postID,
 			reactionValue,
-			userID.String(),
+			userID,
 		)
 		if err != nil {
 			log.Println("Error inserting reaction:", err)
@@ -75,7 +75,7 @@ func (r *PostsRepository) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, 
 		}
 		defer stmt.Close()
 
-		_, err = stmt.Exec(userID.String(), entityType, postID.String())
+		_, err = stmt.Exec(userID, entityType, postID)
 		if err != nil {
 			log.Println("Error toggling reaction:", err)
 			return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
@@ -95,7 +95,7 @@ func (r *PostsRepository) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, 
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(userID.String(), entityType, postID.String()).Scan(&liked)
+	err = stmt.QueryRow(userID, entityType, postID).Scan(&liked)
 	if err != nil {
 		log.Println("Error fetching liked state: ", err)
 		return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
@@ -114,7 +114,7 @@ func (r *PostsRepository) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, 
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(entityType, postID.String()).Scan(&totalLikes)
+	err = stmt.QueryRow(entityType, postID).Scan(&totalLikes)
 	if err != nil {
 		log.Println("Error fetching total likes:", err)
 		return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
