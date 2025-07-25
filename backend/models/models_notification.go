@@ -51,11 +51,11 @@ type HasSeen struct {
 	Message string
 }
 
-// func NewResponseMsg() *Unotif {
-// 	return &Unotif{}
-// }
+func NewResponseMsg() *Unotif {
+	return &Unotif{}
+}
 
-// type responseMsg struct {
-// 	data  bool
-// 	Message string
-// }
+type ResponseMsg struct {
+	Status  bool
+	Message string
+}

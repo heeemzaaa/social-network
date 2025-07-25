@@ -36,7 +36,7 @@ func (NUS *NotificationServiceUpdate) UpdateFollowPrivateProfile(data models.Uno
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 	default:
-		return models.NewErrorJson(400, "Bad-Request 400", "Invalid----Status")
+		return models.NewErrorJson(400, "400 - Bad Request", "Invalid Status:" + data.Status)
 	}
 	return nil
 }
@@ -49,7 +49,7 @@ func (NUS *NotificationServiceUpdate) UpdateGroupJoinRequest(data models.Unotif,
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 	case "reject":
-		err := NUS.repo2.RejectedRequest(notification.Reciever_Id, notification.Sender_Id)
+		err := NUS.gr.Decline(notification.GroupId, notification.Sender_Id)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}

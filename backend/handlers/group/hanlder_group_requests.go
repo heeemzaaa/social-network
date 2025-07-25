@@ -59,8 +59,11 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
-
-	utils.WriteDataBack(w, data)
+	if err := json.NewEncoder(w).Encode(&models.ResponseMsg{Status: true, Message: "Pending"}); err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "500 return data", Message: "invalid data"})
+		return
+	}
+	// utils.WriteDataBack(w, data)
 }
 
 func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter, r *http.Request) {

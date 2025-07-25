@@ -28,8 +28,8 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 	}
 
 	data := models.Notif{
-		SenderId: authUserID,
-		RecieverId: userID,
+		SenderId:       authUserID,
+		RecieverId:     userID,
 		SenderFullName: profile.User.FullName,
 	}
 
@@ -41,7 +41,7 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 		}
 
 		data.Type = "follow-private"
-		
+
 		// insert new private notification for recieverId = userID
 		errJson := NS.PostService(data)
 		if errJson != nil {
@@ -62,15 +62,14 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 		// }
 		data.Type = "follow-public"
 
-
-		// insert new private notification for recieverId = userID
+		// insert new public notification for recieverId = userID
 		errJson := NS.PostService(data)
 		if errJson != nil {
 			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 		}
 
 		// insert new public notification for recieverId = userID
-		NS.PostService(models.Notif{SenderId: authUserID, RecieverId: userID, Type: "follow-public", SenderFullName: "pubName"})
+		NS.PostService(models.Notif{SenderId: authUserID, RecieverId: userID, Type: "follow-public"})
 
 	default:
 		return nil, &models.ErrorJson{Status: 500, Error: "This is not a valid status of visibility"}
@@ -144,12 +143,10 @@ func (s *ProfileService) CancelFollow(userID string, authUserID string, NS *ns.N
 	}
 
 	/// /// HERE REMOVE NOTIFICATION FOLLOW PRIVATE /// ///
-	// data: userID, authUserID, type
-	errJson := NS.DeleteService(userID, authUserID, "follow-private")
+	errJson := NS.DeleteService(userID, authUserID, "follow-private", "later")
 	if errJson != nil {
 		return nil, errJson
 	}
-
 
 	profile.Access, err = s.CheckProfileAccess(userID, authUserID)
 	if err != nil {

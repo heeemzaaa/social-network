@@ -61,9 +61,15 @@ func (NS *NotificationService) GetAllNotifService(user_id, notifType string) ([]
 	return all, nil
 }
 
-func (NS *NotificationService) DeleteService(reciever, sender, notifType string) *models.ErrorJson {
-	if errJson := NS.repo.DeleteNotification(sender, reciever, notifType); errJson != nil {
-		return errJson
+func (NS *NotificationService) DeleteService(reciever, sender, notifType, value string) *models.ErrorJson {
+	if notifType != "follow-private" {
+		if errJson := NS.repo.DeleteGroupNotification(sender, reciever, notifType, value); errJson != nil {
+			return errJson
+		}
+	} else {
+		if errJson := NS.repo.DeleteFollowNotification(sender, reciever, notifType, value); errJson != nil {
+			return errJson
+		}
 	}
 	return nil
 }
@@ -151,7 +157,7 @@ func (NS *NotificationService) FollowPrivateProfile(data models.Notif) *models.E
 	notification.Seen = false
 	notification.Type = data.Type
 	notification.Reciever_Id = data.RecieverId
-	notification.GroupId = ""
+	notification.GroupId = data.GroupId
 	notification.Status = "later"
 	notification.Content = fmt.Sprintf("%v sent follow request", data.SenderFullName)
 	notification.CreatedAt = time.Now()
@@ -179,7 +185,7 @@ func (NS *NotificationService) FollowPublicProfile(data models.Notif) *models.Er
 	notification.Sender_Id = data.SenderId
 	notification.Id = utils.NewUUID()
 	notification.Seen = false
-	notification.GroupId = ""
+	notification.GroupId = data.GroupId
 	notification.Type = data.Type
 	notification.Status = "none"
 	notification.Reciever_Id = data.RecieverId

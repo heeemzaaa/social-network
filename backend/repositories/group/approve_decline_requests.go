@@ -27,8 +27,8 @@ func (gRepo *GroupRepository) Approve(groupId string, userIdToBeAdded string) *m
 	return nil
 }
 
-func (gRepo *GroupRepository) Decline(groupId string, userToBeRejected *models.User) *models.ErrorJson {
-	if errJson := gRepo.RequestToCancel(userToBeRejected.Id, groupId); errJson != nil {
+func (gRepo *GroupRepository) Decline(groupId string, userToBeRejected string) *models.ErrorJson {
+	if errJson := gRepo.RequestToCancel(userToBeRejected, groupId); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
 	return nil

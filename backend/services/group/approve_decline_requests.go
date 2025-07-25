@@ -68,7 +68,7 @@ func (gService *GroupService) Decline(userId, groupId string, userToBeRejected *
 			UserId: "ERROR!! user not found",
 		}}
 	}
-	if errJson := gService.gRepo.Decline(groupId, userToBeRejected); errJson != nil {
+	if errJson := gService.gRepo.Decline(groupId, userToBeRejected.Id); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return nil
