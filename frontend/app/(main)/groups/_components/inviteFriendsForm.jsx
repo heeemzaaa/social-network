@@ -9,6 +9,7 @@ import { useModal } from '../../_context/ModalContext';
 
 // InviteFriendForm component
 const InviteFriendForm = ({ groupId }) => {
+    console.log("grp id ", groupId);
     const [state, formAction, isPending] = useActionState(inviteUsersAction, {});
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [followers, setFollowers] = useState([]);
@@ -25,7 +26,7 @@ const InviteFriendForm = ({ groupId }) => {
 
                 if (res.ok) {
                     const result = await res.json()
-                    console.log(result);
+
                     setFollowers(result)
 
                 }
@@ -40,8 +41,16 @@ const InviteFriendForm = ({ groupId }) => {
         handleGetFollowers()
     }, [])
 
+
+
+
+
+
+
+
+
     useEffect(() => {
-        if (!state.message) return;
+        if (!state?.message) return;
         closeModal()
     }, [state])
 
@@ -51,10 +60,8 @@ const InviteFriendForm = ({ groupId }) => {
             prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
         );
     };
-     
-    if (loading) {
-        
-    }
+
+
     return (
         <form
             action={formAction}
@@ -78,11 +85,11 @@ const InviteFriendForm = ({ groupId }) => {
             </div>
             <input type="hidden" name="groupId" value={groupId} />
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                <Button style={{ width: "100%" }}>
+                <Button style={{ width: "100%" }} onClick={() => console.log("salaaam")}>
                     {isPending ? 'Inviting...' : `Invite ${selectedUsers.length > 0 ? `(${selectedUsers.length})` : ''}`}
                 </Button>
             </div>
-            {state.error && <p style={{ color: '#dc2626', fontSize: '16px' }}>{state.error}</p>}
+            {state?.error && <p style={{ color: '#dc2626', fontSize: '16px', marginTop: '16px', textAlign: 'center' }}>{state?.error}</p>}
         </form>
     );
 };

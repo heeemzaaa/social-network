@@ -12,7 +12,8 @@ const event = {
 }
 
 export default function CreateEventForm({groupId}) {
-    console.log(groupId)
+
+    console.log("inside tthe create !!")
     const [state, action] = useActionState(createGroupEventAction, {});
     const [eventData, setEventData] = useState(event)
     const { setModalData, closeModal } = useModal()
@@ -63,13 +64,13 @@ export default function CreateEventForm({groupId}) {
                         value={eventData.event_date}
                         onChange={(e) => setEventData((prev) => ({ ...prev, event_date: e.target.value }))}
                     />
-                    {state.errors?.date && <span className="field-error">{state.errors.date}</span>}
+                    {state.errors?.event_date && <span className="field-error">{state.errors.event_date}</span>}
                 </div>
 
                 <input type="text" name="groupId" id="groupId" defaultValue={groupId} hidden />
-                <Button>
+                <Button type={"submit"}>
                     Submit
-                </Button>
+                </Button >
                 {state.error && <span className="field-error">{state.error}</span>}
                 {state.message && <span className="field-success">{state.message}</span>}
             </div>

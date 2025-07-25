@@ -7,7 +7,7 @@ import (
 	"social-network/backend/utils"
 )
 
-func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite *models.User) *models.ErrorJson {
+func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite models.User) *models.ErrorJson {
 	invitationID := utils.NewUUID()
 	query := `
 	INSERT INTO group_requests (requestID, senderID, receiverID, groupID, typeRequest)

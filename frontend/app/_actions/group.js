@@ -2,6 +2,7 @@
 import { cookies } from "next/headers"
 import post from "../(main)/_components/posts";
 import { POST } from "../api/auth/login/route";
+import GroupCard from "../(main)/groups/_components/groupCard";
 
 /*
     state = {
@@ -163,6 +164,7 @@ export async function createGroupPostAction(prevState, formData) {
 
 // Creates a new group event by validating form data and sending it to the event creation API endpoint.
 export async function createGroupEventAction(prevState, formData) {
+    console.log("inside the creation of the event !!");
     const state = {
         errors: {},
         error: null,
@@ -193,7 +195,7 @@ export async function createGroupEventAction(prevState, formData) {
             state.errors.event_date = "Event date must be in the future";
         }
     }
-
+    console.log(state);
     if (Object.keys(state.errors).length > 0) {
         return {
             ...prevState,
@@ -253,31 +255,37 @@ export async function inviteUsersAction(prevState, formData) {
     let ids = formData.getAll("userIds")
     if (ids.length == 0) {
         return {
-            error:"No user has been selected"
+            error: "select at least one friend"
         }
     }
 
 
-        let groupId = formData.get("groupId")
-        try {
-            const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
-                credentials: "include",
-                method: POST,
-                body: json.stringify({ "users_ids": ids })
-            })
-            if (res.ok) {
-                const result = await res.json()
-                console.log(result);
-
+    let groupId = formData.get("groupId")
+    console.log(typeof groupId, groupId);
+    try {
+        const sessionCookie = await cookies().get("session")?.value;
+        const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
+            credentials: 'include',
+            method: "POST",
+            body: JSON.stringify({ "users_ids": ids }),
+            headers: {
+                "Content-Type": "application/json",
+                ...(sessionCookie ? { Cookie: `session=${sessionCookie}` } : {})
             }
-        } catch (err) {
-            console.error("Failed to fetch followers", err)
-        } finally {
-            setLoading(false)
-        }
-    
+        });
+        console.log(JSON.stringify({ "users_ids": ids }));
+        console.log(await res.json());
+        if (res.ok) {
+            const result = await res.json()
+            console.log(result);
 
-    
+        }
+    } catch (err) {
+        console.error("Failed to fetch invitations", err)
+    }
+
+
+
 
 
 }

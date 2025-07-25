@@ -4,7 +4,7 @@ import (
 	"social-network/backend/models"
 )
 
-func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite *models.User) *models.ErrorJson {
+func (gService *GroupService) InviteToJoin(userId, groupId string, usersToInvite []models.User) *models.ErrorJson {
 	// check the group if a valid one
 	// check the user is member before he can invite
 	// check if the invited one is one of the followers of the user
@@ -17,19 +17,25 @@ func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite 
 		return &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 
-	isFollower, errJson := gService.sProfile.IsFollower(userId, userToInvite.Id)
-	if errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
-	}
-	if !isFollower {
-		return &models.ErrorJson{Status: 403, Error: "ERROR!! it is not from your followers!"}
+	for _, userToInvite := range usersToInvite {
+		isFollower, errJson := gService.sProfile.IsFollower(userId, userToInvite.Id)
+		if errJson != nil {
+			return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		}
+		if !isFollower {
+			return &models.ErrorJson{Status: 403, Error: "ERROR!! it is not from your followers!"}
+		}
+		if err := gService.gRepo.InviteToJoin(userId, groupId, userToInvite); err != nil {
+			return &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
+		}
+
 	}
 
-	if err := gService.gRepo.InviteToJoin(userId, groupId, userToInvite); err != nil {
-		return &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
-	}
-	// add the notification service method to be able to add a user 
-	// {sneder_id, receiver_id , "group-invitation"}  
+	// this was a slight edit for the user to see only :)
+	// i hope it works 
+
+	// add the notification service method to be able to add a user
+	// {sneder_id, receiver_id , "group-invitation"}
 	return nil
 }
 
@@ -50,6 +56,5 @@ func (gService *GroupService) CancelTheInvitation(userId, groupId string, invite
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return nil
-	// {sneder_id, receiver_id , "group-invitation"}  
+	// {sneder_id, receiver_id , "group-invitation"}
 }
-

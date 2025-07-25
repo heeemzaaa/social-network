@@ -15,7 +15,6 @@ export default function GroupCardList({ filter }) {
 
     useEffect(() => {
         let data = getModalData()
-        console.log("dataaa heeeeere");
         if (data?.type === "groupCard" && filter === "owned") {
             setData(prev => [data, ...prev])
             setModalData(null)

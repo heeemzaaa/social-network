@@ -75,7 +75,10 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 	utils.WriteDataBack(w, postCreated)
 }
 
+var COUNT = 0
+
 func (gPostHandler *GroupPostHandler) GetGroupPosts(w http.ResponseWriter, r *http.Request) {
+	COUNT++
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
@@ -87,7 +90,7 @@ func (gPostHandler *GroupPostHandler) GetGroupPosts(w http.ResponseWriter, r *ht
 		return
 	}
 
-	fmt.Printf("r.URL.Query().Get(\"offset\"): %v\n", r.URL.Query().Get("offset"))
+	fmt.Printf("r.URL.Query().Get(\"offset\"): %v COUNT:  %v\n", r.URL.Query().Get("offset"), COUNT)
 	offset, errConvoff := strconv.Atoi(r.URL.Query().Get("offset"))
 	if errConvoff != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", errConvoff)})

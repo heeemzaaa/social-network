@@ -1,3 +1,4 @@
+'use client'
 import Button from "@/app/_components/button";
 import Tag from "../../_components/tag";
 import { HiMiniUsers } from "react-icons/hi2";

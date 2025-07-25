@@ -24,12 +24,14 @@ export default function GroupPage({ params }) {
   const resolvedParams = React.use(params);
   const groupId = resolvedParams.id;
 
+  console.log('inside the gtttt ', groupId);
+
   const { openModal } = useModal()
   const actionButtons = [
     {
       label: "Invite Friend",
       icon: <HiOutlineUserPlus size={24} />,
-      onClick: () => openModal(<InviteFriendForm />)
+      onClick: () => openModal(<InviteFriendForm groupId={groupId} />)
     },
     {
       label: "Add Post",
@@ -85,7 +87,7 @@ export default function GroupPage({ params }) {
             </p>
             <Tag className="glass-bg">
               <HiMiniUsers className="w-5 h-5" />
-              {data.total_members || 0} {data.total_members > 1 ? "Members" : "Member"} 
+              {data.total_members || 0} {data.total_members > 1 ? "Members" : "Member"}
             </Tag>
           </div>
         </div>
@@ -104,7 +106,6 @@ export default function GroupPage({ params }) {
         <Tabs className={"h-full"}>
           <Tab label={"Posts"} />
           <Tab label={"Events"} />
-          <Tab label={"nothing"} />
           <TabContent>
             <GroupPostCardList groupId={groupId} />
           </TabContent>

@@ -21,6 +21,7 @@ func NewGroupInvitationHandler(service *gservice.GroupService) *GroupInvitationH
 }
 
 func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("HEREEEE inside the invite join!!!!")
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
@@ -31,8 +32,9 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	var userToInvite *models.User
-	if err := json.NewDecoder(r.Body).Decode(userToInvite); err != nil {
+	usersToInvite := []models.User{}
+	fmt.Println("users to invite before", usersToInvite)
+	if err := json.NewDecoder(r.Body).Decode(&usersToInvite); err != nil {
 		if err == io.EOF {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: models.UserErr{
 				UserId: "empty user_id field",
@@ -44,7 +46,9 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 
 	}
 
-	if errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String(), userToInvite); errJson != nil {
+	fmt.Println("users to invite after", usersToInvite)
+
+	if errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String(), usersToInvite); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
@@ -79,9 +83,7 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 		return
 	}
 
-
-	// delete the notification from the database 
-	
+	// delete the notification from the database
 }
 
 func (invHanlder *GroupInvitationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
