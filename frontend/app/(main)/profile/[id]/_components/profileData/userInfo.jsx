@@ -5,7 +5,8 @@ import UsersContainer from "../profileConnections/followersContainer"
 
 export default function InfosDiv({ userInfos, children }) {
   const {openModal} = useModal()
-   return (
+   
+  return (
     <section className="profileLeftSection h-full">
       <div
         className="ProfileContainer p2"
@@ -15,8 +16,8 @@ export default function InfosDiv({ userInfos, children }) {
         <div className="ProfileData p2 flex-col gap-1">
           <p><span className="font-bold">First Name:</span> {userInfos.firstName}</p>
           <p><span className="font-bold">Last Name:</span> {userInfos.lastName}</p>
-          <p><span className="font-bold">Email:</span> {userInfos.email}</p>
-          <p><span className="font-bold">Date of Birth:</span> {userInfos.dateOfBirth}</p>
+          {userInfos.access && <p><span className="font-bold">Email:</span> {userInfos.email}</p>}
+          {userInfos.access && <p><span className="font-bold">Date of Birth:</span> {userInfos.dateOfBirth}</p>}
           {userInfos.nickname && <p><span className="font-bold">Nickname:</span> {userInfos.nickname}</p>}
 
         </div>

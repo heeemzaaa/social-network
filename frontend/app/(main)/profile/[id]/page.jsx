@@ -85,17 +85,8 @@ export default function Page({ params }) {
           prev.isFollower && !updated.is_follower ? prev.followers - 1 : !prev.isFollower && updated.is_follower
             ? prev.followers + 1
             : prev.followers,
-        ...(updated.is_follower ? {} : {
-          email: "",
-          dateOfBirth: "",
-          aboutMe: ""
-        })
       }))
 
-      console.log("is requested after", userInfos.isRequested)
-      console.log(
-        "visisbility after", userInfos.visibility)
-      console.log("is follower after", userInfos.isFollower)
     } catch (err) {
       console.error("Error:", err)
     }
@@ -175,7 +166,7 @@ export default function Page({ params }) {
       </InfosDiv>
 
       <div className="data-container flex-col w-full align-center gap-4">
-        {userInfos.aboutMe && <AboutUser aboutMe={userInfos.aboutMe} />}
+        {(userInfos.access && userInfos.aboutMe) && <AboutUser aboutMe={userInfos.aboutMe} />}
         <UserPosts id={userInfos.id} access={userInfos.access} />
       </div>
     </main>
