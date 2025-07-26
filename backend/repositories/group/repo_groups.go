@@ -87,9 +87,17 @@ func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *m
 }
 
 // all these functions are needed to handle the user
-func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]models.Group, *models.ErrorJson) {
+func (repo *GroupRepository) GetJoinedGroups(offset string, userID string) ([]models.Group, *models.ErrorJson) {
 	joinedGroups := []models.Group{}
-	query := `
+	var where string
+	if offset == "0" {
+		where = "groups.groupCreatorID != ? AND  group_membership.userID = ?"
+	} else {
+		where = `groups.groupCreatorID != ? AND  group_membership.userID = ? AND createdAt < (
+			select createdAt from groups WHERE groupID = ? 
+		)`
+	}
+	query := fmt.Sprintf(`
 	WITH
     cte_members AS (
         SELECT
@@ -117,14 +125,12 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 		INNER JOIN group_membership ON group_membership.groupID = groups.groupID
 		INNER JOIN cte_members ON  cte_members.Id = groups.groupID
 		INNER JOIN users ON users.userID = groups.groupCreatorID
-	WHERE groups.groupCreatorID != ?
-	AND  group_membership.userID = ?
+	WHERE %v
+	
     ORDER BY groups.createdAt DESC
 	LIMIT
-		20
-	OFFSET
-		?
-	`
+		6
+	`, where)
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -132,7 +138,11 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(userID, userID, offset)
+	args := []any{userID, userID}
+	if offset != "0" {
+		args = append(args, offset)
+	}
+	rows, err := stmt.Query(args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return joinedGroups, nil
@@ -161,9 +171,28 @@ func (repo *GroupRepository) GetJoinedGroups(offset int64, userID string) ([]mod
 	return joinedGroups, nil
 }
 
-func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]models.Group, *models.ErrorJson) {
+func (repo *GroupRepository) GetAvailableGroups(offset string, userID string) ([]models.Group, *models.ErrorJson) {
 	availabeGroups := []models.Group{}
-	query := `
+
+	initialWhere := `
+		groups.groupID NOT IN (
+			SELECT
+				groups.groupID
+			FROM
+				groups
+				INNER JOIN group_membership ON group_membership.groupID = groups.groupID
+				AND group_membership.userID = ?  AND groupCreatorID = ?
+		)`
+
+	var where string
+	if offset == "0" {
+		where = initialWhere
+	} else {
+		where = fmt.Sprintf(`%v AND groups.createdAt < (
+			select createdAt from groups WHERE groupID = ? 
+		)`, initialWhere)
+	}
+	query := fmt.Sprintf(`
 	WITH
     cte_members AS (
         SELECT
@@ -190,32 +219,29 @@ func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]
 		INNER JOIN cte_members ON groups.groupID = cte_members.Id
 		INNER JOIN users ON users.userID = groups.groupCreatorID
 	WHERE
-		groups.groupID NOT IN (
-			SELECT
-				groups.groupID
-			FROM
-				groups
-				INNER JOIN group_membership ON group_membership.groupID = groups.groupID
-				AND group_membership.userID = ?
-		)
+		%v
 	ORDER BY groups.createdAt DESC
 	LIMIT
-		20
-	OFFSET
-		?
-	`
+		6
+	`, where)
+
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
-	rows, errQuery := stmt.Query(userID, offset)
+	args := []any{userID, userID }
+	if offset != "0" {
+		args = append(args,offset)
+	}
+
+	rows, errQuery := stmt.Query(args...)
 	if errQuery != nil {
 		if errQuery == sql.ErrNoRows {
 			return availabeGroups, nil
 		}
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", errQuery)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("===> %v", errQuery)}
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -241,10 +267,18 @@ func (repo *GroupRepository) GetAvailableGroups(offset int64, userID string) ([]
 
 // here we won't be needing to get the name
 
-func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]models.Group, *models.ErrorJson) {
+func (repo *GroupRepository) GetCreatedGroups(offset string, userID string) ([]models.Group, *models.ErrorJson) {
+	var where string
+	if offset == "0" {
+		where = " groupCreatorID = ?"
+	} else {
+		where = ` groupCreatorID = ? AND createdAt < (
+			select createdAt from groups WHERE groupID = ? 
+		)`
+	}
 	createdGroups := []models.Group{}
-	query := `
-   WITH
+	query := fmt.Sprintf(`
+   	WITH
     cte_members AS (
         SELECT
             group_membership.groupID AS Id,
@@ -266,22 +300,23 @@ func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]mo
 		groups
 		INNER JOIN cte_members ON groups.groupID = cte_members.Id
 	WHERE
-		groupCreatorID = ?
+		%v  
 	ORDER BY
 		groups.createdAt DESC
 	LIMIT
-		20
-	OFFSET
-		?
-
-	`
+		6
+	`, where)
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
-	rows, errQuery := stmt.Query(userID, offset)
+	args := []any{userID}
+	if offset != "0" {
+		args = append(args, offset)
+	}
+	rows, errQuery := stmt.Query(args...)
 	if errQuery != nil {
 		if errQuery == sql.ErrNoRows {
 			return createdGroups, nil
@@ -305,7 +340,6 @@ func (repo *GroupRepository) GetCreatedGroups(offset int64, userID string) ([]mo
 		}
 		createdGroups = append(createdGroups, *group)
 	}
-
 	return createdGroups, nil
 }
 

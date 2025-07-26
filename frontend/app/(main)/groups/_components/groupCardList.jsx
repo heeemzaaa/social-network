@@ -1,104 +1,117 @@
-import { useCallback, useEffect, useState, useRef } from "react";
-import GroupCard from "./groupCard";
-import Button from "@/app/_components/button";
-import { useModal } from "../../_context/ModalContext";
+import { useCallback, useEffect, useState, useRef } from "react"
+import GroupCard from "./groupCard"
+import { useModal } from "../../_context/ModalContext"
 
 export default function GroupCardList({ filter }) {
-    const [data, setData] = useState([]);
-    const [page, setPage] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const [error, setError] = useState(null);
-    const abortControllerRef = useRef(null);
+    const [data, setData] = useState([])
+    const [page, setPage] = useState(0)
+    const [isLoading, setIsLoading] = useState(false)
+    const [hasMore, setHasMore] = useState(true)
+    const [error, setError] = useState(null)
+    const abortControllerRef = useRef(null)
+    const observerRef = useRef(null)
+    const loadMoreRef = useRef(null)
 
-    const {getModalData, setModalData} = useModal()
+    const { getModalData } = useModal()
 
-    useEffect(()=>{
-        let data = getModalData()
+    useEffect(() => {
+        const data = getModalData()
         if (data?.type === "groupCard" && filter === "owned") {
-            setData(prev=> [data,...prev])
+            setData((prev) => [data, ...prev])
         }
-    },[setModalData])
+    }, [getModalData])
 
     const fetchData = useCallback(
-        async (currentPage) => {
-            if (isLoading || !hasMore) return;
-            setIsLoading(true);
-            abortControllerRef.current = new AbortController();
-            const signal = abortControllerRef.current.signal;
+        async (id) => {
+            console.log("fetch created groups: ", id)
+            if (isLoading || !hasMore) return
+            setIsLoading(true)
+            abortControllerRef.current = new AbortController()
+            const signal = abortControllerRef.current.signal
             try {
-                const response = await fetch(`http://localhost:8080/api/groups?filter=${filter}&offset=${currentPage * 20}`,
-                    { credentials: "include", signal });
+                const response = await fetch(`http://localhost:8080/api/groups?filter=${filter}&offset=${id}`,
+                    { credentials: "include", signal })
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`HTTP error! status: ${response.status}`)
                 }
-                const result = await response.json();
+                const result = await response.json()
                 if (result.length === 0) {
-                    setHasMore(false); // No more data to fetch
+                    console.log("!!! you reached the end")
+                    setHasMore(false)
                 } else {
-                    if (result.length < 20) setHasMore(false);
-                    setData((prevData) => [...prevData, ...result]); // Append new data
+                    if (result.length < 6) setHasMore(false)
+                    console.log("!!! you reached the end")
+                    setData((prevData) => [...prevData, ...result])
                 }
             } catch (err) {
-                if (err.name === "AbortError") {
-                    return; // Ignore AbortError
-                }
-                console.error(err);
-                setError(err.message);
+                if (err.name === "AbortError") return
+                setError(err.message)
             } finally {
-                setIsLoading(false);
+                setIsLoading(false)
             }
         },
         [filter]
-    );
+    )
 
-    // Reset data and fetch initial page when filter changes
     useEffect(() => {
-        setData([]);
-        setPage(0);
-        setHasMore(true);
-        setError(null);
-        fetchData(0);
+        console.log("initial fetch", [console.log(data)])
+        setData([])
+        setPage(0)
+        setHasMore(true)
+        setError(null)
+        fetchData(0)
+    }, [filter])
+
+    useEffect(() => {
+        if (!hasMore || isLoading || data.length === 0) return;
+
+        observerRef.current = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    setPage((prevPage) => prevPage + 1)
+                }
+            },
+            { threshold: 0.1 }
+        )
+
+        if (loadMoreRef.current) {
+            observerRef.current.observe(loadMoreRef.current)
+        }
 
         return () => {
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-                abortControllerRef.current = null;
+            if (observerRef.current) {
+                observerRef.current.disconnect()
             }
-        };
-    }, [filter, fetchData]);
+        }
+    }, [hasMore, isLoading])
 
-    // Fetch data when page changes
     useEffect(() => {
         if (page > 0) {
-            fetchData(page);
+            console.log("previous fetched data: ", data)
+            console.log("page: ", page)
+            let id = data[data.length - 1]?.group_id 
+            fetchData(id)
         }
-    }, [page, fetchData]);
+    }, [page])
 
-    // Load more handler
-    const loadMore = () => {
-        setPage((prevPage) => prevPage + 1);
-    };
+    if (error) return <p className="text-danger text-center">Error: {error}</p>
 
-    if (error) return <p className="text-danger text-center">Error: {error}</p>;
-    if (data.length === 0) (
-        <img
-            className="w-half mx-auto"
-            src="/no-data-animate.svg"
-            alt="No data"
-        />
-    )
     return (
         <div className="list-container flex flex-wrap gap-4 justify-center items-start overflow-y-auto">
-            {
-                data.map((item, index) => <GroupCard key={item.id || index} type={filter} {...item} />)
-            }
+            {data.map((item, index) => (
+                <GroupCard key={item.group_id} type={filter} {...item} />
+            ))}
+            {data.length === 0 && (
+                <img
+                    className="w-half mx-auto"
+                    src="/no-data-animate.svg"
+                    alt="No data"
+                />
+            )}
             {isLoading && <p className="text-center w-full">Loading...</p>}
             {hasMore && !isLoading && (
-                <div className="w-full" style={{ textAlign: "" }}>
-                    <Button variant={"btn-tertiary"} onClick={loadMore}> Load More... </Button>
-                </div>
+                <div ref={loadMoreRef} className="w-full" style={{ height: "20px" }}></div>
             )}
         </div>
-    );
+    )
 }

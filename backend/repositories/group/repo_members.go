@@ -10,7 +10,7 @@ import (
 func (gRepo *GroupRepository) GetGroupMembers(groupId string) ([]models.User, *models.ErrorJson) {
 	users := []models.User{}
 	query := `
-	 
+
 	SELECT  users.userID,
 	concat(users.firstName, " ", users.lastName),
 	users.nickname, users.avatarPath 

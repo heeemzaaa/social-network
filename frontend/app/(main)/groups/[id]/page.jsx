@@ -73,6 +73,7 @@ export default function GroupPage({ params }) {
   return (
     <main className="group-page-section flex gap-1">
       <div className="col" >
+
         {/* Group Info */}
         <Avatar img={data.image_path || null} size={250} />
         <div className="grp-info-container">
@@ -116,15 +117,3 @@ export default function GroupPage({ params }) {
     </main>
   );
 }
-
-
-created_at: "2025-07-19T11:55:34Z"
-description: "darkmethoss-grp3"
-group_creator: "ayoub nachti"
-group_creator_id: "2ca83dd3-6e1a-4452-8653-fdea0b4d4417"
-group_creator_nickname: "DarkMethoss"
-group_id: "14aa33ae-aea8-43f0-99e9-ed6f6b197f03"
-image_path: "/uploads/groups/1752926134233169971.jpg"
-last_interaction: "0001-01-01T00:00:00Z"
-title: "darkmethoss-grp3"
-total_members: 1

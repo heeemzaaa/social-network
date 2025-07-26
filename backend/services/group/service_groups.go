@@ -54,7 +54,7 @@ func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *mod
 	return groupCreated, nil
 }
 
-func (gService *GroupService) GetGroups(filter string, offset int64, userID string) ([]models.Group, *models.ErrorJson) {
+func (gService *GroupService) GetGroups(filter string, offset string, userID string) ([]models.Group, *models.ErrorJson) {
 	var groups []models.Group
 	var err *models.ErrorJson
 	switch filter {

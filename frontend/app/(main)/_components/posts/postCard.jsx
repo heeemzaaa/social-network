@@ -1,11 +1,11 @@
 "use client "
-import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa";
+import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa"
 import "./style.css"
-import Avatar from "../avatar";
-import { useModal } from "../../_context/ModalContext";
-import { likePostAction } from "@/app/_actions/posts";
-import { useActionState, useState } from "react";
-import CommentsContainer from "../comments/commentsContainer";
+import Avatar from "../avatar"
+import { useModal } from "../../_context/ModalContext"
+import { likePostAction } from "@/app/_actions/posts"
+import { useActionState, useState } from "react"
+import CommentsContainer from "../comments/commentsContainer"
 export default function PostCard({
     id,
     user,
@@ -17,21 +17,19 @@ export default function PostCard({
     liked,
     privacy
 }) {
-    const [totalComments, setTotalComments] = useState(total_comments);
+    const [totalComments, setTotalComments] = useState(total_comments)
 
     const handleCommentMessage = (msg) => {
-        console.log(msg); 
-        setTotalComments(prev => prev + 1);
-    };
+        setTotalComments(prev => prev + 1)
+    }
     const { openModal } = useModal()
     const initialState = {
         liked: liked === 1,
         likes: total_likes,
         message: null,
-    };
+    }
 
-    const [state, formAction] = useActionState(likePostAction, initialState);
-    console.log('user.avatar', user.avatar)
+    const [state, formAction] = useActionState(likePostAction, initialState)
     return (
         <div className="post-card">
             <div className="post-card-body">
@@ -64,15 +62,15 @@ export default function PostCard({
                     <div className="glass-bg" onClick={() => { openModal(<CommentsContainer id={id} onCommentMessage={handleCommentMessage} />) }}>
                         <div style={actionStyle}>
                             <FaRegComment />
-                            <span>
-                                {totalComments}
+                            <span> 
+                                {totalComments} 
                             </span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
 const actionStyle = {

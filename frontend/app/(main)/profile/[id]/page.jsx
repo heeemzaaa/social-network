@@ -130,7 +130,6 @@ export default function Page({ params }) {
   if (loading) return <p>Loading user info...</p>
   if (!userInfos) return <p>Failed to load user info.</p>
 
-  console.log('userInfos.img', userInfos.img)
   return (
     <main className='profile_page_section flex h-full p4 gap-4'>
       <InfosDiv userInfos={userInfos}>
