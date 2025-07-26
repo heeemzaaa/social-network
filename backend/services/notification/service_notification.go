@@ -91,6 +91,14 @@ func (NS *NotificationService) GetService(user_id, queryParam string) ([]models.
 	len := len(all)
 	nbr, _ := strconv.Atoi(queryParam)
 	sort.Slice(all, func(i, j int) bool {
+		// Check if one is "later" and the other isn't
+		if all[i].Status == "later" && all[j].Status != "later" {
+			return true
+		}
+		if all[i].Status != "later" && all[j].Status == "later" {
+			return false
+		}
+		// If both are "later" or both are not, sort by CreatedAt descending
 		return all[i].CreatedAt.After(all[j].CreatedAt)
 	})
 
@@ -152,11 +160,11 @@ func (NS *NotificationService) PostService(data models.Notif) *models.ErrorJson 
 func (NS *NotificationService) FollowPrivateProfile(data models.Notif) *models.ErrorJson {
 
 	notification := models.Notification{}
-	notification.Sender_Id = data.SenderId
+	notification.SenderId = data.SenderId
 	notification.Id = uuid.New().String()
 	notification.Seen = false
 	notification.Type = data.Type
-	notification.Reciever_Id = data.RecieverId
+	notification.RecieverId = data.RecieverId
 	notification.GroupId = data.GroupId
 	notification.Status = "later"
 	notification.Content = fmt.Sprintf("%v sent follow request", data.SenderFullName)
@@ -182,13 +190,13 @@ func (NS *NotificationService) FollowPrivateProfile(data models.Notif) *models.E
 func (NS *NotificationService) FollowPublicProfile(data models.Notif) *models.ErrorJson {
 	///////////////////////////////////////////////////  golna madich nkhedmo 3la had l case //////////
 	notification := models.Notification{}
-	notification.Sender_Id = data.SenderId
+	notification.SenderId = data.SenderId
 	notification.Id = utils.NewUUID()
 	notification.Seen = false
 	notification.GroupId = data.GroupId
 	notification.Type = data.Type
 	notification.Status = "none"
-	notification.Reciever_Id = data.RecieverId
+	notification.RecieverId = data.RecieverId
 	notification.Content = data.SenderFullName + " follow you"
 	notification.CreatedAt = time.Now()
 
@@ -212,12 +220,12 @@ func (NS *NotificationService) FollowPublicProfile(data models.Notif) *models.Er
 func (NS *NotificationService) GroupInvitationRequest(data models.Notif) *models.ErrorJson {
 
 	notification := models.Notification{}
-	notification.Sender_Id = data.SenderId
+	notification.SenderId = data.SenderId
 	notification.Id = uuid.New().String()
 	notification.Seen = false
 	notification.Type = data.Type
 	notification.Status = "later"
-	notification.Reciever_Id = data.RecieverId
+	notification.RecieverId = data.RecieverId
 	notification.Content = data.SenderFullName + " invite you to join club " + data.GroupName
 	notification.GroupId = data.GroupId
 	notification.CreatedAt = time.Now()
@@ -242,13 +250,13 @@ func (NS *NotificationService) GroupInvitationRequest(data models.Notif) *models
 func (NS *NotificationService) GroupJoinRequest(data models.Notif) *models.ErrorJson {
 
 	notification := models.Notification{}
-	notification.Sender_Id = data.SenderId
+	notification.SenderId = data.SenderId
 	notification.Id = utils.NewUUID()
 	notification.Seen = false
 	notification.Type = data.Type
 	notification.GroupId = data.GroupId
 	notification.Status = "later"
-	notification.Reciever_Id = data.RecieverId
+	notification.RecieverId = data.RecieverId
 	notification.Content = data.SenderFullName + " want join club " + data.GroupName
 	notification.CreatedAt = time.Now()
 
@@ -273,7 +281,7 @@ func (NS *NotificationService) GroupEventRequest(data models.Notif) *models.Erro
 
 	notification := models.Notification{}
 
-	notification.Sender_Id = data.SenderId
+	notification.SenderId = data.SenderId
 	notification.Id = uuid.New().String()
 	notification.Seen = false
 	notification.GroupId = data.GroupId
@@ -283,7 +291,7 @@ func (NS *NotificationService) GroupEventRequest(data models.Notif) *models.Erro
 	notification.Content = data.SenderFullName + " create event at club " + data.GroupName
 	notification.CreatedAt = time.Now()
 
-	notification.Reciever_Id = data.RecieverId
+	notification.RecieverId = data.RecieverId
 
 	if err := NS.repo.InsertNewNotification(notification); err != nil {
 		fmt.Println("error event = insertion ---------", err)

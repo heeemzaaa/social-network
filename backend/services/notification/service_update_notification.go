@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"fmt"
 	"log"
 	"social-network/backend/models"
 	GR "social-network/backend/repositories/group"
@@ -24,14 +25,15 @@ func NewNotifServiceUpdate(repo *notification.NotifRepository, repo2 *profile.Pr
 	}
 }
 func (NUS *NotificationServiceUpdate) UpdateFollowPrivateProfile(data models.Unotif, notification models.Notification) *models.ErrorJson {
+	fmt.Println(data.Status)
 	switch data.Status {
 	case "accept":
-		err := NUS.repo2.AcceptedRequest(notification.Reciever_Id, notification.Sender_Id)
+		err := NUS.repo2.AcceptedRequest(notification.RecieverId, notification.SenderId)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 	case "reject":
-		err := NUS.repo2.RejectedRequest(notification.Reciever_Id, notification.Sender_Id)
+		err := NUS.repo2.RejectedRequest(notification.RecieverId, notification.SenderId)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
@@ -44,12 +46,12 @@ func (NUS *NotificationServiceUpdate) UpdateFollowPrivateProfile(data models.Uno
 func (NUS *NotificationServiceUpdate) UpdateGroupJoinRequest(data models.Unotif, notification models.Notification) *models.ErrorJson {
 	switch data.Status {
 	case "accept":
-		err := NUS.gr.Approve(notification.GroupId, notification.Sender_Id)
+		err := NUS.gr.Approve(notification.GroupId, notification.SenderId)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 	case "reject":
-		err := NUS.gr.Decline(notification.GroupId, notification.Sender_Id)
+		err := NUS.gr.Decline(notification.GroupId, notification.SenderId)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
@@ -60,13 +62,15 @@ func (NUS *NotificationServiceUpdate) UpdateGroupJoinRequest(data models.Unotif,
 }
 func (NUS *NotificationServiceUpdate) UpdateService(data models.Unotif, user_id string) *models.ErrorJson {
 	log.Println("START UPDATE SERVICE ----- REQUEST DATA = ", data)
+	fmt.Println("dataaaa", data.NotifId)
 
-	notification, errJson := NUS.repo.SelectNotification(data.Notif_Id)
+	notification, errJson := NUS.repo.SelectNotification(data.NotifId)
 	if errJson != nil {
 		return models.NewErrorJson(errJson.Status, errJson.Error, errJson.Message)
 	}
+	fmt.Sprintf("current userId:%v  \nnotification.senderId: %v  \nnotification.recieverId:%v", user_id, notification.SenderId, notification.RecieverId)
 
-	// notification.Reciever_Id == user_id ||
+	// notification.RecieverId == user_id ||
 	if notification.Status != "later" {
 		return models.NewErrorJson(400, "Bad-Request 400", "Invalid----Operation")
 	}

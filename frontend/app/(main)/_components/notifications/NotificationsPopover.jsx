@@ -1,24 +1,25 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
+import { useNotification } from "../../_context/NotificationContext"; // Adjust path to match your project
 
 export default function NotificationsPopover() {
   const [notifications, setNotifications] = useState([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const containerRef = useRef(); 
-  
+  const containerRef = useRef();
+
+  const { showNotification } = useNotification();
 
   // Handle accept/reject notification
   const handleNotificationAction = async (notification, status) => {
-    
     console.log(`${status} notification:`, notification);
     console.log(`Notification ID:`, notification.Id);
-    
+
     if (!notification.Id) {
-      console.error('No notification ID found. Available fields:', Object.keys(notification));
+      console.error("No notification ID found. Available fields:", Object.keys(notification));
       return;
     }
-    
+
     try {
       const postRequest = {
         method: "POST",
@@ -27,7 +28,7 @@ export default function NotificationsPopover() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          Notif_Id: notification.Id,
+          NotifId: notification.Id,
           Status: status, // "accept" or "reject"
           Type: notification.Type,
           GroupId: notification.GroupId,
@@ -38,11 +39,28 @@ export default function NotificationsPopover() {
       let data = await response.json();
       console.log(`Notification ${status} response:`, data);
 
-      // Update the notification in the state
-      setNotifications(prev => prev.map(notif => notif.Id === notification.Id ? { ...notif, Status: status } : notif));
+      // ✅ Show popup with response message
+      showNotification({
+        Type: "response",
+        Content: `Notification ${status}ed successfully: ${data?.Message}`,
+        // Status: status === "accept" ? "success" : "error"
+      });
+
+      // ✅ Update local state
+      setNotifications(prev =>
+        prev.map(notif =>
+          notif.Id === notification.Id ? { ...notif, Status: status } : notif
+        )
+      );
 
     } catch (error) {
       console.error(`Error ${status}ing notification:`, error);
+
+      showNotification({
+        Type: "error",
+        Content: `Failed to ${status} notification: ${error.message}`,
+        Status: "error"
+      });
     }
   };
 
@@ -66,14 +84,8 @@ export default function NotificationsPopover() {
       } else {
         // Filter out duplicates based on ID
         setNotifications((prev) => {
-
           const existingIds = new Set(prev.map(notif => notif.Id));
-          
-          const newNotifications = data.filter(notif => {
-            const notifId = notif.Id
-            return !existingIds.has(notifId);
-          });
-          
+          const newNotifications = data.filter(notif => !existingIds.has(notif.Id));
           return [...prev, ...newNotifications];
         });
       }
@@ -89,45 +101,53 @@ export default function NotificationsPopover() {
 
     const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 10) setPage((prev) => prev + 10);
+    if (scrollTop + clientHeight >= scrollHeight - 10) {
+      setPage((prev) => prev + 10);
+    }
   };
 
   return (
-    
-    <div ref={containerRef} onScroll={handleScroll} style={{ maxHeight: "350px", overflowY: "auto", width: "300px" }} className="bg-white shadow p-2 rounded">
-
+    <div
+      ref={containerRef}
+      onScroll={handleScroll}
+      style={{ maxHeight: "350px", overflowY: "auto", width: "300px" }}
+      className="bg-white shadow p-2 rounded"
+    >
       {notifications.length === 0 && <p>No notifications</p>}
 
       {notifications.map((notif) => (
-
-        <div key={notif.Id} className={`notification-card ${notif.Type} ${notif.Status} ${notif.Seen ? "seen" : "unseen"}`}>
-
+        <div
+          key={notif.Id}
+          className={`notification-card ${notif.Type} ${notif.Status} ${notif.Seen ? "seen" : "unseen"}`}
+        >
           <p>{notif.Content}</p>
 
           {notif.Status === "later" && notif.Type !== "follow-public" && (
             <div className="action-buttons">
-              <button className="accept-btn" onClick={() => handleNotificationAction(notif, "accept")}>
+              <button
+                className="accept-btn"
+                onClick={() => handleNotificationAction(notif, "accept")}
+              >
                 ✔
               </button>
-              <button className="reject-btn" onClick={() => handleNotificationAction(notif, "reject")}>
+              <button
+                className="reject-btn"
+                onClick={() => handleNotificationAction(notif, "reject")}
+              >
                 ✘
               </button>
             </div>
           )}
-          {notif.Status === "accept" && (
-            <div className="green-dote">
-            </div>
-          )}
-          {notif.Status === "reject" && (
-            <div className="red-dote">
-            </div>
-          )}
 
+          {notif.Status === "accept" && <div className="green-dote" />}
+          {notif.Status === "reject" && <div className="red-dote" />}
         </div>
       ))}
 
       {hasMore && <p className="text-center text-gray-400 text-xs">Loading more...</p>}
-      {!hasMore && notifications.length > 0 && <p className="text-center text-gray-400 text-xs">No more notifications</p>}
+      {!hasMore && notifications.length > 0 && (
+        <p className="text-center text-gray-400 text-xs">No more notifications</p>
+      )}
     </div>
   );
 }

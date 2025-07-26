@@ -50,11 +50,9 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
-	// fmt.Println("data after join request ==> ", data)
-
 	/////////////////////
 
-	// add new notification group-join
+	// add new notification type: [group-join]
 	if errJson := GrpReqHandler.sNotif.PostService(data); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
@@ -63,7 +61,6 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "500 return data", Message: "invalid data"})
 		return
 	}
-	// utils.WriteDataBack(w, data)
 }
 
 func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter, r *http.Request) {
