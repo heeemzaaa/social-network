@@ -68,9 +68,11 @@ func (NUS *NotificationServiceUpdate) UpdateService(data models.Unotif, user_id 
 	if errJson != nil {
 		return models.NewErrorJson(errJson.Status, errJson.Error, errJson.Message)
 	}
-	fmt.Sprintf("current userId:%v  \nnotification.senderId: %v  \nnotification.recieverId:%v", user_id, notification.SenderId, notification.RecieverId)
+	fmt.Printf("current userId:%v  \nnotification.senderId: %v  \nnotification.recieverId:%v", user_id, notification.SenderId, notification.RecieverId)
 
-	// notification.RecieverId == user_id ||
+	if user_id != notification.RecieverId {
+		return models.NewErrorJson(300, "access for beidene", "Invalid----Operation")
+	}
 	if notification.Status != "later" {
 		return models.NewErrorJson(400, "Bad-Request 400", "Invalid----Operation")
 	}

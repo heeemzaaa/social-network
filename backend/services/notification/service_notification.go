@@ -147,16 +147,7 @@ func (NS *NotificationService) PostService(data models.Notif) *models.ErrorJson 
 	return nil
 }
 
-// 1 - follow private profile request
-//
-//	var notif = models.Notif{
-//		SenderId: "current user id",
-//		SenderFullName: "full name",
-//		RecieverId: "reciever id == profile id",
-//		ReceiverFullName: "reciever full name",
-//		Type: "follow-private",
-//		GroupName: "",
-//	}
+// - follow private profile request
 func (NS *NotificationService) FollowPrivateProfile(data models.Notif) *models.ErrorJson {
 
 	notification := models.Notification{}
@@ -177,16 +168,7 @@ func (NS *NotificationService) FollowPrivateProfile(data models.Notif) *models.E
 	return nil
 }
 
-// 2 - follow public profile request
-//
-//	var notif = models.Notif{
-//		SenderId: "current user id",
-//		SenderFullName: "full name",
-//		RecieverId: "reciever id == profile id",
-//		ReceiverFullName: "reciever full name",
-//		Type: "follow-public",
-//		GroupName: "",
-//	}
+// - follow public profile request
 func (NS *NotificationService) FollowPublicProfile(data models.Notif) *models.ErrorJson {
 	///////////////////////////////////////////////////  golna madich nkhedmo 3la had l case //////////
 	notification := models.Notification{}
@@ -207,16 +189,7 @@ func (NS *NotificationService) FollowPublicProfile(data models.Notif) *models.Er
 	return nil
 }
 
-// 3 - group invitation request
-//
-//	var notif = models.Notif{
-//		SenderId: "current user id",
-//		SenderFullName: "sender full name",
-//		RecieverId: "reciever id == selected user id",
-//		ReceiverFullName: "reciever full name",
-//		Type: "group-invitation",
-//		GroupName: "group name",
-//	}
+// - group invitation request
 func (NS *NotificationService) GroupInvitationRequest(data models.Notif) *models.ErrorJson {
 
 	notification := models.Notification{}
@@ -237,16 +210,7 @@ func (NS *NotificationService) GroupInvitationRequest(data models.Notif) *models
 	return nil
 }
 
-// 4 - group join request [admin]
-//
-//	var notif = models.Notif{
-//		SenderId: "current user id",
-//		SenderFullName: "sender full name",
-//		RecieverId: "reciever id == admin user id",
-//		ReceiverFullName: "reciever full name",
-//		Type: "group-join",
-//		GroupName: "group name",
-//	}
+// - group join request [admin]
 func (NS *NotificationService) GroupJoinRequest(data models.Notif) *models.ErrorJson {
 
 	notification := models.Notification{}

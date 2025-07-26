@@ -81,7 +81,7 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 			ReceiverFullName: user.FullName,
 			Type:             "group-event",
 			GroupId: event.GroupId,
-			// GroupName: , group name
+			// GroupName: 
 		})
 		if errNot != nil {
 			return nil, errNot
