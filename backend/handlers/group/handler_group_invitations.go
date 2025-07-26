@@ -32,8 +32,12 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	usersToInvite := []models.User{}
+	usersToInvite := models.InvitedUsers{}
 	fmt.Println("users to invite before", usersToInvite)
+
+	// data, _ := io.ReadAll(r.Body)
+	// fmt.Println(string(data))
+
 	if err := json.NewDecoder(r.Body).Decode(&usersToInvite); err != nil {
 		if err == io.EOF {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: models.UserErr{

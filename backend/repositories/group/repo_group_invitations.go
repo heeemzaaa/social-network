@@ -7,7 +7,8 @@ import (
 	"social-network/backend/utils"
 )
 
-func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite models.User) *models.ErrorJson {
+func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite string) *models.ErrorJson {
+	fmt.Println(userId, groupId, userToInvite)
 	invitationID := utils.NewUUID()
 	query := `
 	INSERT INTO group_requests (requestID, senderID, receiverID, groupID, typeRequest)
@@ -19,7 +20,7 @@ func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite 
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(invitationID, userId, userToInvite.Id, groupId, "invitation-request")
+	_, err = stmt.Exec(invitationID, userId, userToInvite, groupId, "invitation-request")
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}

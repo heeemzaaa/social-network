@@ -20,7 +20,7 @@ const InviteFriendForm = ({ groupId }) => {
     useEffect(() => {
         async function handleGetFollowers() {
             try {
-                const res = await fetch(`http://localhost:8080/api/profile/d7704b4f-6428-441b-93c8-3601ba3242fc/connections/followers`, {
+                const res = await fetch(`http://localhost:8080/api/profile/98916708-28fb-4d67-9fab-32db3e7d2e8b/connections/followers`, {
                     credentials: "include",
                 })
 

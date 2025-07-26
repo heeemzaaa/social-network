@@ -4,7 +4,7 @@ import (
 	"social-network/backend/models"
 )
 
-func (gService *GroupService) InviteToJoin(userId, groupId string, usersToInvite []models.User) *models.ErrorJson {
+func (gService *GroupService) InviteToJoin(userId, groupId string, usersToInvite models.InvitedUsers) *models.ErrorJson {
 	// check the group if a valid one
 	// check the user is member before he can invite
 	// check if the invited one is one of the followers of the user
@@ -17,8 +17,8 @@ func (gService *GroupService) InviteToJoin(userId, groupId string, usersToInvite
 		return &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 
-	for _, userToInvite := range usersToInvite {
-		isFollower, errJson := gService.sProfile.IsFollower(userId, userToInvite.Id)
+	for _, userToInvite := range usersToInvite.Users {
+		isFollower, errJson := gService.sProfile.IsFollower(userId, userToInvite)
 		if errJson != nil {
 			return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 		}
@@ -32,7 +32,7 @@ func (gService *GroupService) InviteToJoin(userId, groupId string, usersToInvite
 	}
 
 	// this was a slight edit for the user to see only :)
-	// i hope it works 
+	// i hope it works
 
 	// add the notification service method to be able to add a user
 	// {sneder_id, receiver_id , "group-invitation"}
