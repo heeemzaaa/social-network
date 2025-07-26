@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from "react"
+import React, { use, useCallback, useEffect, useState } from "react"
 import InfosDiv from "./_components/profileData/userInfo"
 import AboutUser from "./_components/profileData/abouUser"
 import UserPosts from "./_components/profilePosts/userPosts"
@@ -13,11 +13,12 @@ import "./_components/profileData/profile.css"
 export default function Page({ params }) {
   const [userInfos, setUserInfos] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isFollower, setIsFollower] = useState(null)
   const resolvedParams = React.use(params);
   const id = resolvedParams.id;
 
   useEffect(() => {
-    async function fetchUserInfos() {
+    async function fetchUserInfo(){
       try {
         const res = await fetch(`http://localhost:8080/api/profile/${id}/info`, { credentials: 'include' })
         const profile = await res.json()
@@ -42,19 +43,19 @@ export default function Page({ params }) {
           visibility: user.visibility,
           access: profile.access || false,
         })
+        setIsFollower(profile.is_follower)
       } catch (err) {
         console.error("Error fetching user profile:", err)
       } finally {
         setLoading(false)
       }
     }
-
-    fetchUserInfos()
-  }, [id])
+    fetchUserInfo()
+  }, [id, isFollower])
 
   async function handleToggleFollow() {
     let endpoint = ""
-    
+
     if (userInfos.isRequested) {
       endpoint = `http://localhost:8080/api/profile/${id}/actions/cancel`
     } else if (userInfos.isFollower) {
@@ -86,7 +87,8 @@ export default function Page({ params }) {
             ? prev.followers + 1
             : prev.followers,
       }))
-
+      
+      if (updated.is_follower) setIsFollower(updated.is_follower)
     } catch (err) {
       console.error("Error:", err)
     }
@@ -121,7 +123,6 @@ export default function Page({ params }) {
   if (loading) return <p>Loading user info...</p>
   if (!userInfos) return <p>Failed to load user info.</p>
 
-  console.log('userInfos.img', userInfos.img)
   return (
     <main className='profile_page_section flex h-full p4 gap-4'>
       <InfosDiv userInfos={userInfos}>

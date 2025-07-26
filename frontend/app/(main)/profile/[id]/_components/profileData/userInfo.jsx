@@ -24,10 +24,10 @@ export default function InfosDiv({ userInfos, children }) {
       </div>
 
       <div className="UserNumbers p2">
-        <div className="followers p2" onClick={() => userInfos.followers !== 0 ? openModal(<UsersContainer type={"followers"} userID={userInfos.id} />) : ''}>
+        <div className="followers p2" onClick={() => userInfos.followers !== 0 && userInfos.access && openModal(<UsersContainer type={"followers"} userID={userInfos.id} />)}>
           <p className="font-bold">Followers</p><p>{userInfos.followers}</p>
         </div>
-        <div className="following p2" onClick={() => userInfos.following !== 0 ? openModal(<UsersContainer type={"following"} userID={userInfos.id} />) : ''}>
+        <div className="following p2" onClick={() => userInfos.following !== 0 && userInfos.access && openModal(<UsersContainer type={"following"} userID={userInfos.id} />)}>
           <p className="font-bold">Following</p><p>{userInfos.following}</p>
         </div>
         <div className="posts p2">
