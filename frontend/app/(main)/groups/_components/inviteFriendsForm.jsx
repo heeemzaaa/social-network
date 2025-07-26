@@ -1,17 +1,14 @@
 "use client"
 
-import { useState, useEffect } from 'react';
-import { useActionState } from 'react';
-import Button from '@/app/_components/button';
-import { inviteUsersAction } from '@/app/_actions/group';
+import { useState, useEffect, use } from 'react';
+
+
 import UserCard from './userCard';
 import { useModal } from '../../_context/ModalContext';
 
 // InviteFriendForm component
 const InviteFriendForm = ({ groupId }) => {
     console.log("grp id ", groupId);
-    const [state, formAction, isPending] = useActionState(inviteUsersAction, {});
-    const [selectedUsers, setSelectedUsers] = useState([]);
     const [followers, setFollowers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -20,7 +17,7 @@ const InviteFriendForm = ({ groupId }) => {
     useEffect(() => {
         async function handleGetFollowers() {
             try {
-                const res = await fetch(`http://localhost:8080/api/profile/98916708-28fb-4d67-9fab-32db3e7d2e8b/connections/followers`, {
+                const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
                     credentials: "include",
                 })
 
@@ -28,6 +25,7 @@ const InviteFriendForm = ({ groupId }) => {
                     const result = await res.json()
 
                     setFollowers(result)
+                    console.log("followers",result);
 
                 }
 
@@ -45,28 +43,9 @@ const InviteFriendForm = ({ groupId }) => {
 
 
 
-
-
-
-
-    useEffect(() => {
-        if (!state?.message) return;
-        closeModal()
-    }, [state])
-
-    // Handle user selection
-    const handleSelect = (userId) => {
-        setSelectedUsers((prev) =>
-            prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
-        );
-    };
-
-
     return (
-        <form
-            action={formAction}
-            style={{ padding: '24px', maxWidth: '600px', margin: '0 auto' }}
-        >
+        <>
+
             <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>
                 Invite Friends
             </h2>
@@ -78,19 +57,13 @@ const InviteFriendForm = ({ groupId }) => {
                     <UserCard
                         key={user.id}
                         user={user}
-                        isSelected={selectedUsers.includes(user.id)}
-                        onSelect={handleSelect}
+                        groupId={groupId}
+        
                     />
                 ))}
             </div>
-            <input type="hidden" name="groupId" value={groupId} />
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                <Button style={{ width: "100%" }} onClick={() => console.log("salaaam")}>
-                    {isPending ? 'Inviting...' : `Invite ${selectedUsers.length > 0 ? `(${selectedUsers.length})` : ''}`}
-                </Button>
-            </div>
-            {state?.error && <p style={{ color: '#dc2626', fontSize: '16px', marginTop: '16px', textAlign: 'center' }}>{state?.error}</p>}
-        </form>
+
+        </>
     );
 };
 

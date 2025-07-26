@@ -1,41 +1,65 @@
-import React from 'react'
+import React, { use, useEffect, useState } from 'react'
 import Avatar from '../../_components/avatar';
+import Button from '@/app/_components/button';
+import { useActionState } from 'react';
+import { inviteUserAction, CancelInvitationAction } from '@/app/_actions/group';
 
-export default function UserCard({ user, isSelected, onSelect }) {
-    return (
-        <div
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '12px',
-                borderRadius: '8px',
-                border: isSelected ? '2px solid #C7DB7A' : '1px solid #e5e7eb',
-                backgroundColor: isSelected ? 'rgba(199, 219, 122, .2)' : '#ffffff',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-                marginBottom: '8px',
-                width:'300px'
-            }}
 
-            onClick={() => onSelect(user.id)}
-            onMouseOver={(e) => !isSelected && (e.currentTarget.style.backgroundColor = '#f9fafb')}
-            onMouseOut={(e) => !isSelected && (e.currentTarget.style.backgroundColor = '#ffffff')}
-        >
-            <input
-                name='userIds'
-                value={user.id}
-                type="checkbox"
-                checked={isSelected}
-                onChange={() => onSelect(user.id)}
-                style={{ marginRight: '12px' }}
-                hidden
-            />
+export default function UserCard({ user, groupId }) {
+    const [inviteActionState, inviteAction] = useActionState(inviteUserAction, {});
+    const [cancelState, cancelAction] = useActionState(CancelInvitationAction, {});
+    const [inviteState, setInviteState] = useState(user.invited)
+    console.log("staaaaaaaaaate", inviteState);
 
-            <Avatar size={42} img={user.avatar} />
-            <div>
-                <p style={{ color: '#1f2937', fontWeight: '500', fontSize: '16px', marginLeft: "5px" }}>{user.firstname} {user.lastname}</p>
-                <p>@{user.nickname}</p>
-            </div>
-        </div>
+
+    useEffect(()=>{
+        if (inviteActionState?.message) setInviteState(1)
+        if (cancelState?.message) setInviteState(0)
+    },[inviteActionState, cancelState])
+
+    console.log("invite staaaaaaaaaaate: ", inviteState)
+    return (    
+        <form
+            action={inviteState == 0 ? inviteAction : cancelAction}>
+            <section className='user_card p2 flex justify-start rounded-lg shadow-md m1' >
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: "space-between",
+                        alignItems: 'center',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s',
+                        width: '300px'
+                    }}
+                >
+                    <input
+                        name='user_id'
+                        defaultValue={user.id}
+                        style={{ marginRight: '12px' }}
+                        hidden
+                    />
+                    <input type="hidden" name="groupId" value={groupId} />
+
+                    <div className='flex gap-1'>
+                        <Avatar size={42} img={user.avatar} />
+                        <div style={
+                            {
+                                display: "flex",
+                                justifyContent: "space-between",
+                                gap: '16px'
+                            }
+
+                        }>
+                            <div>
+                                <p style={{ color: '#1f2937', fontWeight: '500', fontSize: '16px', marginLeft: "5px" }}>{user.fullname}</p>
+                                <p className='text-sm '>@{user.nickname}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {inviteState == 0 ? <Button type={"submit"} >Invite</Button> : <Button type={"submit"} >Cancel</Button>}
+                </div>
+            </section>
+        </form>
     );
 };

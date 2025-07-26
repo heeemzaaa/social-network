@@ -5,6 +5,7 @@ import { HiMiniUsers } from "react-icons/hi2";
 import "./style.css"
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { JoinGroupAction } from "@/app/_actions/group";
 export default function GroupCard({
     type,
     group_id,
@@ -17,7 +18,7 @@ export default function GroupCard({
 
     const router = useRouter()
     const handleJoingGrp = (groupId) => {
-        console.log("join grp:) ")
+        console.log(JoinGroupAction(groupId))
     }
 
     const navigateToGroup = (groupId) => {

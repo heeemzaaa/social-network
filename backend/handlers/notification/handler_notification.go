@@ -21,8 +21,8 @@ func NewNotificationHandler( ns *NS.NotificationService) *NotificationHandler {
 func (NH *NotificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	fmt.Println("requested main path:", r.URL.Path)
-	fmt.Println("method", r.Method)
+	// fmt.Println("requested main path:", r.URL.Path)
+	// fmt.Println("method", r.Method)
 
 	if r.Method != "GET" {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
@@ -46,7 +46,7 @@ func (NH *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 			return
 
 		}
-		fmt.Println("has new Notification====" , hasSeen)
+		// fmt.Println("has new Notification====" , hasSeen)
 
 		data := models.HasSeen{
 			Status: hasSeen,

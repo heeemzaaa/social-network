@@ -5,7 +5,7 @@ import (
 	"social-network/backend/utils"
 )
 
-func (gService *GroupService) Approve(userId, groupId string, userToBeAdded *models.User) *models.ErrorJson {
+func (gService *GroupService) Approve(userId, groupId string, userToBeAdded *models.User) *models.ErrorJson { ///////
 	// to approve wheter it we need
 	// awalan userId ykun dyal l admin
 	// tanyan l user_id lakhur ykun valid (format , and aslo kayn f db)
@@ -38,7 +38,7 @@ func (gService *GroupService) Approve(userId, groupId string, userToBeAdded *mod
 	}
 	// validate if wheter exists or not !!
 
-	if errJson := gService.gRepo.Approve(groupId, userToBeAdded); errJson != nil {
+	if errJson := gService.gRepo.Approve(groupId, userToBeAdded.Id); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return nil
@@ -68,7 +68,7 @@ func (gService *GroupService) Decline(userId, groupId string, userToBeRejected *
 			UserId: "ERROR!! user not found",
 		}}
 	}
-	if errJson := gService.gRepo.Decline(groupId, userToBeRejected); errJson != nil {
+	if errJson := gService.gRepo.Decline(groupId, userToBeRejected.Id); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return nil
