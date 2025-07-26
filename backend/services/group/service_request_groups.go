@@ -1,7 +1,6 @@
 package group
 
 import (
-	"fmt"
 	"social-network/backend/models"
 )
 
@@ -30,21 +29,19 @@ func (gService *GroupService) RequestToJoin(userId, groupId string) (models.Noti
 	if errMembership := gService.CheckNotMember(groupId, userId); errMembership != nil {
 		return notif, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
-	
+
 	if errJson := gService.gRepo.RequestToJoin(userId, groupId); errJson != nil {
 		return notif, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
-	
-	fmt.Println("heeeeeeeeeereeeeeee")
-	notif.GroupName = group.Title
-	notif.GroupId = groupId
-	notif.RecieverId = group.GroupCreatorId
-	notif.ReceiverFullName = group.GroupCreatorFullName
-	notif.Type = "group-join"
-	notif.SenderId = userId
-	
-	fmt.Println(notif)
-	return notif, nil
+
+	return models.Notif{
+		GroupName:        group.Title,
+		GroupId:          groupId,
+		RecieverId:       group.GroupCreatorId,
+		ReceiverFullName: group.GroupCreatorFullName,
+		Type:             "group-join",
+		SenderId:         userId,
+	}, nil
 }
 
 func (gService *GroupService) GetRequests(userId, groupId string) ([]models.User, *models.ErrorJson) {
