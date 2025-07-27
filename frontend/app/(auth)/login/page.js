@@ -1,4 +1,4 @@
-import Logo from '@/app/_components/logo'
+import Logo from '@/app/_components/logo.jsx'
 
 import LoginForm from './loginForm';
 
