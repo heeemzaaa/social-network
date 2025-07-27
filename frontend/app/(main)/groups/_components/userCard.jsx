@@ -9,16 +9,19 @@ export default function UserCard({ user, groupId }) {
     const [inviteActionState, inviteAction] = useActionState(inviteUserAction, {});
     const [cancelState, cancelAction] = useActionState(CancelInvitationAction, {});
     const [inviteState, setInviteState] = useState(user.invited)
-    console.log("staaaaaaaaaate", inviteState);
+    // console.log("staaaaaaaaaate", inviteState);
+    // inviteState =
+    //     inviteActionState?.message === "success" ? 1 :
+    //         cancelState?.message === "success" ? 0 :
+    //             user.invited ? 1 : 0;
 
 
-    useEffect(()=>{
-        if (inviteActionState?.message) setInviteState(1)
-        if (cancelState?.message) setInviteState(0)
-    },[inviteActionState, cancelState])
+    // console.log("invite staaaaaaaaaaate: ", inviteState)
 
-    console.log("invite staaaaaaaaaaate: ", inviteState)
-    return (    
+
+
+
+    return (
         <form
             action={inviteState == 0 ? inviteAction : cancelAction}>
             <section className='user_card p2 flex justify-start rounded-lg shadow-md m1' >
@@ -57,7 +60,9 @@ export default function UserCard({ user, groupId }) {
                             </div>
                         </div>
                     </div>
-                    {inviteState == 0 ? <Button type={"submit"} >Invite</Button> : <Button type={"submit"} >Cancel</Button>}
+                    {inviteState == 0 ?
+                        <Button type={"submit"} onClick={() => setInviteState(1)} >Invite</Button> :
+                        <Button type={"submit"} onClick={() => setInviteState(0)} >Cancel</Button>}
                 </div>
             </section>
         </form>

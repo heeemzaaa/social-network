@@ -15,6 +15,7 @@ const InviteFriendForm = ({ groupId }) => {
     const { closeModal } = useModal()
 
     useEffect(() => {
+     
         async function handleGetFollowers() {
             try {
                 const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {

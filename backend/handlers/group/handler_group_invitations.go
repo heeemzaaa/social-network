@@ -50,6 +50,7 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
+	utils.WriteDataBack(w, "done")
 }
 
 func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +66,7 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 	}
 
 	invitedUser := &models.User{}
-	
+
 	if err := json.NewDecoder(r.Body).Decode(&invitedUser); err != nil {
 		if err == io.EOF {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: models.UserErr{
@@ -82,7 +83,7 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
-
+	utils.WriteDataBack(w, "done")
 	// delete the notification from the database
 }
 

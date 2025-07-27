@@ -253,6 +253,7 @@ export async function JoinGroupAction(groupId) {
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
+        console.log("coookieeeeeee", sessionCookie);
         const res = await fetch(`http://localhost:8080/api/groups/${groupId}/join-request`, {
             method: "POST",
             credentials: 'include',
@@ -277,7 +278,9 @@ export async function inviteUserAction(prevState, formData) {
     let id = formData.get("user_id")
     let groupId = formData.get("groupId")
     try {
-        const sessionCookie = await cookies().get("session")?.value;
+        const cookieStore = await cookies();
+        const sessionCookie = cookieStore.get("session")?.value;
+        console.log("coookieeeeeee", sessionCookie);
         const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
             credentials: 'include',
             method: "POST",
@@ -288,10 +291,9 @@ export async function inviteUserAction(prevState, formData) {
             }
         });
 
-        console.log(await res.json());
         if (res.ok) {
             const result = await res.json()
-            console.log(result);
+            console.log("result", result);
             return { message: "success" }
 
         }
@@ -307,7 +309,8 @@ export async function CancelInvitationAction(prevState, formData) {
     console.log("inside the actions", groupId);
     let id = formData.get("user_id")
     try {
-        const sessionCookie = await cookies().get("session")?.value;
+        const cookieStore = await cookies();
+        const sessionCookie = cookieStore.get("session")?.value;
         const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
             credentials: 'include',
             method: "DELETE",
@@ -318,9 +321,9 @@ export async function CancelInvitationAction(prevState, formData) {
             }
         });
 
-        console.log(await res.json());
         if (res.ok) {
             const result = await res.json()
+            console.log("result inside the cancel", result);
             return {
                 message: "success"
             }

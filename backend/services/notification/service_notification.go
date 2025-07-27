@@ -83,7 +83,6 @@ func (NS *NotificationService) IsHasSeenFalse(user_id string) (bool, *models.Err
 }
 
 func (NS *NotificationService) GetService(user_id, queryParam string) ([]models.Notification, *models.ErrorJson) {
-
 	all, err := NS.repo.SelectAllNotification(user_id)
 	if err != nil {
 		return nil, err
@@ -109,9 +108,10 @@ func (NS *NotificationService) GetService(user_id, queryParam string) ([]models.
 
 // insert new notification after event hapen
 func (NS *NotificationService) PostService(data models.Notif) *models.ErrorJson {
-
+	fmt.Println("heeeeeeeere")
 	name, errJson := NS.repo2.GetUserNameById(data.SenderId)
-	if errJson  != nil {
+	fmt.Println("errjson", errJson)
+	if errJson != nil {
 		return errJson
 	}
 	data.SenderFullName = name
@@ -135,7 +135,6 @@ func (NS *NotificationService) PostService(data models.Notif) *models.ErrorJson 
 		return errJson
 	}
 
-	
 	return nil
 }
 
@@ -150,7 +149,6 @@ func (NS *NotificationService) PostService(data models.Notif) *models.ErrorJson 
 //		GroupName: "",
 //	}
 func (NS *NotificationService) FollowPrivateProfile(data models.Notif) *models.ErrorJson {
-
 	notification := models.Notification{}
 	notification.Sender_Id = data.SenderId
 	notification.Id = uuid.New().String()
@@ -210,7 +208,6 @@ func (NS *NotificationService) FollowPublicProfile(data models.Notif) *models.Er
 //		GroupName: "group name",
 //	}
 func (NS *NotificationService) GroupInvitationRequest(data models.Notif) *models.ErrorJson {
-
 	notification := models.Notification{}
 	notification.Sender_Id = data.SenderId
 	notification.Id = uuid.New().String()
@@ -240,7 +237,6 @@ func (NS *NotificationService) GroupInvitationRequest(data models.Notif) *models
 //		GroupName: "group name",
 //	}
 func (NS *NotificationService) GroupJoinRequest(data models.Notif) *models.ErrorJson {
-
 	notification := models.Notification{}
 	notification.Sender_Id = data.SenderId
 	notification.Id = utils.NewUUID()
@@ -270,7 +266,6 @@ func (NS *NotificationService) GroupJoinRequest(data models.Notif) *models.Error
 //		GroupName: "group name",
 //	}
 func (NS *NotificationService) GroupEventRequest(data models.Notif) *models.ErrorJson {
-
 	notification := models.Notification{}
 
 	notification.Sender_Id = data.SenderId
