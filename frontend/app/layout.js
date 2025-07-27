@@ -22,11 +22,11 @@ export default function RootLayout({ children }) {
       window.removeEventListener("mousedown", handleOutSideClick);
     };
   }, [ref]);
-
+  
   return (
-    <html lang="en" className={geist.className}>
+	  <html lang="en" className={geist.className}>
       <body ref={ref}>
-        {children}
+          {children}
       </body>
     </html>
   );
