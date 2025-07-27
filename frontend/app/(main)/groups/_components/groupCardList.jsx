@@ -23,7 +23,6 @@ export default function GroupCardList({ filter }) {
 
     const fetchData = useCallback(
         async (id) => {
-            console.log("fetch created groups: ", id)
             if (isLoading || !hasMore) return
             setIsLoading(true)
             abortControllerRef.current = new AbortController()
@@ -36,11 +35,9 @@ export default function GroupCardList({ filter }) {
                 }
                 const result = await response.json()
                 if (result.length === 0) {
-                    console.log("!!! you reached the end")
                     setHasMore(false)
                 } else {
                     if (result.length < 6) setHasMore(false)
-                    console.log("!!! you reached the end")
                     setData((prevData) => [...prevData, ...result])
                 }
             } catch (err) {
@@ -54,7 +51,6 @@ export default function GroupCardList({ filter }) {
     )
 
     useEffect(() => {
-        console.log("initial fetch", [console.log(data)])
         setData([])
         setPage(0)
         setHasMore(true)
@@ -87,15 +83,12 @@ export default function GroupCardList({ filter }) {
 
     useEffect(() => {
         if (page > 0) {
-            console.log("previous fetched data: ", data)
-            console.log("page: ", page)
             let id = data[data.length - 1]?.group_id 
             fetchData(id)
         }
     }, [page])
 
     if (error) return <p className="text-danger text-center">Error: {error}</p>
-
     return (
         <div className="list-container flex flex-wrap gap-4 justify-center items-start overflow-y-auto">
             {data.map((item, index) => (

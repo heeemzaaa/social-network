@@ -3,7 +3,6 @@ import Tag from "../../_components/tag";
 import { HiMiniUsers } from "react-icons/hi2";
 import "./style.css"
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 export default function GroupCard({
     type,
     group_id,
@@ -13,7 +12,7 @@ export default function GroupCard({
     total_members
 }) {
 
-
+    console.log(image_path)
     const router = useRouter()
     const handleJoingGrp = (groupId) => {
         console.log("join grp:) ")
@@ -22,7 +21,6 @@ export default function GroupCard({
     const navigateToGroup = (groupId) => {
         router.push(`/groups/${groupId}`);
     }
-
     
     return (
         <div className="grp-card w-quarter" onClick={() => navigateToGroup(group_id)}>
