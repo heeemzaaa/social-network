@@ -168,3 +168,19 @@
 .emoji:hover {
   transform: scale(1.2);
 }
+
+.goBack {
+	display: none;
+}
+
+@media (max-width: 500px) {
+	.goBack {
+		display: flex;
+	}
+	
+	.chat_place {
+		display: none;
+	}
+
+	
+}

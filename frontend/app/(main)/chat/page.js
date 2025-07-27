@@ -8,20 +8,14 @@ import UserList from "../_components/chat/user_list";
 import GroupList from "../_components/group_list";
 import { useUserContext } from "../_context/userContext";
 import { fetchMessages } from "../_components/fetchMessages";
+
 const emojis = ["😀", "😂", "😍", "🔥", "🥺", "👍", "❤️", "🎉"];
 
 export default function Chat() {
-  const [chatBodyName, setChatBodyName] = useState([]);
-  const [currentUser, setCurrentUser] = useState({
-    username: "",
-    ID: "",
-    type: "private",
-  });
-  const [currentGroup, setCurrentGroup] = useState({
-    title: "",
-    group_id: "",
-    type: "group",
-  });
+  const usersBlock = document.getElementsByClassName("user_groups_place");
+  const chatBlock = document.getElementsByClassName("chat_place");
+  const [chatBodyName, setChatBodyName] = useState("");
+  const [chatTarget, setChatTarget] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const { users, socket, messages, setMessages, authenticatedUser, groups } =
     useUserContext();
@@ -29,28 +23,16 @@ export default function Chat() {
   const bottomRef = useRef(null);
   const [view, setView] = useState("Users");
 
-  // Reset currentUser if they disappear from users list
   useEffect(() => {
-    if (
-      currentUser.ID &&
-      !users.some((user) => user.userID === currentUser.ID)
-    ) {
-      setCurrentUser({ username: "", ID: "", type: "private" });
-    }
-  }, [users, currentUser.ID]);
-
-  // Load message history when currentUser changes
-  useEffect(() => {
-    if (!currentUser.ID || !authenticatedUser) return;
+    if (!chatTarget?.ID || !authenticatedUser) return;
 
     const loadMessages = async () => {
-      const msgs = await fetchMessages(currentUser.ID, currentUser.type);
-
+      const msgs = await fetchMessages(chatTarget.ID, chatTarget.type);
       if (!msgs) return;
 
       setMessages((prev) => ({
         ...prev,
-        [currentUser.ID]: msgs.map((msg) => {
+        [chatTarget.ID]: msgs.map((msg) => {
           const isMe = msg.sender_id === authenticatedUser.id;
           return {
             content: msg.content,
@@ -63,42 +45,55 @@ export default function Chat() {
     };
 
     loadMessages();
-  }, [currentUser.ID, authenticatedUser]); // Added authenticatedUser as dependency
+  }, [chatTarget?.ID, chatTarget?.type, authenticatedUser]);
+
+  useEffect(() => {
+    if (
+      chatTarget?.type === "private" &&
+      chatTarget?.ID &&
+      !users.some((user) => user.userID === chatTarget.ID)
+    ) {
+      setChatTarget(null);
+      setChatBodyName("");
+    }
+  }, [users, chatTarget]);
 
   const handleUserClick = (user) => {
-    setCurrentUser({
-      username: user.username,
+    setChatTarget({
       ID: user.userID,
       type: "private",
-	  body: setChatBodyName(user.username),
     });
+    if (window.innerWidth <= 500) {
+      chatBlock[0].style.display = "flex";
+      usersBlock[0].style.display = "none";
+    }
+
+    setChatBodyName(user.username);
   };
 
-  const handleGroupClick = (groups) => {
-    setCurrentGroup({
-      title: groups.title,
-      group_id: groups.group_id,
+  const handleGroupClick = (group) => {
+    setChatTarget({
+      ID: group.group_id,
       type: "group",
-	  body: setChatBodyName(groups.title)
     });
-	console.log("Group clicked:", groups);
+    if (window.innerWidth <= 500) {
+      chatBlock[0].style.display = "flex";
+      usersBlock[0].style.display = "none";
+    }
+    setChatBodyName(group.title);
   };
-  // Send message to backend via WebSocket and update messages locally optimistically
+
   const sendMessage = () => {
+    if (!newMessage.trim() || !chatTarget?.ID || socket?.readyState !== 1)
+      return;
 
-
-    if (!newMessage || !currentUser.ID || socket?.readyState !== 1) return;
     const messagePayload = {
       content: newMessage,
-      target_id: currentUser.ID,
-      type: "private",
+      target_id: chatTarget.ID,
+      type: chatTarget.type,
     };
 
-    // Send to backend (which will verify, save, then broadcast)
     socket.send(JSON.stringify(messagePayload));
-
-    // Optimistically add message to current chat as "me"
-
     setNewMessage("");
   };
 
@@ -109,6 +104,30 @@ export default function Chat() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  function back() {
+    usersBlock[0].style.display = "flex";
+    chatBlock[0].style.display = "none";
+  }
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 500) {
+        chatBlock[0].style.display = "flex";
+        usersBlock[0].style.display = "flex";
+      } else {
+        chatBlock[0].style.display = "none";
+        usersBlock[0].style.display = "flex";
+      }
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
     <main className="chat_main_container p4 flex-row">
@@ -140,66 +159,108 @@ export default function Chat() {
       </section>
 
       <section className="chat_place flex-col">
-        <div className="chat_header p2">
-          <img src="/no-profile.png" alt="Profile" />
-          <p className="text-lg font-semibold">{chatBodyName}</p>
-        </div>
-
-        <div className="chat_body">
-          {(messages[currentUser.ID] || []).map((msg, i) => (
+        {chatBodyName ? (
+          <div className="chat_header p2">
             <div
-              key={i}
-              className={`message ${msg.sender === "me" ? "sent" : "received"}`}
+              className="goBack cursor-pointer w-8 h-8"
+              onClick={() => back()}
+              title="Go back"
             >
-              {msg.username && <span className="username">{msg.username}</span>}
-              {msg.content}
-              <span className="timestamp">
-                {new Date(msg.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-              <div ref={bottomRef} />
+              <svg
+                fill="#1E201F"
+                height="5vh"
+                width="5vw"
+                viewBox="0 0 206.108 206.108"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M152.774,69.886H30.728l24.97-24.97c3.515-3.515,3.515-9.213,0-12.728c-3.516-3.516-9.213-3.515-12.729,0L2.636,72.523 
+        c-3.515,3.515-3.515,9.213,0,12.728l40.333,40.333c1.758,1.758,4.061,2.636,6.364,2.636c2.303,0,4.606-0.879,6.364-2.636 
+        c3.515-3.515,3.515-9.213,0-12.728l-24.97-24.97h122.046c19.483,0,35.334,15.851,35.334,35.334s-15.851,35.334-35.334,35.334
+        H78.531c-4.971,0-9,4.029-9,9s4.029,9,9,9h74.242c29.408,0,53.334-23.926,53.334-53.334S182.182,69.886,152.774,69.886z"
+                />
+              </svg>
             </div>
-          ))}
-        </div>
+            <img src="/no-profile.png" alt="Profile" />
+            <p className="text-lg font-semibold">{chatBodyName}</p>
+          </div>
+        ) : (
+          <div className="chat_header p2 text-gray-500 italic">
+            No chat selected
+          </div>
+        )}
 
-        <div className="chat_footer p2">
-          <div style={{ position: "relative" }}>
-            <HiMiniFaceSmile
+        {chatBodyName ? (
+          <div className="chat_body">
+            {(messages[chatTarget?.ID] || []).map((msg, i) => (
+              <div
+                key={i}
+                className={`message ${
+                  msg.sender === "me" ? "sent" : "received"
+                }`}
+              >
+                {msg.username && (
+                  <span className="username">{msg.username}</span>
+                )}
+                {msg.content}
+                <span className="timestamp">
+                  {new Date(msg.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+                <div ref={bottomRef} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="chat_body empty">
+            <p className="text-gray-500">
+              NSIT DAK SITE DYAL TSAWR HET HNA TSWIRA BROJOLA HHHH
+            </p>
+          </div>
+        )}
+
+        {chatTarget && (
+          <div className="chat_footer p2">
+            <div style={{ position: "relative" }}>
+              <HiMiniFaceSmile
+                size={"30px"}
+                onClick={() => setShowEmojiPicker((prev) => !prev)}
+                style={{ cursor: "pointer" }}
+              />
+
+              {showEmojiPicker && (
+                <div className="emoji-picker">
+                  {emojis.map((emoji, index) => (
+                    <span
+                      key={index}
+                      className="emoji"
+                      onClick={() => handleEmojiClick(emoji)}
+                    >
+                      {emoji}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <textarea
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={(e) =>
+                e.key === "Enter" && !e.shiftKey && sendMessage()
+              }
+              placeholder="Type a message..."
+            />
+            <HiPaperAirplane
+              onClick={sendMessage}
+              className="HiPaperAirplane"
               size={"30px"}
-              onClick={() => setShowEmojiPicker((prev) => !prev)}
               style={{ cursor: "pointer" }}
             />
-
-            {showEmojiPicker && (
-              <div className="emoji-picker">
-                {emojis.map((emoji, index) => (
-                  <span
-                    key={index}
-                    className="emoji"
-                    onClick={() => handleEmojiClick(emoji)}
-                  >
-                    {emoji}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
-
-          <textarea
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-            placeholder="Type a message..."
-          />
-          <HiPaperAirplane
-            onClick={sendMessage}
-            className="HiPaperAirplane"
-            size={"30px"}
-            style={{ cursor: "pointer" }}
-          />
-        </div>
+        )}
       </section>
     </main>
   );

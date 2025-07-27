@@ -10,7 +10,6 @@ export default function UserProvider({ children }) {
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
   const socketRef = useRef(null);
 
-  // STEP 1: Fetch logged-in user once on mount
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
@@ -37,7 +36,6 @@ export default function UserProvider({ children }) {
     fetchLoggedInUser();
   }, []);
 
-  // STEP 2: Setup WebSocket and fetch users after login
   useEffect(() => {
     if (!authenticatedUser) return;
 
@@ -51,13 +49,20 @@ export default function UserProvider({ children }) {
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+
         if (
           typeof data.content === "string" &&
           data.content !== "" &&
           (data.type === "private" || data.type === "group")
         ) {
           const isMe = data.sender_id === authenticatedUser.id;
-          const chatPartner = isMe ? data.target_id : data.sender_id;
+
+          const chatKey =
+            data.type === "group"
+              ? data.target_id
+              : isMe
+              ? data.target_id
+              : data.sender_id;
 
           const newMsg = {
             content: data.content,
@@ -68,7 +73,7 @@ export default function UserProvider({ children }) {
 
           setMessages((prev) => ({
             ...prev,
-            [chatPartner]: [...(prev[chatPartner] || []), newMsg],
+            [chatKey]: [...(prev[chatKey] || []), newMsg],
           }));
         }
       } catch (err) {
@@ -136,7 +141,7 @@ export default function UserProvider({ children }) {
     <UserContext.Provider
       value={{
         users,
-		groups,
+        groups,
         socket: socketRef.current,
         messages,
         setMessages,

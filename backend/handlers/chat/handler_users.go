@@ -35,7 +35,6 @@ func (chatNav *ChatNavigation) GetUsers(w http.ResponseWriter, r *http.Request) 
 }
 
 func (ChatNav *ChatNavigation) GetGroups(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Fetching groups for authenticated user")
 	authUserID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})

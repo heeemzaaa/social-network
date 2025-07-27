@@ -27,7 +27,6 @@ func (messages *MessagesHandler) GetMessages(w http.ResponseWriter, r *http.Requ
 
 	lastMessageStr := r.URL.Query().Get("last")
 	target_id := r.URL.Query().Get("target_id")
-	fmt.Println("Target ID:", target_id)
 
 	type_ := r.URL.Query().Get("type")
 	if type_ != "private" && type_ != "group" {
