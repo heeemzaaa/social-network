@@ -44,6 +44,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
         group_events.title,
         group_events.description,
         group_events.eventTime,
+		group_events.createdAt,
         cte_liked.chosen
     FROM
         group_events
@@ -52,6 +53,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
     WHERE
         group_events.groupID = ?
 
+	ORDER BY group_events.createdAt DESC
     LIMIT 20 OFFSET  ? 
 	`
 	stmt, err := gRepo.db.Prepare(query)
@@ -79,6 +81,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
 			&event.Title,
 			&event.Description,
 			&event.EventDate,
+			&event.CreatedAt,
 			&event.Going,
 		); err != nil {
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 2", err)}
