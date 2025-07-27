@@ -11,36 +11,48 @@ import (
 // get the event created of a specific group
 func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int64) ([]models.Event, *models.ErrorJson) {
 	events := []models.Event{}
-	query := `WITH
+	query := `
+	WITH
+    cte_users_group AS (
+        SELECT
+            userID
+        FROM
+            group_membership
+        WHERE
+            groupID = ?
+    ),
     cte_liked AS (
         SELECT
             group_events.eventID as ID,
+            group_events.title,
             group_event_users.actionChosen as chosen
         FROM
             group_events
             LEFT JOIN group_event_users ON group_event_users.eventID = group_events.eventID
-            INNER JOIN users ON users.userID = group_event_users.userID
-            AND users.userID =  ?
+            LEFT  JOIN cte_users_group ON cte_users_group.userID = group_event_users.userID
+            AND cte_users_group.userID = ?
         GROUP BY
             group_events.eventID
     )
-	SELECT
-		group_events.eventID,
-		group_events.eventCreatorID,
-		concat (users.firstName, " ", users.lastName) AS FullName,
-		users.nickname,
-		users.avatarPath,
-		group_events.title,
-		group_events.description,
-		group_events.eventTime,
-		cte_liked.chosen
-	FROM
-		group_events
-		INNER JOIN users ON group_events.eventCreatorID = users.userID
-		INNER JOIN  cte_liked ON cte_liked.ID = group_events.eventID
-	WHERE
-		group_events.groupID = ?
-	LIMIT 20 OFFSET ?
+
+    SELECT
+        group_events.eventID,
+        group_events.eventCreatorID,
+        concat (users.firstName, " ", users.lastName) AS FullName,
+        users.nickname,
+        users.avatarPath,
+        group_events.title,
+        group_events.description,
+        group_events.eventTime,
+        cte_liked.chosen
+    FROM
+        group_events
+        INNER JOIN users ON group_events.eventCreatorID = users.userID
+        INNER JOIN cte_liked ON cte_liked.ID = group_events.eventID
+    WHERE
+        group_events.groupID = ?
+
+    LIMIT 20 OFFSET  ? 
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
@@ -48,7 +60,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(userId, groupId, offset)
+	rows, err := stmt.Query(groupId, userId, groupId, offset)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return events, nil

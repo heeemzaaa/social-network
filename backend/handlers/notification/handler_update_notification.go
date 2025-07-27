@@ -56,6 +56,9 @@ func (NUH *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	
-	utils.WriteDataBack(w, nil)
+	data := models.ResponseMsg{
+		Status: true,
+		Message: "oo follow you",
+	}
+	utils.WriteDataBack(w, data)
 }

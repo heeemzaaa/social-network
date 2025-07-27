@@ -11,7 +11,7 @@ import (
 )
 
 type (
-	ClientList   map[string][]*Client
+	ClientList map[string][]*Client
 )
 
 type OnlineUsers struct {
