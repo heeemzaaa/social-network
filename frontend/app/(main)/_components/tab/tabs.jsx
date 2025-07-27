@@ -14,21 +14,17 @@ export default function Tabs({ children, className }) {
     const tabs = [];
     const contents = [];
 
-    // useEffect(()=>{
-
-        React.Children.forEach(children, (child) => {
-            if (child && child.type === Tab) {
-                tabs.push(child);
-            } else if (child && child.type === TabContent) {
-                contents.push(child);
-            }
-        })
-    // })
+    React.Children.forEach(children, (child) => {
+        if (child && child.type === Tab) {
+            tabs.push(child);
+        } else if (child && child.type === TabContent) {
+            contents.push(child);
+        }
+    })
 
     return (
         <div className={`tab-container ${className}`}>
             <div className="tab-list">
-                
                 {tabs.map((tab, index) =>
                     React.cloneElement(tab, {
                         isActive: index === activeTab,

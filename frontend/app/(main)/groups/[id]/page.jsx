@@ -104,6 +104,7 @@ export default function GroupPage({ params }) {
         <Tabs className={"h-full"}>
           <Tab label={"Posts"} />
           <Tab label={"Events"} />
+          <Tab label={"nothing"} />
           <TabContent>
             <GroupPostCardList groupId={groupId} />
           </TabContent>

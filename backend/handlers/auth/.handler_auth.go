@@ -140,7 +140,6 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	data := r.FormValue("data")
 	err := json.Unmarshal([]byte(data), &user)
 	if err != nil {
-		fmt.Println("Error while decoding the the register request body: ", err)
 		if err == io.EOF {
 			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,

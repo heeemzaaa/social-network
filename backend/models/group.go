@@ -5,20 +5,19 @@ import (
 )
 
 type Group struct {
-	GroupId              string    `json:"group_id,omitempty"`
-	GroupCreatorId       string    `json:"group_creator_id,omitempty"`
-	Title                string    `json:"title"`
-	GroupCreatorFullName string    `json:"group_creator,omitempty"`
-	GroupCreatorNickname string    `json:"group_creator_nickname,omitempty"`
-	Description          string    `json:"description"`
-	ImagePath            string    `json:"image_path,omitempty"`
-	Image                string    `json:"image,omitempty"`
-	CreatedAt            time.Time `json:"created_at,omitempty"`
-	Total_Members        int       `json:"total_members,omitempty"`
-	Members              []User    `json:"members,omitempty"`
-	Posts                []Post    `json:"posts,omitempty"`
-	Events               []Event   `json:"events,omitempty"`
-	LastInteraction      string    `json:"last_interaction,omitempty"`
+	GroupId         string    `json:"group_id,omitempty"`
+	GroupCreatorId  string    `json:"group_creator_id,omitempty"`
+	Title           string    `json:"title"`
+	GroupCreator    User      `json:"user"`
+	Description     string    `json:"description"`
+	ImagePath       string    `json:"image_path,omitempty"`
+	Image           string    `json:"image,omitempty"`
+	CreatedAt       time.Time `json:"created_at,omitempty"`
+	Total_Members   int       `json:"total_members,omitempty"`
+	Members         []User    `json:"members,omitempty"`
+	Posts           []Post    `json:"posts,omitempty"`
+	Events          []Event   `json:"events,omitempty"`
+	LastInteraction string `json:"last_interaction,omitempty"`
 }
 
 // when trying to  create a group

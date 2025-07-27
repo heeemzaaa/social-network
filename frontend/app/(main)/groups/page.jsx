@@ -14,6 +14,7 @@ import CreateGroupForm from './_components/createGroupForm';
 export default function Groups() {
 
   const { openModal } = useModal()
+  
   return (
     <main className='flex-col flex-start border-red align-end'>
       <Button className={'justify-start'} onClick={() => { openModal(<CreateGroupForm />) }}>

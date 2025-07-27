@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"fmt"
 
 	"social-network/backend/models"
 )
@@ -31,6 +30,5 @@ func (service *ChatService) GetGroups(authUserID string) ([]models.Group, *model
 	if err != nil {
 		return []models.Group{}, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
-	fmt.Println("groups: ", groups)
 	return groups, nil
 }

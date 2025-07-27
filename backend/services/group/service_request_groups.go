@@ -35,12 +35,11 @@ func (gService *GroupService) RequestToJoin(userId, groupId string) (models.Noti
 	}
 
 	return models.Notif{
-		GroupName:        group.Title,
-		GroupId:          groupId,
-		RecieverId:       group.GroupCreatorId,
-		ReceiverFullName: group.GroupCreatorFullName,
-		Type:             "group-join",
 		SenderId:         userId,
+		RecieverId:       group.GroupCreatorId,
+		GroupId:          groupId,
+		Type:             "group-join",
+		GroupName:        group.Title,
 	}, nil
 }
 

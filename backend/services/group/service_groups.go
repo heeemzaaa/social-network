@@ -13,11 +13,11 @@ import (
 type GroupService struct {
 	gRepo    *group.GroupRepository
 	sProfile *profile.ProfileService
-	sNotif *NS.NotificationService
+	sNotif   *NS.NotificationService
 }
 
-func NewGroupService(grepo *group.GroupRepository, sProfile *profile.ProfileService) *GroupService {
-	return &GroupService{gRepo: grepo, sProfile: sProfile}
+func NewGroupService(grepo *group.GroupRepository, sProfile *profile.ProfileService, sNotif *NS.NotificationService) *GroupService {
+	return &GroupService{gRepo: grepo, sProfile: sProfile, sNotif: sNotif}
 }
 
 func (gService *GroupService) AddGroup(group *models.Group) (*models.Group, *models.ErrorJson) {
