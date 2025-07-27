@@ -73,7 +73,7 @@ func (NS *NotificationService) FollowPublicProfile(data models.Notif) *models.Er
 		Type: data.Type,
 		SenderFullName: data.SenderFullName,
 		GroupName: "none",
-		Status: "later",
+		Status: "accept",
 		Seen: false,
 		CreatedAt: time.Now(),
 

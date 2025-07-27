@@ -11,7 +11,6 @@ export default function NotificationsPopover() {
   const { showNotification } = useNotification();
 
   const notificationContent = (notification) => {
-    // let content
     if (notification.Status == "later") {
       switch (notification.Type) {
         case "follow-private":
@@ -26,6 +25,8 @@ export default function NotificationsPopover() {
     } else if (notification.Status == "accept") {
       switch (notification.Type) {
         case "follow-private":
+          return `${notification.SenderFullName} follow you`
+        case "follow-public":
           return `${notification.SenderFullName} follow you`
         case "group-join":
           return `${notification.SenderFullName} join your ${notification.GroupName} group`
@@ -46,7 +47,7 @@ export default function NotificationsPopover() {
           return `you refused to go to ${notification.SenderFullName} event at ${notification.GroupName}` 
       }
     }
-    return "content information !!"
+    return "content information not found !!"
   }
 
   // Handle accept/reject notification
@@ -80,9 +81,8 @@ export default function NotificationsPopover() {
 
       // Show popup with response message
       showNotification({
-        Type: "response",
         Content: `Notification ${status}ed successfully: ${data?.Message}`,
-        // Status: status === "accept" ? "success" : "error"
+        Status: status === "accept" ? "success" : "error"
       });
 
       // Update local state

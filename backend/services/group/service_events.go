@@ -36,6 +36,7 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
+	// // rani bedelt GetGroupById by GetGroupInfo // //
 	// if errJson := gService.gRepo.GetGroupById(event.GroupId); errJson != nil {
 	// 	return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	// }
@@ -75,15 +76,12 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 		if user.Id == event.EventCreator.Id {
 			continue
 		}
-
-		fmt.Println("hereherehere /////")
 		//  add the notification for the adding of the event so we need the func of amine too
 		//  group_id / sender_id (the one who creted the event / group-event)
 		// {event}
 		data := models.Notif{
 			SenderId:         event.EventCreator.Id,
 			RecieverId:       user.Id,
-			// SenderFullName:   event.EventCreator.FullName,
 			Type:             "group-event",
 			GroupId:          event.GroupId,
 			EventId:          event.EventId,
