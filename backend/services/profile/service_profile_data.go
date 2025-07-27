@@ -43,3 +43,4 @@ func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*m
 	}
 	return profile, nil
 }
+

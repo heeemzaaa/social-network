@@ -3,6 +3,7 @@ package notification
 import (
 	"database/sql"
 	"fmt"
+
 	"social-network/backend/models"
 	"strings"
 )
@@ -32,10 +33,8 @@ func (repo *NotifRepository) UpdateStatusById(notif_id, value string) *models.Er
 	query := `UPDATE notifications SET notifStatus = ? WHERE notifId = ?`
 	_, err := repo.db.Exec(query, value, notif_id)
 	if err != nil {
-		fmt.Println("ERROR UPDATE === > ", err)
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
-	fmt.Println("UPDATE STATE SECCES")
 	return nil
 }
 
@@ -56,7 +55,6 @@ func (repo *NotifRepository) UpdateSeen(notif_id string) *models.ErrorJson {
 	query := `UPDATE notifications SET seen = 1 WHERE notifId = ?`
 	_, err := repo.db.Exec(query, notif_id)
 	if err != nil {
-		fmt.Println("ERROR UPDATE === > ", err)
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	// fmt.Println("UPDATE SEEN SECCES")
@@ -74,7 +72,7 @@ func (repo *NotifRepository) SelectNotification(notif_id string) (models.Notific
 	defer stmt.Close()
 
 	var notification models.Notification
-	err = stmt.QueryRow(notif_id).Scan(&notification.Id, &notification.RecieverId, &notification.SenderId, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.GroupId, &notification.CreatedAt)
+	err = stmt.QueryRow(notif_id).Scan(&notification.Id, &notification.RecieverId, &notification.SenderId, &notification.SenderFullName, &notification.Seen, &notification.Type, &notification.Status, &notification.GroupId, &notification.GroupName, &notification.EventId, &notification.CreatedAt)
 	if err != nil {
 		return notification, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
 	}
@@ -94,8 +92,8 @@ func (repo *NotifRepository) InsertNewNotification(data models.Notification) *mo
 	}
 	fmt.Println("dataaaa", data)
 	query := `
-	INSERT INTO notifications (notifId, recieverId, senderId, seen, notifType, notifStatus, content, groupId, createdAt)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+	INSERT INTO notifications (notifId, recieverId, senderId, senderFullName, seen, notifType, notifStatus, groupId, groupName, eventId, createdAt)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -103,7 +101,7 @@ func (repo *NotifRepository) InsertNewNotification(data models.Notification) *mo
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(data.Id, data.RecieverId, data.SenderId, data.Seen, data.Type, data.Status, data.Content, data.GroupId,  data.CreatedAt)
+	_, err = stmt.Exec(data.Id, data.RecieverId, data.SenderId, data.SenderFullName, data.Seen, data.Type, data.Status, data.GroupId, data.GroupName, data.EventId, data.CreatedAt)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 4", err)}
 	}
@@ -129,7 +127,7 @@ func (repo *NotifRepository) SelectAllNotification(userid string) ([]models.Noti
 
 	for rows.Next() {
 		var notification models.Notification
-		err = rows.Scan(&notification.Id, &notification.RecieverId, &notification.SenderId, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.GroupId, &notification.CreatedAt)
+		err = rows.Scan(&notification.Id, &notification.RecieverId, &notification.SenderId, &notification.SenderFullName, &notification.Seen, &notification.Type, &notification.Status, &notification.GroupId, &notification.GroupName, &notification.EventId, &notification.CreatedAt)
 		if err != nil {
 			fmt.Println("error: ------ rows : next")
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
@@ -158,7 +156,7 @@ func (repo *NotifRepository) SelectAllNotificationByType(userid, notifType strin
 
 	for rows.Next() {
 		var notification models.Notification
-		err = rows.Scan(&notification.Id, &notification.RecieverId, &notification.SenderId, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.GroupId, &notification.CreatedAt)
+		err = rows.Scan(&notification.Id, &notification.RecieverId, &notification.SenderId, &notification.SenderFullName, &notification.Seen, &notification.Type, &notification.Status, &notification.GroupId, &notification.GroupName, &notification.EventId, &notification.CreatedAt)
 		if err != nil {
 			fmt.Println("error: ------ rows : next")
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}

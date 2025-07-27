@@ -38,19 +38,18 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
 		return
 	}
-	// fmt.Println("JJJJJJOOOOOOOIIIIIINNNNNN")
+
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	fmt.Println("group ID ==> ", groupID)
+
 	data, errJson := GrpReqHandler.gService.RequestToJoin(userID.String(), groupID.String())
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
-	/////////////////////
 
 	// add new notification type: [group-join]
 	if errJson := GrpReqHandler.sNotif.PostService(data); errJson != nil {
@@ -69,6 +68,7 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
 		return
 	}
+
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
@@ -82,7 +82,7 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter
 
 	// delete notification
 	// {sender_id , receiver_id, "group-join"}
-	//
+	// // // // // // // // // //
 }
 
 func (GrpReqHandler *GroupRequestsHandler) GetRequests(w http.ResponseWriter, r *http.Request) {

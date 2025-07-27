@@ -17,17 +17,19 @@ export default function GroupEventCard({
     title,
     description,
     event_date,
-    created_at, 
+    created_at,
     going,
 }) {
+
     return (
-        
+
         <div style={style} className="flex-col gap-1  bg-white p2 pi3 rounded-xl shadow-md" key={event_id}>
             <div className='flex align-center gap-2'>
-                <Avatar size={42} />
+                <Avatar img={event_creator.avatar} size={42} />
+                {/* <img src='/no-profile.png'/> */}
                 <div>
                     <p className='font-semibold'>{event_creator.fullname}</p>
-                    <span className=''>@nickname</span>
+                    <span className=''>@{event_creator.nickname}</span>
                 </div>
             </div>
             <hr />

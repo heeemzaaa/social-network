@@ -30,7 +30,7 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 	data := models.Notif{
 		SenderId:       authUserID,
 		RecieverId:     userID,
-		SenderFullName: profile.User.FullName,
+		// SenderFullName: profile.User.FullName,
 	}
 
 	switch profile.User.Visibility {
@@ -45,7 +45,7 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 		// insert new private notification for recieverId = userID
 		errJson := NS.PostService(data)
 		if errJson != nil {
-			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
+			// return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
 		}
 
 	case "public":

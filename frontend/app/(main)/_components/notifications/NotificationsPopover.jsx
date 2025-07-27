@@ -10,6 +10,45 @@ export default function NotificationsPopover() {
 
   const { showNotification } = useNotification();
 
+  const notificationContent = (notification) => {
+    // let content
+    if (notification.Status == "later") {
+      switch (notification.Type) {
+        case "follow-private":
+          return `${notification.SenderFullName} send a follow request`
+        case "group-join":
+          return `${notification.SenderFullName} would like to join ${notification.GroupName} group`
+        case "group-invitation":
+          return `${notification.SenderFullName} send a request to join ${notification.GroupName} group`
+        case "group-event":
+          return `${notification.SenderFullName} create event at ${notification.GroupName} group`
+      }
+    } else if (notification.Status == "accept") {
+      switch (notification.Type) {
+        case "follow-private":
+          return `${notification.SenderFullName} follow you`
+        case "group-join":
+          return `${notification.SenderFullName} join your ${notification.GroupName} group`
+        case "group-invitation":
+          return `you are now a member of ${notification.GroupName} group`
+        case "group-event":
+          return `don't forget to go to ${notification.SenderFullName} event at ${notification.GroupName}` 
+      }
+    } else if (notification.Status == "reject") {
+      switch (notification.Type) {
+        case "follow-private":
+          return `you rejected ${notification.SenderFullName} follow request`
+        case "group-join":
+          return `you refused ${notification.SenderFullName} to join your ${notification.GroupName} group`
+        case "group-invitation":
+          return `you rejected ${notification.SenderFullName} request to join ${notification.GroupName} group`
+        case "group-event":
+          return `you refused to go to ${notification.SenderFullName} event at ${notification.GroupName}` 
+      }
+    }
+    return "content information !!"
+  }
+
   // Handle accept/reject notification
   const handleNotificationAction = async (notification, status) => {
     console.log(`${status} notification:`, notification);
@@ -39,14 +78,14 @@ export default function NotificationsPopover() {
       let data = await response.json();
       console.log(`Notification ${status} response:`, data);
 
-      // ✅ Show popup with response message
+      // Show popup with response message
       showNotification({
         Type: "response",
         Content: `Notification ${status}ed successfully: ${data?.Message}`,
         // Status: status === "accept" ? "success" : "error"
       });
 
-      // ✅ Update local state
+      // Update local state
       setNotifications(prev =>
         prev.map(notif =>
           notif.Id === notification.Id ? { ...notif, Status: status } : notif
@@ -120,7 +159,7 @@ export default function NotificationsPopover() {
           key={notif.Id}
           className={`notification-card ${notif.Type} ${notif.Status} ${notif.Seen ? "seen" : "unseen"}`}
         >
-          <p>{notif.Content}</p>
+          <p>{notificationContent(notif)}</p>
 
           {notif.Status === "later" && notif.Type !== "follow-public" && (
             <div className="action-buttons">

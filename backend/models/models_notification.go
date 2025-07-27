@@ -4,30 +4,32 @@ import "time"
 
 // notification structure
 type Notification struct {
-	Id         string
-	RecieverId string
-	SenderId   string
-	Seen       bool
-	Type       string // follow request // invite group // join group to admin // event notif for members group
-	Status     string // accepted or rejected or later
-	Content    string
-	GroupId    string
-	CreatedAt  time.Time
+	Id             string
+	SenderId       string
+	RecieverId     string
+	GroupId        string
+	EventId        string
+	Type           string // follow request // invite group // join group to admin // event notif for members group
+	SenderFullName string
+	GroupName      string // notification informations
+	Status         string // accepted or rejected or later
+	Seen           bool
+	CreatedAt      time.Time
 }
 
 func NewNotification() *Notification {
 	return &Notification{}
 }
 
-// new notification request data structure
+// data structue of new notification 
 type Notif struct {
 	SenderId         string // user-id // credencials
-	SenderFullName   string
 	RecieverId       string // user-profile-id // user-profile-id // group-id [AllGpMb] // group-id [admin] // user-target-id
-	ReceiverFullName string
-	Type             string // follow-private // follow-public // group-event // group-join // group-invitation
-	GroupName        string // notification informations
 	GroupId          string
+	EventId          string
+	Type             string // follow-private // follow-public // group-event // group-join // group-invitation
+	SenderFullName   string
+	GroupName        string // notification informations
 }
 
 func NewNotif() *Notif {
@@ -37,9 +39,8 @@ func NewNotif() *Notif {
 // update notification request data structure
 type Unotif struct {
 	NotifId string // notification id
-	Status  string // accept || reject
 	Type    string
-	// GroupId string
+	Status  string // accept || reject
 }
 
 func UpdateNotif() *Unotif {

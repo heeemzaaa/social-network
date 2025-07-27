@@ -267,14 +267,8 @@ export async function JoinGroupAction(groupId) {
     }
 }
 
+//  todo : handle the invite friend form.
 export async function inviteUsersAction(prevState, formData) {
-    const userIds = formData.getAll('userIds');
-    const groupId = formData.get('groupId');
-    if (userIds.length === 0) {
-        return { success: false, message: 'Please select at least one follower to invite.' };
-    }
-    console.log('Inviting users:', userIds, 'to group:', groupId);
-    return { success: true, message: `Invited ${userIds.length} user(s) to group ${groupId}` };
 }
 
 
