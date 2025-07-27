@@ -125,6 +125,7 @@ cte_my_groups AS (
     WHERE gm.userID = ?
 )
 SELECT 
+	g.groupID,
     g.title,
     g.imagePath,
     COALESCE(lgm.lastInteraction, '') AS lastInteraction
@@ -152,7 +153,7 @@ ORDER BY
 
 	for rows.Next() {
 		var group models.Group
-		err := rows.Scan(&group.Title, &group.ImagePath, &group.LastInteraction)
+		err := rows.Scan(&group.GroupId, &group.Title, &group.ImagePath, &group.LastInteraction)
 		if err != nil {
 			log.Println("Error scanning groups: ", err)
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
@@ -164,7 +165,6 @@ ORDER BY
 		log.Println("Error in the whole process of scan => in get groups: ", err)
 		return []models.Group{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-
 	return groups, nil
 }
 
