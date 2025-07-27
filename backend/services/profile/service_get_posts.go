@@ -5,11 +5,11 @@ import (
 )
 
 // custom posts to each users lil2assaf
-func (s *ProfileService) GetPosts(profileID string, authUserID string) ([]models.Post, bool, *models.ErrorJson) {
+func (s *ProfileService) GetPosts(profileID, authUserID, lastPostTime string) ([]models.Post, bool, *models.ErrorJson) {
 	var posts []models.Post
 	var isMine bool
 
-	if profileID == "" || authUserID == "" {
+	if profileID == "" || authUserID == ""  {
 		return posts, false, &models.ErrorJson{Status: 400, Error: "Invalid data !"}
 	}
 
@@ -17,7 +17,7 @@ func (s *ProfileService) GetPosts(profileID string, authUserID string) ([]models
 		isMine = true
 	}
 
-	posts, err := s.repo.GetPosts(profileID, authUserID, isMine)
+	posts, err := s.repo.GetPosts(profileID, authUserID, lastPostTime, isMine)
 	if err != nil {
 		return posts, false, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}

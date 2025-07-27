@@ -20,21 +20,23 @@ func NewProfilePostsHandler(service *ps.ProfileService) *ProfilePostHandler {
 
 // GET /api/profile/id/data/posts
 func (p *ProfilePostHandler) GetPostsOfTheProfile(w http.ResponseWriter, r *http.Request, profileID string) {
+	lastPostTime := r.URL.Query().Get("last")
 	authUserID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
-	posts, access, errPosts := p.service.GetPosts(profileID, authUserID.String())
+	posts, access, errPosts := p.service.GetPosts(profileID, authUserID.String(), lastPostTime)
 	if errPosts != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errPosts.Error})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errPosts.Status, Error: errPosts.Error})
 		return
 	}
 	if !access {
 		utils.WriteDataBack(w, access)
 		return
 	}
+	fmt.Println("length: ", len(posts))
 	utils.WriteDataBack(w, posts)
 }
 
