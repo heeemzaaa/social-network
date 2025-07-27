@@ -5,26 +5,38 @@ import (
 	"log"
 
 	"social-network/backend/models"
-
-	"github.com/google/uuid"
+	"social-network/backend/utils"
 )
 
-func (r *PostsRepository) CreateComment(userID string, postID string, content string, image_url string) (string, string, *models.ErrorJson) {
-	commentID := uuid.New().String()
-	query := `INSERT INTO comments (commentID, postID, userID, content, image_url) VALUES (?, ?, ?, ?, ?)`
+func (r *PostsRepository) CreateComment(userID string, postID string, content string, image_url string) (*models.Comment, *models.ErrorJson) {
+	commentID := utils.NewUUID()
+	var comment models.Comment
+
+	query := `INSERT INTO comments c (commentID, postID, userID, content, image_url) VALUES (?, ?, ?, ?, ?)
+				RETURNING c.commentID, c.postID, c.userID, c.content, c.image_url, CONCAT(u.firstName, ' ', u.lastName), u.nickname, u.avatarPath
+				INNER JOIN users u ON u.userID = c.userID
+	`
 
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
 		log.Println("Error preparing the query to get posts by id: ", err)
-		return "", "", &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(commentID, postID, userID, content, image_url)
+	err = stmt.QueryRow(commentID, postID, userID, content, image_url).Scan(
+		&comment.Id,
+		&comment.PostId,
+		&comment.User.Id,
+		&comment.Content,
+		&comment.Img,
+		&comment.User.FullName,
+		&comment.User.Nickname,
+		&comment.User.ImagePath,
+	)
 	if err != nil {
-		return "", "", &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
-	userName, _ := r.GetUserName(userID)
-	return commentID, userName, nil
+	return &comment, nil
 }

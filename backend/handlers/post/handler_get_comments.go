@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"social-network/backend/models"
@@ -10,9 +9,8 @@ import (
 
 func (h *PostHandler) GetComments(w http.ResponseWriter, r *http.Request) {
 	postID, err := utils.GetUUIDFromPath(r, "id")
-	fmt.Println(postID.String())
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "invalid path"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "invalid post id"})
 		return
 	}
 

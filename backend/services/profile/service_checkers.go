@@ -25,3 +25,5 @@ func (s *ProfileService) IsFollower(userID, authUserID string) (bool, *models.Er
 	}
 	return isFollower, nil
 }
+
+

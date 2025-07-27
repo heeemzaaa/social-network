@@ -4,12 +4,17 @@ import (
 	"social-network/backend/models"
 )
 
-func (ps *PostService) GetComments(postID string) ([]models.Comment, *models.ErrorJson) {
-	if postID == "" {
-		return []models.Comment{}, &models.ErrorJson{Status: 400, Error: "Invalid data !"}
+func (s *PostService) GetComments(postID string) ([]models.Comment, *models.ErrorJson) {
+	exists, err := s.repo.PostExist(postID)
+	if err != nil {
+		return []models.Comment{}, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 
-	comments, errComments := ps.repo.GetComments(postID)
+	if !exists {
+		return []models.Comment{}, &models.ErrorJson{Status: 400, Error: "This post ID doesn't exist !"}
+	}
+
+	comments, errComments := s.repo.GetComments(postID)
 	if errComments != nil {
 		return []models.Comment{}, &models.ErrorJson{Status: errComments.Status, Error: errComments.Error}
 	}

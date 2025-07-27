@@ -5,8 +5,7 @@ import (
 	"log"
 
 	"social-network/backend/models"
-
-	"github.com/google/uuid"
+	"social-network/backend/utils"
 )
 
 func (r *PostsRepository) HandleLike(postID string, userID string) (bool, int, *models.ErrorJson) {
@@ -19,6 +18,7 @@ func (r *PostsRepository) HandleLike(postID string, userID string) (bool, int, *
 		SELECT EXISTS (
 			SELECT 1 FROM reactions 
 			WHERE userID = ? AND entityType = ? AND entityID = ?
+			LIMIT 1
 		)
 	`
 
@@ -50,7 +50,7 @@ func (r *PostsRepository) HandleLike(postID string, userID string) (bool, int, *
 		defer stmt.Close()
 
 		_, err = stmt.Exec(
-			uuid.New().String(),
+			utils.NewUUID(),
 			entityType,
 			postID,
 			reactionValue,

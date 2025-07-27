@@ -46,11 +46,11 @@ export default function PostCard({
                     <div className="flex align-center gap-1">
                         <Avatar img={user.avatar} size="42" />
                         <div onClick={() => navigateToProfile(user.id)}>
-                            <h3 className="post-user">
-                                {user.firstname} {user.lastname}
+                            <h3 className="post-user hover-pointer">
+                                {user.fullname}
                             </h3>
-                            <span>
-                                @{user.nickname}
+                            <span className="hover-pointer text-sm font-medium " style={{opacity:".8"}}>
+                                {user.nickname && `@${user.nickname}`}
                             </span>
                         </div>
                     </div>
@@ -58,8 +58,8 @@ export default function PostCard({
                 </div>
                 <p className="post-content">{content}</p>
                 {image_path && (
-                    <div className="post-card-img">
-                        <img src={`http://localhost:8080/static/${image_path}`} alt={image_path} />
+                    <div className="post-card-img" >
+                        <img src={`http://localhost:8080/static/${image_path}`} alt={image_path} className="rounded-md" />
                     </div>
                 )}
 

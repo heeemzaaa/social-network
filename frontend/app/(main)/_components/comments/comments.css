@@ -1,6 +1,8 @@
 .comments_container {
+    overflow-y: hidden;
+    max-height: 700px;
     max-width: 900px;
-    height: 70vh;
+    min-width: 500px;
     border: 1px solid var(--color-light-gray);
 }
 
@@ -34,4 +36,8 @@
 .comment {
   overflow-wrap: break-word;
   word-break: break-word;
+}
+
+.submit_comment {
+    padding: 0;
 }

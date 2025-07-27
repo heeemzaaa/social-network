@@ -9,15 +9,20 @@ func (s *ProfileService) GetPosts(profileID, authUserID, lastPostTime string) ([
 	var posts []models.Post
 	var isMine bool
 
-	if profileID == "" || authUserID == ""  {
-		return posts, false, &models.ErrorJson{Status: 400, Error: "Invalid data !"}
+	exists, err := s.repo.UserExists(profileID)
+	if err != nil {
+		return posts, false, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 
+	if !exists {
+		return posts, false, &models.ErrorJson{Status: 400, Error: "User Id doesn't exists !"}
+	}
+	
 	if profileID == authUserID {
 		isMine = true
 	}
 
-	posts, err := s.repo.GetPosts(profileID, authUserID, lastPostTime, isMine)
+	posts, err = s.repo.GetPosts(profileID, authUserID, lastPostTime, isMine)
 	if err != nil {
 		return posts, false, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}

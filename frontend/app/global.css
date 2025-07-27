@@ -524,6 +524,12 @@ a {
   border: 3px solid rgba(255, 255, 255, 0.3);
 }
 
+
+.hover-pointer:hover {
+  cursor: pointer;
+}
+
+
 html,
 body {
   max-width: 100vw;

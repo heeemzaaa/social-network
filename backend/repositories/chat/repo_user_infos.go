@@ -31,7 +31,7 @@ func (repo *ChatRepository) GetID(sessionID string) (string, *models.ErrorJson) 
 func (repo *ChatRepository) GetSessionbyTokenEnsureAuth(token string) (*models.Session, *models.ErrorJson) {
 	session := models.Session{}
 
-	query := `SELECT sessions.userID, sessions.sessionToken , users.firstName, users.lastName 
+	query := `SELECT sessions.userID, sessions.sessionToken , CONCAT(users.firstName, ' ',  users.lastName ) AS fullName
 	FROM sessions INNER JOIN users ON users.userID = sessions.userID
 	WHERE sessionToken = ?`
 
@@ -42,7 +42,7 @@ func (repo *ChatRepository) GetSessionbyTokenEnsureAuth(token string) (*models.S
 	}
 	defer stmt.Close()
 
-	row := stmt.QueryRow(token).Scan(&session.UserId, &session.Token, &session.FirstName, &session.LastName)
+	row := stmt.QueryRow(token).Scan(&session.UserId, &session.Token, &session.FullName)
 	if row == sql.ErrNoRows {
 		log.Println("there is no token !")
 		return nil, &models.ErrorJson{Status: 401, Error: " Unauthorized Access"}

@@ -33,8 +33,7 @@ cte_ordered_users AS (
     SELECT 
         i.lastInteraction,
         u.userID, 
-        u.firstName,
-        u.lastName,
+        CONCAT(u.firstName, ' ',  u.lastName) AS fullName,
         u.avatarPath
     FROM users u 
     JOIN cte_connections f ON u.userID = f.userID
@@ -53,8 +52,7 @@ cte_notifications AS (
 )
 SELECT 
     u.userID, 
-    u.firstName,
-    u.lastName,
+    fullName,
     COALESCE(u.lastInteraction, '') AS lastInteraction,
     u.avatarPath,
     COALESCE(n.notifications, 0) AS notifications
@@ -63,8 +61,7 @@ LEFT JOIN cte_notifications n ON u.userID = n.sender_id
 ORDER BY 
     CASE WHEN u.lastInteraction IS NULL THEN 1 ELSE 0 END,
     u.lastInteraction DESC,
-    u.firstName,
-    u.lastName;
+    fullName;
 
 `
 
@@ -86,8 +83,7 @@ ORDER BY
 		var user models.User
 		if err := rows.Scan(
 			&user.Id,
-			&user.FirstName,
-			&user.LastName,
+			&user.FullName,
 			&user.LastInteraction,
 			&user.ImagePath,
 			&user.Notifications,
@@ -103,7 +99,7 @@ ORDER BY
 		log.Println("Error in the whole process of scan => in get users: ", err)
 		return []models.User{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-
+	
 	return users, nil
 }
 

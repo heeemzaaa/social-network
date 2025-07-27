@@ -16,11 +16,12 @@
 }
 
 .post-card-img img {
-    width: 100%;
+    /* width: 100%; */
+    margin: auto;
     height: auto;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
-    max-height: 300px;
+    height: 300px;
 }
 
 .post-card-body {

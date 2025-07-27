@@ -10,8 +10,13 @@ import (
 // here we will handle the logic of updating the privacy of a user
 func (s *ProfileService) UpdatePrivacy(userID string, requestorID string, wantedStatus string, NS *ns.NotificationService) (*models.Profile, *models.ErrorJson) {
 	profile := &models.Profile{}
-	if userID == "" || requestorID == "" {
-		return nil, &models.ErrorJson{Status: 400, Error: "Invalid data !"}
+	exists, err := s.repo.UserExists(userID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
+	}
+
+	if !exists {
+		return nil, &models.ErrorJson{Status: 400, Error: "User Id doesn't exists !"}
 	}
 
 	if userID != requestorID {

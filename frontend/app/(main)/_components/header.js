@@ -11,8 +11,11 @@ import Popover from './popover';
 import { useModal } from '../_context/ModalContext';
 import CreatePost from './posts/createPost';
 import { createPostAction } from '@/app/_actions/posts';
+import { useUserContext } from '../_context/userContext';
 
 export default function Header() {
+  const {authenticatedUser} = useUserContext()
+  console.log('authenticatedUser', authenticatedUser)
   const { openModal } = useModal()
   const [hasNewNotification, setHasNewNotification] = useState(false)
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"social-network/backend/middleware"
@@ -17,7 +18,7 @@ func (h *PostHandler) LikePost(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: http.StatusUnauthorized, Error: "Unauthorized"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
@@ -27,14 +28,6 @@ func (h *PostHandler) LikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// w.WriteHeader(http.StatusOK)
-	// json.NewEncoder(w).Encode(map[string]any{
-	// 	"success":     true,
-	// 	"message":     "Post like updated successfully",
-	// 	"postId":      postID,
-	// 	"liked":       liked,
-	// 	"total_likes": totalLikes,
-	// })
 
 	utils.WriteDataBack(w, map[string]any{
 		"success":     true,

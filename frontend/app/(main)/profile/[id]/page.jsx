@@ -1,6 +1,6 @@
 'use client'
 
-import React, { use, useCallback, useEffect, useState } from "react"
+import React, {  useEffect, useState } from "react"
 import InfosDiv from "./_components/profileData/userInfo"
 import AboutUser from "./_components/profileData/abouUser"
 import UserPosts from "./_components/profilePosts/userPosts"

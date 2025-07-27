@@ -5,6 +5,7 @@ import { FaPaperPlane } from "react-icons/fa";
 
 import { useActionState } from 'react'
 import { commentPostAction } from '@/app/_actions/posts'
+import Button from '@/app/_components/button';
 
 export default function CommentsFooter({ id, setComments, onCommentMessage }) {
     const initialState = {
@@ -42,7 +43,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
     return (
         <form
             action={formAction}
-            className='comments_footer flex justify-between align-center p1 gap-2'
+            className='comments_footer flex justify-center align-center p1 gap-1'
         >
             <label htmlFor="commentImg">
                 <MdPermMedia size="24px" style={{ cursor: 'pointer' }} />
@@ -65,7 +66,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 required
             />
 
-            <button type="submit">
+            <button type="submit" className='submit_comment'>
                 <FaPaperPlane size="24px" />
             </button>
 

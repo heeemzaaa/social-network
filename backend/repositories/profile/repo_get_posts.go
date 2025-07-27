@@ -19,8 +19,8 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPos
 		query = `
 		SELECT
     		p.postID,
-    		u.userID, u.firstName, u.lastName, u.nickname, u.avatarPath,
-    		p.content AS postContent, p.image_url AS postMedia, p.createdAt AS postCreatedAt,
+    		u.userID, CONCAT(u.firstName, ' ', u.lastName) AS fullName, u.nickname, u.avatarPath,
+    		p.content AS postContent, p.image_url AS postMedia, p.createdAt AS postCreatedAt, p.privacy,
     		(SELECT COUNT(*) FROM reactions r1 WHERE r1.entityType = 'post' AND r1.entityID = p.postID) AS post_total_likes,
     		(SELECT COUNT(*) FROM comments c1 WHERE c1.postID = p.postID) AS post_total_comments
 		FROM posts p
@@ -48,8 +48,8 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPos
 			)
 		SELECT 
     		p.postID,
-    		u.userID, u.firstName, u.lastName, u.nickname, u.avatarPath,
-    		p.content AS postContent, p.image_url AS postMedia, p.createdAt AS postCreatedAt,
+    		u.userID, CONCAT(u.firstName, ' ', u.lastName) AS fullName, u.nickname, u.avatarPath,
+    		p.content AS postContent, p.image_url AS postMedia, p.createdAt AS postCreatedAt, p.privacy,
     		(SELECT COUNT(*) FROM reactions r1 WHERE r1.entityType = 'post' AND r1.entityID = p.postID) AS post_total_likes,
    	 		(SELECT COUNT(*) FROM comments c1 WHERE c1.postID = p.postID) AS post_total_comments
 		FROM posts p
@@ -107,8 +107,8 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPos
 
 		err := rows.Scan(
 			&post.Id,
-			&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ImagePath,
-			&post.Content, &post.Img, &post.CreatedAt,
+			&user.Id, &user.FullName, &user.Nickname, &user.ImagePath,
+			&post.Content, &post.Img, &post.CreatedAt, &post.Privacy,
 			&post.TotalLikes, &post.TotalComments,
 		)
 		if err != nil {

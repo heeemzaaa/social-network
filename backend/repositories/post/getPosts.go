@@ -9,7 +9,7 @@ import (
 
 func (r *PostsRepository) GetAllPosts(userID string) ([]models.Post, *models.ErrorJson) {
 	query := `
-SELECT DISTINCT  p.postID, p.userID,   p.content,   p.createdAt,   p.privacy,   p.image_url, u.firstName,   u.lastName,  
+SELECT DISTINCT  p.postID, p.userID,   p.content,   p.createdAt,   p.privacy,   p.image_url, CONCAT(u.firstName, ' ', u.lastName) AS fullName, u.nickname, u.avatarPath,  
     COUNT(DISTINCT r1.reactionID) AS total_likes,
     CASE WHEN r2.reaction = 1 THEN 1 ELSE 0 END AS liked, 
     COUNT(DISTINCT c.commentID) AS total_comments  -- <-- count of comments
@@ -27,7 +27,7 @@ WHERE
     OR (p.privacy = 'private' AND pa.userID = ?)
     OR (p.privacy = 'almost private' AND f.followerID = ?)
 GROUP BY
-    p.postID, p.userID, p.content, p.createdAt, p.privacy, p.image_url, u.firstName, u.lastName, r2.reaction
+    p.postID, p.userID, p.content, p.createdAt, p.privacy, p.image_url, fullName, r2.reaction
 ORDER BY
     p.createdAt DESC;
 
@@ -49,8 +49,20 @@ ORDER BY
 	var posts []models.Post
 	for rows.Next() {
 		var p models.Post
-		if err := rows.Scan(&p.Id, &p.User.Id, &p.Content, &p.CreatedAt, &p.Privacy, &p.Img, &p.User.FirstName, &p.User.LastName, &p.TotalLikes, &p.Liked, &p.TotalComments); err != nil {
-			log.Println("", err)
+		if err := rows.Scan(
+			&p.Id,
+			&p.User.Id,
+			&p.Content,
+			&p.CreatedAt,
+			&p.Privacy,
+			&p.Img,
+			&p.User.FullName,
+			&p.User.Nickname,
+			&p.User.ImagePath,
+			&p.TotalLikes,
+			&p.Liked,
+			&p.TotalComments); err != nil {
+			log.Println("Error scanning the posts: ", err)
 			return []models.Post{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 		posts = append(posts, p)
@@ -62,24 +74,4 @@ ORDER BY
 	}
 
 	return posts, nil
-}
-
-func (r *PostsRepository) GetPostByID(postID string) (*models.Post, *models.ErrorJson) {
-	var p models.Post
-	query := `SELECT id, user_id, content FROM posts WHERE id = ?`
-
-	stmt, err := r.db.Prepare(query)
-	if err != nil {
-		log.Println("Error preparing the query to get posts by id: ", err)
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
-	}
-	defer stmt.Close()
-
-	err = stmt.QueryRow(postID).Scan(&p.Id, &p.User.Id, &p.Content)
-	if err != nil {
-		log.Println("Error getting a single post: ", err)
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
-	}
-
-	return &p, nil
 }

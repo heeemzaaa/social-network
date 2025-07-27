@@ -31,12 +31,11 @@ func NewLogin() *Login {
 }
 
 type Session struct {
-	Id        int    `json:"id,omitempty"`
-	Token     string `json:"token"`
-	UserId    string `json:"user_id"`
-	Username  string `json:"username,omitempty"`
-	FirstName string `json:"firstname,omitempty"`
-	LastName  string `json:"lastname,omitempty"`
+	Id       int    `json:"id,omitempty"`
+	Token    string `json:"token"`
+	UserId   string `json:"user_id"`
+	Username string `json:"username,omitempty"`
+	FullName string `json:"fullName,omitempty"`
 }
 
 func NewSession() *Session {
