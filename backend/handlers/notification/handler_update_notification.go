@@ -6,14 +6,12 @@ import (
 	"net/http"
 	"social-network/backend/middleware"
 	"social-network/backend/models"
-	US "social-network/backend/services/auth"
 	NS "social-network/backend/services/notification"
 	"social-network/backend/utils"
 )
 
 type UpdateHandler struct {
 	NSU *NS.NotificationServiceUpdate
-	Us  *US.AuthService
 }
 
 func NewUpdateHandler(nsu *NS.NotificationServiceUpdate) *UpdateHandler {

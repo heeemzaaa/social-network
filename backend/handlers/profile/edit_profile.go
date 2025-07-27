@@ -7,16 +7,21 @@ import (
 
 	"social-network/backend/middleware"
 	"social-network/backend/models"
+	ns "social-network/backend/services/notification"
 	ps "social-network/backend/services/profile"
 	"social-network/backend/utils"
 )
 
 type EditProfileHandler struct {
 	service *ps.ProfileService
+	NS      *ns.NotificationService
 }
 
-func NewEditProfileHandler(service *ps.ProfileService) *EditProfileHandler {
-	return &EditProfileHandler{service: service}
+func NewEditProfileHandler(service *ps.ProfileService, NS *ns.NotificationService) *EditProfileHandler {
+	return &EditProfileHandler{
+		service: service,
+		NS:      NS,
+	}
 }
 
 // PATCH api/profile/id/edit/update-privacy
@@ -39,7 +44,7 @@ func (ep *EditProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	profile, errUpdate := ep.service.UpdatePrivacy(request.ProfileID, authSessionID.String(), request.WantedStatus)
+	profile, errUpdate := ep.service.UpdatePrivacy(request.ProfileID, authSessionID.String(), request.WantedStatus, ep.NS)
 	if errUpdate != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUpdate.Status, Message: errUpdate.Message})
 		return
