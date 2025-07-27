@@ -147,9 +147,9 @@ export default function RegisterForm() {
             {state.error && <span className="field-error">{state.error}</span>}
             {state.message && <span className="field-success">{state.message}</span>}
             <div className="text-sm font-medium ">
-                <span>Don't have an account ? </span>
-                <Link href={"/register"} style={{ color: "var(--color-primary)", textDecoration: "underline" }}
-                > Register Now </Link>
+                <span>Already have an account ? </span>
+                <Link href={"/login"} style={{ color: "var(--color-primary)", textDecoration: "underline" }}
+                > Login </Link>
             </div>
         </form>
     );

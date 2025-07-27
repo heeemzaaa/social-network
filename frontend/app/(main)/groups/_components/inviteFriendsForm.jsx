@@ -39,16 +39,16 @@ const InviteFriendForm = ({ groupId }) => {
         closeModal()
     }, [state])
 
-    // Fetch followers on mount
+    
     useEffect(() => {
         const loadFollowers = async () => {
             try {
                 const data = await fetchFollowers();
-                setFollowers(data);
-                setLoading(false);
+                setFollowers(data)
+                setLoading(false)
             } catch (err) {
-                setError('Failed to load followers');
-                setLoading(false);
+                setError('Failed to load followers')
+                setLoading(false)
             }
         };
         loadFollowers();
@@ -94,7 +94,7 @@ const InviteFriendForm = ({ groupId }) => {
             </div>
             <input type="hidden" name="groupId" value={groupId} />
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                <Button>
+                <Button style={{width: "100%"}}>
                     {isPending ? 'Inviting...' : `Invite ${selectedUsers.length > 0 ? `(${selectedUsers.length})` : ''}`}
                 </Button>
             </div>

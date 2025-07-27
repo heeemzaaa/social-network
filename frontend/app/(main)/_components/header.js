@@ -26,7 +26,6 @@ export default function Header() {
       try {
         let res = await fetch("http://localhost:8080/api/notifications/", getRequest)
         let ddd = await res.json()
-        console.log("fetch is has seen api, response = ", ddd)
         if (ddd?.Status === true) {
           setHasNewNotification(true)
         }

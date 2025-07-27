@@ -124,7 +124,7 @@ func (NS *NotificationService) PostService(data models.Notif) *models.ErrorJson 
 		return errInse
 	}
 
-	fmt.Println("ADD NOTIFICATION SUCCES --------- !")
+	
 	return nil
 }
 

@@ -6,13 +6,13 @@
   background-color: white;
   padding: 2rem;
   width: 100%;
-  min-width: max-content;
-  width: 100%;
+  max-width: max-content;
   display: flex;
   flex-direction: column;
   gap: 15px;
   z-index: 1;
-  border-radius: var(--);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
 }
 
 .formGrp {
@@ -31,6 +31,7 @@
 .input {
   all: unset;
   padding: .5rem;
+  width: 300px;
   outline: solid 1px var(--color-white);
   font-size: var(--font-size-sm);
   border-radius: var(--border-radius-sm);
@@ -51,9 +52,6 @@
 .form>button:hover {
   filter: brightness(95%);
 }
-
-
-
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {

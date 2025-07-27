@@ -16,8 +16,9 @@ export const useModal = () => {
 export function ModalProvider({ children }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState(null);
-    const [data, setData] = useState(null) // data passed when a form is submitted successfuly.
 
+    // data passed when a form is submitted successfuly.
+    const [data, setData] = useState(null) 
     const openModal = (content) => { 
         console.log("opening modal: ", content)
         setIsModalOpen(true);
@@ -27,7 +28,7 @@ export function ModalProvider({ children }) {
     const closeModal = () => {
         setIsModalOpen(false);
         setModalContent(null);
-    };
+    }
 
     const getModalData = () => data
     const setModalData = (data) => setData(data)

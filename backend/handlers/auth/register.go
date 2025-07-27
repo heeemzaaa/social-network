@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"time"
 
 	"social-network/backend/models"
 	"social-network/backend/utils"
@@ -59,9 +60,10 @@ func (authHandler *AuthHandler) Register(w http.ResponseWriter, r *http.Request)
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:  "session",
-		Value: session.Token,
-		Path:  "/",
+		Name:    "session",
+		Value:   session.Token,
+		Expires: time.Now().Add(365 * 24 * time.Hour),
+		Path:    "/",
 	})
 	// we don't need to write back the data for the repsonse ( sentitive data ;)
 	utils.WriteDataBack(w, models.UserData{
