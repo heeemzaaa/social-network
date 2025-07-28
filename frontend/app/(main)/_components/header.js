@@ -14,8 +14,7 @@ import { createPostAction } from '@/app/_actions/posts';
 import { useUserContext } from '../_context/userContext';
 
 export default function Header() {
-  const {authenticatedUser} = useUserContext()
-  console.log('authenticatedUser', authenticatedUser)
+  const { authenticatedUser } = useUserContext()
   const { openModal } = useModal()
   const [hasNewNotification, setHasNewNotification] = useState(false)
 
@@ -40,10 +39,15 @@ export default function Header() {
     LoadPosts()
   }, [])
 
+  console.log('first', authenticatedUser)
   return (
     <header className='p3 flex justify-between align-center'>
       <div>
-        <h2>Welcome user!!</h2>
+        <h2>
+          {authenticatedUser
+            ? `Welcome ${authenticatedUser.username}!`
+            : "Welcome guest!"}
+        </h2>
       </div>
 
       <div className='flex gap-2'>
@@ -62,7 +66,7 @@ export default function Header() {
           <HiChatBubbleOvalLeftEllipsis size={24} />
         </Button>
 
-        <Popover 
+        <Popover
           trigger={
             <div className="relative">
               <HiBell size={24} />
