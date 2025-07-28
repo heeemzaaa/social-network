@@ -7,9 +7,11 @@ const geist = Geist({
   subsets: ['latin'],
 })
 
+
+
 export default function RootLayout({ children }) {
   const ref = useRef(null);
-
+  
   useEffect(() => {
     const handleOutSideClick = (event) => {
       if (!ref.current?.contains(event.target)) {
@@ -24,9 +26,13 @@ export default function RootLayout({ children }) {
   }, [ref]);
   
   return (
-	  <html lang="en" className={geist.className}>
+	   <html lang="en" className={geist.className}>
+      <head>
+        <title>EmiTalk</title>
+        <link rel="icon" href="/logo.svg" />
+      </head>
       <body ref={ref}>
-          {children}
+        {children}
       </body>
     </html>
   );
