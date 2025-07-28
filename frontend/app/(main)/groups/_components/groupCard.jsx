@@ -79,7 +79,7 @@ export default function GroupCard({
                             </div>
                             :
                             <div onClick={e => e.stopPropagation()}>
-                                <Button className={"text-center"} onClick={(e) => handleJoingGrp(e)}>
+                                <Button  variant = 'btn-danger' className={"text-center"} onClick={(e) => handleJoingGrp(e)}>
                                     Cancel
                                 </Button>
                             </div>
