@@ -28,6 +28,10 @@ button {
 
 }
 
+.btn-normal {
+    padding: .5rem;
+}
+
 .btn-tertiary{
     background: var(--color-white);
     border: solid 2px var(--color-light-gray);

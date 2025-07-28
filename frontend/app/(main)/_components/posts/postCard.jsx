@@ -9,6 +9,7 @@ import CommentsContainer from "../comments/commentsContainer"
 import { useRouter } from "next/navigation"
 import { timeAgo } from "@/app/_utils/time"
 import { HiOutlineClock } from "react-icons/hi2"
+
 export default function PostCard({
     id,
     user,
@@ -59,7 +60,7 @@ export default function PostCard({
                 <p className="post-content">{content}</p>
                 {image_path && (
                     <div className="post-card-img" >
-                        <img src={`http://localhost:8080/static/${image_path}`} alt={image_path} className="rounded-md" />
+                        <img src={`http://localhost:8080/static/${image_path}`} alt={image_path} className="rounded-md" style={{width: '100%', height: 'max-content'}} />
                     </div>
                 )}
 
@@ -73,7 +74,7 @@ export default function PostCard({
                             </button>
                         </div>
                     </form>
-                    <div className="glass-bg" onClick={() => { openModal(<CommentsContainer id={id} onCommentMessage={handleCommentMessage} />) }}>
+                    <div onClick={() => { openModal(<CommentsContainer id={id} onCommentMessage={handleCommentMessage} />) }}>
                         <div style={actionStyle}>
                             <FaRegComment />
                             <span>
@@ -92,9 +93,7 @@ export default function PostCard({
 }
 
 const actionStyle = {
-    border: "1px solid",
-    color: "black",
-    background: "#eee",
+    fontSize: '20px',
     height: "min-content",
     display: "flex",
     alignItems: "center",

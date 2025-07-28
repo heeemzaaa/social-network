@@ -24,11 +24,11 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
         if (state.success) {
             const newComment = {
                 content: state.content,
-                nickname: state.nickname,
+                nickName: state.nickname,
                 fullName: state.fullName,
-                avatar: state.avatar,
-                createdAt: state.createdAt || new Date().toISOString(),
-                commentImage: state.commentImage,
+                userImage: state.avatar,
+                createdAt: new Date(),
+                ImagePath: state.img,
             };
             console.log('newComment', newComment)
             setComments(prev => [newComment, ...prev]);
