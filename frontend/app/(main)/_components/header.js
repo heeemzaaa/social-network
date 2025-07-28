@@ -11,13 +11,13 @@ import Popover from './popover';
 import { useModal } from '../_context/ModalContext';
 import CreatePost from './posts/createPost';
 import { createPostAction } from '@/app/_actions/posts';
-import { useUserContext } from '../_context/userContext';
 import CreateGroupForm from '../groups/_components/createGroupForm'
+import { useUserContext } from '../_context/userContext';
 
 export default function Header() {
-  const { authenticatedUser } = useUserContext()
   const { openModal } = useModal()
   const [hasNewNotification, setHasNewNotification] = useState(false)
+  const { authenticatedUser } = useUserContext()
 
   // Fetch notification seen status
   useEffect(() => {
@@ -41,7 +41,6 @@ export default function Header() {
     LoadPosts()
   }, [])
 
-  console.log('first', authenticatedUser)
   return (
     <header className='p3 flex justify-between align-center'>
       <div>
