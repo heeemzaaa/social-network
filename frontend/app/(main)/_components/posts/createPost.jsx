@@ -1,6 +1,7 @@
 import React, { useActionState, useState, useEffect, use } from 'react';
 import styles from "@/app/page.module.css"
 import { useModal } from '../../_context/ModalContext';
+import { useUserContext } from '../../_context/userContext';
 
 const initialPostData = {
     title: '',
@@ -14,13 +15,13 @@ export default function CreatePost({postAction}) {
     const [data, setData] = useState(initialPostData);
     const [followers, setFollowers] = useState([]);
     const [loadingFollowers, setLoadingFollowers] = useState(true);
+    const {authenticatedUser} = useUserContext()
 
     const { setModalData, closeModal } = useModal()
 
     useEffect(() => {
         if (!state.data) return
         state.data.type = 'post';
-        // console.log("data", state.data)
         setModalData(state.data)
         closeModal()
     }, [state])
@@ -29,9 +30,7 @@ export default function CreatePost({postAction}) {
     useEffect(() => {
         const fetchFollowers = async () => {
             try {
-                //TODO:  make the id dynamic by getting the current userId ...
-                const id = "0ebd4f28-fcbd-409d-bb31-f0b4db121074"
-                const res = await fetch(`http://localhost:8080/api/profile/${id}/connections/followers`, {
+                const res = await fetch(`http://localhost:8080/api/profile/${authenticatedUser.id}/connections/followers`, {
                     method: 'GET',
                     credentials: 'include',
                 });
@@ -71,6 +70,7 @@ export default function CreatePost({postAction}) {
                 : followers.map(f => f.id)
         }));
     };
+    
     return (
         <form noValidate action={action} className={`${styles.form} glass-bg`}>
             <div className="flex gap-3">
@@ -147,9 +147,9 @@ export default function CreatePost({postAction}) {
                                                     />
                                                     <div>
                                                         <div style={{ fontWeight: '500' }}>
-                                                            {follower.firstname} {follower.lastname}
+                                                            {follower.fullname}
                                                         </div>
-                                                        <div style={{ fontSize: '0.9em', color: '#666' }}>
+                                                        <div style={{ fontSize: '0.8em', color: '#666' }}>
                                                             {follower.nickname}
                                                         </div>
                                                     </div>
