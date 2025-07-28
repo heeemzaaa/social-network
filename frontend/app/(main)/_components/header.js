@@ -44,9 +44,7 @@ export default function Header() {
     <header className='p3 flex justify-between align-center'>
       <div>
         <h2>
-          {authenticatedUser
-            ? `Welcome ${authenticatedUser.username}!`
-            : "Welcome guest!"}
+          {authenticatedUser && `Welcome ${authenticatedUser.fullName}!`}
         </h2>
       </div>
 

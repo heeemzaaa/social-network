@@ -23,6 +23,7 @@ export default function UserProvider({ children }) {
           setAuthenticatedUser({
             id: data.id,
             username: data.nickname,
+            fullName: data.fullname
           });
         } else {
           setAuthenticatedUser(null);

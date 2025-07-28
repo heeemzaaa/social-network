@@ -34,6 +34,7 @@ func (loggedin *UserData) GetLoggedIn(w http.ResponseWriter, r *http.Request) {
 	}
 	user_data.IsLoggedIn = true
 	user_data.Id = userData.Id
+	user_data.FullName = userData.FullName
 	user_data.Nickname = userData.Nickname
 	utils.WriteDataBack(w, user_data)
 }

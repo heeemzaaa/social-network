@@ -46,6 +46,7 @@ type UserData struct {
 	IsLoggedIn bool   `json:"is_logged_in"`
 	Id         string `json:"id,omitempty"`
 	Nickname   string `json:"nickname,omitempty"`
+	FullName   string `json:"fullname,omitempty"`
 }
 
 type ContextKey struct {
