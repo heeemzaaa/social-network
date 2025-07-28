@@ -18,10 +18,12 @@ func (gRepo *GroupRepository) GetItem(typ string, field string, value string) ([
 		return nil, false, &models.ErrorJson{Status: 500, Error: "ERROR!! Internal Server error"}
 	}
 	defer stmt.Close()
+
 	rows, err := stmt.Query(value)
 	if err != nil {
 		return nil, false, &models.ErrorJson{Status: 500, Error: "ERROR!! Internal Server error"}
 	}
+
 	for rows.Next() {
 		var row any
 		rows.Scan(&row)
@@ -43,6 +45,7 @@ func (gRepo *GroupRepository) IsAdmin(groupId, userId string) (bool, *models.Err
 		return false, &models.ErrorJson{Status: 500, Error: "ERROR!! Internal Server error"}
 	}
 	defer stmt.Close()
+	
 	var groupAdminId string
 	err = stmt.QueryRow(groupId).Scan(&groupAdminId)
 	if err != nil {

@@ -196,10 +196,12 @@ export async function commentPostAction(prevState, formData) {
             ...state,
             message: "Commented successfully",
             content: response.content,
-            firstName: response.user.nickname,
+            nickname: response.user.nickname,
+            fullName: response.user.fullname,
+            avatar: response.user.avatar,
             success: true,
             createdAt: formatted,
-            userImage: response.img,
+            commentImage: response.img,
         };
     } catch (err) {
         return { ...prevState, message: "Server error." };

@@ -34,7 +34,7 @@ func (h *PostHandler) CommentPost(w http.ResponseWriter, r *http.Request) {
 	comment.Img = path
 	comment.CreatedAt = time.Time{}
 
-	if comment.Content == "" || comment.PostId == "" {
+	if comment.PostId == "" {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid data !"})
 		return
 	}

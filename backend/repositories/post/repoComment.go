@@ -12,9 +12,33 @@ func (r *PostsRepository) CreateComment(userID string, postID string, content st
 	commentID := utils.NewUUID()
 	var comment models.Comment
 
-	query := `INSERT INTO comments c (commentID, postID, userID, content, image_url) VALUES (?, ?, ?, ?, ?)
-				RETURNING c.commentID, c.postID, c.userID, c.content, c.image_url, CONCAT(u.firstName, ' ', u.lastName), u.nickname, u.avatarPath
-				INNER JOIN users u ON u.userID = c.userID
+	query := `
+    			INSERT INTO comments (commentID, postID, userID, content, image_url)
+    			VALUES (?, ?, ?, ?, ?)
+    			RETURNING commentID, postID, userID, content, image_url,
+				(
+        			SELECT
+            			concat (firstName, ' ', lastName)
+        			FROM
+            			users
+        			WHERE
+            			users.userID = ?
+    			) AS fullName,
+    			(
+        			SELECT
+            			nickname
+        			FROM
+            			users
+        			WHERE
+            			users.userID = ?
+    			),(
+        			SELECT
+            			avatarPath
+        			FROM
+            			users
+        			WHERE
+            			users.userID = ?
+    			)
 	`
 
 	stmt, err := r.db.Prepare(query)
@@ -24,7 +48,7 @@ func (r *PostsRepository) CreateComment(userID string, postID string, content st
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(commentID, postID, userID, content, image_url).Scan(
+	err = stmt.QueryRow(commentID, postID, userID, content, image_url, userID, userID, userID).Scan(
 		&comment.Id,
 		&comment.PostId,
 		&comment.User.Id,
@@ -35,8 +59,8 @@ func (r *PostsRepository) CreateComment(userID string, postID string, content st
 		&comment.User.ImagePath,
 	)
 	if err != nil {
+		log.Println("Error getting the data of the comment: ", err)
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-
 	return &comment, nil
 }

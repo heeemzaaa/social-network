@@ -18,10 +18,12 @@ func (appRep *AuthRepository) GetItem(typ string, field string, value string) ([
 		return nil, false, &models.ErrorJson{Status: 500, Message: "ERROR!! Internal Server error"}
 	}
 	defer stmt.Close()
+
 	rows, err := stmt.Query(value)
 	if err != nil {
 		return nil, false, &models.ErrorJson{Status: 500, Message: "ERROR!! Internal Server error"}
 	}
+	
 	for rows.Next() {
 		var row any
 		rows.Scan(&row)

@@ -18,6 +18,7 @@ func (appRepo *GroupRepository) AddReaction(reaction *models.GroupReaction, type
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()
+
 	err = stmt.QueryRow(reactionID, reaction.EntityType, reaction.EntityId, type_reaction, reaction.UserId).Scan(
 		&reaction_created.Reaction)
 	if err != nil {
@@ -53,6 +54,8 @@ func (appRepo *GroupRepository) HanldeReaction(reaction *models.GroupReaction) (
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v jj", err)}
 	}
+	defer stmt.Close()
+	
 	if err := stmt.QueryRow(reaction.UserId,
 		reaction.EntityType, reaction.EntityId).Scan(
 		&reaction_existed.Id,

@@ -128,6 +128,7 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v huna", err)}
 	}
 	defer stmt.Close()
+
 	event_created := models.Event{}
 	if err = stmt.QueryRow(eventId, event.EventCreator.Id,
 		event.GroupId, event.Title, event.Description, event.EventDate,
@@ -154,6 +155,7 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 12", err)}
 	}
 	defer stmt.Close()
+
 	_, err = stmt.Exec(eventUserId, eventId, event.GroupId, event.EventCreator.Id)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 2", err)}
@@ -231,6 +233,7 @@ func (gRepo *GroupRepository) AddAction(actionChosen *models.UserEventAction) (*
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 12", err)}
 	}
 	defer stmt.Close()
+
 	err = stmt.QueryRow(actionID, actionChosen.EventId, actionChosen.GroupId, actionChosen.UserId, actionChosen.Action).Scan(
 		&action_created.Action)
 	if err != nil {
@@ -303,6 +306,8 @@ func (gRepo *GroupRepository) HanldeAction(actionChosen *models.UserEventAction)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v dddd ", err)}
 	}
+	defer stmt.Close()
+	
 	reaction_existed := &models.UserEventAction{}
 	if err := stmt.QueryRow(actionChosen.EventId, actionChosen.GroupId, actionChosen.UserId).Scan(
 		&reaction_existed.Id,

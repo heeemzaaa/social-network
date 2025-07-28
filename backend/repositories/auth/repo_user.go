@@ -19,6 +19,7 @@ func (repo *AuthRepository) CreateUser(user *models.User) *models.ErrorJson {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
+
 	if _, err = stmt.Exec(user.Id, user.Email, user.FirstName, user.LastName,
 		user.Password, user.BirthDate, user.Nickname, user.ImagePath, user.AboutMe, "private"); err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
@@ -39,6 +40,7 @@ func (appRep *AuthRepository) GetUser(login *models.Login) (*models.User, *model
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
+	
 	row := stmt.QueryRow(login.LoginField, login.LoginField)
 	err = row.Scan(&user.Id, &user.Nickname, &user.Password)
 	if err == sql.ErrNoRows {
@@ -72,6 +74,7 @@ func (appRepo *AuthRepository) UserExists(id int) (bool, *models.ErrorJson) {
 		return false, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
+	
 	err = stmt.QueryRow(id).Scan(&exists)
 	if err == sql.ErrNoRows {
 		return false, &models.ErrorJson{Status: 400, Message: "user not found"}

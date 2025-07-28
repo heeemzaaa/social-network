@@ -18,8 +18,7 @@ export default function CommentsContainer({ id, onCommentMessage }){
         console.log('raw', raw)
         const data = raw.map(comment => ({
           content: comment.content,
-          firstName: comment.user?.firstname,
-          lastName: comment.user?.lastname,
+          fullName: comment.user?.fullname,
           nickName: comment.user.nickname,
           imagePath: comment.img,
           userImage : comment.user.avatar,

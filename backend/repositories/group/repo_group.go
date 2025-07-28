@@ -72,6 +72,7 @@ func (repo *GroupRepository) GetGroupDetails(groupId string) (*models.Group, *mo
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
+	
 	if err = stmt.QueryRow(groupId).Scan(
 		&groupDetails.GroupId,
 		&groupDetails.GroupCreatorId,

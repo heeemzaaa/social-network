@@ -12,7 +12,7 @@ export default function CommentsCard({ comment }) {
             <div className='card_header flex align-center gap-1'>
                 <Avatar img={comment.userImage} size="42" />
                 <div className='flex-col'>
-                    <span className='user_name text-md'>{comment.firstName + " " + comment.lastName}</span>
+                    <span className='user_name text-md'>{comment.fullName}</span>
                     <span className='nickname_comment text-sm' style={{opacity: '.5'}}>{comment.nickName && `@${comment.nickName}`}</span>
                 </div>
             </div>

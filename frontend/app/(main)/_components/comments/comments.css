@@ -3,7 +3,6 @@
     max-height: 700px;
     max-width: 900px;
     min-width: 500px;
-    border: 1px solid var(--color-light-gray);
 }
 
 .user_image {
@@ -23,7 +22,7 @@
 }
 
 .comments_card {
-    border-radius: var(--border-radius-xl);
+    border-radius: var(--border-radius-lg);
     border: 1px solid var(--color-light-gray);
 }
 

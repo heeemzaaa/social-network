@@ -11,10 +11,32 @@ func (r *PostsRepository) CreatePost(post *models.Post) (*models.Post, *models.E
 	var post_created models.Post
 
 	query := `
-		INSERT INTO posts p (postID, userID, content, privacy, image_url)
+		INSERT INTO posts (postID, userID, content, privacy, image_url)
 			VALUES (?, ?, ?, ?, ?)
-		RETURNING p.postID, p.userID, p.content, p.privacy, p.image_url, CONCAT(u.firstName, ' ', u.lastName) AS fullName, u.nickname, u.avatarPath
-		INNER JOIN users u ON p.userID = u.userID
+		RETURNING postID, userID, content, privacy, image_url, createdAt,
+	(
+        SELECT
+            concat (firstName, ' ', lastName)
+        FROM
+            users
+        WHERE
+            users.userID = ?
+    ) AS fullName,
+    (
+        SELECT
+            nickname
+        FROM
+            users
+        WHERE
+            users.userID = ?
+    ),(
+        SELECT
+            avatarPath
+        FROM
+            users
+        WHERE
+            users.userID = ?
+    )
 	`
 
 	stmt, err := r.db.Prepare(query)
@@ -24,18 +46,13 @@ func (r *PostsRepository) CreatePost(post *models.Post) (*models.Post, *models.E
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(
-		post.Id,
-		post.User.Id,
-		post.Content,
-		post.Privacy,
-		post.Img,
-	).Scan(
+	err = stmt.QueryRow(post.Id, post.User.Id, post.Content, post.Privacy, post.Img, post.User.Id, post.User.Id, post.User.Id).Scan(
 		&post_created.Id,
 		&post_created.User.Id,
 		&post_created.Content,
 		&post_created.Privacy,
 		&post_created.Img,
+		&post_created.CreatedAt,
 		&post_created.User.FullName,
 		&post_created.User.Nickname,
 		&post_created.User.ImagePath,

@@ -5,18 +5,17 @@ import { FaPaperPlane } from "react-icons/fa";
 
 import { useActionState } from 'react'
 import { commentPostAction } from '@/app/_actions/posts'
-import Button from '@/app/_components/button';
 
 export default function CommentsFooter({ id, setComments, onCommentMessage }) {
     const initialState = {
         message: '',
-        success: false,
         content: '',
-        firstName: '',
-        imagePath: '',
+        nickname: '',
+        fullName: '',
+        avatar: '',
+        success: false,
         createdAt: '',
-        userImage: '',
-        likes: 0,
+        commentImage: '',
     };
 
     const [state, formAction] = useActionState(commentPostAction, initialState)
@@ -25,13 +24,13 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
         if (state.success) {
             const newComment = {
                 content: state.content,
-                firstName: state.firstName,
-                lastName: "",
-                imagePath: state.userImage,
+                nickname: state.nickname,
+                fullName: state.fullName,
+                avatar: state.avatar,
                 createdAt: state.createdAt || new Date().toISOString(),
-                likes: state.likes || 0,
+                commentImage: state.commentImage,
             };
-
+            console.log('newComment', newComment)
             setComments(prev => [newComment, ...prev]);
 
             if (onCommentMessage) {

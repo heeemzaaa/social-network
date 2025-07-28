@@ -64,6 +64,7 @@ func (repo *GroupRepository) CreateGroup(group *models.Group) (*models.Group, *m
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 2", err)}
 	}
 	defer stmt.Close()
+
 	groupCreated := models.Group{}
 	err = stmt.QueryRow(groupID, group.GroupCreatorId,
 		group.Title, group.ImagePath, group.Description, group.GroupCreatorId, group.GroupCreatorId, group.GroupCreatorId).Scan(
@@ -351,6 +352,7 @@ func (repo *GroupRepository) GetGroupById(groupID string) *models.ErrorJson {
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
+	
 	if err = stmt.QueryRow(groupID).Scan(&found); err != nil {
 		if err == sql.ErrNoRows {
 			return &models.ErrorJson{Status: 404, Error: "ERROR!! Group Not Found!"}

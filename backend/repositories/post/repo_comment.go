@@ -12,7 +12,7 @@ func (repo *PostsRepository) GetComments(postID string) ([]models.Comment, *mode
 
 	query := `
 	SELECT 
-	u.userID, CONCAT(u.firstName, u.lastName) AS fullName, u.nickname, u.avatarPath,
+	u.userID, CONCAT(u.firstName, ' ', u.lastName) AS fullName, u.nickname, u.avatarPath,
 	c.commentID, c.content, c.image_url, c.createdAt
 	FROM comments c
 	INNER JOIN users u ON c.userID = u.userID
