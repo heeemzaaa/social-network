@@ -32,7 +32,7 @@ export default function GroupCard({
                 credentials: 'include',
             })
 
-            if (!res.ok) return console.error("Failed to send the request")
+            if (!res.ok) console.error("Failed to send the request")
 
             requestState === 0 ? setRequestState(1) : setRequestState(0)
         } catch (err) {
@@ -46,7 +46,9 @@ export default function GroupCard({
 
 
     return (
-        <div className="grp-card w-quarter" onClick={() => navigateToGroup(group_id)}>
+        <div className="grp-card w-quarter" onClick={() => {
+            navigateToGroup(group_id)
+        }}>
             <div className="grp-card-img-holder glass-bg">
                 <div className="grp-card-img"
                     style={{ backgroundImage: image_path ? `url(http://localhost:8080/static/${image_path})` : `url('/no-profile.png')` }}
@@ -66,26 +68,25 @@ export default function GroupCard({
                         {total_members}
                     </Tag>
                 </div>
+
                 {
                     type === "available" ?
-                        requestState === 0 ?
-                            <Button className={"text-center"} onClick={(e) => {
-                                e.stopPropagation()
-                                handleJoingGrp()
-                                
-                            }}>
-                                Join
-                            </Button>
-                            : <Button className={"text-center"} onClick={(e) => {
-                                e.stopPropagation()
-                                handleJoingGrp()
-                               
-                            }}>
-                                Pending
-                            </Button>
+                        requestState == 0 ?
+                            <div onClick={e => e.stopPropagation()}>
+                                <Button className={"text-center"} onClick={(e) => handleJoingGrp()}>
+                                    Join
+                                </Button>
+                            </div>
+                            :
+                            <div onClick={e => e.stopPropagation()}>
+                                <Button className={"text-center"} onClick={(e) => handleJoingGrp(e)}>
+                                    Cancel
+                                </Button>
+                            </div>
                         :
                         <Button className={"text-center"}>Go to</Button>
                 }
+
             </div>
         </div>
     )
