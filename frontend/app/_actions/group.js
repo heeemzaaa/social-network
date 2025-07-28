@@ -1,6 +1,7 @@
 "use server"
 import { cookies } from "next/headers"
 
+
 /*
     state = {
         error : "for single message error"
@@ -9,6 +10,8 @@ import { cookies } from "next/headers"
         data : "for returning data (exp grp component) "
     }
 */
+
+
 
 // Creates a new group by validating form data and sending it to the group creation API Endpoint.
 export async function createGroupAction(prevState, formData) {
@@ -161,6 +164,7 @@ export async function createGroupPostAction(prevState, formData) {
 
 // Creates a new group event by validating form data and sending it to the event creation API endpoint.
 export async function createGroupEventAction(prevState, formData) {
+    console.log("inside the creation of the event !!");
     const state = {
         errors: {},
         error: null,
@@ -191,7 +195,7 @@ export async function createGroupEventAction(prevState, formData) {
             state.errors.event_date = "Event date must be in the future";
         }
     }
-
+    console.log(state);
     if (Object.keys(state.errors).length > 0) {
         return {
             ...prevState,
@@ -243,11 +247,93 @@ export async function createGroupEventAction(prevState, formData) {
     }
 }
 
-export async function joinGroupAction(prevState, formData) {
+export async function JoinGroupAction(groupId) {
+    console.log(groupId)
+
+    try {
+        const cookieStore = await cookies();
+        const sessionCookie = cookieStore.get("session")?.value;
+        console.log("coookieeeeeee", sessionCookie);
+        const res = await fetch(`http://localhost:8080/api/groups/${groupId}/join-request`, {
+            method: "POST",
+            credentials: 'include',
+            headers: {
+                "Content-Type": "application/json",
+                ...(sessionCookie ? { Cookie: `session=${sessionCookie}` } : {})
+            }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            console.error("!ok" + data)
+        }
+        console.log("DATA ===== > " + data)
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 //  todo : handle the invite friend form.
-export async function inviteUsersAction(prevState, formData) {
+export async function inviteUserAction(prevState, formData) {
+    console.log("=============> inviting");
+    let id = formData.get("user_id")
+    let groupId = formData.get("groupId")
+    try {
+        const cookieStore = await cookies();
+        const sessionCookie = cookieStore.get("session")?.value;
+        console.log("coookieeeeeee", sessionCookie);
+        const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
+            credentials: 'include',
+            method: "POST",
+            body: JSON.stringify({ "id": id }),
+            headers: {
+                "Content-Type": "application/json",
+                ...(sessionCookie ? { Cookie: `session=${sessionCookie}` } : {})
+            }
+        });
+
+        if (res.ok) {
+            const result = await res.json()
+            console.log("result", result);
+            return { message: "success" }
+
+        }
+    } catch (err) {
+        console.error("Failed to fetch invitations", err)
+    }
+}
+
+// function to handle the cancel process of an invitation 
+export async function CancelInvitationAction(prevState, formData) {
+    console.log("=============> canceling");
+    let groupId = formData.get("groupId")
+    console.log("inside the actions", groupId);
+    let id = formData.get("user_id")
+    try {
+        const cookieStore = await cookies();
+        const sessionCookie = cookieStore.get("session")?.value;
+        const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
+            credentials: 'include',
+            method: "DELETE",
+            body: JSON.stringify({ "id": id }),
+            headers: {
+                "Content-Type": "application/json",
+                ...(sessionCookie ? { Cookie: `session=${sessionCookie}` } : {})
+            }
+        });
+
+        if (res.ok) {
+            const result = await res.json()
+            console.log("result inside the cancel", result);
+            return {
+                message: "success"
+            }
+
+        }
+    } catch (err) {
+        console.error("Failed to fetch invitations", err)
+    }
+
+
 }
 
 

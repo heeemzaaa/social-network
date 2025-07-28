@@ -3,18 +3,16 @@
 import Header from './_components/header'
 import Navigation from './_components/navigation'
 import { ModalProvider } from './_context/ModalContext'
-import UserProvider from './_lib/webSocket'
-
-
+import { NotificationProvider } from './_context/NotificationContext'; // ✅ import it
 
 export default function MainLayout({ children }) {
   return (
-    <UserProvider>
-      <ModalProvider>
+    <ModalProvider>
+      <NotificationProvider> {/* ✅ wrap everything */}
         <Header />
         <Navigation />
         {children}
-      </ModalProvider>
-    </UserProvider>
+      </NotificationProvider>
+    </ModalProvider>
   )
 }

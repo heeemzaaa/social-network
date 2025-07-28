@@ -87,8 +87,6 @@ export default function GroupCardList({ filter }) {
             fetchData(id)
         }
     }, [page])
-
-    if (error) return <p className="text-danger text-center">Error: {error}</p>
     return (
         <div className="list-container flex flex-wrap gap-4 justify-center items-start overflow-y-auto">
             {data.map((item, index) => (

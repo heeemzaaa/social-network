@@ -5,7 +5,7 @@ import (
 
 	"social-network/backend/models"
 	"social-network/backend/repositories/group"
-	"social-network/backend/services/notification"
+	NS "social-network/backend/services/notification"
 	"social-network/backend/services/profile"
 	"social-network/backend/utils"
 )
@@ -13,10 +13,10 @@ import (
 type GroupService struct {
 	gRepo    *group.GroupRepository
 	sProfile *profile.ProfileService
-	sNotif   *notification.NotificationService
+	sNotif   *NS.NotificationService
 }
 
-func NewGroupService(grepo *group.GroupRepository, sProfile *profile.ProfileService, sNotif *notification.NotificationService) *GroupService {
+func NewGroupService(grepo *group.GroupRepository, sProfile *profile.ProfileService, sNotif *NS.NotificationService) *GroupService {
 	return &GroupService{gRepo: grepo, sProfile: sProfile, sNotif: sNotif}
 }
 

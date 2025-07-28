@@ -14,15 +14,17 @@ import (
 	nr "social-network/backend/repositories/notification"
 
 	pr "social-network/backend/repositories/profile"
+	gr "social-network/backend/repositories/group"
 )
 
 func SetNotificationsRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService) (*http.ServeMux, *ns.NotificationService) {
 	repo := nr.NewNotifRepository(db)
 	auth_repo := ar.NewAuthRepository(db)
 	profile_repo := pr.NewProfileRepository(db)
+	group_repo := gr.NewGroupRepository(db)
 
 	service := ns.NewNotifService(repo, auth_repo)
-	service_update := ns.NewNotifServiceUpdate(repo, profile_repo)
+	service_update := ns.NewNotifServiceUpdate(repo, profile_repo, group_repo)
 
 	new := hn.NewNotificationHandler(service)
 	update := hn.NewUpdateHandler(service_update)

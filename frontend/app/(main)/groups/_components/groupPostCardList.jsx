@@ -3,7 +3,7 @@ import Button from "@/app/_components/button"
 import PostCard from "../../_components/posts/postCard"
 import { useModal } from "../../_context/ModalContext"
 
-export default function GroupPostCardList({ groupId }) {
+export default function GroupPostCardList({ groupId, setIsAccessible, isAccessible }) {
     const [data, setData] = useState([])
     const [page, setPage] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
@@ -44,21 +44,22 @@ export default function GroupPostCardList({ groupId }) {
                 const response = await fetch(url, { credentials: "include", signal })
                 const result = await response.json()
                 if (!response.ok) {
+                    if (response.status == 403) setIsAccessible(response)
                     throw new Error(`HTTP error! status: ${response.status}`)
                 }
                 if (result.length === 0) {
                     setHasMore(false)
                 } else {
-                    if (result.length < 20 ) setHasMore(false)
+                    if (result.length < 20) setHasMore(false)
                     setData((prevData) => [...prevData, ...result])
                 }
             } catch (err) {
-                if (err.name === "AbortError") return
                 setError(err.message)
             } finally {
                 setIsLoading(false)
             }
         },
+
         [getUrl]
     )
 
@@ -99,7 +100,14 @@ export default function GroupPostCardList({ groupId }) {
         }
     }, [page])
 
-    if (error) return <p className="text-danger text-center">Error: {error}</p>
+    if (isAccessible?.status == 403) {
+        return (
+            <section className='posts_container w-full h-full flex-col justify-center align-center'>
+                <img src="/forbidden-posts.svg" style={{ height: '100%' }} />
+                <p className='text-xl font-semibold'>You must become a member to see the posts</p>
+            </section>
+        )
+    }
 
     return (
         <div className="list-container flex align-start flex-wrap gap-4 justify-center overflow-y-auto">

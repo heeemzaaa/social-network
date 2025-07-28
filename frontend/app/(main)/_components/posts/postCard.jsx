@@ -8,6 +8,7 @@ import { useActionState, useState } from "react"
 import CommentsContainer from "../comments/commentsContainer"
 import { useRouter } from "next/navigation"
 import { timeAgo } from "@/app/_utils/time"
+
 import { HiOutlineClock } from "react-icons/hi2"
 
 export default function PostCard({
@@ -82,7 +83,7 @@ export default function PostCard({
                             </span>
                         </div>
                     </div>
-                    <div style={{opacity:".5", gap:"5px", paddingLeft:"3px", marginLeft:"auto"}} className="flex align-end">
+                    <div style={{ opacity: ".5", gap: "5px", paddingLeft: "3px", marginLeft: "auto" }} className="flex align-end">
                         <HiOutlineClock size={24} />
                         <span>{timeAgo(created_at)}</span>
                     </div>

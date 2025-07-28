@@ -32,6 +32,12 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 
+	data := models.Notif{
+		SenderId:       authUserID,
+		RecieverId:     userID,
+		// SenderFullName: profile.User.FullName,
+	}
+
 	switch profile.User.Visibility {
 	case "private":
 		err := s.repo.FollowPrivate(userID, authUserID)
@@ -39,8 +45,13 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 		}
 
+		data.Type = "follow-private"
+
 		// insert new private notification for recieverId = userID
-		NS.PostService(models.Notif{SenderId: authUserID, RecieverId: userID, Type: "follow-private", SenderFullName: "test_PRV"})
+		errJson := NS.PostService(data)
+		if errJson != nil {
+			// return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
+		}
 
 	case "public":
 		err := s.repo.FollowDone(userID, authUserID)
@@ -49,8 +60,21 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 		}
 		profile.IsFollower = !isFollower
 
+		// data := models.Notif{
+		// 	SenderId: authUserID,
+		// 	RecieverId: userID,
+		// 	Type: "follow-public",
+		// }
+		data.Type = "follow-public"
+
 		// insert new public notification for recieverId = userID
-		NS.PostService(models.Notif{SenderId: authUserID, RecieverId: userID, Type: "follow-public", SenderFullName: "pubName"})
+		errJson := NS.PostService(data)
+		if errJson != nil {
+			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
+		}
+
+		// insert new public notification for recieverId = userID
+		NS.PostService(models.Notif{SenderId: authUserID, RecieverId: userID, Type: "follow-public"})
 
 	default:
 		return nil, &models.ErrorJson{Status: 500, Error: "This is not a valid status of visibility"}
@@ -134,8 +158,7 @@ func (s *ProfileService) CancelFollow(userID string, authUserID string, NS *ns.N
 	}
 
 	/// /// HERE REMOVE NOTIFICATION FOLLOW PRIVATE /// ///
-	// data: userID, authUserID, type
-	errJson := NS.DeleteService(userID, authUserID, "follow-private")
+	errJson := NS.DeleteService(userID, authUserID, "follow-private", "later")
 	if errJson != nil {
 		return nil, errJson
 	}

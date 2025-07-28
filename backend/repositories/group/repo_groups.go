@@ -175,56 +175,82 @@ func (repo *GroupRepository) GetJoinedGroups(offset string, userID string) ([]mo
 func (repo *GroupRepository) GetAvailableGroups(offset string, userID string) ([]models.Group, *models.ErrorJson) {
 	availabeGroups := []models.Group{}
 
-	initialWhere := `
-		groups.groupID NOT IN (
-			SELECT
-				groups.groupID
-			FROM
-				groups
-				INNER JOIN group_membership ON group_membership.groupID = groups.groupID
-				AND group_membership.userID = ?  AND groupCreatorID = ?
-		)`
-
-	var where string
-	if offset == "0" {
-		where = initialWhere
-	} else {
-		where = fmt.Sprintf(`%v AND groups.createdAt < (
-			select createdAt from groups WHERE groupID = ? 
-		)`, initialWhere)
-	}
-	query := fmt.Sprintf(`
+	query := `
 	WITH
     cte_members AS (
         SELECT
-            group_membership.groupID AS Id,
-            count(group_membership.groupID) AS Nbr_Members
+            gm.groupID,
+            COUNT(gm.groupID) AS Nbr_Members
         FROM
-            users
-            INNER JOIN group_membership ON users.userID = group_membership.userID
+            group_membership gm
+            INNER JOIN cte_groups cg ON gm.groupID = cg.groupID
         GROUP BY
-            Id
+            gm.groupID
+    ),
+    cte_requested AS (
+        SELECT
+            groupID AS groupIdRequested
+        FROM
+            group_requests
+        WHERE
+            senderID = ?
+            AND typeRequest = 'join-request'
+    ),
+    cte_available AS (
+        SELECT 
+            g.groupID AS available
+        FROM
+            groups g
+        WHERE
+            g.groupID NOT IN (
+                SELECT 
+                    groupID
+                FROM
+                    group_membership
+                WHERE
+                    userID = ?
+
+                UNION ALL
+                SELECT 
+                    groupIdRequested
+                FROM
+                    cte_requested
+            )
+    ),
+    cte_groups AS (
+        SELECT
+            groupIdRequested AS groupID,
+            1 AS output
+        FROM
+            cte_requested
+        UNION ALL
+        SELECT
+            available AS groupID,
+            0 AS output
+        FROM
+            cte_available
     )
 	SELECT
-		groupID,
-		groups.groupCreatorID,
-		concat(users.firstName, ' ', users.lastName),
-		users.nickname,
-		title,
-		imagePath,
-		description,
-		groups.createdAt ,
-		cte_members.Nbr_Members
+		cg.groupID,
+		cg.output,
+		g.groupCreatorID,
+		CONCAT(u.firstName, ' ', u.lastName) AS creatorName,
+		u.nickname,
+		g.title,
+		g.imagePath,
+		g.description,
+		g.createdAt,
+		COALESCE(cm.Nbr_Members, 0) AS Nbr_Members
 	FROM
-		groups
-		INNER JOIN cte_members ON groups.groupID = cte_members.Id
-		INNER JOIN users ON users.userID = groups.groupCreatorID
-	WHERE
-		%v
-	ORDER BY groups.createdAt DESC
+		cte_groups cg
+		INNER JOIN groups g ON g.groupID = cg.groupID
+		INNER JOIN users u ON u.userID = g.groupCreatorID
+		LEFT JOIN cte_members cm ON cm.groupID = cg.groupID
+	ORDER BY
+		g.createdAt DESC
 	LIMIT
-		6
-	`, where)
+		6;
+	`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -232,16 +258,8 @@ func (repo *GroupRepository) GetAvailableGroups(offset string, userID string) ([
 	}
 	defer stmt.Close()
 
-	args := []any{userID, userID }
-	if offset != "0" {
-		args = append(args,offset)
-	}
-
-	rows, errQuery := stmt.Query(args...)
+	rows, errQuery := stmt.Query(userID, userID)
 	if errQuery != nil {
-		if errQuery == sql.ErrNoRows {
-			return availabeGroups, nil
-		}
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("===> %v", errQuery)}
 	}
 	defer rows.Close()
@@ -249,6 +267,7 @@ func (repo *GroupRepository) GetAvailableGroups(offset string, userID string) ([
 		group := &models.Group{}
 		errScan := rows.Scan(
 			&group.GroupId,
+			&group.Requested,
 			&group.GroupCreatorId,
 			&group.GroupCreator.FullName,
 			&group.GroupCreator.Nickname,

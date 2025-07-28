@@ -9,7 +9,7 @@ import { useModal } from "../../_context/ModalContext";
 
 export default function CreateGroupForm() {
     const [state, action] = useActionState(createGroupAction, {});
-
+    console.log("create grp state ", state);
     const [data, setData] = useState({
         title: "",
         description: "",
@@ -24,6 +24,7 @@ export default function CreateGroupForm() {
 
     useEffect(() => {
         if (state.message) {
+            console.log("inside use effect normal");
             state.data.type = "groupCard"
             setModalData(state.data)
             closeModal()

@@ -11,36 +11,41 @@ import (
 // get the event created of a specific group
 func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int64) ([]models.Event, *models.ErrorJson) {
 	events := []models.Event{}
-	query := `WITH
+	query := `
+	WITH
     cte_liked AS (
         SELECT
             group_events.eventID as ID,
-            group_event_users.actionChosen as chosen
+            group_events.title,
+            group_event_users.actionChosen AS chosen
         FROM
             group_events
             LEFT JOIN group_event_users ON group_event_users.eventID = group_events.eventID
-            INNER JOIN users ON users.userID = group_event_users.userID
-            AND users.userID =  ?
+            INNER JOIN  users ON users.userID = group_event_users.userID
+            AND users.userID = ?
         GROUP BY
             group_events.eventID
     )
-	SELECT
-		group_events.eventID,
-		group_events.eventCreatorID,
-		concat (users.firstName, " ", users.lastName) AS FullName,
-		users.nickname,
-		users.avatarPath,
-		group_events.title,
-		group_events.description,
-		group_events.eventTime,
-		cte_liked.chosen
-	FROM
-		group_events
-		INNER JOIN users ON group_events.eventCreatorID = users.userID
-		INNER JOIN  cte_liked ON cte_liked.ID = group_events.eventID
-	WHERE
-		group_events.groupID = ?
-	LIMIT 20 OFFSET ?
+    SELECT
+        group_events.groupID,
+        group_events.eventID,
+        group_events.eventCreatorID,
+        concat (users.firstName, " ", users.lastName) AS FullName,
+        users.nickname,
+        users.avatarPath,
+        group_events.title,
+        group_events.description,
+        group_events.eventTime,
+    	group_events.createdAt,
+        cte_liked.chosen
+    FROM
+        group_events
+        INNER JOIN users ON group_events.eventCreatorID = users.userID
+        INNER JOIN cte_liked ON cte_liked.ID = group_events.eventID
+    WHERE
+        group_events.groupID = ?
+    ORDER BY group_events.createdAt DESC
+    LIMIT 20 OFFSET ? 
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
@@ -59,6 +64,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
 	for rows.Next() {
 		var event models.Event
 		if err := rows.Scan(
+			&event.GroupId,
 			&event.EventId,
 			&event.EventCreator.Id,
 			&event.EventCreator.FullName,
@@ -67,6 +73,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
 			&event.Title,
 			&event.Description,
 			&event.EventDate,
+			&event.CreatedAt,
 			&event.Going,
 		); err != nil {
 			return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 2", err)}
@@ -273,6 +280,7 @@ func (gRepo *GroupRepository) UpdateToGoing(actionChosen *models.UserEventAction
 }
 
 func (gRepo *GroupRepository) UpdateToNotGoing(actionChosen *models.UserEventAction) (*models.UserEventAction, *models.ErrorJson) {
+	fmt.Println("hunaaaa, update to not going")
 	action_created := &models.UserEventAction{}
 	query := `UPDATE group_event_users SET actionChosen = CASE actionChosen
               WHEN 0 THEN -1
@@ -294,7 +302,7 @@ func (gRepo *GroupRepository) UpdateToNotGoing(actionChosen *models.UserEventAct
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 3", err)}
 	}
-
+	fmt.Println("action_created for the update in the -1")
 	return action_created, nil
 }
 

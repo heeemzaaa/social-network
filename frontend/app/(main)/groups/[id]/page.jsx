@@ -23,13 +23,16 @@ export default function GroupPage({ params }) {
   const [error, setError] = useState(null);
   const resolvedParams = React.use(params);
   const groupId = resolvedParams.id;
+  const [isAccessible, setIsAccessible] = useState(null)
 
+
+  console.log("isAccessible", isAccessible);
   const { openModal } = useModal()
   const actionButtons = [
     {
       label: "Invite Friend",
       icon: <HiOutlineUserPlus size={24} />,
-      onClick: () => openModal(<InviteFriendForm />)
+      onClick: () => openModal(<InviteFriendForm groupId={groupId} />)
     },
     {
       label: "Add Post",
@@ -86,7 +89,7 @@ export default function GroupPage({ params }) {
             </p>
             <Tag className="glass-bg">
               <HiMiniUsers className="w-5 h-5" />
-              {data.total_members || 0} {data.total_members > 1 ? "Members" : "Member"} 
+              {data.total_members || 0} {data.total_members > 1 ? "Members" : "Member"}
             </Tag>
           </div>
         </div>
@@ -95,22 +98,22 @@ export default function GroupPage({ params }) {
       {/* tabs for posts and  */}
       <div className="flex-grow h-full ">
         <div className="flex gap-1">
-          {actionButtons.map((button, index) =>
+          {isAccessible?.status != 403 && actionButtons.map((button, index) =>
             <Button onClick={button.onClick} key={index}>
               {button.icon}
               <span style={{ marginLeft: "5px" }}>{button.label}</span>
             </Button>
           )}
         </div>
+
         <Tabs className={"h-full"}>
           <Tab label={"Posts"} />
           <Tab label={"Events"} />
-          <Tab label={"nothing"} />
           <TabContent>
-            <GroupPostCardList groupId={groupId} />
+            <GroupPostCardList groupId={groupId} setIsAccessible={setIsAccessible} isAccessible={isAccessible} />
           </TabContent>
           <TabContent>
-            <GroupEventCardList groupId={groupId} />
+            <GroupEventCardList groupId={groupId} setIsAccessible={setIsAccessible} isAccessible={isAccessible} />
           </TabContent>
         </Tabs>
       </div>

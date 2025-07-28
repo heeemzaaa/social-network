@@ -12,6 +12,7 @@ import { useModal } from '../_context/ModalContext';
 import CreatePost from './posts/createPost';
 import { createPostAction } from '@/app/_actions/posts';
 import { useUserContext } from '../_context/userContext';
+import CreateGroupForm from '../groups/_components/createGroupForm'
 
 export default function Header() {
   const { authenticatedUser } = useUserContext()
@@ -27,8 +28,9 @@ export default function Header() {
       }
       try {
         let res = await fetch("http://localhost:8080/api/notifications/", getRequest)
-        let ddd = await res.json()
-        if (ddd?.Status === true) {
+        let response = await res.json()
+        console.log("fetch is has seen api, response = ", response)
+        if (response?.Status === true) {
           setHasNewNotification(true)
         }
       } catch (err) {

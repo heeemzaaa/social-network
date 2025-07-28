@@ -1,104 +1,67 @@
 "use client"
 
-import { useState, useEffect } from 'react';
-import { useActionState } from 'react';
-import Button from '@/app/_components/button';
-import { inviteUsersAction } from '@/app/_actions/group';
+import { useState, useEffect, use } from 'react';
+
+
 import UserCard from './userCard';
 import { useModal } from '../../_context/ModalContext';
 
-const fetchFollowers = async () => {
-    return [
-        { id: 1, name: 'Alice Smith', avatar: 'https://i.pravatar.cc/150?img=1' },
-        { id: 2, name: 'Bob Johnson', avatar: 'https://i.pravatar.cc/150?img=2' },
-        { id: 3, name: 'Charlie Brown', avatar: 'https://i.pravatar.cc/150?img=3' },
-        { id: 4, name: 'Diana Lee' },
-        { id: 5, name: 'Alice Smith', avatar: 'https://i.pravatar.cc/150?img=1' },
-        { id: 6, name: 'Bob Johnson', avatar: 'https://i.pravatar.cc/150?img=2' },
-        { id: 7, name: 'Charlie Brown', avatar: 'https://i.pravatar.cc/150?img=3' },
-        { id: 8, name: 'Diana Lee', avatar: 'https://i.pravatar.cc/150?img=4' },
-        { id: 9, name: 'Alice Smith', avatar: 'https://i.pravatar.cc/150?img=1' },
-        { id: 10, name: 'Bob Johnson', avatar: 'https://i.pravatar.cc/150?img=2' },
-        { id: 11, name: 'Charlie Brown', avatar: 'https://i.pravatar.cc/150?img=3' },
-        { id: 12, name: 'Diana Lee', avatar: 'https://i.pravatar.cc/150?img=4' },
-    ];
-};
-
 // InviteFriendForm component
 const InviteFriendForm = ({ groupId }) => {
-    const [state, formAction, isPending] = useActionState(inviteUsersAction, {});
-    const [selectedUsers, setSelectedUsers] = useState([]);
+    console.log("grp id ", groupId);
     const [followers, setFollowers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
     const { closeModal } = useModal()
 
     useEffect(() => {
-        if (!state.message) return;
-        closeModal()
-    }, [state])
 
-    
-    useEffect(() => {
-        const loadFollowers = async () => {
+        async function handleGetFollowers() {
             try {
-                const data = await fetchFollowers();
-                setFollowers(data)
-                setLoading(false)
+                const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
+                    credentials: "include",
+                })
+
+                if (res.ok) {
+                    const result = await res.json()
+
+                    setFollowers(result)
+                    console.log("followers", result);
+
+                }
+
             } catch (err) {
-                setError('Failed to load followers')
+                console.error("Failed to fetch followers", err)
+            } finally {
                 setLoading(false)
             }
-        };
-        loadFollowers();
-    }, []);
+        }
 
-    // Handle user selection
-    const handleSelect = (userId) => {
-        setSelectedUsers((prev) =>
-            prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
-        );
-    };
+        handleGetFollowers()
+    }, [])
+
+
+
+
 
     return (
-        <form
-            action={formAction}
-            style={{ padding: '24px', maxWidth: '600px', margin: '0 auto' }}
-        >
-            <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>
-                Invite Friends
-            </h2>
+        <>
+
             {loading && <p style={{ color: '#374151', fontSize: '16px' }}>Loading followers...</p>}
             {error && <p style={{ color: '#dc2626', fontSize: '16px' }}>{error}</p>}
-            {state.message && (
-                <p
-                    style={{
-                        color: state.success ? '#16a34a' : '#dc2626',
-                        fontSize: '16px',
-                        marginBottom: '16px'
-                    }}
-                >
-                    {state.message}
-                </p>
-            )}
+            {followers.length === 0 && <span>You currently have no followers available for invitation. Follow others to build your community.</span>}
             <div style={{ maxHeight: '400px', overflowY: 'auto', marginBottom: '16px', paddingInline: ".5rem" }}>
                 {followers.map((user) => (
                     <UserCard
                         key={user.id}
                         user={user}
-                        isSelected={selectedUsers.includes(user.id)}
-                        onSelect={handleSelect}
+                        groupId={groupId}
+
                     />
                 ))}
             </div>
-            <input type="hidden" name="groupId" value={groupId} />
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                <Button style={{width: "100%"}}>
-                    {isPending ? 'Inviting...' : `Invite ${selectedUsers.length > 0 ? `(${selectedUsers.length})` : ''}`}
-                </Button>
-            </div>
-        </form>
+
+        </>
     );
 };
 
