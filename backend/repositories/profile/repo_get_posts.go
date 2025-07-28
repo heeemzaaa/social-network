@@ -9,7 +9,7 @@ import (
 )
 
 // here I will get the posts of the user with conditions
-func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfile bool) ([]models.Post, *models.ErrorJson) {
+func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPostTime string, myProfile bool) ([]models.Post, *models.ErrorJson) {
 	var query string
 	posts := []models.Post{}
 	var args []any
@@ -26,9 +26,15 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfi
 		FROM posts p
 		JOIN users u ON u.userID = p.userID
 		WHERE p.userID = ?
-		ORDER BY p.createdAt DESC;
 		`
 		args = append(args, userID)
+
+		if lastPostTime != "" {
+			query += " AND p.createdAt < ?"
+			args = append(args, lastPostTime)
+		}
+
+		query += ` ORDER BY p.createdAt DESC LIMIT 10`
 	default:
 		query = `
 		WITH 
@@ -68,10 +74,15 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfi
             	))
         	))
     	)
-		ORDER BY p.createdAt DESC;
 		`
-
 		args = append(args, profileID, userID, profileID, profileID, userID, userID)
+
+		if lastPostTime != "" {
+			query += " AND p.createdAt < ?"
+			args = append(args, lastPostTime)
+		}
+
+		query += ` ORDER BY p.createdAt DESC LIMIT 10`
 	}
 
 	stmt, err := repo.db.Prepare(query)

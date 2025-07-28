@@ -13,29 +13,21 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
 	events := []models.Event{}
 	query := `
 	WITH
-    cte_users_group AS (
-        SELECT
-            userID
-        FROM
-            group_membership
-        WHERE
-            groupID = ?
-    ),
     cte_liked AS (
         SELECT
             group_events.eventID as ID,
             group_events.title,
-            group_event_users.actionChosen as chosen
+            group_event_users.actionChosen AS chosen
         FROM
             group_events
             LEFT JOIN group_event_users ON group_event_users.eventID = group_events.eventID
-            LEFT  JOIN cte_users_group ON cte_users_group.userID = group_event_users.userID
-            AND cte_users_group.userID = ?
+            INNER JOIN  users ON users.userID = group_event_users.userID
+            AND users.userID = ?
         GROUP BY
             group_events.eventID
     )
-
     SELECT
+        group_events.groupID,
         group_events.eventID,
         group_events.eventCreatorID,
         concat (users.firstName, " ", users.lastName) AS FullName,
@@ -44,7 +36,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
         group_events.title,
         group_events.description,
         group_events.eventTime,
-		group_events.createdAt,
+    	group_events.createdAt,
         cte_liked.chosen
     FROM
         group_events
@@ -52,9 +44,8 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
         INNER JOIN cte_liked ON cte_liked.ID = group_events.eventID
     WHERE
         group_events.groupID = ?
-
-	ORDER BY group_events.createdAt DESC
-    LIMIT 20 OFFSET  ? 
+    ORDER BY group_events.createdAt DESC
+    LIMIT 20 OFFSET ? 
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
@@ -62,7 +53,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(groupId, userId, groupId, offset)
+	rows, err := stmt.Query(userId, groupId, offset)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return events, nil
@@ -73,6 +64,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
 	for rows.Next() {
 		var event models.Event
 		if err := rows.Scan(
+			&event.GroupId,
 			&event.EventId,
 			&event.EventCreator.Id,
 			&event.EventCreator.FullName,
@@ -285,6 +277,7 @@ func (gRepo *GroupRepository) UpdateToGoing(actionChosen *models.UserEventAction
 }
 
 func (gRepo *GroupRepository) UpdateToNotGoing(actionChosen *models.UserEventAction) (*models.UserEventAction, *models.ErrorJson) {
+	fmt.Println("hunaaaa, update to not going")
 	action_created := &models.UserEventAction{}
 	query := `UPDATE group_event_users SET actionChosen = CASE actionChosen
               WHEN 0 THEN -1
@@ -306,7 +299,7 @@ func (gRepo *GroupRepository) UpdateToNotGoing(actionChosen *models.UserEventAct
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 3", err)}
 	}
-
+	fmt.Println("action_created for the update in the -1")
 	return action_created, nil
 }
 

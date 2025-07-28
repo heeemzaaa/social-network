@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -26,7 +25,7 @@ func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Not found"})
 		return
 	}
-	fmt.Println(r.URL.Path, "//////***//////")
+
 	switch r.Method {
 	case http.MethodGet:
 		if len(pathParts) == 2 {

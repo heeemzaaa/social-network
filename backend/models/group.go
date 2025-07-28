@@ -18,6 +18,7 @@ type Group struct {
 	Posts           []Post    `json:"posts,omitempty"`
 	Events          []Event   `json:"events,omitempty"`
 	LastInteraction string    `json:"last_interaction,omitempty"`
+	Requested       int       `json:"requested"`
 }
 
 // when trying to  create a group

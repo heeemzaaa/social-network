@@ -107,16 +107,13 @@ export async function likePostAction(prevState, formData) {
         return { ...prevState, message: "Post ID is required." };
     }
     try {
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
-
         const res = await fetch(`http://localhost:8080/api/posts/like/${postId}`, {
             method: "POST",
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
         });
-
         const data = await res.json();
-
         if (data.success) {
             return {
                 message: "Liked successfully!",

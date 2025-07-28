@@ -2,8 +2,6 @@ import Image from 'next/image'
 import React from 'react'
 
 export default function Avatar({ img, size }) {
-  console.log("img", img);
-
   let imgContainer = {
     width: `${size}px`,
     height: `${size}px`,
@@ -26,7 +24,6 @@ export default function Avatar({ img, size }) {
   return (
     <div className='flex align-center justify-center glass-bg' style={avatar} >
       <div style={{ ...imgContainer, backgroundImage: img ? `url(http://localhost:8080/static/${img})` : 'url(/no-profile.png)' }} >
-        {/* <img src={`http://localhost:8080/static${img}` || "/no-profile.png"} alt="" className="w-full" /> */}
       </div>
     </div>
   )

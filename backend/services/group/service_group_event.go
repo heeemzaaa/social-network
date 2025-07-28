@@ -57,7 +57,7 @@ func (gService *GroupService) HandleActionChosen(actionChosen *models.UserEventA
 		}
 		return action_created, nil
 	}
-
+                    
 	action_created, errJson := gService.UpdateAction(actionChosen)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}

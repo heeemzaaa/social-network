@@ -1,7 +1,9 @@
 package services
 
-import "github.com/google/uuid"
+import (
+	"social-network/backend/models"
+)
 
-func (s *PostService) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, int, error) {
+func (s *PostService) HandleLike(postID string, userID string) (bool, int, *models.ErrorJson) {
 	return s.repo.HandleLike(postID, userID)
 }

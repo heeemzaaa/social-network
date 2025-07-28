@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"fmt"
+	"log"
 
 	"social-network/backend/models"
 )
@@ -49,5 +50,11 @@ func (repo *PostsRepository) GetComments(postID string) ([]models.Comment, *mode
 		}
 		comments = append(comments, comment)
 	}
+
+	if err := rows.Err(); err != nil {
+		log.Println("Error scanning all comments of the post: ", err)
+		return []models.Comment{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+
 	return comments, nil
 }
