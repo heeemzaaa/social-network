@@ -32,12 +32,11 @@ func NewLogin() *Login {
 }
 
 type Session struct {
-	Id        int    `json:"id,omitempty"`
-	Token     string `json:"token"`
-	UserId    string `json:"user_id"`
-	Username  string `json:"username,omitempty"`
-	FirstName string `json:"firstname,omitempty"`
-	LastName  string `json:"lastname,omitempty"`
+	Id       int    `json:"id,omitempty"`
+	Token    string `json:"token"`
+	UserId   string `json:"user_id"`
+	Username string `json:"username,omitempty"`
+	FullName string `json:"fullName,omitempty"`
 }
 
 func NewSession() *Session {
@@ -48,6 +47,7 @@ type UserData struct {
 	IsLoggedIn bool   `json:"is_logged_in"`
 	Id         string `json:"id,omitempty"`
 	Nickname   string `json:"nickname,omitempty"`
+	FullName   string `json:"fullname,omitempty"`
 }
 
 type ContextKey struct {

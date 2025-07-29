@@ -2,11 +2,13 @@ package repositories
 
 import (
 	"fmt"
+	"log"
 
-	"github.com/google/uuid"
+	"social-network/backend/models"
+	"social-network/backend/utils"
 )
 
-func (r *PostsRepository) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, int, error) {
+func (r *PostsRepository) HandleLike(postID string, userID string) (bool, int, *models.ErrorJson) {
 	var exists bool
 	entityType := "post"
 	reactionValue := 1
@@ -16,12 +18,21 @@ func (r *PostsRepository) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, 
 		SELECT EXISTS (
 			SELECT 1 FROM reactions 
 			WHERE userID = ? AND entityType = ? AND entityID = ?
+			LIMIT 1
 		)
 	`
-	err := r.db.QueryRow(checkQuery, userID.String(), entityType, postID.String()).Scan(&exists)
+
+	stmt, err := r.db.Prepare(checkQuery)
 	if err != nil {
-		fmt.Println("Error checking existing reaction:", err)
-		return false, 0, err
+		log.Println("Error preparing the query to handle like: ", err)
+		return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(userID, entityType, postID).Scan(&exists)
+	if err != nil {
+		log.Println("Error checking existing reaction:", err)
+		return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	if !exists {
@@ -30,17 +41,24 @@ func (r *PostsRepository) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, 
 			INSERT INTO reactions (reactionID, entityType, entityID, reaction, userID)
 			VALUES (?, ?, ?, ?, ?)
 		`
-		_, err := r.db.Exec(
-			insertQuery,
-			uuid.New().String(),
+
+		stmt, err := r.db.Prepare(insertQuery)
+		if err != nil {
+			log.Println("Error preparing the query to handle like: ", err)
+			return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		}
+		defer stmt.Close()
+
+		_, err = stmt.Exec(
+			utils.NewUUID(),
 			entityType,
-			postID.String(),
+			postID,
 			reactionValue,
-			userID.String(),
+			userID,
 		)
 		if err != nil {
-			fmt.Println("Error inserting reaction:", err)
-			return false, 0, err
+			log.Println("Error inserting reaction:", err)
+			return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 	} else {
 		// Toggle existing like
@@ -49,10 +67,18 @@ func (r *PostsRepository) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, 
 			SET reaction = CASE WHEN reaction = 1 THEN 0 ELSE 1 END
 			WHERE userID = ? AND entityType = ? AND entityID = ?
 		`
-		_, err := r.db.Exec(updateQuery, userID.String(), entityType, postID.String())
+
+		stmt, err := r.db.Prepare(updateQuery)
 		if err != nil {
-			fmt.Println("Error toggling reaction:", err)
-			return false, 0, err
+			log.Println("Error preparing the query to update like: ", err)
+			return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		}
+		defer stmt.Close()
+
+		_, err = stmt.Exec(userID, entityType, postID)
+		if err != nil {
+			log.Println("Error toggling reaction:", err)
+			return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 	}
 
@@ -61,21 +87,37 @@ func (r *PostsRepository) HandleLike(postID uuid.UUID, userID uuid.UUID) (bool, 
 		SELECT reaction = 1 FROM reactions
 		WHERE userID = ? AND entityType = ? AND entityID = ?
 	`
-	err = r.db.QueryRow(likeCheckQuery, userID.String(), entityType, postID.String()).Scan(&liked)
-	if err != nil {
-		fmt.Println("Error fetching liked state:", err)
-		return false, 0, err
-	}
 
+	stmt, err = r.db.Prepare(likeCheckQuery)
+	if err != nil {
+		log.Println("Error preparing the query to check like: ", err)
+		return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(userID, entityType, postID).Scan(&liked)
+	if err != nil {
+		log.Println("Error fetching liked state: ", err)
+		return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
 
 	var totalLikes int
 	countQuery := `
 		SELECT COUNT(*) FROM reactions
 		WHERE entityType = ? AND entityID = ? AND reaction = 1
 	`
-	err = r.db.QueryRow(countQuery, entityType, postID.String()).Scan(&totalLikes)
+
+	stmt, err = r.db.Prepare(countQuery)
 	if err != nil {
-		return false, 0, err
+		log.Println("Error preparing the query to count like: ", err)
+		return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(entityType, postID).Scan(&totalLikes)
+	if err != nil {
+		log.Println("Error fetching total likes:", err)
+		return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	return liked, totalLikes, nil

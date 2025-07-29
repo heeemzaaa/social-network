@@ -52,7 +52,7 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 	}
 
 	// add new notification type: [group-join]
-	if errJson := GrpReqHandler.sNotif.PostService(&data); errJson != nil {
+	if errJson := GrpReqHandler.sNotif.PostService(data); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
@@ -75,7 +75,8 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter
 		return
 	}
 
-	if errJson := GrpReqHandler.gService.RequestToCancel(userID.String(), groupID.String()); errJson != nil {
+	data, errJson := GrpReqHandler.gService.RequestToCancel(userID.String(), groupID.String());
+	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
@@ -83,6 +84,13 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter
 	// delete notification
 	// {sender_id , receiver_id, "group-join"}
 	// // // // // // // // // //
+
+	if errJson := GrpReqHandler.sNotif.DeleteService(data.RecieverId, data.SenderId, data.Type, data.GroupId); errJson != nil { // reciever is admin group
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		return
+	}
+
+	utils.WriteDataBack(w, "done")
 }
 
 func (GrpReqHandler *GroupRequestsHandler) GetRequests(w http.ResponseWriter, r *http.Request) {

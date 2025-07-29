@@ -12,9 +12,12 @@ import { useModal } from '../_context/ModalContext';
 import CreatePost from './posts/createPost';
 import { createPostAction } from '@/app/_actions/posts';
 import CreateGroupForm from '../groups/_components/createGroupForm'
+import { useUserContext } from '../_context/userContext';
+
 export default function Header() {
   const { openModal } = useModal()
   const [hasNewNotification, setHasNewNotification] = useState(false)
+  const { authenticatedUser } = useUserContext()
 
   // Fetch notification seen status
   useEffect(() => {
@@ -41,7 +44,9 @@ export default function Header() {
   return (
     <header className='p3 flex justify-between align-center'>
       <div>
-        <h2>Welcome user!!</h2>
+        <h2>
+          {authenticatedUser && `Welcome ${authenticatedUser.fullName}!`}
+        </h2>
       </div>
 
       <div className='flex gap-2'>

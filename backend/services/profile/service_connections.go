@@ -8,8 +8,13 @@ import (
 func (s *ProfileService) GetFollowers(profileID string, authUserID string) ([]models.User, *models.ErrorJson) {
 	users := []models.User{}
 
-	if profileID == "" || authUserID == "" {
-		return users, &models.ErrorJson{Status: 400, Error: "Data is invalid !"}
+	exists, err := s.repo.UserExists(profileID)
+	if err != nil {
+		return users, &models.ErrorJson{Status: err.Status, Error: err.Error}
+	}
+
+	if !exists {
+		return users, &models.ErrorJson{Status: 400, Error: "User Id doesn't exists !"}
 	}
 
 	access, accessErr := s.CheckProfileAccess(profileID, authUserID)
@@ -19,7 +24,7 @@ func (s *ProfileService) GetFollowers(profileID string, authUserID string) ([]mo
 		return users, &models.ErrorJson{Status: accessErr.Status, Error: accessErr.Error}
 	}
 
-	users, err := s.repo.GetFollowers(profileID)
+	users, err = s.repo.GetFollowers(profileID)
 	if err != nil {
 		return []models.User{}, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
@@ -31,8 +36,13 @@ func (s *ProfileService) GetFollowers(profileID string, authUserID string) ([]mo
 func (s *ProfileService) GetFollowing(profileID string, authUserID string) ([]models.User, *models.ErrorJson) {
 	users := []models.User{}
 
-	if profileID == "" || authUserID == "" {
-		return users, &models.ErrorJson{Status: 400, Error: "Data is invalid !"}
+	exists, err := s.repo.UserExists(profileID)
+	if err != nil {
+		return users, &models.ErrorJson{Status: err.Status, Error: err.Error}
+	}
+
+	if !exists {
+		return users, &models.ErrorJson{Status: 400, Error: "User Id doesn't exists !"}
 	}
 
 	access, accessErr := s.CheckProfileAccess(profileID, authUserID)
@@ -42,7 +52,7 @@ func (s *ProfileService) GetFollowing(profileID string, authUserID string) ([]mo
 		return users, &models.ErrorJson{Status: accessErr.Status, Error: accessErr.Error}
 	}
 
-	users, err := s.repo.GetFollowing(profileID)
+	users, err = s.repo.GetFollowing(profileID)
 	if err != nil {
 		return []models.User{}, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}

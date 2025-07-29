@@ -97,3 +97,23 @@ func (repo *ProfileRepository) IsRequested(profileID string, authUserID string) 
 
 	return isRequested, nil
 }
+
+func (repo *ProfileRepository) UserExists(userID string) (bool, *models.ErrorJson) {
+	var exists bool
+	query := `SELECT EXISTS (SELECT 1 FROM users WHERE userID = ? LIMIT 1)`
+
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		log.Println("Error preparing the query to check if the user exists: ", err)
+		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(userID).Scan(&exists)
+	if err != nil {
+		log.Println("Error checking if the user exists: ", err)
+		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+
+	return exists, nil
+}

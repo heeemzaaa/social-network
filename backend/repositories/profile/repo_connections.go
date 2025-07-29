@@ -13,7 +13,11 @@ func (repo *ProfileRepository) GetFollowers(profileID string) ([]models.User, *m
 	var query string
 	users := []models.User{}
 
-	query = `SELECT u.userID, u.firstName, u.lastName, u.nickname, u.avatarPath  FROM followers f
+	query = `SELECT 
+				u.userID,
+				CONCAT(u.firstName, ' ',  u.lastName) AS fullName,
+				u.nickname,
+				u.avatarPath  FROM followers f
 			JOIN users u ON f.followerID = u.userID
 			WHERE f.userID = ?
 	`
@@ -40,7 +44,7 @@ func (repo *ProfileRepository) GetFollowers(profileID string) ([]models.User, *m
 
 	for rows.Next() {
 		var user models.User
-		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ImagePath)
+		err := rows.Scan(&user.Id, &user.FullName, &user.Nickname, &user.ImagePath)
 		if err != nil {
 			log.Println("Error scanning the followers: ", err)
 			return []models.User{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
@@ -61,7 +65,11 @@ func (repo *ProfileRepository) GetFollowing(profileID string) ([]models.User, *m
 	var query string
 	users := []models.User{}
 
-	query = `SELECT u.userID, u.firstName, u.lastName, u.nickname, u.avatarPath 
+	query = `SELECT 
+				u.userID,
+				CONCAT(u.firstName, ' ', u.lastName) AS fullName,
+				u.nickname,
+				u.avatarPath 
 			FROM followers f
 			JOIN users u ON f.userID = u.userID
 			WHERE followerID = ?
@@ -88,7 +96,7 @@ func (repo *ProfileRepository) GetFollowing(profileID string) ([]models.User, *m
 
 	for rows.Next() {
 		var user models.User
-		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ImagePath)
+		err := rows.Scan(&user.Id, &user.FullName, &user.Nickname, &user.ImagePath)
 		if err != nil {
 			log.Println("Error scaning the following user: ", err)
 			return []models.User{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 
 	"social-network/backend/middleware"
 	"social-network/backend/models"
@@ -17,10 +16,9 @@ import (
 // need to come back at night
 
 /***   /api/groups/   ***/
-// DONE 
+// DONE
 // REDONE
 // REDONE AGAIN
-
 
 type GroupHanlder struct {
 	gService *gservice.GroupService
@@ -42,8 +40,10 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Incorrect filter by field!!"})
 		return
 	}
-	offset, errOffset := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
-	if errOffset != nil {
+	offset := r.URL.Query().Get("offset")
+	fmt.Printf("[filter] offset: %v\n", offset)
+	errOffset := utils.IsValidUUID(offset)
+	if errOffset != nil && offset != "0" {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Incorrect Offset Format!"})
 		return
 	}

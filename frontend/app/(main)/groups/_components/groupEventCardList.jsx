@@ -3,7 +3,7 @@ import Button from "@/app/_components/button";
 import GroupEventCard from "./groupEventCard";
 import { useModal } from "../../_context/ModalContext";
 
-export default function GroupEventCardList({ groupId }) {
+export default function GroupEventCardList({ groupId, setIsAccessible, isAccessible }) {
     const [data, setData] = useState([]);
     const [page, setPage] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +32,7 @@ export default function GroupEventCardList({ groupId }) {
     );
 
     // Fetch data function
-    const fetchData = useCallback (
+    const fetchData = useCallback(
         async (currentPage) => {
             if (isLoading || !hasMore) return;
             setIsLoading(true);
@@ -44,7 +44,7 @@ export default function GroupEventCardList({ groupId }) {
                 const response = await fetch(url, { credentials: "include", signal });
                 const result = await response.json();
                 if (!response.ok) {
-                    console.log(result)
+                    if (response.status == 403) setIsAccessible(response)
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 console.log(result)
@@ -66,7 +66,7 @@ export default function GroupEventCardList({ groupId }) {
                 setIsLoading(false);
             }
         },
-        [getUrl,groupId]
+        [getUrl, groupId]
     );
 
     // Reset data and fetch initial page when groupId changes
@@ -97,7 +97,15 @@ export default function GroupEventCardList({ groupId }) {
         setPage((prevPage) => prevPage + 1);
     };
 
-    if (error) return <p className="text-danger text-center">Error: {error}</p>;
+    if (isAccessible?.status == 403) {
+        return (
+            <section className='posts_container w-full h-full flex-col justify-center align-center'>
+                <img src="/forbidden-posts.svg" style={{ height: '100%' }} />
+                <p className='text-xl font-semibold'>You must become a member to see the events</p>
+            </section>
+        )
+    }
+
     if (data.length === 0 && !isLoading) return (
         <img
             className="w-half mx-auto"

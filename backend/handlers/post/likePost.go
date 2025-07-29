@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"social-network/backend/middleware"
@@ -12,24 +12,24 @@ import (
 func (h *PostHandler) LikePost(w http.ResponseWriter, r *http.Request) {
 	postID, err := utils.GetUUIDFromPath(r, "id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: http.StatusBadRequest, Message: "Invalid post ID"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: http.StatusBadRequest, Error: "Invalid post ID"})
 		return
 	}
 
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: http.StatusUnauthorized, Message: "Unauthorized"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
-	liked, totalLikes, err := h.service.HandleLike(postID, userID)
-	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: http.StatusInternalServerError, Message: "Failed to like post"})
+	liked, totalLikes, errLike := h.service.HandleLike(postID.String(), userID.String())
+	if errLike != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errLike.Status, Error: errLike.Error})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]any{
+
+	utils.WriteDataBack(w, map[string]any{
 		"success":     true,
 		"message":     "Post like updated successfully",
 		"postId":      postID,

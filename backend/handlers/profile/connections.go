@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"fmt"
 	"net/http"
 
 	"social-network/backend/middleware"
@@ -19,13 +20,13 @@ func NewUserConnectionHandler(service *ps.ProfileService) *UserConnectionHandler
 
 // GET api/profile/id/connections/followers
 func (uc *UserConnectionHandler) GetFollowers(w http.ResponseWriter, r *http.Request, profileID string) {
-	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
+	authUserID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
-	users, errService := uc.service.GetFollowers(profileID, authSessionID.String())
+	users, errService := uc.service.GetFollowers(profileID, authUserID.String())
 	if errService != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errService.Status, Message: errService.Message})
 		return

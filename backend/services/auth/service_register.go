@@ -62,7 +62,7 @@ func (s *AuthService) validateUserData(user *models.User) *models.ErrorJson {
 	}
 
 	if err := ValidateDateRegister(user.BirthDate); err != nil {
-		userErrorJson.LastName = err.Error()
+		userErrorJson.BirthDate = err.Error()
 	}
 
 

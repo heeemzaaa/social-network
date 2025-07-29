@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
-	"time"
 
 	"social-network/backend/middleware"
 	"social-network/backend/models"
@@ -13,36 +13,36 @@ import (
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	usID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 401, Message: "Unauthorized"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
 	path, errUploadImg := utils.HanldeUploadImage(r, "img", "posts")
 	if errUploadImg != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Error: errUploadImg.Error})
 		return
 	}
 
 	dataStr := r.FormValue("data")
 	if dataStr == "" {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Missing data field"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Missing data field"})
 		return
 	}
 
 	var post models.Post
 	if err := json.Unmarshal([]byte(dataStr), &post); err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid JSON in data field"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid JSON in data field"})
 		return
 	}
-
-	post.User = models.User{Id: usID.String()}
+	fmt.Println("posts: ", post)
+	post.User.Id = usID.String()
 	post.Img = path
 	post.Id = utils.NewUUID()
-	post.CreatedAt = time.Now().Format(time.RFC3339)
 
-	if err := h.service.CreatePost(&post); err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Failed to create post"})
+	post_created, errPost := h.service.CreatePost(&post)
+	if errPost != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errPost.Status, Error: errPost.Error})
 		return
 	}
-	utils.WriteDataBack(w, post)
+	utils.WriteDataBack(w, post_created)
 }

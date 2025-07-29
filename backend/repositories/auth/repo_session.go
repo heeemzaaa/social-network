@@ -38,6 +38,7 @@ func (appRepo *AuthRepository) HasValidToken(token string) (bool, *models.Sessio
 		return false, nil
 	}
 	defer stmt.Close()
+	
 	if errJson := stmt.QueryRow(token).Scan(&session.UserId, &session.Token); errJson != nil {
 		return false, nil
 	}

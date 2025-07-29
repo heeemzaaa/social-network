@@ -9,8 +9,13 @@ import (
 func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.NotificationService) (*models.Profile, *models.ErrorJson) {
 	var profile models.Profile
 
-	if userID == "" || authUserID == "" {
-		return nil, &models.ErrorJson{Status: 400, Error: "Invalid data !"}
+	exists, err := s.repo.UserExists(userID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
+	}
+
+	if !exists {
+		return nil, &models.ErrorJson{Status: 400, Error: "User Id doesn't exists !"}
 	}
 
 	isFollower, err := s.repo.IsFollower(userID, authUserID)
@@ -56,14 +61,10 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 
 		data.Type = "follow-public"
 
-		// insert new public notification for recieverId = userID
 		errJson := NS.PostService(&data)
 		if errJson != nil {
-			return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
+			return nil, errJson
 		}
-
-		// insert new public notification for recieverId = userID
-		// NS.PostService(models.Notif{SenderId: authUserID, RecieverId: userID, Type: "follow-public", Status: ""})
 
 	default:
 		return nil, &models.ErrorJson{Status: 500, Error: "This is not a valid status of visibility"}
@@ -86,8 +87,13 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 func (s *ProfileService) Unfollow(userID string, authUserID string) (*models.Profile, *models.ErrorJson) {
 	var profile models.Profile
 
-	if userID == "" || authUserID == "" {
-		return nil, &models.ErrorJson{Status: 400, Error: "Invalid data !"}
+	exists, err := s.repo.UserExists(userID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
+	}
+
+	if !exists {
+		return nil, &models.ErrorJson{Status: 400, Error: "User Id doesn't exists !"}
 	}
 
 	isFollower, err := s.repo.IsFollower(userID, authUserID)
@@ -127,11 +133,16 @@ func (s *ProfileService) Unfollow(userID string, authUserID string) (*models.Pro
 func (s *ProfileService) CancelFollow(userID string, authUserID string, NS *ns.NotificationService) (*models.Profile, *models.ErrorJson) {
 	var profile models.Profile
 
-	if userID == "" || authUserID == "" {
-		return nil, &models.ErrorJson{Status: 400, Error: "Invalid data !"}
+		exists, err := s.repo.UserExists(userID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 
-	err := s.repo.CancelFollow(userID, authUserID)
+	if !exists {
+		return nil, &models.ErrorJson{Status: 400, Error: "User Id doesn't exists !"}
+	}
+
+	err = s.repo.CancelFollow(userID, authUserID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}

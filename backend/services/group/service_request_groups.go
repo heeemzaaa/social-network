@@ -4,37 +4,44 @@ import (
 	"social-network/backend/models"
 )
 
-func (gService *GroupService) RequestToCancel(userId, groupId string) *models.ErrorJson {
-	if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+func (gService *GroupService) RequestToCancel(userId, groupId string) (*models.Notif, *models.ErrorJson) {
+	// notif := models.Notif{}
+	group, errJson := gService.gRepo.GetGroupDetails(groupId)
+	if errJson != nil {
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	// always check the membership and also the the group is a valid one
 	if errMembership := gService.CheckNotMember(groupId, userId); errMembership != nil {
-		return &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 
 	if errJson := gService.gRepo.RequestToCancel(userId, groupId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
+		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
-	return nil
+	return &models.Notif{
+		SenderId:         userId,
+		RecieverId:       group.GroupCreatorId,
+		GroupId:          groupId,
+		Type:             "group-join",
+	}, nil
 }
 
-func (gService *GroupService) RequestToJoin(userId, groupId string) (models.Notif, *models.ErrorJson) {
-	notif := models.Notif{}
+func (gService *GroupService) RequestToJoin(userId, groupId string) (*models.Notif, *models.ErrorJson) {
+	// notif := models.Notif{}
 	group, errJson := gService.gRepo.GetGroupDetails(groupId)
 	if errJson != nil {
-		return notif, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	// always check the membership and also the the group is a valid one
 	if errMembership := gService.CheckNotMember(groupId, userId); errMembership != nil {
-		return notif, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 
 	if errJson := gService.gRepo.RequestToJoin(userId, groupId); errJson != nil {
-		return notif, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 
-	return models.Notif{
+	return &models.Notif{
 		SenderId:         userId,
 		RecieverId:       group.GroupCreatorId,
 		GroupId:          groupId,

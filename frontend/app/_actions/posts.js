@@ -107,16 +107,13 @@ export async function likePostAction(prevState, formData) {
         return { ...prevState, message: "Post ID is required." };
     }
     try {
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
-
         const res = await fetch(`http://localhost:8080/api/posts/like/${postId}`, {
             method: "POST",
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
         });
-
         const data = await res.json();
-
         if (data.success) {
             return {
                 message: "Liked successfully!",
@@ -199,10 +196,12 @@ export async function commentPostAction(prevState, formData) {
             ...state,
             message: "Commented successfully",
             content: response.content,
-            firstName: response.user.nickname,
+            nickname: response.user.nickname,
+            fullName: response.user.fullname,
+            avatar: response.user.avatar,
             success: true,
             createdAt: formatted,
-            userImage: response.img,
+            commentImage: response.img,
         };
     } catch (err) {
         return { ...prevState, message: "Server error." };

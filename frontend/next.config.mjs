@@ -2,10 +2,9 @@
 const nextConfig = {
     experimental: {
         serverActions: {
-            bodySizeLimit: '5mb',
+            bodySizeLimit: '5mb',  // config the body size limit because the default is 1mb only
         },
     },
     reactStrictMode: false
 };
 export default nextConfig;
-// config the body size limit because the default is 1mb only

@@ -19,8 +19,6 @@ export default function NotificationsPopover() {
           return `${notification.SenderFullName} would like to join ${notification.GroupName} group`
         case "group-invitation":
           return `${notification.SenderFullName} send a request to join ${notification.GroupName} group`
-        case "group-event":
-          return `${notification.SenderFullName} create event at ${notification.GroupName} group`
       }
     } else if (notification.Status == "accept") {
       switch (notification.Type) {
@@ -32,8 +30,6 @@ export default function NotificationsPopover() {
           return `${notification.SenderFullName} join your ${notification.GroupName} group`
         case "group-invitation":
           return `you are now a member of ${notification.GroupName} group`
-        case "group-event":
-          return `don't forget to go to ${notification.SenderFullName} event at ${notification.GroupName}` 
       }
     } else if (notification.Status == "reject") {
       switch (notification.Type) {
@@ -43,17 +39,15 @@ export default function NotificationsPopover() {
           return `you refused ${notification.SenderFullName} to join your ${notification.GroupName} group`
         case "group-invitation":
           return `you rejected ${notification.SenderFullName} request to join ${notification.GroupName} group`
-        case "group-event":
-          return `you refused to go to ${notification.SenderFullName} event at ${notification.GroupName}` 
       }
+    } else if (notification.Status == "none" && notification.Type == "group-event") {
+      return `${notification.SenderFullName} create event at ${notification.GroupName} group`
     }
     return "content information not found !!"
   }
 
   // Handle accept/reject notification
   const handleNotificationAction = async (notification, status) => {
-    console.log(`${status} notification:`, notification);
-    console.log(`Notification ID:`, notification.Id);
 
     if (!notification.Id) {
       console.error("No notification ID found. Available fields:", Object.keys(notification));
@@ -178,8 +172,6 @@ export default function NotificationsPopover() {
             </div>
           )}
 
-          {notif.Status === "accept" && <div className="green-dote" />}
-          {notif.Status === "reject" && <div className="red-dote" />}
         </div>
       ))}
 

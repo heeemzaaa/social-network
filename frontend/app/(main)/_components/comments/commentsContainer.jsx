@@ -15,10 +15,11 @@ export default function CommentsContainer({ id, onCommentMessage }){
           credentials: 'include',
         });
         const raw = await res.json();
-
+        console.log('raw', raw)
         const data = raw.map(comment => ({
           content: comment.content,
-          firstName: comment.user.nickname = "" || `${comment.user?.firstname || ""} ${comment.user?.lastname || ""}`,
+          fullName: comment.user?.fullname,
+          nickName: comment.user.nickname,
           imagePath: comment.img,
           userImage : comment.user.avatar,
           createdAt: comment.created_at || new Date().toISOString(),
@@ -35,8 +36,8 @@ export default function CommentsContainer({ id, onCommentMessage }){
 
 
   return (
-    <section className="comments_container w-full flex-col gap-2">
-      <Comments comments={comments} />
+    <section className="comments_container w-full h-full flex-col justify-between gap-2">
+      {comments.length  === 0 ? <img src='/no-comments.svg' className='no_comments'/> :   <Comments comments={comments} />}
       <CommentsFooter id={id} setComments={setComments}  onCommentMessage={onCommentMessage}/>
     </section>
   );

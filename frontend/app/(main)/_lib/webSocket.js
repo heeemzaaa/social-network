@@ -22,7 +22,8 @@ export default function UserProvider({ children }) {
         if (data.is_logged_in) {
           setAuthenticatedUser({
             id: data.id,
-            username: data.Nickname,
+            username: data.nickname,
+            fullName: data.fullname
           });
         } else {
           setAuthenticatedUser(null);

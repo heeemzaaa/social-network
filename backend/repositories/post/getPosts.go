@@ -2,15 +2,14 @@ package repositories
 
 import (
 	"fmt"
+	"log"
 
 	"social-network/backend/models"
-
-	"github.com/google/uuid"
 )
 
-func (r *PostsRepository) GetAllPosts(userID uuid.UUID) ([]models.Post, error) {
+func (r *PostsRepository) GetAllPosts(userID string) ([]models.Post, *models.ErrorJson) {
 	query := `
-SELECT DISTINCT  p.postID, p.userID,   p.content,   p.createdAt,   p.privacy,   p.image_url, u.firstName,   u.lastName,  
+SELECT DISTINCT  p.postID, p.userID,   p.content,   p.createdAt,   p.privacy,   p.image_url, CONCAT(u.firstName, ' ', u.lastName) AS fullName, u.nickname, u.avatarPath,  
     COUNT(DISTINCT r1.reactionID) AS total_likes,
     CASE WHEN r2.reaction = 1 THEN 1 ELSE 0 END AS liked, 
     COUNT(DISTINCT c.commentID) AS total_comments  -- <-- count of comments
@@ -28,32 +27,51 @@ WHERE
     OR (p.privacy = 'private' AND pa.userID = ?)
     OR (p.privacy = 'almost private' AND f.followerID = ?)
 GROUP BY
-    p.postID, p.userID, p.content, p.createdAt, p.privacy, p.image_url, u.firstName, u.lastName, r2.reaction
+    p.postID, p.userID, p.content, p.createdAt, p.privacy, p.image_url, fullName, r2.reaction
 ORDER BY
     p.createdAt DESC;
 
 `
-	rows, err := r.db.Query(query, userID.String(), userID.String(), userID.String(), userID.String())
+	stmt, err := r.db.Prepare(query)
 	if err != nil {
-		fmt.Println("error in executing", err)
-		return nil, err
+		log.Println("Error preparing the query to get posts: ", err)
+		return []models.Post{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(userID, userID, userID, userID)
+	if err != nil {
+		log.Println("error getting the post from database: ", err)
+		return []models.Post{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer rows.Close()
+
 	var posts []models.Post
 	for rows.Next() {
 		var p models.Post
-		if err := rows.Scan(&p.Id, &p.User.Id, &p.Content, &p.CreatedAt, &p.Privacy, &p.Img, &p.User.FirstName, &p.User.LastName, &p.TotalLikes, &p.Liked, &p.TotalComments); err != nil {
-			fmt.Println("err  in scaning", err)
-			return nil, err
+		if err := rows.Scan(
+			&p.Id,
+			&p.User.Id,
+			&p.Content,
+			&p.CreatedAt,
+			&p.Privacy,
+			&p.Img,
+			&p.User.FullName,
+			&p.User.Nickname,
+			&p.User.ImagePath,
+			&p.TotalLikes,
+			&p.Liked,
+			&p.TotalComments); err != nil {
+			log.Println("Error scanning the posts: ", err)
+			return []models.Post{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 		posts = append(posts, p)
 	}
-	return posts, nil
-}
 
-func (r *PostsRepository) GetPostByID(postID string) (models.Post, error) {
-	var p models.Post
-	err := r.db.QueryRow(`SELECT id, user_id, content FROM posts WHERE id = ?`, postID).
-		Scan(&p.Id, &p.User.Id, &p.Content)
-	return p, err
+	if err := rows.Err(); err != nil {
+		log.Println("Error scanning all feed's posts: ", err)
+		return []models.Post{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+
+	return posts, nil
 }

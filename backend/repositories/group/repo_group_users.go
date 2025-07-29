@@ -18,6 +18,7 @@ func (gRepo *GroupRepository) IsMemberGroup(groupId, userId string) (bool, *mode
 		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
+	
 	if err = stmt.QueryRow(groupId, userId).Scan(&exists); err != nil {
 		return false, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}

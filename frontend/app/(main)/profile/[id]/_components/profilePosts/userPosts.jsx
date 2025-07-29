@@ -21,7 +21,6 @@ export default function UserPosts({ id, access }) {
         getPosts()
     }, [id])
     
-    console.log('posts', posts)
     if (access === false) {
         return (
             <section  className='posts_container w-full h-full flex-col justify-center align-center'>
@@ -32,7 +31,7 @@ export default function UserPosts({ id, access }) {
     }
 
     return (
-        <section className='posts_container scrollable-section w-full h-full flex flex-wrap'>
+        <section className='posts_container scrollable-section w-full h-full'>
             {posts.length === 0 ? (
                 <img src="/no-posts.svg" className='w-full h-full'  />
             ) : (

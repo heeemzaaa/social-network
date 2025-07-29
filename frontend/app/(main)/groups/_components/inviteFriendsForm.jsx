@@ -15,7 +15,7 @@ const InviteFriendForm = ({ groupId }) => {
     const { closeModal } = useModal()
 
     useEffect(() => {
-     
+
         async function handleGetFollowers() {
             try {
                 const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
@@ -26,7 +26,7 @@ const InviteFriendForm = ({ groupId }) => {
                     const result = await res.json()
 
                     setFollowers(result)
-                    console.log("followers",result);
+                    console.log("followers", result);
 
                 }
 
@@ -47,19 +47,16 @@ const InviteFriendForm = ({ groupId }) => {
     return (
         <>
 
-            <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>
-                Invite Friends
-            </h2>
             {loading && <p style={{ color: '#374151', fontSize: '16px' }}>Loading followers...</p>}
             {error && <p style={{ color: '#dc2626', fontSize: '16px' }}>{error}</p>}
-
+            {followers.length === 0 && <span>You currently have no followers available for invitation. Follow others to build your community.</span>}
             <div style={{ maxHeight: '400px', overflowY: 'auto', marginBottom: '16px', paddingInline: ".5rem" }}>
-                {followers.map((user) => (
+                {followers?.map((user) => (
                     <UserCard
                         key={user.id}
                         user={user}
                         groupId={groupId}
-        
+
                     />
                 ))}
             </div>

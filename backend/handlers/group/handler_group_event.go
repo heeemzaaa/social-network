@@ -41,7 +41,7 @@ func (gEventIDHandler *GroupEventIDHandler) AddInterestIntoEvent(w http.Response
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	actionChosen:=&models.UserEventAction{}
+	actionChosen := &models.UserEventAction{}
 	if err := json.NewDecoder(r.Body).Decode(&actionChosen); err != nil {
 		if err == io.EOF {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: models.UserEventActionErr{
@@ -52,7 +52,8 @@ func (gEventIDHandler *GroupEventIDHandler) AddInterestIntoEvent(w http.Response
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
 		return
 	}
-    actionChosen.UserId, actionChosen.GroupId, actionChosen.EventId = userID.String(), groupID.String(), eventID.String()
+	fmt.Println("action ", actionChosen)
+	actionChosen.UserId, actionChosen.GroupId, actionChosen.EventId = userID.String(), groupID.String(), eventID.String()
 	action, errJson := gEventIDHandler.gService.HandleActionChosen(actionChosen)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})

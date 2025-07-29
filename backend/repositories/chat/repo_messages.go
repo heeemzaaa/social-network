@@ -106,6 +106,7 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageTime, t
 	if err != nil {
 		return messages, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	defer stmt.Close()
 
 	rows, err := stmt.Query(args...)
 	if err != nil {

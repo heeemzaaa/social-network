@@ -9,13 +9,13 @@ import { commentPostAction } from '@/app/_actions/posts'
 export default function CommentsFooter({ id, setComments, onCommentMessage }) {
     const initialState = {
         message: '',
-        success: false,
         content: '',
-        firstName: '',
-        imagePath: '',
+        nickname: '',
+        fullName: '',
+        avatar: '',
+        success: false,
         createdAt: '',
-        userImage: '',
-        likes: 0,
+        commentImage: '',
     };
 
     const [state, formAction] = useActionState(commentPostAction, initialState)
@@ -24,13 +24,13 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
         if (state.success) {
             const newComment = {
                 content: state.content,
-                firstName: state.firstName,
-                lastName: "",
-                imagePath: state.userImage,
-                createdAt: state.createdAt || new Date().toISOString(),
-                likes: state.likes || 0,
+                nickName: state.nickname,
+                fullName: state.fullName,
+                userImage: state.avatar,
+                createdAt: new Date(),
+                ImagePath: state.img,
             };
-
+            console.log('newComment', newComment)
             setComments(prev => [newComment, ...prev]);
 
             if (onCommentMessage) {
@@ -42,7 +42,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
     return (
         <form
             action={formAction}
-            className='comments_footer flex justify-between align-center p1 gap-2'
+            className='comments_footer flex justify-center align-center p1 gap-1'
         >
             <label htmlFor="commentImg">
                 <MdPermMedia size="24px" style={{ cursor: 'pointer' }} />
@@ -65,7 +65,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 required
             />
 
-            <button type="submit">
+            <button type="submit" className='submit_comment'>
                 <FaPaperPlane size="24px" />
             </button>
 

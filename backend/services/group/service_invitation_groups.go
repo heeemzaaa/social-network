@@ -101,7 +101,7 @@ func (gService *GroupService) GetUsersToInvite(userID, groupID string) ([]models
 	for _, member := range membership {
 		memberships[member.Id] = true
 	}
-	var res []models.User
+	res:= []models.User{}
 	for _, user := range users {
 		if !memberships[user.Id] {
 			res = append(res, user)

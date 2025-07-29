@@ -6,7 +6,7 @@ export default function Modal({ isModalOpen, modalContent, onClose }) {
     return (
         <section className="modal">
             <article className="glass-bg modal-content ">
-                <Button className="modal-close" onClick={onClose}> X </Button>
+                <Button style={{marginLeft: "auto"}} className="modal-close" onClick={onClose}> X </Button>
                 {modalContent || <div>No content provided</div>} {/* Fallback for debugging */}
             </article>
         </section>

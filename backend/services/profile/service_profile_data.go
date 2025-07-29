@@ -7,8 +7,14 @@ import (
 // here I will have the data of the user to pass it to the handler
 func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*models.Profile, *models.ErrorJson) {
 	var profile *models.Profile
-	if profileID == "" || authUserID == "" {
-		return nil, &models.ErrorJson{Status: 400, Error: "Data is invalid !"}
+	
+	exists, err := s.repo.UserExists(profileID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
+	}
+
+	if !exists {
+		return nil, &models.ErrorJson{Status: 400, Error: "User Id doesn't exists !"}
 	}
 
 	access, accessErr := s.CheckProfileAccess(profileID, authUserID)
@@ -16,7 +22,7 @@ func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*m
 		return nil, &models.ErrorJson{Status: accessErr.Status, Error: accessErr.Error}
 	}
 
-	profile, err := s.repo.GetProfileData(profileID, access)
+	profile, err = s.repo.GetProfileData(profileID, access)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
@@ -43,4 +49,3 @@ func (s *ProfileService) GetProfileData(profileID string, authUserID string) (*m
 	}
 	return profile, nil
 }
-

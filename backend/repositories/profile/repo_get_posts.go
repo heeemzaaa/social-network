@@ -9,7 +9,7 @@ import (
 )
 
 // here I will get the posts of the user with conditions
-func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfile bool) ([]models.Post, *models.ErrorJson) {
+func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPostTime string, myProfile bool) ([]models.Post, *models.ErrorJson) {
 	var query string
 	posts := []models.Post{}
 	var args []any
@@ -19,16 +19,22 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfi
 		query = `
 		SELECT
     		p.postID,
-    		u.userID, u.firstName, u.lastName, u.nickname, u.avatarPath,
-    		p.content AS postContent, p.image_url AS postMedia, p.createdAt AS postCreatedAt,
+    		u.userID, CONCAT(u.firstName, ' ', u.lastName) AS fullName, u.nickname, u.avatarPath,
+    		p.content AS postContent, p.image_url AS postMedia, p.createdAt AS postCreatedAt, p.privacy,
     		(SELECT COUNT(*) FROM reactions r1 WHERE r1.entityType = 'post' AND r1.entityID = p.postID) AS post_total_likes,
     		(SELECT COUNT(*) FROM comments c1 WHERE c1.postID = p.postID) AS post_total_comments
 		FROM posts p
 		JOIN users u ON u.userID = p.userID
 		WHERE p.userID = ?
-		ORDER BY p.createdAt DESC;
 		`
 		args = append(args, userID)
+
+		if lastPostTime != "" {
+			query += " AND p.createdAt < ?"
+			args = append(args, lastPostTime)
+		}
+
+		query += ` ORDER BY p.createdAt DESC LIMIT 10`
 	default:
 		query = `
 		WITH 
@@ -42,8 +48,8 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfi
 			)
 		SELECT 
     		p.postID,
-    		u.userID, u.firstName, u.lastName, u.nickname, u.avatarPath,
-    		p.content AS postContent, p.image_url AS postMedia, p.createdAt AS postCreatedAt,
+    		u.userID, CONCAT(u.firstName, ' ', u.lastName) AS fullName, u.nickname, u.avatarPath,
+    		p.content AS postContent, p.image_url AS postMedia, p.createdAt AS postCreatedAt, p.privacy,
     		(SELECT COUNT(*) FROM reactions r1 WHERE r1.entityType = 'post' AND r1.entityID = p.postID) AS post_total_likes,
    	 		(SELECT COUNT(*) FROM comments c1 WHERE c1.postID = p.postID) AS post_total_comments
 		FROM posts p
@@ -68,10 +74,15 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfi
             	))
         	))
     	)
-		ORDER BY p.createdAt DESC;
 		`
-
 		args = append(args, profileID, userID, profileID, profileID, userID, userID)
+
+		if lastPostTime != "" {
+			query += " AND p.createdAt < ?"
+			args = append(args, lastPostTime)
+		}
+
+		query += ` ORDER BY p.createdAt DESC LIMIT 10`
 	}
 
 	stmt, err := repo.db.Prepare(query)
@@ -96,8 +107,8 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, myProfi
 
 		err := rows.Scan(
 			&post.Id,
-			&user.Id, &user.FirstName, &user.LastName, &user.Nickname, &user.ImagePath,
-			&post.Content, &post.Img, &post.CreatedAt,
+			&user.Id, &user.FullName, &user.Nickname, &user.ImagePath,
+			&post.Content, &post.Img, &post.CreatedAt, &post.Privacy,
 			&post.TotalLikes, &post.TotalComments,
 		)
 		if err != nil {

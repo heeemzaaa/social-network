@@ -196,7 +196,7 @@ func (server *ChatServer) BroadCastOnlineStatus() {
 	online_users := []models.User{}
 	for _, connections := range server.client {
 		if len(connections) != 0 {
-			online_users = append(online_users, models.User{Id: connections[0].session.UserId, FirstName: connections[0].session.FirstName, LastName: connections[0].session.LastName})
+			online_users = append(online_users, models.User{Id: connections[0].session.UserId, FullName: connections[0].session.FullName})
 		}
 	}
 
