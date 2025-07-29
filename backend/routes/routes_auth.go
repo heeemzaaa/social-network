@@ -10,7 +10,7 @@ import (
 	sa "social-network/backend/services/auth"
 )
 
-func SetAuthRoutes(mux *http.ServeMux, db *sql.DB) (*http.ServeMux, *sa.AuthService) {
+func SetAuthRoutes(mux *http.ServeMux, db *sql.DB) (*http.ServeMux, *sa.AuthService, *ra.AuthRepository) {
 	authRepo := ra.NewAuthRepository(db)
 	authService := sa.NewAuthService(authRepo)
 	AuthHandler := ha.NewAuthHandler(authService)
@@ -21,5 +21,5 @@ func SetAuthRoutes(mux *http.ServeMux, db *sql.DB) (*http.ServeMux, *sa.AuthServ
 	mux.Handle("/api/auth/logout", middleware.NewMiddleWare(logoutHandler, authService))
 	mux.Handle("/api/auth/", middleware.NewLoginMiddleware(AuthHandler, authService))
 
-	return mux, authService
+	return mux, authService, authRepo
 }

@@ -32,7 +32,7 @@ func (gService *GroupService) Accept(userId, groupId string, userToBeAdded *mode
 	}
 	// validate if wheter exists or not !!
 
-	if errJson := gService.gRepo.Accept(userId, groupId, userToBeAdded); errJson != nil {
+	if errJson := gService.gRepo.Accept(userId, groupId, userToBeAdded.Id); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return nil
@@ -62,7 +62,7 @@ func (gService *GroupService) Reject(userId, groupId string, userToBeRejected *m
 			UserId: "ERROR!! user not found",
 		}}
 	}
-	if errJson := gService.gRepo.Reject(userId, groupId, userToBeRejected); errJson != nil {
+	if errJson := gService.gRepo.Reject(userId, groupId, userToBeRejected.Id); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return nil

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"social-network/backend/models"
-	GR "social-network/backend/repositories/group"
+	rg "social-network/backend/repositories/group"
 	"social-network/backend/repositories/notification"
 	"social-network/backend/repositories/profile"
 	// GS "social-network/backend/service/group"
@@ -12,16 +12,15 @@ import (
 
 type NotificationServiceUpdate struct {
 	repo  *notification.NotifRepository
-	repo2 *profile.ProfileRepository
-	gr    *GR.GroupRepository
-	// gs *GS.GroupService
+	rProfile *profile.ProfileRepository
+	rGroup   *rg.GroupRepository
 }
 
-func NewNotifServiceUpdate(repo *notification.NotifRepository, repo2 *profile.ProfileRepository, gr *GR.GroupRepository) *NotificationServiceUpdate {
+func NewNotifServiceUpdate(repo *notification.NotifRepository, rProfile *profile.ProfileRepository, rGroup *rg.GroupRepository) *NotificationServiceUpdate {
 	return &NotificationServiceUpdate{
 		repo:  repo,
-		repo2: repo2,
-		gr:    gr,
+		rProfile: rProfile,
+		rGroup:    rGroup,
 	}
 }
 
@@ -74,12 +73,12 @@ func (NUS *NotificationServiceUpdate) UpdateFollowPrivateProfile(data models.Uno
 
 	switch data.Status {
 	case "accept":
-		err := NUS.repo2.AcceptedRequest(notification.RecieverId, notification.SenderId)
+		err := NUS.rProfile.AcceptedRequest(notification.RecieverId, notification.SenderId)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 	case "reject":
-		err := NUS.repo2.RejectedRequest(notification.RecieverId, notification.SenderId)
+		err := NUS.rProfile.RejectedRequest(notification.RecieverId, notification.SenderId)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot reject request", err)
 		}
@@ -92,12 +91,12 @@ func (NUS *NotificationServiceUpdate) UpdateFollowPrivateProfile(data models.Uno
 func (NUS *NotificationServiceUpdate) UpdateGroupJoinRequest(data models.Unotif, notification models.Notification) *models.ErrorJson {
 	switch data.Status {
 	case "accept":
-		err := NUS.gr.Approve(notification.GroupId, notification.SenderId)
+		err := NUS.rGroup.Approve(notification.GroupId, notification.SenderId)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 	case "reject":
-		err := NUS.gr.Decline(notification.GroupId, notification.SenderId)
+		err := NUS.rGroup.Decline(notification.GroupId, notification.SenderId)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot decline request", err)
 		}
@@ -110,17 +109,17 @@ func (NUS *NotificationServiceUpdate) UpdateGroupJoinRequest(data models.Unotif,
 func (NUS *NotificationServiceUpdate) UpdateGroupInvitationRequest(data models.Unotif, notification models.Notification) *models.ErrorJson {
 	switch data.Status {
 	case "accept":
-		err := NUS.gr.Approve(notification.GroupId, notification.SenderId)
+		err := NUS.rGroup.Accept(notification.SenderId, notification.GroupId, notification.RecieverId)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 	case "reject":
-		err := NUS.gr.Decline(notification.GroupId, notification.SenderId)
+		err := NUS.rGroup.Reject(notification.SenderId, notification.GroupId, notification.RecieverId)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 	default:
-		return models.NewErrorJson(400, "Bad-Request 400", "Invalid----Status")
+		return models.NewErrorJson(400, "Bad-Request", "Invalid----Status")
 	}
 	return nil
 }
@@ -128,12 +127,12 @@ func (NUS *NotificationServiceUpdate) UpdateGroupInvitationRequest(data models.U
 func (NUS *NotificationServiceUpdate) UpdateGroupEventRequest(data models.Unotif, notification models.Notification) *models.ErrorJson {
 	switch data.Status {
 	case "accept":
-		err := NUS.gr.Approve(notification.GroupId, notification.SenderId)
+		err := NUS.rGroup.Accept(notification.SenderId, notification.GroupId, notification.RecieverId)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 	case "reject":
-		err := NUS.gr.Decline(notification.GroupId, notification.SenderId)
+		err := NUS.rGroup.Reject(notification.SenderId, notification.GroupId, notification.RecieverId)
 		if err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}

@@ -39,7 +39,7 @@ export default function PostCard({
                     <div className="flex align-center gap-1">
                         <Avatar img={user.avatar} size="42" />
                         <h3 className="post-user">
-                            {user.firstname} {user.lastname}
+                            {user.fullname}
                         </h3>
                     </div>
                     <span className="post-privacy">{privacy}</span>

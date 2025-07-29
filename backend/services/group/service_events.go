@@ -1,7 +1,6 @@
 package group
 
 import (
-	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -79,18 +78,15 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 		//  add the notification for the adding of the event so we need the func of amine too
 		//  group_id / sender_id (the one who creted the event / group-event)
 		// {event}
-		data := models.Notif{
-			SenderId:         event.EventCreator.Id,
-			RecieverId:       user.Id,
-			Type:             "group-event",
-			GroupId:          event.GroupId,
-			EventId:          event.EventId,
-			GroupName:        group.Title,
-		}
 
-		errJson := gService.sNotif.PostService(data)
-		if errJson != nil {
-			fmt.Println("errrrrrrrr ///// ====>" + errJson.Error)
+		if errJson := gService.sNotif.PostService(&models.Notif{
+			SenderId:   event.EventCreator.Id,
+			RecieverId: user.Id,
+			Type:       "group-event",
+			GroupId:    event.GroupId,
+			EventId:    event.EventId,
+			GroupName:  group.Title,
+		}); errJson != nil {
 			return nil, errJson
 		}
 	}

@@ -11,14 +11,15 @@ export default function GroupCardList({ filter }) {
     const [error, setError] = useState(null);
     const abortControllerRef = useRef(null);
 
-    const {getModalData, setModalData} = useModal()
+    const { getModalData, setModalData } = useModal()
 
-    useEffect(()=>{
+    useEffect(() => {
         let data = getModalData()
         if (data?.type === "groupCard" && filter === "owned") {
-            setData(prev=> [data,...prev])
+            setData(prev => [data, ...prev])
+            setModalData(null)
         }
-    },[setModalData])
+    }, [setModalData])
 
     const fetchData = useCallback(
         async (currentPage) => {

@@ -52,7 +52,7 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 	}
 
 	// add new notification type: [group-join]
-	if errJson := GrpReqHandler.sNotif.PostService(data); errJson != nil {
+	if errJson := GrpReqHandler.sNotif.PostService(&data); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}

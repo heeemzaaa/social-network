@@ -58,6 +58,11 @@ import (
 // POST /groups/{group_id}/accept
 // DELETE  /groups/{group_id}/decline
 
+
+
+//  for approving or declining a request (we need to have the id of the request or the inviatation where )
+//  it makes some sense because (having the group id and the user id is tooo much )
+// for the delete especially 
 func SetGroupRoutes(mux *http.ServeMux, db *sql.DB,
 	authService *authService.AuthService,
 	profileService *profileService.ProfileService,
@@ -79,7 +84,7 @@ func SetGroupRoutes(mux *http.ServeMux, db *sql.DB,
 	MembersHandler := group.NewMembersHanlder(groupService)
 	RequestHandler := group.NewGroupRequestsHandler(groupService, notifService)
 	DeclineApproveHandler := group.NewApproveDeclineReqHandler(groupService)
-	InvitationsHandler := group.NewGroupInvitationHandler(groupService)
+	InvitationsHandler := group.NewGroupInvitationHandler(groupService, notifService)
 	AcceptRejectHanlder := group.NewAcceptRejectInvHandler(groupService)
 	mux.Handle("/api/groups/{group_id}/events/{event_id}/", middleware.NewMiddleWare(GroupEventIDHandler, authService))
 	mux.Handle("/api/groups/{group_id}/posts/{post_id}/comments/", middleware.NewMiddleWare(GroupCommentHandler, authService))
@@ -87,8 +92,8 @@ func SetGroupRoutes(mux *http.ServeMux, db *sql.DB,
 	mux.Handle("/api/groups/{group_id}/events/", middleware.NewMiddleWare(GroupEventHandler, authService))
 	mux.Handle("/api/groups/{group_id}/react/like", middleware.NewMiddleWare(GroupReactionHandler, authService))
 	mux.Handle("/api/groups/{group_id}/join-request/admin", middleware.NewMiddleWare(DeclineApproveHandler, authService))
-	mux.Handle("/api/groups/{group_id}/invitations/{invitation_id}", middleware.NewMiddleWare(InvitationsHandler, authService))
-	mux.Handle("/api/groups/{group_id}/invitations/", middleware.NewMiddleWare(AcceptRejectHanlder, authService))
+	mux.Handle("/api/groups/{group_id}/invitations/", middleware.NewMiddleWare(InvitationsHandler, authService))
+	mux.Handle("/api/groups/{group_id}/invitations/response", middleware.NewMiddleWare(AcceptRejectHanlder, authService))
 	mux.Handle("/api/groups/{group_id}/join-request", middleware.NewMiddleWare(RequestHandler, authService))
 	mux.Handle("/api/groups/{group_id}/members", middleware.NewMiddleWare(MembersHandler, authService))
 	mux.Handle("/api/groups/{group_id}/", middleware.NewMiddleWare(GroupIDHandler, authService))

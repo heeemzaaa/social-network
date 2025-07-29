@@ -3,9 +3,9 @@ package notification
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"social-network/backend/models"
-	"strings"
 )
 
 type NotifRepository struct {
@@ -187,8 +187,8 @@ func (repo *NotifRepository) DeleteFollowNotification(userID, authUserID, notifT
 }
 
 func (repo *NotifRepository) DeleteNotification(userID, authUserID, notifType string) *models.ErrorJson {
-	query := `DELETE FROM notifications WHERE senderId = ? AND recieverId = ? AND (notifType = ? OR notifType = "follow-public")`
-	_, err := repo.db.Exec(query, userID, authUserID, notifType)
+	query := `DELETE FROM notifications WHERE senderId = ? AND recieverId = ? AND (notifType = "follow-private" OR notifType = "follow-public")`
+	_, err := repo.db.Exec(query, userID, authUserID)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err), Message: "faild to delete notification"}
 	}

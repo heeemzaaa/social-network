@@ -27,9 +27,10 @@ export default function GroupEventCard({
             <div className='flex align-center gap-2'>
                 <Avatar img={event_creator.avatar} size={42} />
                 {/* <img src='/no-profile.png'/> */}
-                <div>
+                <div> 
                     <p className='font-semibold'>{event_creator.fullname}</p>
                     <span className=''>@{event_creator.nickname}</span>
+                    {/* <p className=''>{created_at}</p> */}
                 </div>
             </div>
             <hr />

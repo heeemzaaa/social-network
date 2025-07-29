@@ -127,6 +127,7 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string, offset int) ([]mo
 		20
 	OFFSET
 		?;
+		
    `
 
 	stmt, err := grepo.db.Prepare(query)

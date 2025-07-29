@@ -13,12 +13,7 @@ export default function GroupPostCardList({ groupId }) {
 
     const { getModalData, setModalData } = useModal()
 
-    useEffect(() => {
-        let data = getModalData()
-        if (data?.type === "groupPost") {
-            setData(prev => [data, ...prev])
-        }
-    }, [setModalData])
+
 
     // Memoized function to generate API URL
     const getUrl = useCallback(
@@ -32,7 +27,8 @@ export default function GroupPostCardList({ groupId }) {
     );
 
     // Fetch data function
-    const fetchData = useCallback(
+    const fetchData =
+        useCallback (
         async (currentPage) => {
             if (isLoading || !hasMore) return;
             setIsLoading(true);
@@ -65,9 +61,15 @@ export default function GroupPostCardList({ groupId }) {
                 setIsLoading(false);
             }
         },
+
         [getUrl]
     );
-
+    useEffect(() => {
+        let data = getModalData()
+        if (data?.type === "groupPost") {
+            setData(prev => [data, ...prev])
+        }
+    }, [setModalData])
     // Reset data and fetch initial page when groupId changes
     useEffect(() => {
         setData([]);
@@ -76,12 +78,12 @@ export default function GroupPostCardList({ groupId }) {
         setError(null);
         fetchData(0);
 
-        return () => {
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-                abortControllerRef.current = null;
-            }
-        };
+        // return () => {
+        //     if (abortControllerRef.current) {
+        //         abortControllerRef.current.abort();
+        //         abortControllerRef.current = null;
+        //     }
+        // };
     }, [groupId, fetchData]);
 
     // Fetch data when page changes

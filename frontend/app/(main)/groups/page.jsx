@@ -12,7 +12,7 @@ import { HiMiniUserGroup } from 'react-icons/hi2';
 import CreateGroupForm from './_components/createGroupForm';
 
 export default function Groups() {
-
+ 
   const { openModal } = useModal()
   
   return (

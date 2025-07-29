@@ -17,7 +17,7 @@ type Group struct {
 	Members         []User    `json:"members,omitempty"`
 	Posts           []Post    `json:"posts,omitempty"`
 	Events          []Event   `json:"events,omitempty"`
-	LastInteraction string `json:"last_interaction,omitempty"`
+	LastInteraction string    `json:"last_interaction,omitempty"`
 }
 
 // when trying to  create a group
@@ -126,4 +126,8 @@ type Request struct {
 	ReceiverNickname string
 	GroupId          string
 	GroupTitle       string
+}
+
+type InvitedUsers struct {
+	Users []string `json:"users_ids"`
 }

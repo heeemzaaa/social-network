@@ -1,3 +1,4 @@
+'use client'
 import Button from "@/app/_components/button";
 import Tag from "../../_components/tag";
 import { HiMiniUsers } from "react-icons/hi2";
@@ -14,9 +15,6 @@ export default function GroupCard({
     total_members
 }) {
 
-    useEffect(() => {
-        console.log(image_path)
-    })
 
     const router = useRouter()
     const handleJoingGrp = (groupId) => {

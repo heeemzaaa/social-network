@@ -11,7 +11,7 @@ import Popover from './popover';
 import { useModal } from '../_context/ModalContext';
 import CreatePost from './posts/createPost';
 import { createPostAction } from '@/app/_actions/posts';
-
+import CreateGroupForm from '../groups/_components/createGroupForm'
 export default function Header() {
   const { openModal } = useModal()
   const [hasNewNotification, setHasNewNotification] = useState(false)
@@ -25,9 +25,9 @@ export default function Header() {
       }
       try {
         let res = await fetch("http://localhost:8080/api/notifications/", getRequest)
-        let ddd = await res.json()
-        console.log("fetch is has seen api, response = ", ddd)
-        if (ddd?.Status === true) {
+        let response = await res.json()
+        console.log("fetch is has seen api, response = ", response)
+        if (response?.Status === true) {
           setHasNewNotification(true)
         }
       } catch (err) {
@@ -60,7 +60,7 @@ export default function Header() {
           <HiChatBubbleOvalLeftEllipsis size={24} />
         </Button>
 
-        <Popover 
+        <Popover
           trigger={
             <div className="relative">
               <HiBell size={24} />
