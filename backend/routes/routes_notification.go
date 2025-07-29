@@ -19,15 +19,14 @@ import (
 
 func SetNotificationsRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService, authRepo *ra.AuthRepository) (*http.ServeMux, *sn.NotificationService) {
 	repo := rn.NewNotifRepository(db)
-	auth_repo := ra.NewAuthRepository(db)
-	profile_repo := rp.NewProfileRepository(db)
-	group_repo := rg.NewGroupRepository(db)
+	profileRepo := rp.NewProfileRepository(db)
+	groupRepo := rg.NewGroupRepository(db)
 
-	service := sn.NewNotifService(repo, auth_repo)
-	service_update := sn.NewNotifServiceUpdate(repo, profile_repo, group_repo)
+	service := sn.NewNotifService(repo, authRepo)
+	serviceUpdate := sn.NewNotifServiceUpdate(repo, profileRepo, groupRepo)
 
 	new := hn.NewNotificationHandler(service)
-	update := hn.NewUpdateHandler(service_update)
+	update := hn.NewUpdateHandler(serviceUpdate)
 	mux.Handle("/api/notifications/", middleware.NewMiddleWare(new, authService))
 	mux.Handle("/api/notifications/update/", middleware.NewMiddleWare(update, authService))
 
