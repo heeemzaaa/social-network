@@ -47,7 +47,7 @@ func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message
 
 // the one logged in trying to see the messages will not be got from the query
 // sender and receiver and the offset and limit als
-func (repo *ChatRepository) GetMessages(sender_id, target_id, type_ string) ([]models.Message, *models.ErrorJson) {
+func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageID, type_ string) ([]models.Message, *models.ErrorJson) {
 	var messages []models.Message
 	var query string
 	var args []any
@@ -69,9 +69,15 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, type_ string) ([]m
 		WHERE m.type = 'private'
 		  AND m.sender_id IN (?, ?)
 		  AND m.target_id IN (?, ?)
-		ORDER BY m.created_at DESC;
-	`
+		`
 		args = append(args, sender_id, target_id, sender_id, target_id)
+
+		if lastMessageID != "" {
+		query += " AND m.created_at < (SELECT created_at FROM messages WHERE id = ?)"
+			args = append(args, lastMessageID)
+		}
+
+		query += " ORDER BY m.created_at DESC LIMIT 10"
 
 	case "group":
 		query = `
@@ -85,9 +91,15 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, type_ string) ([]m
 		FROM messages m
 		INNER JOIN users s ON m.sender_id = s.userID
 		WHERE m.type = 'group' AND m.target_id = ?
-		ORDER BY m.created_at DESC LIMIT 10;
 		`
 		args = append(args, target_id)
+
+		if lastMessageID != "" {
+			query += " AND m.created_at < ?"
+			args = append(args, lastMessageID)
+		}
+
+		query += " AND m.created_at < (SELECT created_at FROM messages WHERE id = ?)"
 	}
 
 	stmt, err := repo.db.Prepare(query)
