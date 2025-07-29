@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./chat.css";
 import Button from "@/app/_components/button";
 import { HiMiniFaceSmile, HiPaperAirplane } from "react-icons/hi2";
@@ -12,26 +12,73 @@ import { fetchMessages } from "../_components/fetchMessages";
 const emojis = ["😀", "😂", "😍", "🔥", "🥺", "👍", "❤️", "🎉"];
 
 export default function Chat() {
-  const usersBlock = document.getElementsByClassName("user_groups_place");
-  const chatBlock = document.getElementsByClassName("chat_place");
+  const [users, setUsers] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const usersBlockRef = useRef(null);
+  const chatBlockRef = useRef(null);
   const [chatBodyName, setChatBodyName] = useState("");
   const [chatTarget, setChatTarget] = useState(null);
   const [newMessage, setNewMessage] = useState("");
-  const { users, socket, messages, setMessages, authenticatedUser, groups } =
-    useUserContext();
+  const { socket, messages, setMessages, authenticatedUser } = useUserContext();
+
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const bottomRef = useRef(null);
   const [view, setView] = useState("Users");
 
+  // fetch users 
+  const fetchUsers = useCallback(async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/get-users/", {
+        credentials: "include",
+      });
+      const usersList = await res.json();
+
+      const mapped = usersList.map((user) => ({
+        userID: user.id,
+        username: user.fullname,
+        img: user.img || "/no-profile.png",
+      }));
+      setUsers(mapped);
+    } catch (err) {
+      console.error("❌ Error fetching users:", err);
+    }
+  }, []);
+
+  // fetch groups 
+  const fetchGroup = useCallback(async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/get-groups/", {
+        credentials: "include",
+      });
+      const groupList = await res.json();
+
+      const mappedG = groupList.map((group) => ({
+        group_id: group.group_id,
+        title: group.title,
+        image_path: group.image_path || "/no-profile.png",
+      }));
+
+      setGroups(mappedG);
+    } catch (err) {
+      console.error("❌ Error fetching groups:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+    fetchGroup();
+  }, [fetchUsers, fetchGroup]);
+
+  // load targetUser messages 
   useEffect(() => {
     if (!chatTarget?.ID || !authenticatedUser) return;
 
     const loadMessages = async () => {
       const msgs = await fetchMessages(chatTarget.ID, chatTarget.type);
+	  console.log("messages: ", msgs)
       if (!msgs) return;
 
-      setMessages((prev) => ({
-        ...prev,
+      setMessages({
         [chatTarget.ID]: msgs.map((msg) => {
           const isMe = msg.sender_id === authenticatedUser.id;
           return {
@@ -41,44 +88,36 @@ export default function Chat() {
             username: msg.sender_name,
           };
         }),
-      }));
+      });
     };
 
     loadMessages();
   }, [chatTarget?.ID, chatTarget?.type, authenticatedUser]);
 
-  useEffect(() => {
-    if (
-      chatTarget?.type === "private" &&
-      chatTarget?.ID &&
-      !users.some((user) => user.userID === chatTarget.ID)
-    ) {
-      setChatTarget(null);
-      setChatBodyName("");
-    }
-  }, [users, chatTarget]);
 
+  // handle user click selection
   const handleUserClick = (user) => {
     setChatTarget({
       ID: user.userID,
       type: "private",
     });
     if (window.innerWidth <= 500) {
-      chatBlock[0].style.display = "flex";
-      usersBlock[0].style.display = "none";
+      chatBlockRef.current.style.display = "flex";
+      usersBlockRef.current.style.display = "none";
     }
 
     setChatBodyName(user.username);
   };
 
+  // handle group click selection
   const handleGroupClick = (group) => {
     setChatTarget({
       ID: group.group_id,
       type: "group",
     });
     if (window.innerWidth <= 500) {
-      chatBlock[0].style.display = "flex";
-      usersBlock[0].style.display = "none";
+      chatBlockRef.current.style.display = "flex";
+      usersBlockRef.current.style.display = "none";
     }
     setChatBodyName(group.title);
   };
@@ -97,41 +136,52 @@ export default function Chat() {
     setNewMessage("");
   };
 
+  // handle emojies click selection
   const handleEmojiClick = (emojiData) => {
     setNewMessage((prev) => prev + emojiData);
+    setShowEmojiPicker(false);
   };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  function back() {
-    usersBlock[0].style.display = "flex";
-    chatBlock[0].style.display = "none";
-  }
+  const back = useCallback(() => {
+    if (usersBlock[0] && chatBlock[0]) {
+      usersBlock[0].style.display = "flex";
+      chatBlock[0].style.display = "none";
+    }
+  }, []);
+
+
+  // for responive
   useEffect(() => {
+    const usersBlock = usersBlockRef.current;
+    const chatBlock = chatBlockRef.current;
+
     const handleResize = () => {
-      if (window.innerWidth >= 500) {
-        chatBlock[0].style.display = "flex";
-        usersBlock[0].style.display = "flex";
-      } else {
-        chatBlock[0].style.display = "none";
-        usersBlock[0].style.display = "flex";
+      if (chatBlock && usersBlock) {
+        if (window.innerWidth >= 500) {
+          chatBlock.style.display = "flex";
+          usersBlock.style.display = "flex";
+        } else {
+          chatBlock.style.display = "none";
+          usersBlock.style.display = "flex";
+        }
       }
     };
 
     handleResize();
-
     window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
     <main className="chat_main_container p4 flex-row">
-      <section className="user_groups_place h-full flex-col">
+      <section
+        className="user_groups_place h-full flex-col"
+        ref={usersBlockRef}
+      >
         <div className="user_groups_choosing flex-row justify-center align-center">
           <Button
             onClick={() => setView("Users")}
@@ -158,12 +208,12 @@ export default function Chat() {
         </div>
       </section>
 
-      <section className="chat_place flex-col">
+      <section className="chat_place flex-col" ref={chatBlockRef}>
         {chatBodyName ? (
           <div className="chat_header p2">
             <div
               className="goBack cursor-pointer w-8 h-8"
-              onClick={() => back()}
+              onClick={back}
               title="Go back"
             >
               <svg
@@ -209,14 +259,14 @@ export default function Chat() {
                     minute: "2-digit",
                   })}
                 </span>
-                <div ref={bottomRef} />
               </div>
             ))}
+            <div ref={bottomRef} />
           </div>
         ) : (
           <div className="chat_body empty">
             <p className="text-gray-500">
-              NSIT DAK SITE DYAL TSAWR HET HNA TSWIRA BROJOLA HHHH
+              Select a user or group to start chatting!
             </p>
           </div>
         )}
@@ -248,9 +298,12 @@ export default function Chat() {
             <textarea
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" && !e.shiftKey && sendMessage()
-              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
               placeholder="Type a message..."
             />
             <HiPaperAirplane

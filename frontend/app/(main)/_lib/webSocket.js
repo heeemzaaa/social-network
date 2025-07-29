@@ -4,8 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { UserContext } from "../_context/userContext";
 
 export default function UserProvider({ children }) {
-  const [users, setUsers] = useState([]);
-  const [groups, setGroups] = useState([]);
   const [messages, setMessages] = useState({});
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
   const socketRef = useRef(null);
@@ -23,7 +21,7 @@ export default function UserProvider({ children }) {
           setAuthenticatedUser({
             id: data.id,
             username: data.nickname,
-            fullName: data.fullname
+            fullName: data.fullname,
           });
         } else {
           setAuthenticatedUser(null);
@@ -89,49 +87,6 @@ export default function UserProvider({ children }) {
     socket.onclose = () => {
       console.log("🔌 WebSocket closed");
     };
-
-    // Fetch user list except current user
-    const fetchUsers = async () => {
-      try {
-        const res = await fetch("http://localhost:8080/api/get-users/", {
-          credentials: "include",
-        });
-        const usersList = await res.json();
-
-        const mapped = usersList.map((user) => ({
-          userID: user.id,
-          username: user.firstname + " " + user.lastname,
-          img: user.img || "/no-profile.png",
-        }));
-
-        setUsers(mapped);
-      } catch (err) {
-        console.error("❌ Error fetching users:", err);
-      }
-    };
-
-    const fetchGroup = async () => {
-      try {
-        const res = await fetch("http://localhost:8080/api/get-groups/", {
-          credentials: "include",
-        });
-        const groupList = await res.json();
-
-        const mappedG = groupList.map((group) => ({
-          group_id: group.group_id,
-          title: group.title,
-          image_path: group.image_path || "/no-profile.png",
-        }));
-
-        setGroups(mappedG);
-      } catch (err) {
-        console.error("❌ Error fetching users:", err);
-      }
-    };
-
-    fetchGroup();
-    fetchUsers();
-
     return () => {
       socket.close();
       socketRef.current = null;
@@ -141,8 +96,6 @@ export default function UserProvider({ children }) {
   return (
     <UserContext.Provider
       value={{
-        users,
-        groups,
         socket: socketRef.current,
         messages,
         setMessages,
