@@ -21,7 +21,7 @@ func (s *ChatService) GetSessionByTokenEnsureAuth(token string) (*models.Session
 func (service *ChatService) GetUserIdFromSession(r *http.Request) (string, *models.ErrorJson) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
-		return "", &models.ErrorJson{Status: 401, Error: "", Message: fmt.Sprintf("%v", err)}
+		return "", &models.ErrorJson{Status: 401, Error: fmt.Sprintf("%v", err)}
 	}
 
 	userID, errQuery := service.repo.GetUserIdFromSession(cookie.Value)

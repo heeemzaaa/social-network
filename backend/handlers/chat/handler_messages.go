@@ -19,66 +19,65 @@ func NewMessagesHandler(service *chat.ChatService) *MessagesHandler {
 
 // do we need to check the id of the receiver (if it exists in the database )
 func (messages *MessagesHandler) GetMessages(w http.ResponseWriter, r *http.Request) {
-	sender_id, err := middleware.GetUserIDFromContext(r.Context())
+	senderId, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid userId !"})
 		return
 	}
 
-	lastMessageStr := r.URL.Query().Get("last")
-	target_id := r.URL.Query().Get("target_id")
+	targetId := r.URL.Query().Get("target_id")
 
 	type_ := r.URL.Query().Get("type")
 	if type_ != "private" && type_ != "group" {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "type is not specified"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "type is not specified"})
 		return
 	}
 
-	exists, errJson := messages.service.CheckExistance(type_, target_id)
+	exists, errJson := messages.service.CheckExistance(type_, targetId)
 	if errJson != nil {
-		utils.WriteJsonErrors(w, *errJson)
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 
 	if !exists {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "", Message: "the target given doesn't exist"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "the target given doesn't exist"})
 		return
 	}
 
-	mesages, errJson := messages.service.GetMessages(sender_id.String(), target_id, lastMessageStr, type_)
+	mesages, errJson := messages.service.GetMessages(senderId.String(), targetId, type_)
 	if errJson != nil {
-		utils.WriteJsonErrors(w, *models.NewErrorJson(errJson.Status, "", errJson.Message))
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 
 	utils.WriteDataBack(w, mesages)
 }
 
-func (messages *MessagesHandler) UpdataReadStatus(w http.ResponseWriter, r *http.Request) {
-	sender_id, err := middleware.GetUserIDFromContext(r.Context())
+func (messages *MessagesHandler) UpdateReadStatus(w http.ResponseWriter, r *http.Request) {
+	senderId, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid userID format !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid userID format !"})
 		return
 	}
 
-	target_id := r.URL.Query().Get("target_id")
+	targetId := r.URL.Query().Get("target_id")
 
-	exists, errJson := messages.service.UserExists(target_id)
+	exists, errJson := messages.service.UserExists(targetId)
 	if errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 
 	// the one who is logged in is the one who opens  the tab
 	// so basically the messages sent by the other (target_id) must be marked read
 	if !exists {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "target_id Incorrect"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "targetId Incorrect"})
 		return
 	}
 
-	errJson = messages.service.EditReadStatus(sender_id.String(), target_id)
+	errJson = messages.service.EditReadStatus(senderId.String(), targetId)
 	if errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 }
@@ -87,7 +86,7 @@ func (messages *MessagesHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodGet {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method Not Allowed!!"})
 		return
 	}
 
@@ -95,7 +94,7 @@ func (messages *MessagesHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	case "/api/messages":
 		messages.GetMessages(w, r)
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "ERROR!! Page Not Found!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "ERROR!! Page Not Found!"})
 		return
 	}
 }
