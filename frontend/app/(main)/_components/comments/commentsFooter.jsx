@@ -31,7 +31,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 ImagePath: state.img,
             };
             console.log('newComment', newComment)
-            setComments(prev => [...prev , newComment]);
+            setComments(prev => [newComment,...prev]);
 
             if (onCommentMessage) {
                 onCommentMessage("A new comment was added");
@@ -62,7 +62,6 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 name="content"
                 className="w-full p1 rounded-md"
                 placeholder="Write a comment..."
-                required
             />
 
             <button type="submit" className='submit_comment'>
