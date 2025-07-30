@@ -31,7 +31,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 ImagePath: state.img,
             };
             console.log('newComment', newComment)
-            setComments(prev => [newComment,...prev]);
+            setComments(prev => [...prev , newComment]);
 
             if (onCommentMessage) {
                 onCommentMessage("A new comment was added");
