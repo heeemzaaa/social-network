@@ -15,7 +15,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
         avatar: '',
         success: false,
         createdAt: '',
-        commentImage: '',
+        imagePath: '',
     };
 
     const [state, formAction] = useActionState(commentPostAction, initialState)
@@ -28,17 +28,17 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 fullName: state.fullName,
                 userImage: state.avatar,
                 createdAt: new Date(),
-                ImagePath: state.img,
+                imagePath: state.imagePath,
             };
             console.log('newComment', newComment)
-            setComments(prev => [...prev , newComment]);
+            setComments(prev => [newComment, ...prev]);
 
             if (onCommentMessage) {
                 onCommentMessage("A new comment was added");
             }
         }
     }, [state]); // This will run every time state changes (after submission)
-
+    console.log('state', state)
     return (
         <form
             action={formAction}

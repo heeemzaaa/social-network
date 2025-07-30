@@ -142,12 +142,12 @@ export async function commentPostAction(prevState, formData) {
     const commentImg = formData.get("commentImg");
     const maxSize = 3 * 1024 * 1024;
 
-    if (!postID) {
-        state.errors.postID = "Post ID is required";
+    if (!commentContent && commentImg.size === 0) {
+        state.errors.commentContent = "Input comment is required";
         return state;
     }
-    if (!commentContent && !commentImg) {
-        state.errors.commentContent = "Input comment is required";
+    if (!postID) {
+        state.errors.postID = "Post ID is required";
         return state;
     }
     if (commentImg && commentImg.size > 0) {
@@ -160,7 +160,7 @@ export async function commentPostAction(prevState, formData) {
             return state;
         }
     }
-    
+
     const jsonData = JSON.stringify({
         post_id: postID,
         content: commentContent,
@@ -201,7 +201,7 @@ export async function commentPostAction(prevState, formData) {
             avatar: response.user.avatar,
             success: true,
             createdAt: formatted,
-            commentImage: response.img,
+            imagePath: response.img,
         };
     } catch (err) {
         return { ...prevState, message: "Server error." };
