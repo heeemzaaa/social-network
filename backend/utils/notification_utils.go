@@ -1,11 +1,14 @@
 package utils
 
-import "strconv"
+import (
+	"social-network/backend/models"
+)
 
-func IsValidQueryParam(str string) bool {
-	_, err := strconv.Atoi(str)
-	if err != nil {
-		return false
+func GetIndexOf(Slice []models.Notification, id string) int {
+	for i, item := range Slice {
+		if item.Id == id {
+			return i
+		}
 	}
-	return true
+	return -1
 }

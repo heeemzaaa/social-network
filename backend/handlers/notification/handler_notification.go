@@ -5,15 +5,15 @@ import (
 	"net/http"
 	"social-network/backend/middleware"
 	"social-network/backend/models"
-	NS "social-network/backend/services/notification"
+	"social-network/backend/services/notification"
 	"social-network/backend/utils"
 )
 
 type NotificationHandler struct {
-	NS *NS.NotificationService
+	NS *notification.NotificationService
 }
 
-func NewNotificationHandler(ns *NS.NotificationService) *NotificationHandler {
+func NewNotificationHandler(ns *notification.NotificationService) *NotificationHandler {
 	return &NotificationHandler{NS: ns}
 }
 
@@ -33,7 +33,7 @@ func (HN *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	queryParam := r.URL.Query().Get("Count")
+	queryParam := r.URL.Query().Get("Id")
 
 	if queryParam == "" {
 		hasSeen, errJson := HN.NS.IsHasSeenFalse(user_Id.String())
@@ -44,14 +44,9 @@ func (HN *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 
 		data := models.ResponseMsg{
 			Status:  hasSeen,
-			Message: fmt.Sprintf("has new notifications to see ==> %v", hasSeen),
+			Message: fmt.Sprintf("has new notifications: %v", hasSeen),
 		}
 		utils.WriteDataBack(w, data)
-		return
-	}
-
-	if !utils.IsValidQueryParam(queryParam) {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Incorrect QueryParam by field!!", Error: "400 - Bad Request"})
 		return
 	}
 
@@ -66,5 +61,5 @@ func (HN *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	utils.WriteDataBack(w, notifications) // handle speciale case if exist when notification accremante and container open and scroll
+	utils.WriteDataBack(w, notifications) // handle speciale case if exist when notification accremante and container open and scroll //
 }

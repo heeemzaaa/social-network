@@ -41,15 +41,15 @@ func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if errJson := HUN.NS.UpdateService(Data, user_Id.String()); errJson != nil {
+	errJson := HUN.NS.UpdateService(Data, user_Id.String());
+	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
 	}
 
-	// should be confirmation after update notification with senderFullName
 	data := models.ResponseMsg{
 		Status: true,
-		Message: "oo follow you",
+		Message: "Your action was successful",
 	}
 	utils.WriteDataBack(w, data)
 }

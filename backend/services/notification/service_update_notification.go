@@ -35,8 +35,6 @@ func (NS *NotificationService) UpdateService(data models.Unotif, user_id string)
 	if errJson = NS.notifRepo.UpdateStatusById(notification.Id, data.Status); errJson != nil {
 		return errJson
 	}
-
-	// should return here confirmation when notification update ( senderFullName )
 	return nil
 }
 

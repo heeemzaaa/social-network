@@ -56,7 +56,7 @@ func (NS *NotificationService) DeleteService(recieverId, senderId, notifType, gr
 		if errJson := NS.notifRepo.DeleteFollowNotification(senderId, recieverId, notifType); errJson != nil {
 			return errJson
 		}
-	} else {
+	} else if notifType != "group-event" {
 		if errJson := NS.notifRepo.DeleteGroupNotification(senderId, recieverId, notifType, groupId); errJson != nil {
 			return errJson
 		}
