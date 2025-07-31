@@ -9,12 +9,14 @@ import (
 // get notification by 10
 func (NS *NotificationService) GetService(user_id, queryParam string) ([]models.Notification, *models.ErrorJson) {
 
-	all, err := NS.repo.SelectAllNotification(user_id)
+	all, err := NS.notifRepo.SelectAllNotification(user_id)
 	if err != nil {
 		return nil, err
 	}
+
 	len := len(all)
 	nbr, _ := strconv.Atoi(queryParam)
+
 	sort.Slice(all, func(i, j int) bool {
 		// Check if one is "later" and the other isn't
 		if all[i].Status == "later" && all[j].Status != "later" {

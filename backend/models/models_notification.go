@@ -2,17 +2,17 @@ package models
 
 import "time"
 
-// notification structure
+// database notification structure
 type Notification struct {
 	Id             string
 	SenderId       string
 	RecieverId     string
 	GroupId        string
 	EventId        string
-	Type           string // follow request // invite group // join group to admin // event notif for members group
+	Type           string
 	SenderFullName string
-	GroupName      string // notification informations
-	Status         string // accepted or rejected or later
+	GroupName      string
+	Status         string
 	Seen           bool
 	CreatedAt      time.Time
 }
@@ -21,42 +21,37 @@ func NewNotification() *Notification {
 	return &Notification{}
 }
 
-// data structue of new notification 
+// structue of new notification 
 type Notif struct {
-	SenderId         string // user-id // credencials
-	RecieverId       string // user-profile-id // user-profile-id // group-id [AllGpMb] // group-id [admin] // user-target-id
+	SenderId         string
+	RecieverId       string
 	GroupId          string
 	EventId          string
-	Type             string // follow-private // follow-public // group-event // group-join // group-invitation
+	Type             string
 	SenderFullName   string
-	GroupName        string // notification informations
+	GroupName        string
 }
 
 func NewNotif() *Notif {
 	return &Notif{}
 }
 
-// update notification request data structure
+// structure of update notification
 type Unotif struct {
-	NotifId string // notification id
+	NotifId string
 	Type    string
-	Status  string // accept || reject
+	Status  string
 }
 
 func UpdateNotif() *Unotif {
 	return &Unotif{}
 }
 
-type HasSeen struct {
-	Status  bool
-	Message string
-}
-
-func NewResponseMsg() *Unotif {
-	return &Unotif{}
-}
-
 type ResponseMsg struct {
 	Status  bool
 	Message string
+}
+
+func NewResponseMsg() *ResponseMsg {
+	return &ResponseMsg{}
 }

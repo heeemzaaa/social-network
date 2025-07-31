@@ -108,6 +108,5 @@ func (gService *GroupService) GetUsersToInvite(userID, groupID string) ([]models
 		}
 	}
 
-
 	return res, nil
 }

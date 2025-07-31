@@ -8,19 +8,19 @@ import (
 	"social-network/backend/middleware"
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
-	"social-network/backend/services/notification"
+	nService "social-network/backend/services/notification"
 	"social-network/backend/utils"
 )
 
 type GroupRequestsHandler struct {
 	gService *gservice.GroupService
-	sNotif   *notification.NotificationService
+	nService   *nService.NotificationService
 }
 
-func NewGroupRequestsHandler(service *gservice.GroupService, sNotif *notification.NotificationService) *GroupRequestsHandler {
+func NewGroupRequestsHandler(service *gservice.GroupService, nService *nService.NotificationService) *GroupRequestsHandler {
 	return &GroupRequestsHandler{
 		gService: service,
-		sNotif:   sNotif,
+		nService:   nService,
 	}
 }
 
@@ -51,15 +51,16 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 		return
 	}
 
-	// add new notification type: [group-join]
-	if errJson := GrpReqHandler.sNotif.PostService(data); errJson != nil {
+	if errJson := GrpReqHandler.nService.PostService(data); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
-	if err := json.NewEncoder(w).Encode(&models.ResponseMsg{Status: true, Message: "Pending"}); err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "500 return data", Message: "invalid data"})
-		return
-	}
+
+	// if err := json.NewEncoder(w).Encode(&models.HasSeen{Status: true, Message: "Pending"}); err != nil {
+	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "500 return data", Message: "invalid data"})
+	// 	return
+	// }
+	utils.WriteDataBack(w, models.ResponseMsg{Status: true, Message: "Pending"})
 }
 
 func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter, r *http.Request) {
@@ -81,15 +82,10 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter
 		return
 	}
 
-	// delete notification
-	// {sender_id , receiver_id, "group-join"}
-	// // // // // // // // // //
-
-	if errJson := GrpReqHandler.sNotif.DeleteService(data.RecieverId, data.SenderId, data.Type, data.GroupId); errJson != nil { // reciever is admin group
+	if errJson := GrpReqHandler.nService.DeleteService(data.RecieverId, data.SenderId, data.Type, data.GroupId); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
-
 	utils.WriteDataBack(w, "done")
 }
 

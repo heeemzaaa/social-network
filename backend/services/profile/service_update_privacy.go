@@ -49,7 +49,7 @@ func (s *ProfileService) UpdatePrivacy(userID string, requestorID string, wanted
 		}
 
 		// get all notifications that has type follow-private and toggle status "accept"
-		all, errJson := NS.GetAllNotifService(userID, "follow-private")
+		all, errJson := NS.GetAllNotificationByType(userID, "follow-private")
 		if errJson != nil {
 			return nil, errJson
 		}

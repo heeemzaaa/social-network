@@ -5,7 +5,6 @@ import (
 )
 
 func (gService *GroupService) RequestToCancel(userId, groupId string) (*models.Notif, *models.ErrorJson) {
-	// notif := models.Notif{}
 	group, errJson := gService.gRepo.GetGroupDetails(groupId)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
@@ -18,6 +17,7 @@ func (gService *GroupService) RequestToCancel(userId, groupId string) (*models.N
 	if errJson := gService.gRepo.RequestToCancel(userId, groupId); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
+
 	return &models.Notif{
 		SenderId:         userId,
 		RecieverId:       group.GroupCreatorId,
@@ -27,7 +27,6 @@ func (gService *GroupService) RequestToCancel(userId, groupId string) (*models.N
 }
 
 func (gService *GroupService) RequestToJoin(userId, groupId string) (*models.Notif, *models.ErrorJson) {
-	// notif := models.Notif{}
 	group, errJson := gService.gRepo.GetGroupDetails(groupId)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}

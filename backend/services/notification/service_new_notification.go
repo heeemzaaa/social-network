@@ -7,13 +7,17 @@ import (
 	"time"
 )
 
-// insert new notification after event hapen
+// Insert new notification after
 func (NS *NotificationService) PostService(data *models.Notif) *models.ErrorJson {
-	fullName, errJson := NS.repo2.GetUserFullNameById(data.SenderId)
+	fullName, errJson := NS.authRepo.GetUserFullNameById(data.SenderId)
 	if errJson != nil {
 		return errJson
 	}
 	data.SenderFullName = fullName
+
+	if errJson := NS.DeleteService(data.RecieverId, data.SenderId, data.Type, data.GroupId); errJson != nil {
+		return errJson
+	}
 
 	switch data.Type {
 	case "follow-private":
@@ -39,7 +43,7 @@ func (NS *NotificationService) PostService(data *models.Notif) *models.ErrorJson
 // - follow private profile request
 func (NS *NotificationService) FollowPrivateProfile(data *models.Notif) *models.ErrorJson {
 
-	if errJson := NS.repo.InsertNewNotification(models.Notification{
+	if errJson := NS.notifRepo.InsertNewNotification(models.Notification{
 		Id: utils.NewUUID(),
 		SenderId: data.SenderId,
 		RecieverId: data.RecieverId,
@@ -62,7 +66,7 @@ func (NS *NotificationService) FollowPrivateProfile(data *models.Notif) *models.
 // - follow public profile request
 func (NS *NotificationService) FollowPublicProfile(data *models.Notif) *models.ErrorJson {
 
-	if errJson := NS.repo.InsertNewNotification(models.Notification{
+	if errJson := NS.notifRepo.InsertNewNotification(models.Notification{
 		Id: utils.NewUUID(),
 		SenderId: data.SenderId,
 		RecieverId: data.RecieverId,
@@ -85,7 +89,7 @@ func (NS *NotificationService) FollowPublicProfile(data *models.Notif) *models.E
 // - group invitation request
 func (NS *NotificationService) GroupInvitationRequest(data *models.Notif) *models.ErrorJson {
 
-	if errJson := NS.repo.InsertNewNotification(models.Notification{
+	if errJson := NS.notifRepo.InsertNewNotification(models.Notification{
 		Id: utils.NewUUID(),
 		SenderId: data.SenderId,
 		RecieverId: data.RecieverId,
@@ -108,7 +112,7 @@ func (NS *NotificationService) GroupInvitationRequest(data *models.Notif) *model
 // - group join request [admin]
 func (NS *NotificationService) GroupJoinRequest(data *models.Notif) *models.ErrorJson {
 
-	if errJson := NS.repo.InsertNewNotification(models.Notification{
+	if errJson := NS.notifRepo.InsertNewNotification(models.Notification{
 		Id: utils.NewUUID(),
 		SenderId: data.SenderId,
 		RecieverId: data.RecieverId,
@@ -131,7 +135,7 @@ func (NS *NotificationService) GroupJoinRequest(data *models.Notif) *models.Erro
 // - group event created [group-members]
 func (NS *NotificationService) GroupEventRequest(data *models.Notif) *models.ErrorJson {
 
-	if errJson := NS.repo.InsertNewNotification(models.Notification{
+	if errJson := NS.notifRepo.InsertNewNotification(models.Notification{
 		Id: utils.NewUUID(),
 		SenderId: data.SenderId,
 		RecieverId: data.RecieverId,

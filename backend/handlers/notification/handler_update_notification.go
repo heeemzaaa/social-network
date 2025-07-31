@@ -7,34 +7,28 @@ import (
 	"social-network/backend/middleware"
 	"social-network/backend/models"
 
-	GS "social-network/backend/services/group"
-	NS "social-network/backend/services/notification"
 	"social-network/backend/utils"
+	ns "social-network/backend/services/notification"
 )
 
 type UpdateHandler struct {
-	NSU *NS.NotificationServiceUpdate
-	GS *GS.GroupService
+	NS *ns.NotificationService
 }
 
-func NewUpdateHandler(nsu *NS.NotificationServiceUpdate) *UpdateHandler {
-	return &UpdateHandler{NSU: nsu}
+func NewUpdateHandler(NS *ns.NotificationService) *UpdateHandler {
+	return &UpdateHandler{NS: NS}
 }
 
-func (NUH *UpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (HUN *UpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
-	fmt.Println("requested update path:", r.URL.Path)
-	fmt.Println("method", r.Method)
-
 	if r.Method != http.MethodPost {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!", Error: "405 - Method Not Allowed"})
 		return
 	}
-	NUH.UpdateNotification(w, r)
+	HUN.UpdateNotification(w, r)
 }
 
-func (NUH *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Request) {
+func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Request) {
 	user_Id, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: err.Error()})
@@ -42,20 +36,17 @@ func (NUH *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 	}
 
 	var Data models.Unotif
-
-	err = json.NewDecoder(r.Body).Decode(&Data)
-	if err != nil {
-		fmt.Println("invalide decode lol", Data)
-
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "bad request", Message: fmt.Sprintf("%v", err)})
+	if err = json.NewDecoder(r.Body).Decode(&Data); err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "400 - Bad Request", Message: fmt.Sprintf("%v", err)})
 		return
 	}
 
-	if errJson := NUH.NSU.UpdateService(Data, user_Id.String()); errJson != nil {
+	if errJson := HUN.NS.UpdateService(Data, user_Id.String()); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
 	}
 
+	// should be confirmation after update notification with senderFullName
 	data := models.ResponseMsg{
 		Status: true,
 		Message: "oo follow you",

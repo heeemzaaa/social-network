@@ -3,13 +3,8 @@
 import React from "react";
 
 export default function Notification({ notif, isPopup = false, onConfirm }) {
-  const {
-    Type,
-    Status,
-    Content,
-    isConfirm,
-    confirmButtons = { accept: "accept", reject: "reject" },
-  } = notif;
+
+  const {Type, Status, Content, isConfirm, confirmButtons = { accept: "accept", reject: "reject" }} = notif; // should be add time !!!
 
   const notifClass = `notification-card ${Type} ${Status || ""} ${isPopup ? "popup" : ""}`;
 
@@ -26,14 +21,6 @@ export default function Notification({ notif, isPopup = false, onConfirm }) {
           <button className="reject-btn" onClick={() => onConfirm(false)}>
             {confirmButtons.reject}
           </button>
-        </div>
-      )}
-
-      {/* Optional: legacy group-invitation (non-confirm) */}
-      {!isConfirm && Type === "group-invitation" && (
-        <div className="action-buttons">
-          <button className="accept-btn">Accept</button>
-          <button className="reject-btn">Decline</button>
         </div>
       )}
     </div>

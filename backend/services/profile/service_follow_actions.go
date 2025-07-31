@@ -33,8 +33,8 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 	}
 
 	data := models.Notif{
-		SenderId:       authUserID,
-		RecieverId:     userID,
+		SenderId:   authUserID,
+		RecieverId: userID,
 	}
 
 	switch profile.User.Visibility {
@@ -45,8 +45,6 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 		}
 
 		data.Type = "follow-private"
-
-		// insert new private notification for recieverId = userID
 		errJson := NS.PostService(&data)
 		if errJson != nil {
 			return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
@@ -60,7 +58,6 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 		profile.IsFollower = !isFollower
 
 		data.Type = "follow-public"
-
 		errJson := NS.PostService(&data)
 		if errJson != nil {
 			return nil, errJson
@@ -133,7 +130,7 @@ func (s *ProfileService) Unfollow(userID string, authUserID string) (*models.Pro
 func (s *ProfileService) CancelFollow(userID string, authUserID string, NS *ns.NotificationService) (*models.Profile, *models.ErrorJson) {
 	var profile models.Profile
 
-		exists, err := s.repo.UserExists(userID)
+	exists, err := s.repo.UserExists(userID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
@@ -147,9 +144,7 @@ func (s *ProfileService) CancelFollow(userID string, authUserID string, NS *ns.N
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 
-	/// /// HERE REMOVE NOTIFICATION FOLLOW PRIVATE /// ///
-	errJson := NS.DeleteService(userID, authUserID, "follow-private", "later")
-	if errJson != nil {
+	if errJson := NS.DeleteService(userID, authUserID, "follow-private", ""); errJson != nil {
 		return nil, errJson
 	}
 
