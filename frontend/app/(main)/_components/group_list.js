@@ -8,7 +8,6 @@ export default function GroupList({ groups, onGroupClick }) {
             <p className="text-md">{grp.title}</p>
           </div>
           <div className="sep">
-
           </div>
         </>
       ))}

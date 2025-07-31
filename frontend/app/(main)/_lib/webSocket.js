@@ -98,7 +98,7 @@ export default function UserProvider({ children }) {
         });
         const usersList = await res.json();
 
-        const mapped = usersList.map((user) => ({
+        const mapped = usersList?.map((user) => ({
           userID: user.id,
           username: user.firstname + " " + user.lastname,
           img: user.img || "/no-profile.png",
@@ -117,7 +117,7 @@ export default function UserProvider({ children }) {
         });
         const groupList = await res.json();
 
-        const mappedG = groupList.map((group) => ({
+        const mappedG = groupList?.map((group) => ({
           group_id: group.group_id,
           title: group.title,
           image_path: group.image_path || "/no-profile.png",
