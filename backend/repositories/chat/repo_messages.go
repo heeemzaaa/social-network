@@ -48,7 +48,7 @@ func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message
 // the one logged in trying to see the messages will not be got from the query
 // sender and receiver and the offset and limit als
 func (repo *ChatRepository) GetMessages(sender_id, target_id, lastMessageID, type_ string) ([]models.Message, *models.ErrorJson) {
-	var messages []models.Message
+	messages := []models.Message{}
 	var query string
 	var args []any
 

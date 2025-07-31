@@ -17,7 +17,7 @@ func (repo *PostsRepository) GetComments(postID string) ([]models.Comment, *mode
 	FROM comments c
 	INNER JOIN users u ON c.userID = u.userID
 	WHERE c.postID = ?
-	ORDER BY c.createdAt ASC
+	ORDER BY c.createdAt DESC
 	`
 
 	stmt, err := repo.db.Prepare(query)
