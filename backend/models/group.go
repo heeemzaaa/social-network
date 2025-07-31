@@ -34,7 +34,7 @@ type ErrJoinGroup struct {
 
 type Event struct {
 	EventId      string    `json:"event_id,omitempty"`
-	GroupId      string    `json:"group_id,omitempty"`
+	Group        Group     `json:"group,omitempty"`
 	EventCreator User      `json:"event_creator,omitempty"`
 	Title        string    `json:"title"`
 	Description  string    `json:"description"`

@@ -233,6 +233,7 @@ export async function createGroupEventAction(prevState, formData) {
                 errors: data.errors || null
             };
         }
+        console.log("dataaaa ", data);
         return {
             ...state,
             data,

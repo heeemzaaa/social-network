@@ -67,7 +67,6 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 	// even if the userid is given wrong we insert the correct one
 	postCreated, err_ := gPostHandler.gService.AddPost(post)
 
-	// fmt.Println("post created", postCreated, err_)
 	if err_ != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: err_.Status, Error: err_.Error, Message: err_.Message})
 		return

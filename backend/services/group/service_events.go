@@ -1,7 +1,6 @@
 package group
 
 import (
-	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -32,15 +31,11 @@ func (gService *GroupService) GetGroupEvents(groupID, userID string, offset int6
 // as always we need to check if the user is part of the group before adding an event
 
 func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
-	group, errJson := gService.GetGroupInfo(event.GroupId)
-	if errJson != nil {
+	if errJson := gService.gRepo.GetGroupById(event.Group.GroupId); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
-	// if errJson := gService.gRepo.GetGroupById(event.GroupId); errJson != nil {
-	// 	return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
-	// }
 	// always check the membership and also the the group is a valid one
-	if errMembership := gService.CheckMembership(event.GroupId, event.EventCreator.Id); errMembership != nil {
+	if errMembership := gService.CheckMembership(event.Group.GroupId, event.EventCreator.Id); errMembership != nil {
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 	// here we'll be checking if the input is valid
@@ -61,12 +56,12 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 	if errValidation != (models.ErrEventGroup{}) {
 		return nil, &models.ErrorJson{Status: 400, Message: errValidation}
 	}
-	event, errJson = gService.gRepo.AddGroupEvent(event)
+	event, errJson := gService.gRepo.AddGroupEvent(event)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 
-	members, errJson := gService.gRepo.GetGroupMembers(event.GroupId)
+	members, errJson := gService.gRepo.GetGroupMembers(event.Group.GroupId)
 	if errJson != nil {
 		return nil, errJson
 	}
@@ -75,24 +70,21 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 		if user.Id == event.EventCreator.Id {
 			continue
 		}
-
-		fmt.Println("hereherehere /////")
 		//  add the notification for the adding of the event so we need the func of amine too
 		//  group_id / sender_id (the one who creted the event / group-event)
 		// {event}
 		data := models.Notif{
-			SenderId:         event.EventCreator.Id,
-			RecieverId:       user.Id,
+			SenderId:   event.EventCreator.Id,
+			RecieverId: user.Id,
 			// SenderFullName:   event.EventCreator.FullName,
-			Type:             "group-event",
-			GroupId:          event.GroupId,
-			EventId:          event.EventId,
-			GroupName:        group.Title,
+			Type:      "group-event",
+			GroupId:   event.Group.GroupId,
+			EventId:   event.EventId,
+			GroupName: event.Group.Title,
 		}
 
 		errJson := gService.sNotif.PostService(data)
 		if errJson != nil {
-			fmt.Println("errrrrrrrr ///// ====>" + errJson.Error)
 			return nil, errJson
 		}
 	}

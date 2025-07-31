@@ -10,7 +10,7 @@ import (
 )
 
 func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGroup, *models.ErrorJson) {
-	fmt.Println("post", post.User.Id)
+
 	post_created := &models.PostGroup{}
 	postId := uuid.New()
 	query := `
@@ -158,7 +158,7 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string, offset int) ([]mo
 			&post.TotalLikes,
 			&post.TotalComments,
 			&post.Liked); err != nil {
-			return posts, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v3", err)}
+			return posts, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v3", err)}
 		}
 		posts = append(posts, post)
 	}

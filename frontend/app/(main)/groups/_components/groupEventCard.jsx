@@ -14,7 +14,7 @@ let style = {
 }
 
 export default function GroupEventCard({
-    group_id,
+    group,
     event_id,
     event_creator,
     title,
@@ -25,7 +25,7 @@ export default function GroupEventCard({
 }) {
     const [goingState, setGoingState] = useState(going)
     console.log("goingState", going);
-    const endpoint = `http://localhost:8080/api/groups/${group_id}/events/${event_id}/`
+    const endpoint = `http://localhost:8080/api/groups/${group.group_id}/events/${event_id}/`
     async function handleGoingState(actionValue) {
         try {
             const res = await fetch(endpoint, {

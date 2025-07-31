@@ -9,7 +9,6 @@ import (
 )
 
 func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite string) *models.ErrorJson {
-	fmt.Println(userId, groupId, userToInvite)
 	invitationID := utils.NewUUID()
 	query := `
 	INSERT INTO group_requests (requestID, senderID, receiverID, groupID, typeRequest)
@@ -33,7 +32,6 @@ func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite 
 }
 
 func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId string, invitedUser *models.User) *models.ErrorJson {
-	fmt.Println("userId: ", userId, "groupId: ", groupId, "invited user: ", invitedUser.Id)
 	query := `
 	DELETE FROM group_requests WHERE 
 	senderID = ? AND receiverID = ? AND groupID = ? AND typeRequest = ? 

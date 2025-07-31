@@ -34,7 +34,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid JSON in data field"})
 		return
 	}
-	fmt.Println("posts: ", post)
+
 	post.User.Id = usID.String()
 	post.Img = path
 	post.Id = utils.NewUUID()

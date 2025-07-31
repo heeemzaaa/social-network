@@ -12,7 +12,6 @@ import (
 // y9dr ay wa7d ydiiruuu
 
 func (repo *AuthRepository) CreateUser(user *models.User) *models.ErrorJson {
-	fmt.Println("user in repo:" , user.AboutMe)
 	query := `INSERT INTO users (userID, email, firstName, lastName, password, birthDate, nickname, avatarPath, aboutMe, visibility) VALUES (?,?,?,?,?,?,?,?,?,?)`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {

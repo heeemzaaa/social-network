@@ -165,7 +165,6 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 	} else {
 		user.ProfileImage = handler.Filename
 		user.ProfileImgSize = handler.Size
-		fmt.Println("file headers", handler.Header)
 		defer file.Close()
 	}
 

@@ -52,7 +52,6 @@ func (gEventIDHandler *GroupEventIDHandler) AddInterestIntoEvent(w http.Response
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
 		return
 	}
-	fmt.Println("action ", actionChosen)
 	actionChosen.UserId, actionChosen.GroupId, actionChosen.EventId = userID.String(), groupID.String(), eventID.String()
 	action, errJson := gEventIDHandler.gService.HandleActionChosen(actionChosen)
 	if errJson != nil {
