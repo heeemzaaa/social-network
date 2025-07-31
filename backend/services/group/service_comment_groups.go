@@ -8,7 +8,7 @@ import (
 )
 
 // add the offset and the limit thing after
-func (gService *GroupService) GetComments(groupId, userId, postId string, offset int) ([]models.CommentGroup, *models.ErrorJson) {
+func (gService *GroupService) GetComments(groupId, userId, postId, offset string) ([]models.CommentGroup, *models.ErrorJson) {
 	if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}

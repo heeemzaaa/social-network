@@ -1,7 +1,6 @@
 package group
 
 import (
-	"database/sql"
 	"fmt"
 
 	"social-network/backend/models"
@@ -39,9 +38,6 @@ func (gRepo *GroupRepository) RequestToJoin(userId, groupId string) *models.Erro
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
-
-
-	
 
 	return nil
 }
@@ -89,9 +85,6 @@ func (gRepo *GroupRepository) GetRequests(groupId string) ([]models.User, *model
 
 	rows, err := stmt.Query(groupId, "join-request")
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return users, nil
-		}
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	defer rows.Close()

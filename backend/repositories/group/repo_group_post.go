@@ -1,7 +1,6 @@
 package group
 
 import (
-	"database/sql"
 	"fmt"
 
 	"social-network/backend/models"
@@ -10,7 +9,6 @@ import (
 )
 
 func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGroup, *models.ErrorJson) {
-
 	post_created := &models.PostGroup{}
 	postId := uuid.New()
 	query := `
@@ -53,7 +51,7 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	
+
 	errScan := stmt.QueryRow(postId, post.GroupId, post.User.Id, post.Content, post.ImagePath, post.User.Id, post.User.Id, post.User.Id).Scan(
 		&post_created.Id,
 		&post_created.GroupId,
@@ -74,11 +72,19 @@ func (grepo *GroupRepository) CreatePost(post *models.PostGroup) (*models.PostGr
 
 // all the posts
 // add the offset and the limit after
-func (grepo *GroupRepository) GetPosts(userId, groupId string, offset int) ([]models.PostGroup, *models.ErrorJson) {
+func (grepo *GroupRepository) GetPosts(userId, groupId string, offset string) ([]models.PostGroup, *models.ErrorJson) {
 	posts := []models.PostGroup{}
-	// query needs an update because the reactions table does not exist
-	// also the tables names are not correct
-	query := `
+	
+	var where string
+	if offset == "0" {
+		where = "WHERE group_posts.groupID = ?"
+	} else {
+		where = `WHERE  group_posts.groupID = ? AND group_posts.createdAt < (
+			SELECT createdAt from group_posts WHERE postID = ? 
+		)`
+	}
+
+	query := fmt.Sprintf(`
 	WITH
     cte_likes as (
         select
@@ -121,27 +127,25 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string, offset int) ([]mo
 		AND group_reactions.userID = ?
 		AND group_reactions.reaction = 1
 		AND group_reactions.entityType = "post"
-	WHERE group_posts.groupID = ?
+	%v
 	ORDER BY
 		group_posts.createdAt DESC
 	LIMIT
-		20
-	OFFSET
-		?;
-		
-   `
+		20	
+   `, where)
 
+	args := []any{userId, groupId}
+	if offset != "0" {
+		args = append(args, offset)
+	}
 	stmt, err := grepo.db.Prepare(query)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v1", err)}
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(userId, groupId, offset)
+	rows, err := stmt.Query(args...)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return posts, nil
-		}
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v2", err)}
 	}
 	defer rows.Close()

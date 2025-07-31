@@ -9,7 +9,7 @@ import (
 
 // the process of checking if a user is a member of a group of not will be hold at the service of every function
 
-func (gService *GroupService) GetGroupEvents(groupID, userID string, offset int64) ([]models.Event, *models.ErrorJson) {
+func (gService *GroupService) GetGroupEvents(groupID, userID, offset string) ([]models.Event, *models.ErrorJson) {
 	if errJson := gService.gRepo.GetGroupById(groupID); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}

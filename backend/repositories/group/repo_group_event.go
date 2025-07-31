@@ -9,9 +9,17 @@ import (
 )
 
 // get the event created of a specific group
-func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int64) ([]models.Event, *models.ErrorJson) {
+func (gRepo *GroupRepository) GetGroupEvents(groupId, userId, offset string) ([]models.Event, *models.ErrorJson) {
 	events := []models.Event{}
-	query := `
+	var where string
+	if offset == "0" {
+		where = `WHERE group_events.groupID =  ?`
+	} else {
+		where = `WHERE group_events.groupID =  ? AND group_events.createdAt < (
+			select createdAt from group_events WHERE eventID = ? 
+		)`
+	}
+	query := fmt.Sprintf(`
 	WITH
     cte_interested AS (
         SELECT
@@ -43,24 +51,22 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId string, offset int6
         group_events
         INNER JOIN users ON group_events.eventCreatorID = users.userID
         LEFT JOIN cte_interested ON cte_interested.ID = group_events.eventID
-    WHERE
-        group_events.groupID =  ?
+    %v
     ORDER BY group_events.createdAt DESC
-    LIMIT 20 OFFSET ?
-	`
-
-	fmt.Println("userId", userId, "groupId", groupId)
+    LIMIT 20
+	`, where)
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()
+	args := []any{userId, groupId}
+	if offset != "" {
+		args = append(args, offset)
+	}
 
-	rows, err := stmt.Query(userId, groupId, offset)
+	rows, err := stmt.Query(args...)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return events, nil
-		}
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 2", err)}
 	}
 	defer rows.Close()
@@ -336,7 +342,6 @@ func (gRepo *GroupRepository) HanldeAction(actionChosen *models.UserEventAction)
 		&reaction_existed.UserId,
 		&reaction_existed.Action); err != nil {
 		if err == sql.ErrNoRows {
-			
 			return nil, nil
 		}
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v jjj", err)}
