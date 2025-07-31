@@ -53,6 +53,7 @@ func (s *ProfileService) UpdatePrivacy(userID string, requestorID string, wanted
 		if errJson != nil {
 			return nil, errJson
 		}
+		
 		errJson = NS.ToggleAllStaus(all, "accept", "follow-private")
 		if errJson != nil {
 			return nil, errJson
