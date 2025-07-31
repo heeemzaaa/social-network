@@ -153,7 +153,6 @@ export default function Chat() {
     }
   }, []);
 
-
   // for responive
   useEffect(() => {
     const usersBlock = usersBlockRef.current;

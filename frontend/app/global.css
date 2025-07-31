@@ -658,9 +658,14 @@ main.register {
     padding: 0;
     align-items: center;
 
-    p,
-    button {
+    .logo{
       display: none;
+    }
+    
+    aside .btn-danger {
+      span{
+        display: none;
+      }
     }
   }
 

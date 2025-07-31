@@ -12,6 +12,7 @@ import { timeAgo } from "@/app/_utils/time"
 import { HiOutlineClock } from "react-icons/hi2"
 
 export default function PostCard({
+    
     id,
     user,
     content,

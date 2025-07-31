@@ -1,5 +1,6 @@
 "use client"
 import { HiMiniHome, HiMiniUser, HiMiniUserGroup, HiChatBubbleOvalLeft } from "react-icons/hi2";
+import { TbLogout } from "react-icons/tb";
 import Button from '@/app/_components/button'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -15,7 +16,7 @@ export default function Navigation() {
 
   useEffect(() => {
     async function GetUserInfo() {
-      let res = await fetch("http://localhost:8080/api/loggedin", {credentials: 'include'})
+      let res = await fetch("http://localhost:8080/api/loggedin", { credentials: 'include' })
       let data = await res.json()
       setId(data.id)
     }
@@ -60,10 +61,11 @@ export default function Navigation() {
         }
       </nav>
       <form action={logout}>
-        <Button variant='btn-danger' type="submit">
+        <Button className={"logout-btn"} style={{ gap: "6px" }} variant='btn-danger' type="submit">
           <span>
             Log-out
           </span>
+          <TbLogout size={20} />
         </Button>
       </form>
     </aside>
