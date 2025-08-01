@@ -61,5 +61,5 @@ func (HN *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	utils.WriteDataBack(w, notifications) // handle speciale case if exist when notification accremante and container open and scroll //
+	utils.WriteDataBack(w, notifications)
 }

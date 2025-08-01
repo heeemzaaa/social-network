@@ -32,7 +32,7 @@ func (NS *NotificationService) UpdateService(data models.Unotif, user_id string)
 		return errJson
 	}
 
-	if errJson = NS.notifRepo.UpdateStatusById(notification.Id, data.Status); errJson != nil {
+	if errJson = NS.notifRepo.UpdateStatus(notification.Id, data.Status); errJson != nil {
 		return errJson
 	}
 	return nil

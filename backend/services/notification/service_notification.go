@@ -36,7 +36,7 @@ func (NS *NotificationService) ToggleAllSeenFalse(notifications []models.Notific
 
 func (NS *NotificationService) ToggleAllStaus(notifications []models.Notification, value, notifType string) *models.ErrorJson {
 	for _, notification := range notifications {
-		if errJson := NS.notifRepo.UpdateStatusById(notification.Id, value); errJson != nil {
+		if errJson := NS.notifRepo.UpdateStatus(notification.Id, value); errJson != nil {
 			return errJson
 		}
 	}

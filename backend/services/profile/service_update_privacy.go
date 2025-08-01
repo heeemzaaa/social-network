@@ -48,14 +48,13 @@ func (s *ProfileService) UpdatePrivacy(userID string, requestorID string, wanted
 			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 		}
 
-		// get all notifications that has type follow-private and toggle status "accept"
 		all, errJson := NS.GetAllNotificationByType(userID, "follow-private")
 		if errJson != nil {
-			return nil, errJson
+			return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 		}
 		errJson = NS.ToggleAllStaus(all, "accept", "follow-private")
 		if errJson != nil {
-			return nil, errJson
+			return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 		}
 
 		profile, err = s.GetProfileData(userID, requestorID)

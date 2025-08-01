@@ -15,8 +15,7 @@ func NewNotifRepository(db *sql.DB) *NotifRepository {
 	return &NotifRepository{db: db}
 }
 
-// select notification by notification_id
-func (repo *NotifRepository) SelectNotificationById(notif_id string) (models.Notification, *models.ErrorJson) {
+func (repo *NotifRepository) SelectNotificationById(notifId string) (models.Notification, *models.ErrorJson) {
 	query := `SELECT * FROM notifications WHERE notifId = ?`
 
 	stmt, err := repo.db.Prepare(query)
@@ -26,7 +25,7 @@ func (repo *NotifRepository) SelectNotificationById(notif_id string) (models.Not
 	defer stmt.Close()
 
 	var notification models.Notification
-	if err = stmt.QueryRow(notif_id).Scan(
+	if err = stmt.QueryRow(notifId).Scan(
 		&notification.Id,
 		&notification.RecieverId,
 		&notification.SenderId,
@@ -44,8 +43,9 @@ func (repo *NotifRepository) SelectNotificationById(notif_id string) (models.Not
 	return notification, nil
 }
 
+// select all notifications for reciever by sort first status [later-first], second sort by time
 // select all notifications by reciever_id
-func (repo *NotifRepository) SelectAllNotification(userid string) ([]models.Notification, *models.ErrorJson) {
+func (repo *NotifRepository) SelectAllNotification(userId string) ([]models.Notification, *models.ErrorJson) {
 	all := []models.Notification{}
 	query := `SELECT * FROM notifications WHERE recieverId = ?`
 
@@ -55,7 +55,7 @@ func (repo *NotifRepository) SelectAllNotification(userid string) ([]models.Noti
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(userid)
+	rows, err := stmt.Query(userId)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("cannot get all norification, err: %v", err)}
 	}
@@ -72,8 +72,8 @@ func (repo *NotifRepository) SelectAllNotification(userid string) ([]models.Noti
 	return all, nil
 }
 
-// select all notifications by userid and type
-func (repo *NotifRepository) SelectAllNotificationByType(userid, notifType string) ([]models.Notification, *models.ErrorJson) {
+// select all notifications by recieverId and notifType
+func (repo *NotifRepository) SelectAllNotificationByType(userId, notifType string) ([]models.Notification, *models.ErrorJson) {
 	all := []models.Notification{}
 	query := `SELECT * FROM notifications WHERE recieverId = ? AND notifType = ?`
 
@@ -83,7 +83,7 @@ func (repo *NotifRepository) SelectAllNotificationByType(userid, notifType strin
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(userid, notifType)
+	rows, err := stmt.Query(userId, notifType)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("cannot get all norification by type, err: %v", err)}
 	}
@@ -111,7 +111,8 @@ func (repo *NotifRepository) SelectAllNotificationByType(userid, notifType strin
 	return all, nil
 }
 
-// insert new notification
+
+// delete duplicate notification before insert notification with the same state
 func (repo *NotifRepository) InsertNewNotification(data models.Notification) *models.ErrorJson {
 	query := `
 		INSERT INTO notifications (
@@ -133,12 +134,16 @@ func (repo *NotifRepository) InsertNewNotification(data models.Notification) *mo
 }
 
 // update notification status
-func (repo *NotifRepository) UpdateStatusById(notif_id, status string) *models.ErrorJson {
+func (repo *NotifRepository) UpdateStatus(notifId, status string) *models.ErrorJson {
 	query := `UPDATE notifications SET notifStatus = ? WHERE notifId = ?`
 
-	// prepare !!!
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
 
-	_, err := repo.db.Exec(query, status, notif_id)
+	_, err = stmt.Exec(status, notifId)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
@@ -146,12 +151,16 @@ func (repo *NotifRepository) UpdateStatusById(notif_id, status string) *models.E
 }
 
 // update notification seen
-func (repo *NotifRepository) UpdateSeen(notif_id string) *models.ErrorJson {
+func (repo *NotifRepository) UpdateSeen(notifId string) *models.ErrorJson {
 	query := `UPDATE notifications SET seen = 1 WHERE notifId = ?`
 
-	// prepare !!!
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()	
 
-	_, err := repo.db.Exec(query, notif_id)
+	_, err = stmt.Exec(notifId)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
@@ -159,14 +168,17 @@ func (repo *NotifRepository) UpdateSeen(notif_id string) *models.ErrorJson {
 }
 
 // function check if user has notification containe false seen
-func (repo *NotifRepository) IsHasSeenFalse(user_id string) (bool, *models.ErrorJson) {
+func (repo *NotifRepository) IsHasSeenFalse(userId string) (bool, *models.ErrorJson) {
 	var exists bool
-
 	query := `SELECT EXISTS (SELECT 1 FROM notifications WHERE recieverId = ? AND seen = 0 LIMIT 1)`
 
-	// prepare !!!
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return false, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
 
-	err := repo.db.QueryRow(query, user_id).Scan(&exists)
+	err = stmt.QueryRow(userId).Scan(&exists)
 	if err != nil {
 		return false, &models.ErrorJson{Status: 500, Error: "", Message: fmt.Sprintf("%v", err)}
 	}
@@ -174,12 +186,16 @@ func (repo *NotifRepository) IsHasSeenFalse(user_id string) (bool, *models.Error
 }
 
 // delete duplicated follow notification
-func (repo *NotifRepository) DeleteFollowNotification(userID, authUserID, notifType string) *models.ErrorJson {
+func (repo *NotifRepository) DeleteFollowNotification(userId, authUserId, notifType string) *models.ErrorJson {
 	query := `DELETE FROM notifications WHERE senderId = ? AND recieverId = ? AND (notifType = "follow-private" OR notifType = "follow-public")`
 
-	// prepare !!!
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
 
-	_, err := repo.db.Exec(query, userID, authUserID)
+	_, err = stmt.Exec(userId, authUserId)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err), Message: "faild to delete notification"}
 	}
@@ -187,12 +203,16 @@ func (repo *NotifRepository) DeleteFollowNotification(userID, authUserID, notifT
 }
 
 // delete duplicated group notification
-func (repo *NotifRepository) DeleteGroupNotification(userID, authUserID, notifType, groupId string) *models.ErrorJson {
-
-	// prepare !!!
-
+func (repo *NotifRepository) DeleteGroupNotification(userId, authUserId, notifType, groupId string) *models.ErrorJson {
 	query := `DELETE FROM notifications WHERE senderId = ? AND recieverId = ? AND notifType = ? AND groupId = ?`
-	_, err := repo.db.Exec(query, userID, authUserID, notifType, groupId)
+
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(userId, authUserId, notifType, groupId)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err), Message: "faild to delete group notification"}
 	}
