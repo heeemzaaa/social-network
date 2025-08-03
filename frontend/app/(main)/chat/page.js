@@ -8,6 +8,7 @@ import UserList from "../_components/chat/user_list";
 import GroupList from "../_components/group_list";
 import { useUserContext } from "../_context/userContext";
 import { fetchMessages } from "../_components/fetchMessages";
+import { SlActionUndo } from "react-icons/sl";
 
 const emojis = ["😀", "😂", "😍", "🔥", "🥺", "👍", "❤️", "🎉"];
 
@@ -25,7 +26,7 @@ export default function Chat() {
   const bottomRef = useRef(null);
   const [view, setView] = useState("Users");
 
-  // fetch users 
+  // fetch users
   const fetchUsers = useCallback(async () => {
     try {
       const res = await fetch("http://localhost:8080/api/get-users/", {
@@ -44,7 +45,7 @@ export default function Chat() {
     }
   }, []);
 
-  // fetch groups 
+  // fetch groups
   const fetchGroup = useCallback(async () => {
     try {
       const res = await fetch("http://localhost:8080/api/get-groups/", {
@@ -69,13 +70,13 @@ export default function Chat() {
     fetchGroup();
   }, [fetchUsers, fetchGroup]);
 
-  // load targetUser messages 
+  // load targetUser messages
   useEffect(() => {
     if (!chatTarget?.ID || !authenticatedUser) return;
 
     const loadMessages = async () => {
       const msgs = await fetchMessages(chatTarget.ID, chatTarget.type);
-	  console.log("messages: ", msgs)
+      console.log("messages: ", msgs);
       if (!msgs) return;
 
       setMessages({
@@ -93,7 +94,6 @@ export default function Chat() {
 
     loadMessages();
   }, [chatTarget?.ID, chatTarget?.type, authenticatedUser]);
-
 
   // handle user click selection
   const handleUserClick = (user) => {
@@ -147,12 +147,9 @@ export default function Chat() {
   }, [messages]);
 
   const back = useCallback(() => {
-    if (usersBlock[0] && chatBlock[0]) {
-      usersBlock[0].style.display = "flex";
-      chatBlock[0].style.display = "none";
-    }
+    chatBlockRef.current.style.display = "none";
+    usersBlockRef.current.style.display = "flex";
   }, []);
-
 
   // for responive
   useEffect(() => {
@@ -216,20 +213,7 @@ export default function Chat() {
               onClick={back}
               title="Go back"
             >
-              <svg
-                fill="#1E201F"
-                height="5vh"
-                width="5vw"
-                viewBox="0 0 206.108 206.108"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M152.774,69.886H30.728l24.97-24.97c3.515-3.515,3.515-9.213,0-12.728c-3.516-3.516-9.213-3.515-12.729,0L2.636,72.523 
-        c-3.515,3.515-3.515,9.213,0,12.728l40.333,40.333c1.758,1.758,4.061,2.636,6.364,2.636c2.303,0,4.606-0.879,6.364-2.636 
-        c3.515-3.515,3.515-9.213,0-12.728l-24.97-24.97h122.046c19.483,0,35.334,15.851,35.334,35.334s-15.851,35.334-35.334,35.334
-        H78.531c-4.971,0-9,4.029-9,9s4.029,9,9,9h74.242c29.408,0,53.334-23.926,53.334-53.334S182.182,69.886,152.774,69.886z"
-                />
-              </svg>
+              <SlActionUndo />
             </div>
             <img src="/no-profile.png" alt="Profile" />
             <p className="text-lg font-semibold">{chatBodyName}</p>
