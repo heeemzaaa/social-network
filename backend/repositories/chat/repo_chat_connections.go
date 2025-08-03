@@ -9,7 +9,7 @@ import (
 
 // get the users that I have connection with
 func (repo *ChatRepository) GetUsers(authUserID string) ([]models.User, *models.ErrorJson) {
-	var users []models.User
+	users := []models.User{}
 
 	query := `WITH 
 cte_latest_interaction AS (
@@ -104,7 +104,7 @@ ORDER BY
 }
 
 func (repo *ChatRepository) GetGroups(authUserID string) ([]models.Group, *models.ErrorJson) {
-	var groups []models.Group
+	groups := []models.Group{}
 	query := `
 	WITH cte_latest_group_messages AS (
     SELECT
