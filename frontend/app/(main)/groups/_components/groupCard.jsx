@@ -15,7 +15,7 @@ export default function GroupCard({
     total_members,
     requested
 }) {
-    const router = useRouter()
+    const router = useRouter()   ///////////
 
     const [requestState, setRequestState] = useState(requested)
 

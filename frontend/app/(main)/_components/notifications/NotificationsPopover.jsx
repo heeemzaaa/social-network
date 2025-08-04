@@ -4,8 +4,9 @@ import { useNotification } from "../../_context/NotificationContext"; // Adjust 
 
 export default function NotificationsPopover() {
   const [notifications, setNotifications] = useState([]);
-  const [page, setPage] = useState(0);
+  const [notifId, setNotifId] = useState("0");
   const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const containerRef = useRef();
 
   const { showNotification } = useNotification();
@@ -71,12 +72,12 @@ export default function NotificationsPopover() {
 
       let response = await fetch("http://localhost:8080/api/notifications/update/", postRequest);
       let data = await response.json();
-      console.log(`Notification ${status} response:`, data);
+      console.log(`UPDATE ==> Notification ${status} response:`, data);
 
       // Show popup with response message
       showNotification({
-        Content: `Notification ${status}ed successfully: ${data?.Message}`,
-        Status: status === "accept" ? "success" : "error"
+        Content: `Notification ${status}ed successfully`,
+        Status: "success",
       });
 
       // Update local state
@@ -99,43 +100,60 @@ export default function NotificationsPopover() {
 
   // Load notifications
   useEffect(() => {
-    loadNotifications(page);
-  }, [page]);
+    loadNotifications(notifId);
+  }, [notifId]);
 
-  const loadNotifications = async (data_length) => {
+  const loadNotifications = async (value) => {
+    if (isLoading) return; // Prevent multiple simultaneous requests
+    
+    setIsLoading(true);
+    console.log("Loading notifications with ID:", value);
+    console.log("Current notifications count:", notifications.length);
+
     try {
-      const res = await fetch(`http://localhost:8080/api/notifications?Count=${data_length}`, {
+      const res = await fetch(`http://localhost:8080/api/notifications?Id=${value}`, {
         method: "GET",
         credentials: "include"
       });
       const data = await res.json();
 
-      console.log(data);
+      console.log("Received data:", data);
+      console.log("Received data length:", data.length);
 
-      if (data.length === 0) {
+      // Filter out duplicates based on ID
+      const existingIds = new Set(notifications.map(notif => notif.Id));
+      const newNotifications = data.filter(notif => !existingIds.has(notif.Id));
+      
+      console.log("New notifications to add:", newNotifications.length);
+
+      // Add new notifications to state
+      setNotifications((prev) => [...prev, ...newNotifications]);
+
+      // Check if we should stop loading more
+      // Stop if we received less than 10 items (indicating end of data)
+      if (data.length < 10) {
+        console.log("Stopping pagination - received less than 10 items");
         setHasMore(false);
-      } else {
-        // Filter out duplicates based on ID
-        setNotifications((prev) => {
-          const existingIds = new Set(prev.map(notif => notif.Id));
-          const newNotifications = data.filter(notif => !existingIds.has(notif.Id));
-          return [...prev, ...newNotifications];
-        });
       }
+
     } catch (error) {
       console.error("Error fetching notifications:", error);
       setHasMore(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Scroll handler
   const handleScroll = () => {
-    if (!containerRef.current || !hasMore) return;
+    if (!containerRef.current || !hasMore || isLoading) return;
 
     const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
 
     if (scrollTop + clientHeight >= scrollHeight - 10) {
-      setPage((prev) => prev + 10);
+      const lastNotificationId = notifications?.[notifications.length - 1]?.Id || "0";
+      console.log("Triggering next page load with ID:", lastNotificationId);
+      setNotifId(lastNotificationId);
     }
   };
 
@@ -146,7 +164,7 @@ export default function NotificationsPopover() {
       style={{ maxHeight: "350px", overflowY: "auto", width: "300px" }}
       className="bg-white shadow p-2 rounded"
     >
-      {notifications.length === 0 && <p>No notifications</p>}
+      {notifications.length === 0 && !isLoading && <p>No notifications</p>}
 
       {notifications.map((notif) => (
         <div
@@ -175,7 +193,10 @@ export default function NotificationsPopover() {
         </div>
       ))}
 
-      {hasMore && <p className="text-center text-gray-400 text-xs">Loading more...</p>}
+      {isLoading && <p className="text-center text-gray-400 text-xs">Loading...</p>}
+      {hasMore && !isLoading && notifications.length > 0 && (
+        <p className="text-center text-gray-400 text-xs">Scroll for more...</p>
+      )}
       {!hasMore && notifications.length > 0 && (
         <p className="text-center text-gray-400 text-xs">No more notifications</p>
       )}
