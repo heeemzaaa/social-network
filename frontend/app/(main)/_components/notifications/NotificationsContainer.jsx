@@ -10,6 +10,7 @@ export default function NotificationsPopover() {
   const containerRef = useRef();
 
   const { showNotification } = useNotification();
+  
 
   const notificationContent = (notification) => {
     if (notification.Status == "later") {
@@ -76,6 +77,7 @@ export default function NotificationsPopover() {
 
       // Show popup with response message
       showNotification({
+        Type: "success",
         Content: `Notification ${status}ed successfully`,
         Status: "success",
       });
@@ -93,7 +95,7 @@ export default function NotificationsPopover() {
       showNotification({
         Type: "error",
         Content: `Failed to ${status} notification: ${error.message}`,
-        Status: "error"
+        Status: "error",
       });
     }
   };
@@ -104,7 +106,7 @@ export default function NotificationsPopover() {
   }, [notifId]);
 
   const loadNotifications = async (value) => {
-    if (isLoading) return; // Prevent multiple simultaneous requests
+    if (isLoading) return;
     
     setIsLoading(true);
     console.log("Loading notifications with ID:", value);
