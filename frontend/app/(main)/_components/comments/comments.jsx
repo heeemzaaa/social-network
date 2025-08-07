@@ -1,6 +1,6 @@
+import "./comments.css"
 import React from 'react'
 import CommentsCard from './commentsCard'
-import "./comments.css"
 
 
 export default function Comments({ comments }) {

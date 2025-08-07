@@ -24,7 +24,6 @@ export default function GroupEventCard({
     going,
 }) {
     const [goingState, setGoingState] = useState(going)
-    console.log("goingState", going);
     const endpoint = `http://localhost:8080/api/groups/${group.group_id}/events/${event_id}/`
     async function handleGoingState(actionValue) {
         try {

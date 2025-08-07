@@ -9,9 +9,6 @@ import {
 } from "react-icons/hi2";
 import Popover from './popover';
 import { useModal } from '../_context/ModalContext';
-import CreatePost from './posts/createPost';
-import { createPostAction } from '@/app/_actions/posts';
-import CreateGroupForm from '../groups/_components/createGroupForm'
 import { useUserContext } from '../_context/userContext';
 
 export default function Header() {
@@ -49,18 +46,15 @@ export default function Header() {
       </div>
 
       <div className='flex gap-2'>
-        <Popover
-          trigger={
-            <div className="relative">
+
+            <Button variant='btn-icon ' className="relative" onClick={()=>openModal(<NotificationsPopover />)}>
               <HiBell size={24} />
               {hasNewNotification && (
                 <span className="notification-badge"></span>
               )}
-            </div>
-          }
-        >
-          <NotificationsPopover />
-        </Popover>
+            </Button>
+        
+
       </div>
     </header>
   )

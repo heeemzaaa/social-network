@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./chat.css";
 import Button from "@/app/_components/button";
 import { HiMiniFaceSmile, HiPaperAirplane } from "react-icons/hi2";
-import UserList from "../_components/chat/user_list";
+import UserList from "../_components/chat/userList";
 import GroupList from "../_components/group_list";
 import { useUserContext } from "../_context/userContext";
 import { fetchMessages } from "../_components/fetchMessages";

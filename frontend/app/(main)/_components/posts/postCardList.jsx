@@ -1,7 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
 import PostCard from "./postCard";
 import { useModal } from "../../_context/ModalContext";
+import {
+    useEffect,
+    useState
+} from "react";
 
 export default function PostCardList() {
     const [posts, setPosts] = useState([])

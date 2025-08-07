@@ -1,6 +1,10 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
-import { useNotification } from "../../_context/NotificationContext"; // Adjust path to match your project
+import { useNotification } from "../../_context/NotificationContext";
+import {
+  useEffect,
+  useState,
+  useRef
+} from "react";
 
 export default function NotificationsPopover() {
   const [notifications, setNotifications] = useState([]);
@@ -32,7 +36,7 @@ export default function NotificationsPopover() {
         case "group-invitation":
           return `you are now a member of ${notification.GroupName} group`
         case "group-event":
-          return `don't forget to go to ${notification.SenderFullName} event at ${notification.GroupName}` 
+          return `don't forget to go to ${notification.SenderFullName} event at ${notification.GroupName}`
       }
     } else if (notification.Status == "reject") {
       switch (notification.Type) {
@@ -43,7 +47,7 @@ export default function NotificationsPopover() {
         case "group-invitation":
           return `you rejected ${notification.SenderFullName} request to join ${notification.GroupName} group`
         case "group-event":
-          return `you refused to go to ${notification.SenderFullName} event at ${notification.GroupName}` 
+          return `you refused to go to ${notification.SenderFullName} event at ${notification.GroupName}`
       }
     }
     return "content information !!"

@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react'
 import "./comments.css"
+import { useEffect } from 'react'
 import { MdPermMedia } from "react-icons/md";
 import { FaPaperPlane } from "react-icons/fa";
-
 import { useActionState } from 'react'
 import { commentPostAction } from '@/app/_actions/posts'
 

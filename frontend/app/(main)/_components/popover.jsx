@@ -1,12 +1,12 @@
 "use client"
 
 import Button from "@/app/_components/button";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export default function Popover({ trigger, children }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const triggerRef = useRef(null);
-  const popoverRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false)
+  const triggerRef = useRef(null)
+  const popoverRef = useRef(null)
 
   // Toggle popover visibility
   const togglePopover = () => {

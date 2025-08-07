@@ -1,7 +1,7 @@
-import Image from 'next/image'
 import React from 'react'
 
 export default function Avatar({ img, size }) {
+
   let imgContainer = {
     width: `${size}px`,
     height: `${size}px`,

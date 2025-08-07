@@ -1,4 +1,3 @@
-import { useState } from "react"
 import "./profile.css"
 import { useModal } from "@/app/(main)/_context/ModalContext"
 import UsersContainer from "../profileConnections/followersContainer"

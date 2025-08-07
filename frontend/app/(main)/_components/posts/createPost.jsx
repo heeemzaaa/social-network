@@ -1,7 +1,7 @@
-import React, { useActionState, useState, useEffect, use } from 'react';
 import styles from "@/app/page.module.css"
 import { useModal } from '../../_context/ModalContext';
 import { useUserContext } from '../../_context/userContext';
+import { useActionState, useState, useEffect } from 'react';
 
 const initialPostData = {
     title: '',
@@ -10,12 +10,12 @@ const initialPostData = {
     selectedFollowers: []
 };
 
-export default function CreatePost({postAction}) {
+export default function CreatePost({ postAction }) {
     const [state, action] = useActionState(postAction, {});
     const [data, setData] = useState(initialPostData);
     const [followers, setFollowers] = useState([]);
     const [loadingFollowers, setLoadingFollowers] = useState(true);
-    const {authenticatedUser} = useUserContext()
+    const { authenticatedUser } = useUserContext()
 
     const { setModalData, closeModal } = useModal()
 
@@ -70,7 +70,7 @@ export default function CreatePost({postAction}) {
                 : followers.map(f => f.id)
         }));
     };
-    
+
     return (
         <form noValidate action={action} className={`${styles.form} glass-bg`}>
             <div className="flex gap-3">

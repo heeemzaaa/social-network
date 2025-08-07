@@ -1,14 +1,14 @@
 'use client'
 
-import React, {  useEffect, useState } from "react"
+import "./_components/profileData/profile.css"
+import Button from "@/app/_components/button"
 import InfosDiv from "./_components/profileData/userInfo"
 import AboutUser from "./_components/profileData/abouUser"
 import UserPosts from "./_components/profilePosts/userPosts"
-import { FaLockOpen, FaLock } from "react-icons/fa"
-import { RiUserFollowFill, RiUserUnfollowFill } from "react-icons/ri"
 import { MdPending } from "react-icons/md"
-import Button from "@/app/_components/button"
-import "./_components/profileData/profile.css"
+import { FaLockOpen, FaLock } from "react-icons/fa"
+import React, {  useEffect, useState } from "react"
+import { RiUserFollowFill, RiUserUnfollowFill } from "react-icons/ri"
 
 export default function Page({ params }) {
   const [userInfos, setUserInfos] = useState(null)

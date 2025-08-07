@@ -1,10 +1,6 @@
-// app/error.js
 "use client";
 
-import Button from "../_components/button";
-
 // Error components must be client components
-
 export default function Error({ error, reset }) {
     return (
         <main className="p-4">

@@ -1,6 +1,4 @@
 import Logo from '@/app/_components/logo'
-
-import React from 'react'
 import RegisterForm from './registerForm';
 
 export default function Register() {

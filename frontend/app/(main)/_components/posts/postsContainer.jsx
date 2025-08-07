@@ -1,7 +1,11 @@
 "use client"
 
-import { memo, useEffect, useState } from "react";
 import PostCard from "./postCard";
+import {
+    memo,
+    useEffect,
+    useState
+} from "react";
 
 export function PostsContainer({ post }) {
     const [posts, setPosts] = useState([])
@@ -19,13 +23,13 @@ export function PostsContainer({ post }) {
                     return;
                 }
                 const data = await resp.json();
-                setPosts(data); 
+                setPosts(data);
             } catch (error) {
                 console.log("error fetching posts", error);
             }
         }
 
-        fetchPosts(); 
+        fetchPosts();
     }, []);
 
     useEffect(() => {

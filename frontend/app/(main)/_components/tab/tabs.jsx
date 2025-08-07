@@ -1,8 +1,8 @@
 // components/Tabs.jsx
 import "./style.css";
-import React, { useEffect, useState } from "react";
 import Tab from "./tab";
 import TabContent from "./tabContent";
+import React, { useState } from "react";
 
 export default function Tabs({ children, className }) {
     const [activeTab, setActiveTab] = useState(0);
