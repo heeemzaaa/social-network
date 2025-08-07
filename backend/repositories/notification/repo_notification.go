@@ -3,6 +3,7 @@ package notification
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	"social-network/backend/models"
 )
@@ -51,6 +52,8 @@ func (repo *NotifRepository) SelectAllNotification(userId string) ([]models.Noti
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
+		fmt.Println("****************************************************************")
+		log.Println("Error preparing the query to fetch the notifications: ", err)
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
@@ -69,6 +72,7 @@ func (repo *NotifRepository) SelectAllNotification(userId string) ([]models.Noti
 		}
 		all = append(all, notification)
 	}
+
 	return all, nil
 }
 
@@ -110,7 +114,6 @@ func (repo *NotifRepository) SelectAllNotificationByType(userId, notifType strin
 	}
 	return all, nil
 }
-
 
 // delete duplicate notification before insert notification with the same state
 func (repo *NotifRepository) InsertNewNotification(data models.Notification) *models.ErrorJson {
@@ -158,7 +161,7 @@ func (repo *NotifRepository) UpdateSeen(notifId string) *models.ErrorJson {
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
-	defer stmt.Close()	
+	defer stmt.Close()
 
 	_, err = stmt.Exec(notifId)
 	if err != nil {

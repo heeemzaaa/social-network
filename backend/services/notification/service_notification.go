@@ -55,6 +55,7 @@ func (NS *NotificationService) GetAllNotificationByType(user_id, notifType strin
 	if err != nil {
 		return nil, err
 	}
+
 	return all, nil
 }
 

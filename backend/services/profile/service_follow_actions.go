@@ -60,7 +60,7 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 		data.Type = "follow-public"
 		errJson := NS.PostService(&data)
 		if errJson != nil {
-			return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
+			return nil, errJson
 		}
 
 	default:

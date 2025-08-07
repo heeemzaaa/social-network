@@ -10,7 +10,7 @@ import (
 // here we accept all the requests where the userID
 // change its visibility to public only
 func (repo *ProfileRepository) AcceptAllrequest(userID string) *models.ErrorJson {
-	var users []models.User
+	users := []models.User{}
 	query := `SELECT requestorID FROM follow_requests WHERE userID = ?`
 
 	stmt, err := repo.db.Prepare(query)

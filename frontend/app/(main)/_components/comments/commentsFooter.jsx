@@ -15,7 +15,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
         avatar: '',
         success: false,
         createdAt: '',
-        commentImage: '',
+        imagePath: '',
     };
 
     const [state, formAction] = useActionState(commentPostAction, initialState)
@@ -28,7 +28,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 fullName: state.fullName,
                 userImage: state.avatar,
                 createdAt: new Date(),
-                ImagePath: state.img,
+                imagePath: state.imagePath,
             };
             console.log('newComment', newComment)
             setComments(prev => [newComment, ...prev]);
@@ -38,7 +38,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
             }
         }
     }, [state]); // This will run every time state changes (after submission)
-
+    console.log('state', state)
     return (
         <form
             action={formAction}
@@ -62,7 +62,6 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 name="content"
                 className="w-full p1 rounded-md"
                 placeholder="Write a comment..."
-                required
             />
 
             <button type="submit" className='submit_comment'>
