@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Button from '../../_components/button'
-import NotificationsPopover from './notifications/NotificationsPopover'
+import NotificationsPopover from './notifications/NotificationsContainer'
 import {
   HiBell,
   HiChatBubbleOvalLeftEllipsis,
@@ -16,8 +16,9 @@ import { useUserContext } from '../_context/userContext';
 
 export default function Header() {
   const { openModal } = useModal()
-  const [hasNewNotification, setHasNewNotification] = useState(false)
-  const { authenticatedUser } = useUserContext()
+  // const [hasNewNotification, setHasNewNotification] = useState(false)
+  // const { authenticatedUser } = useUserContext()
+  const { authenticatedUser, hasNewNotification, setHasNewNotification } = useUserContext()
 
   // Fetch notification seen status
   useEffect(() => {

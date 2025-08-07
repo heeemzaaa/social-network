@@ -10,7 +10,7 @@ export default function MainLayout({ children }) {
   return (
     <UserProvider>
       <ModalProvider>
-        <NotificationProvider> {/* wrap everything */}
+        <NotificationProvider> {/* */} 
           <Header />
           <Navigation />
           {children}

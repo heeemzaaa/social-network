@@ -10,6 +10,8 @@ export default function UserProvider({ children }) {
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
   const socketRef = useRef(null);
 
+  const [hasNewNotification, setHasNewNotification] = useState(false); //
+
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
@@ -50,6 +52,15 @@ export default function UserProvider({ children }) {
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+
+        if (data.type === "notification") { // type notification
+          console.log("New notification received:", data.content);
+
+          if (data.seen === "true") setHasNewNotification(true);
+          else if (data.seen === "false") setHasNewNotification(false);
+          
+          return;
+        }
 
         if (
           typeof data.content === "string" &&
@@ -147,6 +158,8 @@ export default function UserProvider({ children }) {
         messages,
         setMessages,
         authenticatedUser,
+        hasNewNotification,       // add this
+        setHasNewNotification     // add this
       }}
     >
       {children}

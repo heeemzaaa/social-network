@@ -50,6 +50,10 @@ func (NS *NotificationService) PostService(data *models.Notif) *models.ErrorJson
 	if errJson != nil {
 		return errJson
 	}
+
+	if errJson := NS.broadcast(notification.RecieverId); errJson != nil {
+		return errJson
+	}
 	return nil
 }
 

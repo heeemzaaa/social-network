@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { useNotification } from "../../_context/NotificationContext"; // Adjust path to match your project
+import { useNotification } from "../../_context/NotificationContext";
 
 export default function NotificationsPopover() {
   const [notifications, setNotifications] = useState([]);
@@ -10,47 +10,44 @@ export default function NotificationsPopover() {
   const containerRef = useRef();
 
   const { showNotification } = useNotification();
-  
 
   const notificationContent = (notification) => {
     if (notification.Status == "later") {
       switch (notification.Type) {
         case "follow-private":
-          return `${notification.SenderFullName} send a follow request`
+          return `${notification.SenderFullName} send a follow request`;
         case "group-join":
-          return `${notification.SenderFullName} would like to join ${notification.GroupName} group`
+          return `${notification.SenderFullName} would like to join ${notification.GroupName} group`;
         case "group-invitation":
-          return `${notification.SenderFullName} send a request to join ${notification.GroupName} group`
+          return `${notification.SenderFullName} send a request to join ${notification.GroupName} group`;
       }
     } else if (notification.Status == "accept") {
       switch (notification.Type) {
         case "follow-private":
-          return `${notification.SenderFullName} follow you`
+          return `${notification.SenderFullName} follow you`; // ne9der negle3ha takhod l9ima dyal li te7tha
         case "follow-public":
-          return `${notification.SenderFullName} follow you`
+          return `${notification.SenderFullName} follow you`;
         case "group-join":
-          return `${notification.SenderFullName} join your ${notification.GroupName} group`
+          return `${notification.SenderFullName} join your ${notification.GroupName} group`;
         case "group-invitation":
-          return `you are now a member of ${notification.GroupName} group`
+          return `you are now a member of ${notification.GroupName} group`;
       }
     } else if (notification.Status == "reject") {
       switch (notification.Type) {
         case "follow-private":
-          return `you rejected ${notification.SenderFullName} follow request`
+          return `you rejected ${notification.SenderFullName} follow request`;
         case "group-join":
-          return `you refused ${notification.SenderFullName} to join your ${notification.GroupName} group`
+          return `you refused ${notification.SenderFullName} to join your ${notification.GroupName} group`;
         case "group-invitation":
-          return `you rejected ${notification.SenderFullName} request to join ${notification.GroupName} group`
+          return `you rejected ${notification.SenderFullName} request to join ${notification.GroupName} group`;
       }
     } else if (notification.Status == "none" && notification.Type == "group-event") {
-      return `${notification.SenderFullName} create event at ${notification.GroupName} group`
+      return `${notification.SenderFullName} create event at ${notification.GroupName} group`;
     }
-    return "content information not found !!"
-  }
+    return "content information not found !!";
+  };
 
-  // Handle accept/reject notification
   const handleNotificationAction = async (notification, status) => {
-
     if (!notification.Id) {
       console.error("No notification ID found. Available fields:", Object.keys(notification));
       return;
@@ -65,7 +62,7 @@ export default function NotificationsPopover() {
         },
         body: JSON.stringify({
           NotifId: notification.Id,
-          Status: status, // "accept" or "reject"
+          Status: status,
           Type: notification.Type,
           GroupId: notification.GroupId,
         })
@@ -75,14 +72,11 @@ export default function NotificationsPopover() {
       let data = await response.json();
       console.log(`UPDATE ==> Notification ${status} response:`, data);
 
-      // Show popup with response message
       showNotification({
-        Type: "success",
         Content: `Notification ${status}ed successfully`,
         Status: "success",
       });
 
-      // Update local state
       setNotifications(prev =>
         prev.map(notif =>
           notif.Id === notification.Id ? { ...notif, Status: status } : notif
@@ -93,25 +87,20 @@ export default function NotificationsPopover() {
       console.error(`Error ${status}ing notification:`, error);
 
       showNotification({
-        Type: "error",
         Content: `Failed to ${status} notification: ${error.message}`,
         Status: "error",
       });
     }
   };
 
-  // Load notifications
   useEffect(() => {
     loadNotifications(notifId);
   }, [notifId]);
 
   const loadNotifications = async (value) => {
     if (isLoading) return;
-    
-    setIsLoading(true);
-    console.log("Loading notifications with ID:", value);
-    console.log("Current notifications count:", notifications.length);
 
+    setIsLoading(true);
     try {
       const res = await fetch(`http://localhost:8080/api/notifications?Id=${value}`, {
         method: "GET",
@@ -119,22 +108,12 @@ export default function NotificationsPopover() {
       });
       const data = await res.json();
 
-      console.log("Received data:", data);
-      console.log("Received data length:", data.length);
-
-      // Filter out duplicates based on ID
       const existingIds = new Set(notifications.map(notif => notif.Id));
       const newNotifications = data.filter(notif => !existingIds.has(notif.Id));
-      
-      console.log("New notifications to add:", newNotifications.length);
 
-      // Add new notifications to state
       setNotifications((prev) => [...prev, ...newNotifications]);
 
-      // Check if we should stop loading more
-      // Stop if we received less than 10 items (indicating end of data)
       if (data.length < 10) {
-        console.log("Stopping pagination - received less than 10 items");
         setHasMore(false);
       }
 
@@ -146,7 +125,6 @@ export default function NotificationsPopover() {
     }
   };
 
-  // Scroll handler
   const handleScroll = () => {
     if (!containerRef.current || !hasMore || isLoading) return;
 

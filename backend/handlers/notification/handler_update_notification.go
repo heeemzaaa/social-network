@@ -15,7 +15,7 @@ type UpdateHandler struct {
 	NS *ns.NotificationService
 }
 
-func NewUpdateHandler(NS *ns.NotificationService) *UpdateHandler {
+func NewUpdateNotificationHandler(NS *ns.NotificationService) *UpdateHandler {
 	return &UpdateHandler{NS: NS}
 }
 

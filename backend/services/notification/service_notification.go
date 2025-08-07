@@ -1,6 +1,7 @@
 package notification
 
 import (
+	sc "social-network/backend/handlers/chat"
 	"social-network/backend/models"
 	ra "social-network/backend/repositories/auth"
 	rg "social-network/backend/repositories/group"
@@ -14,14 +15,16 @@ type NotificationService struct {
 	notifRepo   *rn.NotifRepository
 	profileRepo *rp.ProfileRepository
 	groupRepo   *rg.GroupRepository
+	chatServer  *sc.ChatServer //
 }
 
-func NewNotifService(notifRepo *rn.NotifRepository, authRepo *ra.AuthRepository, profileRepo *rp.ProfileRepository, groupRepo *rg.GroupRepository) *NotificationService {
+func NewNotifService(notifRepo *rn.NotifRepository, authRepo *ra.AuthRepository, profileRepo *rp.ProfileRepository, groupRepo *rg.GroupRepository, chatServer *sc.ChatServer) *NotificationService {
 	return &NotificationService{
 		notifRepo:   notifRepo,
 		authRepo:    authRepo,
 		profileRepo: profileRepo,
 		groupRepo:   groupRepo,
+		chatServer:  chatServer, //
 	}
 }
 
@@ -30,6 +33,10 @@ func (NS *NotificationService) ToggleAllSeenFalse(notifications []models.Notific
 		if errJson := NS.notifRepo.UpdateSeen(notification.Id); errJson != nil {
 			return errJson
 		}
+	}
+
+	if errJson := NS.broadcast(notifications[0].RecieverId); errJson != nil {
+		return errJson
 	}
 	return nil
 }
@@ -61,13 +68,28 @@ func (NS *NotificationService) DeleteService(recieverId, senderId, notifType, gr
 			return errJson
 		}
 	}
+
+	NS.broadcast(recieverId)
 	return nil
 }
 
-func (NS *NotificationService) IsHasSeenFalse(user_id string) (bool, *models.ErrorJson) {
-	isValid, errJson := NS.notifRepo.IsHasSeenFalse(user_id)
+func (NS *NotificationService) IsHasSeenFalse(userId string) (bool, *models.ErrorJson) {
+	seen, errJson := NS.notifRepo.IsHasSeenFalse(userId)
 	if errJson != nil {
 		return false, errJson
 	}
-	return isValid, nil
+	return seen, nil
+}
+
+func (NS *NotificationService) broadcast(recieverId string) *models.ErrorJson {
+	hasSeen, errJson := NS.IsHasSeenFalse(recieverId)
+	if errJson != nil {
+		return errJson
+	}
+	if hasSeen {
+		errJson = NS.chatServer.SendNotificationToUser(recieverId, "has new notification", "true")
+	} else {
+		errJson = NS.chatServer.SendNotificationToUser(recieverId, "dont have new notification", "false")
+	}
+	return errJson
 }
