@@ -97,6 +97,9 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
         setPage((prevPage) => prevPage + 1);
     };
 
+
+    console.log("data", data)
+
     if (isAccessible?.status == 403) {
         return (
             <section className='posts_container w-full h-full flex-col justify-center align-center'>
@@ -114,10 +117,15 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
         />
     );
 
+    data.map((event)=> {
+        console.log(event, event.event_id)
+    })
+
     return (
         <div className="list-container flex flex-wrap gap-2 align-center justify-center overflow-y-auto h-full">
-            {data.map((event, index) => (
-                <GroupEventCard {...event} key={index} />
+            {data.map((event) => (
+
+                <GroupEventCard {...event} key={event.event_id} />
             ))}
             {isLoading && <p className="text-center w-full">Loading...</p>}
             {hasMore && !isLoading && (
