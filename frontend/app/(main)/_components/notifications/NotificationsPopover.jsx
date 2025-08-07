@@ -117,9 +117,10 @@ export default function NotificationsPopover() {
         setHasMore(false);
       } else {
         // Filter out duplicates based on ID
+        console.log("data filter", data);
         setNotifications((prev) => {
           const existingIds = new Set(prev.map(notif => notif.Id));
-          const newNotifications = data.filter(notif => !existingIds.has(notif.Id));
+          const newNotifications = data?.filter(notif => !existingIds.has(notif.Id));
           return [...prev, ...newNotifications];
         });
       }

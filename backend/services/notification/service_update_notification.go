@@ -1,8 +1,6 @@
 package notification
 
 import (
-	"fmt"
-	"log"
 	"social-network/backend/models"
 	GR "social-network/backend/repositories/group"
 	"social-network/backend/repositories/notification"
@@ -26,9 +24,6 @@ func NewNotifServiceUpdate(repo *notification.NotifRepository, repo2 *profile.Pr
 }
 
 func (NUS *NotificationServiceUpdate) UpdateService(data models.Unotif, user_id string) *models.ErrorJson {
-	log.Println("START UPDATE SERVICE ----- REQUEST DATA = ", data)
-	fmt.Println("dataaaa", data.NotifId)
-
 	notification, errJson := NUS.repo.SelectNotification(data.NotifId)
 	if errJson != nil {
 		return models.NewErrorJson(errJson.Status, errJson.Error, errJson.Message)
@@ -71,7 +66,6 @@ func (NUS *NotificationServiceUpdate) UpdateService(data models.Unotif, user_id 
 }
 
 func (NUS *NotificationServiceUpdate) UpdateFollowPrivateProfile(data models.Unotif, notification models.Notification) *models.ErrorJson {
-
 	switch data.Status {
 	case "accept":
 		err := NUS.repo2.AcceptedRequest(notification.RecieverId, notification.SenderId)

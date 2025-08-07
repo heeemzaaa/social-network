@@ -2,17 +2,14 @@ package group
 
 import (
 	"errors"
-	"fmt"
 
 	"social-network/backend/models"
 	"social-network/backend/utils"
 )
 
 func (service *GroupService) ValidateGroupTitle(title string) error {
-	fmt.Println("hhhhhhhhhhhhhhhhhhhhhhhhhh")
 	_, has_title, _ := service.gRepo.GetItem("groups", "title", title)
 	if has_title {
-		fmt.Println("heeeeeeeeeeeeeeeere")
 		return errors.New("title already in use")
 	}
 

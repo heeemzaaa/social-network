@@ -38,7 +38,7 @@ export default function GroupCardList({ filter }) {
                 if (result.length === 0) {
                     setHasMore(false)
                 } else {
-                    if (result.length < 6) setHasMore(false)
+                    if (result.length < 3) setHasMore(false)
                     setData((prevData) => [...prevData, ...result])
                 }
             } catch (err) {
@@ -85,6 +85,7 @@ export default function GroupCardList({ filter }) {
     useEffect(() => {
         if (page > 0) {
             let id = data[data.length - 1]?.group_id 
+            console.log("id for the group offset");
             fetchData(id)
         }
     }, [page])

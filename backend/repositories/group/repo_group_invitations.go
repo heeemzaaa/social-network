@@ -9,7 +9,6 @@ import (
 )
 
 func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite string) *models.ErrorJson {
-	fmt.Println(userId, groupId, userToInvite)
 	invitationID := utils.NewUUID()
 	query := `
 	INSERT INTO group_requests (requestID, senderID, receiverID, groupID, typeRequest)
@@ -17,23 +16,19 @@ func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite 
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(invitationID, userId, userToInvite, groupId, "invitation-request")
+	_, err = stmt.Exec(invitationID, userId, userToInvite, groupId, "invitation-request")
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
-	}
-	if count, _ := res.RowsAffected(); count == 0 {
-		return &models.ErrorJson{Status: 404, Error: "Invitation not found"}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	return nil
 }
 
 func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId string, invitedUser *models.User) *models.ErrorJson {
-	fmt.Println("userId: ", userId, "groupId: ", groupId, "invited user: ", invitedUser.Id)
 	query := `
 	DELETE FROM group_requests WHERE 
 	senderID = ? AND receiverID = ? AND groupID = ? AND typeRequest = ? 

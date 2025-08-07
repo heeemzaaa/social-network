@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 
 	"social-network/backend/middleware"
 	"social-network/backend/models"
@@ -54,7 +53,7 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: err.Error()})
 		return
 	}
-	event.EventCreator.Id, event.GroupId = userID.String(), groupID.String()
+	event.EventCreator.Id, event.Group.GroupId = userID.String(), groupID.String()
 	event, errJson := gEventHandler.gService.AddGroupEvent(event)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
@@ -75,10 +74,13 @@ func (gEventHandler *GroupEventHandler) GetGroupEvents(w http.ResponseWriter, r 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	offset, errOffset := strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
-	if errOffset != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Incorrect Offset Format!"})
-		return
+	offset := r.URL.Query().Get("offset")
+	fmt.Printf("offset: %v\n", offset)
+	if offset != "0" {
+		if errUUID := utils.IsValidUUID(offset); errUUID != nil {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", errUUID)})
+			return
+		}
 	}
 
 	events, errJson := gEventHandler.gService.GetGroupEvents(groupID.String(), userID.String(), offset)

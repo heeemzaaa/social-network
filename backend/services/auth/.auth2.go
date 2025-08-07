@@ -70,7 +70,7 @@ func (s *AuthService) Logout(session *models.Session) *models.ErrorJson {
 }
 
 func (s *AuthService) Register(user *models.User, file multipart.File) *models.ErrorJson {
-	fmt.Printf("===> Inside the register service.\n - user: %v\n - file: %v\n", user, file)
+	
 
 	// data validation
 	jsonError := s.validateUserData(user, file)

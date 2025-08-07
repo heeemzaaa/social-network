@@ -41,7 +41,7 @@ func (s *GroupService) AddPost(post *models.PostGroup) (*models.PostGroup, *mode
 	return post_created, nil
 }
 
-func (s *GroupService) GetPosts(userId, groupId string, offset int) ([]models.PostGroup, *models.ErrorJson) {
+func (s *GroupService) GetPosts(userId, groupId, offset string) ([]models.PostGroup, *models.ErrorJson) {
 	if errJson := s.gRepo.GetGroupById(groupId); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
@@ -49,7 +49,7 @@ func (s *GroupService) GetPosts(userId, groupId string, offset int) ([]models.Po
 	if errMembership := s.CheckMembership(groupId, userId); errMembership != nil {
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
-	posts, err := s.gRepo.GetPosts(userId,groupId, offset)
+	posts, err := s.gRepo.GetPosts(userId, groupId, offset)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Message: err.Message, Error: err.Error}
 	}

@@ -57,7 +57,7 @@ func (gRepo *GroupRepository) CreateComment(comment *models.CommentGroup) (*mode
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()
-	
+
 	if err := stmt.QueryRow(commentId,
 		comment.PostId,
 		comment.GroupId,
@@ -84,9 +84,19 @@ func (gRepo *GroupRepository) CreateComment(comment *models.CommentGroup) (*mode
 }
 
 // But hna comments dyal wa7d l post specific
-func (gRepo *GroupRepository) GetComments(userId, postId, groupId string, offset int) ([]models.CommentGroup, *models.ErrorJson) {
+func (gRepo *GroupRepository) GetComments(userId, postId, groupId, offset string) ([]models.CommentGroup, *models.ErrorJson) {
 	comments := []models.CommentGroup{}
-	query := `
+	var where string
+	if offset == "0" {
+		where = `WHERE group_posts_comments.groupID = ?
+				AND group_posts_comments.postID = ?`
+	} else {
+		where = `WHERE group_posts_comments.groupID = ?
+				 AND group_posts_comments.postID = ? AND group_posts_comments.createdAt < (
+			select createdAt from group_posts_comments WHERE commentID = ? 
+		)`
+	}
+	query := fmt.Sprintf(`
 	WITH
     cte_likes as (
         select
@@ -118,16 +128,17 @@ func (gRepo *GroupRepository) GetComments(userId, postId, groupId string, offset
 		AND group_reactions.userID = ?
 		AND group_reactions.reaction = 1
 		AND group_reactions.entityType = "comment"
-	WHERE
-		group_posts_comments.groupID = ?
-		AND group_posts_comments.postID = ?
+	%v
 	ORDER BY
 		group_posts_comments.createdAt DESC
 	LIMIT
-		20
-	OFFSET
-		?;
-	`
+		3
+	`, where)
+
+	args := []any{userId, groupId, postId}
+	if offset != "0" {
+		args = append(args, offset)
+	}
 
 	// need to prepare the query to see the problem fiiin
 	stmt, err := gRepo.db.Prepare(query)
@@ -136,7 +147,7 @@ func (gRepo *GroupRepository) GetComments(userId, postId, groupId string, offset
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(userId, groupId, postId, offset)
+	rows, err := stmt.Query(args...)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}

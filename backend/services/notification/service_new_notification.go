@@ -1,10 +1,10 @@
 package notification
 
 import (
-	"fmt"
+	"time"
+
 	"social-network/backend/models"
 	"social-network/backend/utils"
-	"time"
 )
 
 // insert new notification after event hapen
@@ -39,22 +39,19 @@ func (NS *NotificationService) PostService(data models.Notif) *models.ErrorJson 
 
 // - follow private profile request
 func (NS *NotificationService) FollowPrivateProfile(data models.Notif) *models.ErrorJson {
-
 	if err := NS.repo.InsertNewNotification(models.Notification{
-		Id: utils.NewUUID(),
-		SenderId: data.SenderId,
-		RecieverId: data.RecieverId,
-		GroupId: "none",
-		EventId: "none",
-		Type: data.Type,
+		Id:             utils.NewUUID(),
+		SenderId:       data.SenderId,
+		RecieverId:     data.RecieverId,
+		GroupId:        "none",
+		EventId:        "none",
+		Type:           data.Type,
 		SenderFullName: data.SenderFullName,
-		GroupName: "none",
-		Status: "later",
-		Seen: false,
-		CreatedAt: time.Now(),
-
+		GroupName:      "none",
+		Status:         "later",
+		Seen:           false,
+		CreatedAt:      time.Now(),
 	}); err != nil {
-		fmt.Println("error private = insertion ---------", err)
 		return err
 	}
 	return nil
@@ -65,20 +62,18 @@ func (NS *NotificationService) FollowPublicProfile(data models.Notif) *models.Er
 	///////////////////////////////////////////////////  golna madich nkhedmo 3la had l case //////////
 
 	if err := NS.repo.InsertNewNotification(models.Notification{
-		Id: utils.NewUUID(),
-		SenderId: data.SenderId,
-		RecieverId: data.RecieverId,
-		GroupId: "none",
-		EventId: "none",
-		Type: data.Type,
+		Id:             utils.NewUUID(),
+		SenderId:       data.SenderId,
+		RecieverId:     data.RecieverId,
+		GroupId:        "none",
+		EventId:        "none",
+		Type:           data.Type,
 		SenderFullName: data.SenderFullName,
-		GroupName: "none",
-		Status: "later",
-		Seen: false,
-		CreatedAt: time.Now(),
-
+		GroupName:      "none",
+		Status:         "later",
+		Seen:           false,
+		CreatedAt:      time.Now(),
 	}); err != nil {
-		fmt.Println("error public = insertion ---------", err)
 		return err
 	}
 	return nil
@@ -86,22 +81,19 @@ func (NS *NotificationService) FollowPublicProfile(data models.Notif) *models.Er
 
 // - group invitation request
 func (NS *NotificationService) GroupInvitationRequest(data models.Notif) *models.ErrorJson {
-
 	if errJson := NS.repo.InsertNewNotification(models.Notification{
-		Id: utils.NewUUID(),
-		SenderId: data.SenderId,
-		RecieverId: data.RecieverId,
-		GroupId: data.GroupId,
-		EventId: "none",
-		Type: data.Type,
+		Id:             utils.NewUUID(),
+		SenderId:       data.SenderId,
+		RecieverId:     data.RecieverId,
+		GroupId:        data.GroupId,
+		EventId:        "none",
+		Type:           data.Type,
 		SenderFullName: data.SenderFullName,
-		GroupName: data.GroupName,
-		Status: "later",
-		Seen: false,
-		CreatedAt: time.Now(),
-
+		GroupName:      data.GroupName,
+		Status:         "later",
+		Seen:           false,
+		CreatedAt:      time.Now(),
 	}); errJson != nil {
-		fmt.Println("error invitation = insertion ---------", errJson)
 		return errJson
 	}
 	return nil
@@ -109,22 +101,19 @@ func (NS *NotificationService) GroupInvitationRequest(data models.Notif) *models
 
 // - group join request [admin]
 func (NS *NotificationService) GroupJoinRequest(data models.Notif) *models.ErrorJson {
-
 	if errJson := NS.repo.InsertNewNotification(models.Notification{
-		Id: utils.NewUUID(),
-		SenderId: data.SenderId,
-		RecieverId: data.RecieverId,
-		GroupId: data.GroupId,
-		EventId: "none",
-		Type: data.Type,
+		Id:             utils.NewUUID(),
+		SenderId:       data.SenderId,
+		RecieverId:     data.RecieverId,
+		GroupId:        data.GroupId,
+		EventId:        "none",
+		Type:           data.Type,
 		SenderFullName: data.SenderFullName,
-		GroupName: data.GroupName,
-		Status: "later",
-		Seen: false,
-		CreatedAt: time.Now(),
-
+		GroupName:      data.GroupName,
+		Status:         "later",
+		Seen:           false,
+		CreatedAt:      time.Now(),
 	}); errJson != nil {
-		fmt.Println("error join = insertion ---------", errJson)
 		return errJson
 	}
 	return nil
@@ -132,22 +121,19 @@ func (NS *NotificationService) GroupJoinRequest(data models.Notif) *models.Error
 
 // - group event created [group-members]
 func (NS *NotificationService) GroupEventRequest(data models.Notif) *models.ErrorJson {
-
 	if err := NS.repo.InsertNewNotification(models.Notification{
-		Id: utils.NewUUID(),
-		SenderId: data.SenderId,
-		RecieverId: data.RecieverId,
-		GroupId: data.GroupId,
-		EventId: data.EventId,
-		Type: data.Type,
+		Id:             utils.NewUUID(),
+		SenderId:       data.SenderId,
+		RecieverId:     data.RecieverId,
+		GroupId:        data.GroupId,
+		EventId:        data.EventId,
+		Type:           data.Type,
 		SenderFullName: data.SenderFullName,
-		GroupName: data.GroupName,
-		Status: "later",
-		Seen: false,
-		CreatedAt: time.Now(),
-
+		GroupName:      data.GroupName,
+		Status:         "later",
+		Seen:           false,
+		CreatedAt:      time.Now(),
 	}); err != nil {
-		fmt.Println("error event = insertion ---------", err)
 		return err
 	}
 	return nil
