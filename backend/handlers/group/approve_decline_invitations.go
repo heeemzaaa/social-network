@@ -23,7 +23,7 @@ func NewAcceptRejectInvHandler(service *gservice.GroupService) *AcceptRejectInvH
 func (AcceptRejectInvHandler *AcceptRejectInvHandler) Accept(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")
@@ -53,7 +53,7 @@ func (AcceptRejectInvHandler *AcceptRejectInvHandler) Accept(w http.ResponseWrit
 func (AcceptRejectInvHandler *AcceptRejectInvHandler) Reject(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")

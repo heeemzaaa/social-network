@@ -66,7 +66,7 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 func (gEventHandler *GroupEventHandler) GetGroupEvents(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")

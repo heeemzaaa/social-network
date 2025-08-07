@@ -28,7 +28,7 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 	var comment *models.CommentGroup
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 
@@ -76,7 +76,7 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 func (gCommentHandler *GroupCommentHandler) GetGroupComments(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: errParse.Error()})
 		return
 	}
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")

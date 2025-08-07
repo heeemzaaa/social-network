@@ -22,7 +22,7 @@ func NewReactionHandler(service *gservice.GroupService) *GroupReactionHanlder {
 func (Rhanlder *GroupReactionHanlder) LikeEntity(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 

@@ -3,6 +3,8 @@ package routes
 import (
 	"database/sql"
 	"net/http"
+
+	"social-network/backend/middleware"
 )
 
 func SetRoutes(db *sql.DB) *http.ServeMux {
@@ -13,6 +15,7 @@ func SetRoutes(db *sql.DB) *http.ServeMux {
 	SetPostRoutes(mux, db, authService)
 	SetGroupRoutes(mux, db, authService, profileService, notifService)
 	SetChatRoutes(mux, db, authService)
-
+	fs := http.FileServer(http.Dir("./static"))
+	mux.Handle("/static/", middleware.NewMiddleWare(http.StripPrefix("/static/", fs), authService))
 	return mux
 }

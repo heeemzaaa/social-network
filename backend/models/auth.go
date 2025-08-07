@@ -15,7 +15,7 @@ type User struct {
 	LastMessage     string `json:"last_message,omitempty"`
 	LastInteraction string `json:"last_interaction,omitempty"`
 	Notifications   int    `json:"notifications,omitempty"`
-	Invited         int    `json:"invited"` // must not omitempty 
+	Invited         int    `json:"invited"` // must not omitempty
 }
 
 func NewUser() *User {
@@ -48,6 +48,7 @@ type UserData struct {
 	Id         string `json:"id,omitempty"`
 	Nickname   string `json:"nickname,omitempty"`
 	FullName   string `json:"fullname,omitempty"`
+	Token      string  `json:"token"`
 }
 
 type ContextKey struct {

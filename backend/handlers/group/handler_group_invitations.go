@@ -23,7 +23,7 @@ func NewGroupInvitationHandler(service *gservice.GroupService) *GroupInvitationH
 func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")
@@ -44,8 +44,6 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 
 	}
 
-
-
 	if errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String(), userToInvite); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
@@ -56,7 +54,7 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")
@@ -78,7 +76,7 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 		return
 
 	}
-	
+
 	if errJson := invHanlder.gService.CancelTheInvitation(userID.String(), groupID.String(), invitedUser); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
@@ -90,7 +88,7 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 func (invHanlder *GroupInvitationHandler) GetUsersToInvite(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")
