@@ -8,7 +8,7 @@ import (
 	"social-network/backend/utils"
 )
 
-func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite string) *models.ErrorJson {
+func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string) *models.ErrorJson {
 	fmt.Println(userId, groupId, userToInvite)
 	invitationID := utils.NewUUID()
 	query := `
@@ -32,7 +32,7 @@ func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite 
 	return nil
 }
 
-func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId string, invitedUserId string) *models.ErrorJson {
+func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId, invitedUserId string) *models.ErrorJson {
 	query := `
 	DELETE FROM group_requests WHERE 
 	senderID = ? AND receiverID = ? AND groupID = ? AND typeRequest = ? 
