@@ -149,15 +149,16 @@ export default function Page({ params }) {
           )}
 
           {userInfos.isMyProfile && (
-            <Button variant="btn-icon glass-bg gap-1" onClick={handleTogglePrivacy}>
+            <Button variant="btn-icon privacy glass-bg gap-1" onClick={handleTogglePrivacy}   style={{ backgroundColor: userInfos.visibility === 'private' ? 'var(--color-red)' : 'var(--color-green)' }}
+>
               {userInfos.visibility === 'private' ? (
                 <>
-                  <FaLock size="24px" color="white" />
+                  <FaLock size="20px" color="white" />
                   <span style={{ color: 'white' }}>Private</span>
                 </>
               ) : (
                 <>
-                  <FaLockOpen size="24px" color="white" />
+                  <FaLockOpen size="20px" color="white" />
                   <span style={{ color: 'white' }}>Public</span>
                 </>
               )}

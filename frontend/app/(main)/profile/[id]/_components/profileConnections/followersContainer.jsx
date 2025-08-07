@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import FollowerCard from './followerCard'
+import ConnectionCard from './followerCard'
 
 
 export default function UsersContainer({ type, userID }) {
@@ -28,7 +28,7 @@ export default function UsersContainer({ type, userID }) {
   return (
     <div className='follow_container p2 gap-1'>
       {data.map((user) => {
-        return <FollowerCard key={user.id} {...user} />
+        return <ConnectionCard key={user.id} {...user} />
       })}
     </div>
   )

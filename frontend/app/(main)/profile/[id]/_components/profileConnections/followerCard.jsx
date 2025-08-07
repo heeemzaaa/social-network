@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useModal } from '@/app/(main)/_context/ModalContext'
 
 
-export default function FollowerCard({
+export default function ConnectionCard({
     id,
     avatar,
     fullname,

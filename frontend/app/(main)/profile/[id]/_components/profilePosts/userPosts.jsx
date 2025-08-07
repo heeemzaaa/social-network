@@ -19,7 +19,7 @@ export default function UserPosts({ id, access, changed }) {
             }
         }
         getPosts()
-    }, [id, access, changed])
+    }, [id, changed])
 
     if (access === false) {
         return (
