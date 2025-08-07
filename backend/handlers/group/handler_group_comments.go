@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
-	"strconv"
 
 	"social-network/backend/middleware"
 	"social-network/backend/models"
@@ -91,12 +90,14 @@ func (gCommentHandler *GroupCommentHandler) GetGroupComments(w http.ResponseWrit
 		return
 	}
 
-	offset, errConvoff := strconv.Atoi(r.URL.Query().Get("offset"))
-	if errConvoff != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", errConvoff)})
-		return
+	offset := r.URL.Query().Get("offset")
+	if offset != "0" {
+		if errUUID := utils.IsValidUUID(offset); errUUID != nil {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", errUUID)})
+			return
+		}
 	}
-    
+
 	comments, errJson := gCommentHandler.gService.GetComments(groupID.String(), userID.String(), postID.String(), offset)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})

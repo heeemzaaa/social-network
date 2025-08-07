@@ -62,7 +62,8 @@ export async function createGroupAction(prevState, formData) {
     }
 
     try {
-        const sessionCookie = await cookies().get("session")?.value;
+        const cookieStore = await cookies()
+        const sessionCookie = cookieStore.get("session")?.value;
         const res = await fetch(`http://localhost:8080/api/groups/`, {
             method: "POST",
             body: newFormData,
@@ -233,6 +234,7 @@ export async function createGroupEventAction(prevState, formData) {
                 errors: data.errors || null
             };
         }
+        console.log("dataaaa ", data);
         return {
             ...state,
             data,

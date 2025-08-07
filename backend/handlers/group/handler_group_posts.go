@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"social-network/backend/middleware"
@@ -67,7 +66,6 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 	// even if the userid is given wrong we insert the correct one
 	postCreated, err_ := gPostHandler.gService.AddPost(post)
 
-	// fmt.Println("post created", postCreated, err_)
 	if err_ != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: err_.Status, Error: err_.Error, Message: err_.Message})
 		return
@@ -75,9 +73,7 @@ func (gPostHandler *GroupPostHandler) AddGroupPost(w http.ResponseWriter, r *htt
 	utils.WriteDataBack(w, postCreated)
 }
 
-
 func (gPostHandler *GroupPostHandler) GetGroupPosts(w http.ResponseWriter, r *http.Request) {
-	
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
@@ -88,10 +84,13 @@ func (gPostHandler *GroupPostHandler) GetGroupPosts(w http.ResponseWriter, r *ht
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
-	offset, errConvoff := strconv.Atoi(r.URL.Query().Get("offset"))
-	if errConvoff != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", errConvoff)})
-		return
+
+	offset := r.URL.Query().Get("offset")
+	if offset != "0" {
+		if errUUID := utils.IsValidUUID(offset); errUUID != nil {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", errUUID)})
+			return
+		}
 	}
 
 	posts, err_get := gPostHandler.gService.GetPosts(userID.String(), groupID.String(), offset)

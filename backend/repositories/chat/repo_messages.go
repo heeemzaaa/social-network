@@ -85,7 +85,7 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, type_ string) ([]m
 		FROM messages m
 		INNER JOIN users s ON m.sender_id = s.userID
 		WHERE m.type = 'group' AND m.target_id = ?
-		ORDER BY m.created_at DESC LIMIT 10
+		ORDER BY m.created_at DESC
 		`
 		args = append(args, target_id)
 	}

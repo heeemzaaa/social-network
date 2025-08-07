@@ -21,8 +21,6 @@ func NewNotificationHandler( ns *NS.NotificationService) *NotificationHandler {
 func (NH *NotificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// fmt.Println("requested main path:", r.URL.Path)
-	// fmt.Println("method", r.Method)
 
 	if r.Method != "GET" {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
@@ -46,7 +44,7 @@ func (NH *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 			return
 
 		}
-		// fmt.Println("has new Notification====" , hasSeen)
+		
 
 		data := models.HasSeen{
 			Status: hasSeen,
@@ -79,27 +77,3 @@ func (NH *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 
 }
 
-// func (NH *NotificationHandler) CreateNotification(w http.ResponseWriter, r *http.Request) {
-	// user_Id, err := middleware.GetUserIDFromContext(r.Context())
-	// if err != nil {
-	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: err.Error()})
-	// 	return
-	// }
-	// var Data models.Notif
-	// err = json.NewDecoder(r.Body).Decode(&Data)
-	// if err != nil {
-	// 	fmt.Println("invalide decode lol", Data)
-	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "bad - request - 400", Message: fmt.Sprintf("%v", err)})
-	// 	return
-	// }
-	// errJson := NH.NS.PostService(Data)
-	// if errJson != nil {
-	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
-	// 	return
-	// }
-	// response := models.HasSeen{
-	// 	Status: true,
-	// 	Message: "insert succesefly",
-	// }
-	// utils.WriteDataBack(w, response)
-// }

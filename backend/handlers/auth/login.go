@@ -54,7 +54,6 @@ func (authHandler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	fmt.Println("setting the cookie", session.Token)
 	http.SetCookie(w, &http.Cookie{
 		Name:    "session",
 		Value:   session.Token,

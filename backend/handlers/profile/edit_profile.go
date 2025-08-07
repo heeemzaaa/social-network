@@ -53,11 +53,6 @@ func (ep *EditProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Reque
 	utils.WriteDataBack(w, profile)
 }
 
-// PATCH api/profile/id/edit/update-profile
-func (ep *EditProfileHandler) UpdateProfileData(w http.ResponseWriter, r *http.Request, profileID string) {
-	fmt.Println("UpdateProfileData")
-}
-
 func (ep *EditProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -66,7 +61,7 @@ func (ep *EditProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	profileID, path, err := GetPath(r)
+	_, path, err := GetPath(r)
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
 		return
@@ -75,8 +70,7 @@ func (ep *EditProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	switch path {
 	case "update-privacy":
 		ep.UpdatePrivacy(w, r)
-	case "update-profile":
-		ep.UpdateProfileData(w, r, profileID)
+
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
 	}

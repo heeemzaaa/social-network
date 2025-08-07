@@ -1,7 +1,6 @@
 package group
 
 import (
-	"database/sql"
 	"fmt"
 
 	"social-network/backend/models"
@@ -27,9 +26,6 @@ func (gRepo *GroupRepository) GetGroupMembers(groupId string) ([]models.User, *m
 
 	rows, err := stmt.Query(groupId)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return users, nil
-		}
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer rows.Close()

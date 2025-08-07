@@ -24,9 +24,6 @@ func NewUpdateHandler(nsu *NS.NotificationServiceUpdate) *UpdateHandler {
 func (NUH *UpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	fmt.Println("requested update path:", r.URL.Path)
-	fmt.Println("method", r.Method)
-
 	if r.Method != http.MethodPost {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
 		return
@@ -45,8 +42,6 @@ func (NUH *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 
 	err = json.NewDecoder(r.Body).Decode(&Data)
 	if err != nil {
-		fmt.Println("invalide decode lol", Data)
-
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "bad request", Message: fmt.Sprintf("%v", err)})
 		return
 	}
