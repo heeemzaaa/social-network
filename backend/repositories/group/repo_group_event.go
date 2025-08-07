@@ -53,7 +53,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId, offset string) ([]
         LEFT JOIN cte_interested ON cte_interested.ID = group_events.eventID
     %v
     ORDER BY group_events.createdAt DESC
-    LIMIT 20
+    LIMIT 3	
 	`, where)
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
@@ -61,7 +61,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId, offset string) ([]
 	}
 	defer stmt.Close()
 	args := []any{userId, groupId}
-	if offset != "" {
+	if offset != "0" {
 		args = append(args, offset)
 	}
 
@@ -95,7 +95,6 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId, offset string) ([]
 
 // add an event in a specific group
 func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
-	fmt.Println("event ", event)
 	eventId := utils.NewUUID()
 	query := `
 	INSERT INTO
@@ -174,7 +173,7 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 	); err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-	fmt.Printf("event_created: %v\n", event_created)
+
 	// add the user to the user_events_table
 	eventUserId := utils.NewUUID()
 	queryAdded := `INSERT INTO group_event_users 

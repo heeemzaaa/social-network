@@ -132,7 +132,7 @@ func (gRepo *GroupRepository) GetComments(userId, postId, groupId, offset string
 	ORDER BY
 		group_posts_comments.createdAt DESC
 	LIMIT
-		6
+		3
 	`, where)
 
 	args := []any{userId, groupId, postId}

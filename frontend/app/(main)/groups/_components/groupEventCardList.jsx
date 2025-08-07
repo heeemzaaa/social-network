@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef, use } from "react";
 import Button from "@/app/_components/button";
 import GroupEventCard from "./groupEventCard";
 import { useModal } from "../../_context/ModalContext";
@@ -10,12 +10,13 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState(null);
     const abortControllerRef = useRef(null);
+    const observerRef = useRef(null)
+    const loadMoreRef = useRef(null)
 
     const { getModalData, setModalData } = useModal()
 
     useEffect(() => {
         let data = getModalData()
-        console.log("Modal Data:", data)
         if (data?.type === "groupEvent") {
             setData(prev => [data, ...prev])
         }
@@ -24,8 +25,9 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
     const getUrl = useCallback(
         (page) => {
             const params = new URLSearchParams({
-                offset: page * 20,
+                offset: page * 3,
             });
+            console.log("offset here", params);
             return `http://localhost:8080/api/groups/${groupId}/events/?${params.toString()}`;
         },
         [groupId]
@@ -44,23 +46,22 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
                 const response = await fetch(url, { credentials: "include", signal });
                 const result = await response.json();
                 if (!response.ok) {
+                    console.log("result inside the response", response);
                     if (response.status == 403) setIsAccessible(response)
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                console.log(result)
+
 
                 if (result.length === 0) {
                     setHasMore(false); // No more data to fetch
                 } else {
-                    console.log(data)
-                    if (result.length < 20) setHasMore(false);
+                    if (result.length < 3) setHasMore(false);
                     setData((prevData) => [...prevData, ...result]); // Append new data
                 }
             } catch (err) {
                 if (err.name === "AbortError") {
                     return; // Ignore AbortError
                 }
-                console.error(err);
                 setError(err.message);
             } finally {
                 setIsLoading(false);
@@ -76,26 +77,41 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
         setHasMore(true);
         setError(null);
         fetchData(0);
+    }, [groupId, fetchData]);
+
+    // here will be adding the useEffect for the infinite scroll 
+    useEffect(() => {
+        if (!hasMore || isLoading || data.length === 0) return;
+
+        observerRef.current = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    setPage((prevPage) => prevPage + 1)
+                }
+            },
+            { threshold: 0.1 }
+        )
+
+        if (loadMoreRef.current) {
+            observerRef.current.observe(loadMoreRef.current)
+        }
 
         return () => {
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-                abortControllerRef.current = null;
+            if (observerRef.current) {
+                observerRef.current.disconnect()
             }
-        };
-    }, [groupId, fetchData]);
+        }
+    }, [hasMore, isLoading])
 
     // Fetch data when page changes
     useEffect(() => {
         if (page > 0) {
-            fetchData(page);
+            let id = data[data.length-1]?.event_id
+            fetchData(id);
         }
-    }, [page, fetchData]);
+    }, [page]);
 
-    // Load more handler
-    const loadMore = () => {
-        setPage((prevPage) => prevPage + 1);
-    };
+ 
 
     if (isAccessible?.status == 403) {
         return (

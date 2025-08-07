@@ -75,6 +75,7 @@ func (gEventHandler *GroupEventHandler) GetGroupEvents(w http.ResponseWriter, r 
 		return
 	}
 	offset := r.URL.Query().Get("offset")
+	fmt.Printf("offset: %v\n", offset)
 	if offset != "0" {
 		if errUUID := utils.IsValidUUID(offset); errUUID != nil {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", errUUID)})
