@@ -11,7 +11,6 @@ export default function PostCardList() {
         if (postData?.type !== 'post') return;
 
         setPosts((prev) => {
-            console.log("prev: ", prev)
             if (!prev) {
                 return [postData]
             } else {
@@ -23,7 +22,6 @@ export default function PostCardList() {
 
     useEffect(() => {
         async function fetchPosts() {
-            console.log("fetch posts here.");
             try {
                 const resp = await fetch("http://localhost:8080/api/posts", {
                     method: "GET",
@@ -35,7 +33,6 @@ export default function PostCardList() {
                     return;
                 }
                 const data = await resp.json();
-                console.log(data)
                 setPosts(data);
             } catch (error) {
                 console.log("error fetching posts", error);
@@ -44,7 +41,6 @@ export default function PostCardList() {
 
         fetchPosts();
     }, []);
-    console.log("***", posts)
     return (
         <div className="list-container " style={{ overflowY: "auto" }}>
             {posts?.map((post) => (

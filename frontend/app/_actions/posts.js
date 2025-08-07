@@ -185,7 +185,6 @@ export async function commentPostAction(prevState, formData) {
         });
 
         if (!resp.ok) {
-            console.log("error fetching request");
             return { ...state, message: "Failed to post comment." };
         }
 

@@ -11,11 +11,9 @@ function useDebouncedCallback(callback, delay=500) {
 
     const debouncedFn = useCallback((...args) => {
         if (timeoutRef.current) {
-            console.log("inside the clearing hook of debouce");
             clearTimeout(timeoutRef.current)
         }
 
-      
         timeoutRef.current = setTimeout(() => {
             callbackRef.current(...args)
         }, delay)

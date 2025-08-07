@@ -8,7 +8,6 @@ export function PostsContainer({ post }) {
 
     useEffect(() => {
         async function fetchPosts() {
-            console.log("fetch posts here.");
             try {
                 const resp = await fetch("http://localhost:8080/api/posts", {
                     method: "GET",
@@ -20,7 +19,6 @@ export function PostsContainer({ post }) {
                     return;
                 }
                 const data = await resp.json();
-                console.log(data)
                 setPosts(data); 
             } catch (error) {
                 console.log("error fetching posts", error);

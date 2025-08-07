@@ -24,7 +24,6 @@ export default function PostCard({
     privacy
 }) {
     const [totalComments, setTotalComments] = useState(total_comments)
-    console.log(user)
     const handleCommentMessage = (msg) => {
         setTotalComments(prev => prev + 1)
     }

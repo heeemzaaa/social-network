@@ -13,7 +13,6 @@ const event = {
 
 export default function CreateEventForm({groupId}) {
 
-    console.log("inside tthe create !!")
     const [state, action] = useActionState(createGroupEventAction, {});
     const [eventData, setEventData] = useState(event)
     const { setModalData, closeModal } = useModal()

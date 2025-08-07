@@ -30,7 +30,6 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 createdAt: new Date(),
                 imagePath: state.imagePath,
             };
-            console.log('newComment', newComment)
             setComments(prev => [newComment, ...prev]);
 
             if (onCommentMessage) {
@@ -38,7 +37,6 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
             }
         }
     }, [state]); // This will run every time state changes (after submission)
-    console.log('state', state)
     return (
         <form
             action={formAction}

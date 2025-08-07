@@ -29,7 +29,6 @@ export default function Header() {
       try {
         let res = await fetch("http://localhost:8080/api/notifications/", getRequest)
         let response = await res.json()
-        console.log("fetch is has seen api, response = ", response)
         if (response?.Status === true) {
           setHasNewNotification(true)
         }
@@ -50,21 +49,6 @@ export default function Header() {
       </div>
 
       <div className='flex gap-2'>
-        <Popover trigger={<HiMiniPlusCircle size={24} />}>
-          <Button className={"w-full"} variant='btn-tertiary' onClick={() => openModal(<CreatePost postAction={createPostAction} />)}>
-            <HiMiniPlusSmall size={"30px"} />
-            <span>Add post</span>
-          </Button>
-          <Button variant='btn-tertiary' onClick={() => openModal(<CreateGroupForm />)}>
-            <HiMiniPlusSmall size={"30px"} />
-            <span>Add Group</span>
-          </Button>
-        </Popover>
-
-        <Button variant='btn-icon'>
-          <HiChatBubbleOvalLeftEllipsis size={24} />
-        </Button>
-
         <Popover
           trigger={
             <div className="relative">

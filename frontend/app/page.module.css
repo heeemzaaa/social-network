@@ -31,7 +31,8 @@
 .input {
   all: unset;
   padding: .5rem;
-  width: 300px;
+  width: 100%;
+  max-width: 300px;
   outline: solid 1px var(--color-white);
   font-size: var(--font-size-sm);
   border-radius: var(--border-radius-sm);
@@ -51,24 +52,6 @@
 
 .form>button:hover {
   filter: brightness(95%);
-}
-
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
-  }
-
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
-  }
-
-  .footer a:hover {
-    text-decoration: underline;
-    text-underline-offset: 4px;
-  }
 }
 
 @media (max-width: 600px) {}

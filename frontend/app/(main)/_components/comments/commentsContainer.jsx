@@ -15,7 +15,6 @@ export default function CommentsContainer({ id, onCommentMessage }){
           credentials: 'include',
         });
         const raw = await res.json();
-        console.log('raw', raw)
         const data = raw.map(comment => ({
           content: comment.content,
           fullName: comment.user?.fullname,

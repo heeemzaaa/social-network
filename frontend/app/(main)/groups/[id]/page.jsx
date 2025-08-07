@@ -26,7 +26,6 @@ export default function GroupPage({ params }) {
   const [isAccessible, setIsAccessible] = useState(null)
 
 
-  console.log("isAccessible", isAccessible);
   const { openModal } = useModal()
   const actionButtons = [
     {
@@ -54,11 +53,9 @@ export default function GroupPage({ params }) {
           credentials: "include",
         });
         if (!response.ok) {
-          console.log("getting the data: ", await response.json())
           throw new Error(`Failed to fetch group data: ${response.status}`);
         }
         const result = await response.json();
-        console.log(result)
         setData(result); // Set fetched data (e.g., { title, description, followers_number })
       } catch (error) {
         console.error("Error fetching group:", error);

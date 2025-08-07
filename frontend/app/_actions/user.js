@@ -154,12 +154,10 @@ export async function logout() {
 export async function setCookie(cookieStr) {
     const parts = cookieStr.split(';');
     const result = {};
-    console.log(parts);
     parts.forEach(part => {
         const trimmed = part.trim();
         if (trimmed.includes('=')) {
             const [key, value] = trimmed.split('=');
-            console.log(key)
             if (key === "session") {
                 result.name = key
                 result.value = value

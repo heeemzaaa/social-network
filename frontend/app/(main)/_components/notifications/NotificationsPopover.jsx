@@ -51,8 +51,6 @@ export default function NotificationsPopover() {
 
   // Handle accept/reject notification
   const handleNotificationAction = async (notification, status) => {
-    console.log(`${status} notification:`, notification);
-    console.log(`Notification ID:`, notification.Id);
 
     if (!notification.Id) {
       console.error("No notification ID found. Available fields:", Object.keys(notification));
@@ -76,7 +74,6 @@ export default function NotificationsPopover() {
 
       let response = await fetch("http://localhost:8080/api/notifications/update/", postRequest);
       let data = await response.json();
-      console.log(`Notification ${status} response:`, data);
 
       // Show popup with response message
       showNotification({
@@ -115,8 +112,6 @@ export default function NotificationsPopover() {
         credentials: "include"
       });
       const data = await res.json();
-
-      console.log(data);
 
       if (data.length === 0) {
         setHasMore(false);

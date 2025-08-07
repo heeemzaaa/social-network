@@ -61,7 +61,6 @@ export default function useInfiniteScroll({
 
     // Callback to update sentinelRef and re-observe
     const setSentinelRef = useCallback((node) => {
-        console.log("Sentinel ref updated:", node);
         // Update sentinelRef
         sentinelRef.current = node;
 

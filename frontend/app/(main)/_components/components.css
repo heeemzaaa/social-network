@@ -284,7 +284,7 @@ nav {
 
 /* this part is for the left section of the user infos */
 .profileLeftSection {
-  width: 350px;
+  width: 400px;
 }
 
 .ProfileContainer {
@@ -425,12 +425,22 @@ nav {
 
 
 @media (max-width: 1000px) {
+
+  aside {
+    background-color: var(--color-secondary);
+    width: max-content;
+  }
+
+
   nav {
     width: 100%;
+    max-width: max-content;
     display: flex;
     flex-direction: row;
+    align-items: center;
+    justify-content: center;
     gap: 5px;
-    padding: .5rem 2rem;
+    /* padding: .5rem 2rem; */
     background-color: var(--color-secondary);
     margin: .5rem;
     border-radius: var(--border-radius-full);
@@ -453,8 +463,6 @@ nav {
     }
   }
 
-
-
   .link> :first-child {
     transform: translateX(-2px);
   }
@@ -462,10 +470,6 @@ nav {
   .link:not(.link-active) {
     background-color: unset;
   }
-
-  /* .link:hover {
-        background-color: unset;
-    } */
 
   .link-active {
     color: var(--color-primary);

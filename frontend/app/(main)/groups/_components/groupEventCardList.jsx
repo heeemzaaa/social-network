@@ -15,7 +15,6 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
 
     useEffect(() => {
         let data = getModalData()
-        console.log("Modal Data:", data)
         if (data?.type === "groupEvent") {
             setData(prev => [data, ...prev])
         }
@@ -40,19 +39,16 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
             const signal = abortControllerRef.current.signal;
             try {
                 const url = getUrl(currentPage);
-                console.log("url: ", url)
                 const response = await fetch(url, { credentials: "include", signal });
                 const result = await response.json();
                 if (!response.ok) {
                     if (response.status == 403) setIsAccessible(response)
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                console.log(result)
 
                 if (result.length === 0) {
                     setHasMore(false); // No more data to fetch
                 } else {
-                    console.log(data)
                     if (result.length < 20) setHasMore(false);
                     setData((prevData) => [...prevData, ...result]); // Append new data
                 }

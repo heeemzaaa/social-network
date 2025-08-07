@@ -76,7 +76,6 @@ export default function Chat() {
 
     const loadMessages = async () => {
       const msgs = await fetchMessages(chatTarget.ID, chatTarget.type);
-      console.log("messages: ", msgs);
       if (!msgs) return;
 
       setMessages({
