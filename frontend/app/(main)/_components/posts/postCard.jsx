@@ -20,7 +20,8 @@ export default function PostCard({
     total_likes,
     total_comments,
     liked,
-    privacy
+    privacy,
+    groupID
 }) {
     const [totalComments, setTotalComments] = useState(total_comments)
     console.log(user)
@@ -61,7 +62,7 @@ export default function PostCard({
                 <p className="post-content">{content}</p>
                 {image_path && (
                     <div className="post-card-img" >
-                        <img src={`http://localhost:8080/static/${image_path}`} alt={image_path} className="rounded-md" style={{width: '100%', height: 'max-content'}} />
+                        <img src={`http://localhost:8080/static/${image_path}?creator=${user.id || ""}&groupID=${groupID || ""}&postID=${id || ""}`} alt={image_path} className="rounded-md" style={{width: '100%', height: 'max-content'}} />
                     </div>
                 )}
 
@@ -75,7 +76,7 @@ export default function PostCard({
                             </button>
                         </div>
                     </form>
-                    <div onClick={() => { openModal(<CommentsContainer id={id} onCommentMessage={handleCommentMessage} />) }}>
+                    <div onClick={() => { openModal(<CommentsContainer id={id} onCommentMessage={handleCommentMessage} groupID={groupID || ""} creatorID={user.id}/>) }}>
                         <div style={actionStyle}>
                             <FaRegComment />
                             <span>

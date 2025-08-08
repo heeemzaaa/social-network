@@ -13,7 +13,7 @@ export async function createPostAction(prevState, formData) {
     const content = formData.get("content")?.trim();
     const privacy = formData.get("privacy");
     const selectedFollowersRaw = formData.get("selectedFollowers");
-    const img = formData.get("img");
+    const img = formData.get("img")
 
     const maxSize = 3 * 1024 * 1024; // 3MB
 

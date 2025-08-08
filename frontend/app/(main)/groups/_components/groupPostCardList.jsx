@@ -112,7 +112,7 @@ export default function GroupPostCardList({ groupId, setIsAccessible, isAccessib
     return (
         <div className="list-container flex align-start flex-wrap gap-4 justify-center overflow-y-auto">
             {data.map((item) => (
-                <PostCard {...item} key={item.id} />
+                <PostCard {...item} key={item.id} groupID={groupId || ""} />
             ))}
             {data.length === 0 && <img className="w-half mx-auto" src="/no-data-animate.svg" alt="No data" />}
             {isLoading && <p className="text-center w-full">Loading...</p>}

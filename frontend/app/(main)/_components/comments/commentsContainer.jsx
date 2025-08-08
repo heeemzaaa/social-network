@@ -3,7 +3,7 @@ import "./comments.css"
 import Comments from './comments'
 import CommentsFooter from './commentsFooter'
 
-export default function CommentsContainer({ id, onCommentMessage }){
+export default function CommentsContainer({ id, onCommentMessage, groupID, creatorID }){
   const [comments, setComments] = useState([]);
 
 
@@ -37,7 +37,7 @@ export default function CommentsContainer({ id, onCommentMessage }){
 
   return (
     <section className="comments_container w-full h-full flex-col justify-between gap-2">
-      {comments.length  === 0 ? <img src='/no-comments.svg' className='no_comments'/> :   <Comments comments={comments} />}
+      {comments.length  === 0 ? <img src='/no-comments.svg' className='no_comments'/> :   <Comments comments={comments} id={id} groupID={groupID} creatorID={creatorID} />}
       <CommentsFooter id={id} setComments={setComments}  onCommentMessage={onCommentMessage}/>
     </section>
   );

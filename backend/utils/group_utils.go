@@ -62,7 +62,7 @@ func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string) (stri
 	if errJson != nil {
 		return "", &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
-	fmt.Printf("path: %v\nerr: %v\n", path, errJson)
+	// fmt.Printf("path: %v\nerr: %v\n", path, errJson)
 	return path, nil
 }
 
