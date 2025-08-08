@@ -1,5 +1,5 @@
-import Button from '@/app/_components/button';
 import "./modal.css";
+import Button from '@/app/_components/button';
 
 export default function Modal({ isModalOpen, modalContent, onClose }) {
     if (isModalOpen !== true) return null;

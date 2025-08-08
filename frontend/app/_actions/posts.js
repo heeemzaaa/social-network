@@ -142,7 +142,7 @@ export async function commentPostAction(prevState, formData) {
     const commentImg = formData.get("commentImg");
     const maxSize = 3 * 1024 * 1024;
 
-    if (!commentContent) {
+    if (!commentContent && commentImg.size === 0) {
         state.errors.commentContent = "Input comment is required";
         return state;
     }
@@ -185,7 +185,6 @@ export async function commentPostAction(prevState, formData) {
         });
 
         if (!resp.ok) {
-            console.log("error fetching request");
             return { ...state, message: "Failed to post comment." };
         }
 
@@ -201,7 +200,7 @@ export async function commentPostAction(prevState, formData) {
             avatar: response.user.avatar,
             success: true,
             createdAt: formatted,
-            commentImage: response.img,
+            imagePath: response.img,
         };
     } catch (err) {
         return { ...prevState, message: "Server error." };

@@ -3,6 +3,7 @@ package notification
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"strings"
 
 	"social-network/backend/models"
@@ -112,6 +113,8 @@ func (repo *NotifRepository) SelectAllNotification(userid string) ([]models.Noti
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
+		fmt.Println("****************************************************************")
+		log.Println("Error preparing the query to fetch the notifications: ", err)
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
@@ -130,6 +133,7 @@ func (repo *NotifRepository) SelectAllNotification(userid string) ([]models.Noti
 		}
 		all = append(all, notification)
 	}
+
 	return all, nil
 }
 

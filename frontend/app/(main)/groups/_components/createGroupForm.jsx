@@ -9,7 +9,6 @@ import { useModal } from "../../_context/ModalContext";
 
 export default function CreateGroupForm() {
     const [state, action] = useActionState(createGroupAction, {});
-    console.log("create grp state ", state);
     const [data, setData] = useState({
         title: "",
         description: "",
@@ -24,7 +23,6 @@ export default function CreateGroupForm() {
 
     useEffect(() => {
         if (state.message) {
-            console.log("inside use effect normal");
             state.data.type = "groupCard"
             setModalData(state.data)
             closeModal()
@@ -79,7 +77,7 @@ export default function CreateGroupForm() {
                 />
                 {state.errors?.img && <span className='field-error'>{state.errors.img}</span>}
             </div>
-            <Button type={"submit"}>Create Group</Button>
+            <Button type={"submit"}>Create</Button>
             {state.error && <span className='field-error'>{state.error}</span>}
             {state.message && <span className='field-success'>{state.message}</span>}
         </form>

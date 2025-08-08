@@ -70,7 +70,7 @@ func (s *ProfileService) Follow(userID string, authUserID string, NS *ns.Notific
 		// insert new public notification for recieverId = userID
 		errJson := NS.PostService(data)
 		if errJson != nil {
-			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
+			return nil, errJson
 		}
 
 		// insert new public notification for recieverId = userID

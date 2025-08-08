@@ -1,21 +1,28 @@
 "use client"; // Required for client-side rendering in Next.js
 
-import React, { useEffect, useState } from "react";
-import { HiMiniUsers, HiOutlineDocumentPlus, HiOutlineUserPlus } from "react-icons/hi2";
-import { LuCalendarPlus } from "react-icons/lu";
+import "./style.css"
 import Tag from "../../_components/tag";
-import Tabs from "../../_components/tab/tabs";
 import Tab from "../../_components/tab/tab";
-import TabContent from "../../_components/tab/tabContent";
-import GroupPostCardList from "../_components/groupPostCardList";
-import GroupEventCardList from "../_components/groupEventCardList";
+import Tabs from "../../_components/tab/tabs";
 import Avatar from "../../_components/avatar";
 import Button from "@/app/_components/button";
+import TabContent from "../../_components/tab/tabContent";
 import { useModal } from "../../_context/ModalContext";
 import CreatePostForm from "../_components/createPostForm";
 import CreateEventForm from "../_components/createEventForm";
 import InviteFriendForm from "../_components/inviteFriendsForm";
-import "./style.css"
+import GroupPostCardList from "../_components/groupPostCardList";
+import GroupEventCardList from "../_components/groupEventCardList";
+import { LuCalendarPlus } from "react-icons/lu";
+import React, {
+  useEffect,
+  useState
+} from "react";
+import {
+  HiMiniUsers,
+  HiOutlineDocumentPlus,
+  HiOutlineUserPlus
+} from "react-icons/hi2";
 
 export default function GroupPage({ params }) {
   const [data, setData] = useState({});
@@ -25,8 +32,6 @@ export default function GroupPage({ params }) {
   const groupId = resolvedParams.id;
   const [isAccessible, setIsAccessible] = useState(null)
 
-
-  console.log("isAccessible", isAccessible);
   const { openModal } = useModal()
   const actionButtons = [
     {
@@ -54,11 +59,9 @@ export default function GroupPage({ params }) {
           credentials: "include",
         });
         if (!response.ok) {
-          console.log("getting the data: ", await response.json())
           throw new Error(`Failed to fetch group data: ${response.status}`);
         }
         const result = await response.json();
-        console.log(result)
         setData(result); // Set fetched data (e.g., { title, description, followers_number })
       } catch (error) {
         console.error("Error fetching group:", error);
@@ -70,7 +73,7 @@ export default function GroupPage({ params }) {
     getGroupData(groupId)
   }, []);
 
-  if (isLoading) return <p className="text-center">Loading...</p>;
+  if (isLoading) return <main className="text-center">Loading...</main>;
   if (error) return <p className="text-danger text-center">Error: {error}</p>;
 
   return (

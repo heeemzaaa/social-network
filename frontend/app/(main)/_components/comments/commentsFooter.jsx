@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react'
 import "./comments.css"
+import { useEffect } from 'react'
 import { MdPermMedia } from "react-icons/md";
 import { FaPaperPlane } from "react-icons/fa";
-
 import { useActionState } from 'react'
 import { commentPostAction } from '@/app/_actions/posts'
 
@@ -15,7 +14,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
         avatar: '',
         success: false,
         createdAt: '',
-        commentImage: '',
+        imagePath: '',
     };
 
     const [state, formAction] = useActionState(commentPostAction, initialState)
@@ -28,9 +27,8 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 fullName: state.fullName,
                 userImage: state.avatar,
                 createdAt: new Date(),
-                ImagePath: state.img,
+                imagePath: state.imagePath,
             };
-            console.log('newComment', newComment)
             setComments(prev => [newComment, ...prev]);
 
             if (onCommentMessage) {
@@ -38,7 +36,6 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
             }
         }
     }, [state]); // This will run every time state changes (after submission)
-
     return (
         <form
             action={formAction}
@@ -62,7 +59,6 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 name="content"
                 className="w-full p1 rounded-md"
                 placeholder="Write a comment..."
-                required
             />
 
             <button type="submit" className='submit_comment'>

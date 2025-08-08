@@ -16,9 +16,10 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
     const { getModalData, setModalData } = useModal()
 
     useEffect(() => {
-        let data = getModalData()
-        if (data?.type === "groupEvent") {
-            setData(prev => [data, ...prev])
+        let modalData = getModalData()
+        if (modalData?.type === "groupEvent") {
+            setData(prev => [modalData, ...prev])
+            setModalData(null)
         }
     }, [setModalData])
 
@@ -42,7 +43,6 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
             const signal = abortControllerRef.current.signal;
             try {
                 const url = getUrl(currentPage);
-                console.log("url: ", url)
                 const response = await fetch(url, { credentials: "include", signal });
                 const result = await response.json();
                 if (!response.ok) {
@@ -50,7 +50,6 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
                     if (response.status == 403) setIsAccessible(response)
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-
 
                 if (result.length === 0) {
                     setHasMore(false); // No more data to fetch
@@ -129,16 +128,17 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
             alt="No data"
         />
     );
+            console.log(data)
 
     return (
         <div className="list-container flex flex-wrap gap-2 align-center justify-center overflow-y-auto h-full">
-            {data.map((event, index) => (
-                <GroupEventCard {...event} key={index} />
+            {data.map((event) => (
+                <GroupEventCard {...event} key={event.event_id} />
             ))}
             {isLoading && <p className="text-center w-full">Loading...</p>}
             {hasMore && !isLoading && (
                 <div className="w-full" style={{ textAlign: "center" }}>
-                    <Button variant="btn-tertiary" onClick={loadMore}>
+                    <Button variant="btn-tertiary" >
                         Load More...
                     </Button>
                 </div>

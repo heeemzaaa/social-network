@@ -1,12 +1,21 @@
 "use client"
-import { HiMiniHome, HiMiniUser, HiMiniUserGroup, HiChatBubbleOvalLeft } from "react-icons/hi2";
-import Button from '@/app/_components/button'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import "./components.css"
+import Link from 'next/link'
 import Logo from "@/app/_components/logo";
+import Button from '@/app/_components/button'
 import { logout } from "@/app/_actions/user";
-import { useEffect, useState } from "react";
+import { TbLogout } from "react-icons/tb";
+import { usePathname } from 'next/navigation'
+import {
+  useEffect,
+  useState
+} from "react";
+import {
+  HiMiniHome,
+  HiMiniUser,
+  HiMiniUserGroup,
+  HiChatBubbleOvalLeft
+} from "react-icons/hi2";
 
 export default function Navigation() {
   const currentPath = usePathname()
@@ -15,7 +24,7 @@ export default function Navigation() {
 
   useEffect(() => {
     async function GetUserInfo() {
-      let res = await fetch("http://localhost:8080/api/loggedin", {credentials: 'include'})
+      let res = await fetch("http://localhost:8080/api/loggedin", { credentials: 'include' })
       let data = await res.json()
       setId(data.id)
     }
@@ -60,10 +69,11 @@ export default function Navigation() {
         }
       </nav>
       <form action={logout}>
-        <Button variant='btn-danger' type="submit">
+        <Button className={"logout-btn"} style={{ gap: "6px" }} variant='btn-danger' type="submit">
           <span>
             Log-out
           </span>
+          <TbLogout size={20} />
         </Button>
       </form>
     </aside>

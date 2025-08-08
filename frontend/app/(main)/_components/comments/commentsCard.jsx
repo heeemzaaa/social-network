@@ -1,5 +1,4 @@
 'use client'
-import React, { useState } from 'react'
 import "./comments.css"
 import Avatar from "../avatar"
 import { timeAgo } from '@/app/_utils/time'

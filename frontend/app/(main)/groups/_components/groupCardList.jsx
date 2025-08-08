@@ -12,14 +12,15 @@ export default function GroupCardList({ filter }) {
     const observerRef = useRef(null)
     const loadMoreRef = useRef(null)
 
-    const { getModalData } = useModal()
+    const { getModalData, setModalData } = useModal()
 
     useEffect(() => {
         const data = getModalData()
         if (data?.type === "groupCard" && filter === "owned") {
             setData((prev) => [data, ...prev])
+            setModalData(null)
         }
-    }, [getModalData])
+    }, [setModalData])
 
     const fetchData = useCallback(
         async (id) => {

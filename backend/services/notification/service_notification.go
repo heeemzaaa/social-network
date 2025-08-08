@@ -51,10 +51,11 @@ func (NS *NotificationService) GetAllNotifService(user_id, notifType string) ([]
 	if err != nil {
 		return nil, err
 	}
+
 	return all, nil
 }
 
-// should be add for delete event notification 
+// should be add for delete event notification
 func (NS *NotificationService) DeleteService(reciever, sender, notifType, value string) *models.ErrorJson {
 	if notifType != "follow-private" {
 		if errJson := NS.repo.DeleteGroupNotification(sender, reciever, notifType, value); errJson != nil {

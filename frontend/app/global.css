@@ -28,7 +28,7 @@
   --font-weight-medium: 500;
   --font-weight-regular: 400;
   --font-weight-lighter: 200;
-  
+
 
   /* Border Radius */
   --border-radius-sm: 4px;
@@ -534,7 +534,8 @@ html,
 body {
   max-width: 100vw;
   height: 100vh;
-  overflow-y: hidden;
+  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 body {
@@ -572,8 +573,7 @@ main {
   border-bottom-left-radius: var(--border-radius-xl);
   border-bottom-right-radius: var(--border-radius-xl);
   height: 100%;
-  overflow-y: hidden;
-  /* This makes main scrollable */
+  overflow-y: auto;
 }
 
 main.login,
@@ -642,38 +642,46 @@ main.register {
   header {
     background-color: var(--color-secondary);
     color: var(--color-dark);
-    padding: 1rem;
-    margin: .5rem .5rem 0;
-    border-top-left-radius: var(--border-radius-xl);
-    border-top-right-radius: var(--border-radius-xl);
+    padding: 1rem !important;
+    margin: unset;
+    border-radius: unset;
+
+    h2 {
+      font-size: 20px;
+    }
   }
 
   aside {
+    border-top: solid var(--color-dark) 1px;
     grid-row-start: 3;
     height: 100%;
     display: flex;
     flex-direction: row;
     justify-content: center;
-    width: 100%;
+    align-items: center;
+    width: 100% !important;
     padding: 0;
     align-items: center;
+    width: 100%;
 
-    p,
-    button {
+    .logo {
       display: none;
+    }
+
+    .btn-danger {
+      span {
+        display: none;
+      }
     }
   }
 
   main {
     background-color: var(--color-secondary);
     color: var(--color-dark);
-    margin: 0 .5rem .5rem;
-    padding: 2rem;
-    border-bottom-left-radius: var(--border-radius-xl);
-    border-bottom-right-radius: var(--border-radius-xl);
+    margin: unset;
+    padding: 1rem;
+    border-radius: unset;
     height: 100%;
     overflow-y: hidden;
-    /* This makes main scrollable */
   }
-
 }

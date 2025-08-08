@@ -59,7 +59,6 @@ export default function GroupPostCardList({ groupId, setIsAccessible, isAccessib
                 setIsLoading(false)
             }
         },
-
         [getUrl]
     )
 
