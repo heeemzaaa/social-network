@@ -8,7 +8,7 @@ export default function UsersContainer({ type, userID }) {
   useEffect(() => {
     async function handleGetConnections() {
       try {
-        const res = await fetch(`http://localhost:8080/api/profile/${userID}/connections/${type}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${userID}/connections/${type}`, {
           credentials: "include",
         })
 

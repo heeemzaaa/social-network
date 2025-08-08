@@ -22,5 +22,5 @@ func main() {
 
 
 	fmt.Println("server is running in : http://localhost:8080")
-	http.ListenAndServe(":8080", middelware.NewCorsMiddlerware(middelware.NewRateLimitMiddleWare(mux)))
+	http.ListenAndServe("0.0.0.0:8080", middelware.NewCorsMiddlerware(middelware.NewRateLimitMiddleWare(mux)))
 }

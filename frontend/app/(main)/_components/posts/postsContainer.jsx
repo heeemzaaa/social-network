@@ -13,7 +13,7 @@ export function PostsContainer({ post }) {
     useEffect(() => {
         async function fetchPosts() {
             try {
-                const resp = await fetch("http://localhost:8080/api/posts", {
+                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`, {
                     method: "GET",
                     credentials: "include",
                 });

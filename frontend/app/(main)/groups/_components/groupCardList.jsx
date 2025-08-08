@@ -29,7 +29,7 @@ export default function GroupCardList({ filter }) {
             abortControllerRef.current = new AbortController()
             const signal = abortControllerRef.current.signal
             try {
-                const response = await fetch(`http://localhost:8080/api/groups?filter=${filter}&offset=${id}`,
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/groups?filter=${filter}&offset=${id}`,
                     { credentials: "include", signal })
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`)
@@ -84,7 +84,7 @@ export default function GroupCardList({ filter }) {
 
     useEffect(() => {
         if (page > 0) {
-            let id = data[data.length - 1]?.group_id 
+            let id = data[data.length - 1]?.group_id
             console.log("id for the group offset");
             fetchData(id)
         }

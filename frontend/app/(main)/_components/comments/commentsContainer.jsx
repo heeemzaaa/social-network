@@ -13,7 +13,7 @@ export default function CommentsContainer({ id, onCommentMessage }) {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/posts/comments/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/comments/${id}`, {
           method: 'GET',
           credentials: 'include',
         });

@@ -17,7 +17,7 @@ const InviteFriendForm = ({ groupId }) => {
 
         async function handleGetFollowers() {
             try {
-                const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/groups/${groupId}/invitations/`, {
                     credentials: "include",
                 })
 

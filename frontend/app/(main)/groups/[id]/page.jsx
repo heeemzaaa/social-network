@@ -55,7 +55,7 @@ export default function GroupPage({ params }) {
   useEffect(() => {
     const getGroupData = async (id) => {
       try {
-        const response = await fetch(`http://localhost:8080/api/groups/${id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/groups/${id}`, {
           credentials: "include",
         });
         if (!response.ok) {

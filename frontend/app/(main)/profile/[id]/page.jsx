@@ -20,7 +20,7 @@ export default function Page({ params }) {
   useEffect(() => {
     async function fetchUserInfo(){
       try {
-        const res = await fetch(`http://localhost:8080/api/profile/${id}/info`, { credentials: 'include' })
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${id}/info`, { credentials: 'include' })
         const profile = await res.json()
         const user = profile.user
 
@@ -98,7 +98,7 @@ export default function Page({ params }) {
   async function handleTogglePrivacy() {
     const newPrivacy = userInfos.visibility === 'private' ? 'public' : 'private'
     try {
-      const res = await fetch(`http://localhost:8080/api/profile/${id}/edit/update-privacy`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${id}/edit/update-privacy`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

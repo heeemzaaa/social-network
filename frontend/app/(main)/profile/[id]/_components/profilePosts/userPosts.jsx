@@ -8,7 +8,7 @@ export default function UserPosts({ id, access }) {
     useEffect(() => {
         async function getPosts() {
             try {
-                const res = await fetch(`http://localhost:8080/api/profile/${id}/data/posts`, { credentials: 'include' })
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${id}/data/posts`, { credentials: 'include' })
                 if (res.ok) {
                     const data = await res.json()
                     if (data) setPosts(data)

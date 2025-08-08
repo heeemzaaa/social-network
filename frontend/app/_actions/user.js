@@ -21,7 +21,7 @@ export async function loginUser(prevState, formData) {
     }
 
     try {
-        const res = await fetch(`http://localhost:8080/api/auth/login`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
             method: "POST",
             body: JSON.stringify({ login, password }) // Send credentials
         });
@@ -106,7 +106,7 @@ export async function registerUser(prevState, formData) {
         newFormData.append('profile_img', avatar);
     }
     try {
-        const res = await fetch(`http://localhost:3000/api/auth/register`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
             method: "POST",
             body: newFormData,
             credentials: 'include'
@@ -130,7 +130,7 @@ export async function registerUser(prevState, formData) {
 export async function logout() {
     try {
         const sessionCookie = cookies().get("session")?.value;
-        const res = await fetch(`http://localhost:8080/api/auth/logout`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
             method: "POST",
             credentials: 'include',
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {}
@@ -139,7 +139,7 @@ export async function logout() {
             let cookieStore = await cookies()
             cookieStore.delete("session")
         }
-    }catch (error) {
+    } catch (error) {
         console.log(error)
     }
     redirect("/login")

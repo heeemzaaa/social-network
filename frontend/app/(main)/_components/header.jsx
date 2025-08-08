@@ -24,7 +24,7 @@ export default function Header() {
         credentials: "include"
       }
       try {
-        let res = await fetch("http://localhost:8080/api/notifications/", getRequest)
+        let res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/`, getRequest)
         let response = await res.json()
         if (response?.Status === true) {
           setHasNewNotification(true)

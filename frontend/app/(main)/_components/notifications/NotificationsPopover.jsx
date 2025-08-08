@@ -76,7 +76,7 @@ export default function NotificationsPopover() {
         })
       };
 
-      let response = await fetch("http://localhost:8080/api/notifications/update/", postRequest);
+      let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/update/`, postRequest);
       let data = await response.json();
 
       // Show popup with response message
@@ -111,7 +111,7 @@ export default function NotificationsPopover() {
 
   const loadNotifications = async (data_length) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/notifications?Count=${data_length}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications?Count=${data_length}`, {
         method: "GET",
         credentials: "include"
       });

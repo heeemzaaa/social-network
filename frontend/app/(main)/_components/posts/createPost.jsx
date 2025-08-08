@@ -30,7 +30,7 @@ export default function CreatePost({ postAction }) {
     useEffect(() => {
         const fetchFollowers = async () => {
             try {
-                const res = await fetch(`http://localhost:8080/api/profile/${authenticatedUser.id}/connections/followers`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${authenticatedUser.id}/connections/followers`, {
                     method: 'GET',
                     credentials: 'include',
                 });
