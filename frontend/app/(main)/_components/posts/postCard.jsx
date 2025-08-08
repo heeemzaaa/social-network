@@ -12,6 +12,7 @@ import { timeAgo } from "@/app/_utils/time"
 import { HiOutlineClock } from "react-icons/hi2"
 
 export default function PostCard({
+    groupId,
     id,
     user,
     content,
@@ -24,7 +25,6 @@ export default function PostCard({
     groupID
 }) {
     const [totalComments, setTotalComments] = useState(total_comments)
-    console.log(user)
     const handleCommentMessage = (msg) => {
         setTotalComments(prev => prev + 1)
     }
@@ -76,7 +76,7 @@ export default function PostCard({
                             </button>
                         </div>
                     </form>
-                    <div onClick={() => { openModal(<CommentsContainer id={id} onCommentMessage={handleCommentMessage} groupID={groupID || ""} creatorID={user.id}/>) }}>
+                    <div onClick={() => { openModal(<CommentsContainer id={id} groupId={groupID} onCommentMessage={handleCommentMessage} groupID={groupID || ""} creatorID={user.id}/>) }}>
                         <div style={actionStyle}>
                             <FaRegComment />
                             <span>

@@ -131,6 +131,8 @@ export async function likePostAction(prevState, formData) {
 
 
 export async function commentPostAction(prevState, formData) {
+    console.log("======> inside the comm")
+    
     let state = {
         error: null,
         errors: {},
@@ -190,6 +192,7 @@ export async function commentPostAction(prevState, formData) {
         }
 
         const response = await resp.json();
+        console.log("post comment: ", response)
         const now = new Date();
         const formatted = now.toISOString().slice(0, 16).replace('T', ' ');
         return {
