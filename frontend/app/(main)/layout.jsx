@@ -9,13 +9,13 @@ import UserProvider from './_lib/webSocket';
 export default function MainLayout({ children }) {
   return (
     <UserProvider>
-      <ModalProvider>
-        <NotificationProvider> {/* */} 
+      <NotificationProvider> {/* */}
+        <ModalProvider>
           <Header />
           <Navigation />
           {children}
-        </NotificationProvider>
-      </ModalProvider>
+        </ModalProvider>
+      </NotificationProvider>
     </UserProvider>
   )
 }

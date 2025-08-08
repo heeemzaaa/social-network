@@ -24,7 +24,6 @@ export default function NotificationsPopover() {
     } else if (notification.Status == "accept") {
       switch (notification.Type) {
         case "follow-private":
-          return `${notification.SenderFullName} follow you`; // ne9der negle3ha takhod l9ima dyal li te7tha
         case "follow-public":
           return `${notification.SenderFullName} follow you`;
         case "group-join":

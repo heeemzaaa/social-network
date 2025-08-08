@@ -50,35 +50,14 @@ export default function Header() {
         </h2>
       </div>
 
-      <div className='flex gap-2'>
-        <Popover trigger={<HiMiniPlusCircle size={24} />}>
-          <Button className={"w-full"} variant='btn-tertiary' onClick={() => openModal(<CreatePost postAction={createPostAction} />)}>
-            <HiMiniPlusSmall size={"30px"} />
-            <span>Add post</span>
-          </Button>
-          <Button variant='btn-tertiary' onClick={() => openModal(<CreateGroupForm />)}>
-            <HiMiniPlusSmall size={"30px"} />
-            <span>Add Group</span>
-          </Button>
-        </Popover>
-
-        <Button variant='btn-icon'>
-          <HiChatBubbleOvalLeftEllipsis size={24} />
-        </Button>
-
-        <Popover
-          trigger={
-            <div className="relative">
+      <Button variant='btn-icon' className='flex gap-2 ' onClick={()=> openModal(<NotificationsPopover />)}>
+        <div className='relative' style={{height:"24px"}} >
               <HiBell size={24} />
               {hasNewNotification && (
                 <span className="notification-badge"></span>
               )}
-            </div>
-          }
-        >
-          <NotificationsPopover />
-        </Popover>
-      </div>
+        </div>
+      </Button>
     </header>
   )
 }
