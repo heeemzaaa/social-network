@@ -7,14 +7,20 @@ import AboutUser from "./_components/profileData/abouUser"
 import UserPosts from "./_components/profilePosts/userPosts"
 import { MdPending } from "react-icons/md"
 import { FaLockOpen, FaLock } from "react-icons/fa"
-import React, {  useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { RiUserFollowFill, RiUserUnfollowFill } from "react-icons/ri"
+import { HiOutlineDocumentPlus } from "react-icons/hi2"
+import { useModal } from "../../_context/ModalContext"
+import CreatePost from "../../_components/posts/createPost"
+import { createPostAction } from "@/app/_actions/posts"
 
 export default function Page({ params }) {
   const [userInfos, setUserInfos] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isFollower, setIsFollower] = useState(null)
   const [changed, setChanged] = useState(false)
+  const {openModal} = useModal()
+
   const resolvedParams = React.use(params);
   const id = resolvedParams.id;
 
@@ -149,8 +155,8 @@ export default function Page({ params }) {
           )}
 
           {userInfos.isMyProfile && (
-            <Button variant="btn-icon privacy glass-bg gap-1" onClick={handleTogglePrivacy}   style={{ backgroundColor: userInfos.visibility === 'private' ? 'var(--color-red)' : 'var(--color-green)' }}
->
+            <Button variant="btn-icon privacy glass-bg gap-1" onClick={handleTogglePrivacy} style={{ backgroundColor: userInfos.visibility === 'private' ? 'var(--color-red)' : 'var(--color-green)' }}
+            >
               {userInfos.visibility === 'private' ? (
                 <>
                   <FaLock size="20px" color="white" />
@@ -169,6 +175,12 @@ export default function Page({ params }) {
 
       <div className="data-container flex-col w-full align-center gap-4">
         {(userInfos.access && userInfos.aboutMe) && <AboutUser aboutMe={userInfos.aboutMe} />}
+        <div style={{ zIndex:"1",background:"var(--color-secondary)", alignSelf:"stretch", position: "sticky", top: "0", borderBottom: "solid 1px", paddingBottom: ".5rem", margin: ".5rem" }} >
+          <Button style={{ marginLeft: "auto" }} onClick={() => openModal(<CreatePost postAction={createPostAction} />)}>
+            <HiOutlineDocumentPlus size={24} />
+            <span>Add New Post</span>
+          </Button>
+        </div>
         {<UserPosts id={userInfos.id} access={userInfos.access} changed={changed} />}
       </div>
     </main>

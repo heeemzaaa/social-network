@@ -45,7 +45,7 @@ export default function PostCardList() {
         fetchPosts();
     }, []);
     return (
-        <div className="list-container " style={{ overflowY: "auto" }}>
+        <div className="list-container" style={{overflowY: "auto"}}>
             {posts?.map((post) => (
                 <PostCard key={post.id} {...post} />
             ))}

@@ -1,5 +1,4 @@
 .group-page-section {
-    border: solid red;
     display: flex;
     flex-direction: row;
     align-items: flex-start;

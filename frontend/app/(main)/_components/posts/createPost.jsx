@@ -73,117 +73,113 @@ export default function CreatePost({ postAction }) {
 
     return (
         <form noValidate action={action} className={`${styles.form} glass-bg`}>
-            <div className="flex gap-3">
-                <div className="flex-col gap-1">
-                    {/* Content */}
-                    <div className={styles.formGrp}>
-                        <label htmlFor="content">Content:</label>
-                        <textarea
-                            className={styles.input}
-                            name="content"
-                            id="content"
-                            rows={5}
-                            value={data.content}
-                            onChange={handleChange}
-                            placeholder="Write your post here..."
-                        />
-                        {state.errors?.content && <span className="field-error">{state.errors.content}</span>}
-                    </div>
+            <div className="flex-col gap-1">
+                {/* Content */}
+                <div className={styles.formGrp}>
+                    <label htmlFor="content">Content:</label>
+                    <textarea
+                        className={styles.input}
+                        name="content"
+                        id="content"
+                        rows={5}
+                        value={data.content}
+                        onChange={handleChange}
+                        placeholder="Write your post here..."
+                    />
+                    {state.errors?.content && <span className="field-error">{state.errors.content}</span>}
+                </div>
 
-                    {/* Privacy */}
-                    <div className={styles.formGrp}>
-                        <label htmlFor="privacy">Privacy:</label>
-                        <select
-                            className={styles.input}
-                            name="privacy"
-                            id="privacy"
-                            value={data.privacy}
-                            onChange={handleChange}
-                        >
-                            <option value="public">Public (All users can see)</option>
-                            <option value="almost private">Almost Private (Only followers can see)</option>
-                            <option value="private">Private (Selected followers only)</option>
-                        </select>
-                        {state.errors?.privacy && <span className="field-error">{state.errors.privacy}</span>}
-                    </div>
+                {/* Privacy */}
+                <div className={styles.formGrp}>
+                    <label htmlFor="privacy">Privacy:</label>
+                    <select
+                        className={styles.input}
+                        name="privacy"
+                        id="privacy"
+                        value={data.privacy}
+                        onChange={handleChange}
+                    >
+                        <option value="public">Public (All users can see)</option>
+                        <option value="almost private">Almost Private (Only followers can see)</option>
+                        <option value="private">Private (Selected followers only)</option>
+                    </select>
+                    {state.errors?.privacy && <span className="field-error">{state.errors.privacy}</span>}
+                </div>
 
-                    {/* Follower Selection */}
-                    {data.privacy === 'private' && (
-                        <div className={styles.formGrp}>
-                            <label>Select Followers:</label>
-                            <div style={{
-                                maxHeight: '200px',
-                                overflowY: 'auto',
-                                border: '1px solid #ddd',
-                                borderRadius: '4px',
-                                padding: '8px',
-                                marginTop: '4px'
-                            }}>
-                                {loadingFollowers ? (
-                                    <p style={{ fontStyle: 'italic', color: '#666' }}>Loading followers...</p>
-                                ) : (
-                                    <>
-                                        {/* Select All */}
-                                        <div style={{ borderBottom: '1px solid #eee', paddingBottom: '8px', marginBottom: '8px' }}>
+                {/* Follower Selection */}
+                {data.privacy === 'private' && (
+                    <div className={styles.formGrp}>
+                        <label>Select Followers:</label>
+                        <div style={{
+                            maxHeight: '200px',
+                            overflowY: 'auto',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            padding: '8px',
+                            marginTop: '4px'
+                        }}>
+                            {loadingFollowers ? (
+                                <p style={{ fontStyle: 'italic', color: '#666' }}>Loading followers...</p>
+                            ) : (
+                                <>
+                                    {/* Select All */}
+                                    <div style={{ borderBottom: '1px solid #eee', paddingBottom: '8px', marginBottom: '8px' }}>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={data.selectedFollowers.length === followers.length}
+                                                onChange={handleSelectAllFollowers}
+                                                style={{ cursor: 'pointer' }}
+                                            />
+                                            <strong>Select All ({followers.length})</strong>
+                                        </label>
+                                    </div>
+                                    {/* Individual Followers */}
+                                    {Array.isArray(followers) && followers.length > 0 && followers.map(follower => (
+                                        <div key={follower.id} style={{ marginBottom: '8px' }}>
                                             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                                                 <input
                                                     type="checkbox"
-                                                    checked={data.selectedFollowers.length === followers.length}
-                                                    onChange={handleSelectAllFollowers}
+                                                    checked={data.selectedFollowers.includes(follower.id)}
+                                                    onChange={() => handleFollowerToggle(follower.id)}
                                                     style={{ cursor: 'pointer' }}
                                                 />
-                                                <strong>Select All ({followers.length})</strong>
+                                                <div>
+                                                    <div style={{ fontWeight: '500' }}>
+                                                        {follower.fullname}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.8em', color: '#666' }}>
+                                                        {follower.nickname}
+                                                    </div>
+                                                </div>
                                             </label>
                                         </div>
-                                        {/* Individual Followers */}
-                                        {Array.isArray(followers) && followers.length > 0 && followers.map(follower => (
-                                            <div key={follower.id} style={{ marginBottom: '8px' }}>
-                                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={data.selectedFollowers.includes(follower.id)}
-                                                        onChange={() => handleFollowerToggle(follower.id)}
-                                                        style={{ cursor: 'pointer' }}
-                                                    />
-                                                    <div>
-                                                        <div style={{ fontWeight: '500' }}>
-                                                            {follower.fullname}
-                                                        </div>
-                                                        <div style={{ fontSize: '0.8em', color: '#666' }}>
-                                                            {follower.nickname}
-                                                        </div>
-                                                    </div>
-                                                </label>
-                                            </div>
-                                        ))}
+                                    ))}
 
-                                        {state.errors?.selectedFollowers && <span className="field-error">{state.errors.selectedFollowers}</span>}
-                                    </>
-                                )}
-                                {state.errors?.privacy && <span className="field-error">{state.errors.privacy}</span>}
-                            </div>
-                            {data.selectedFollowers.length > 0 && !loadingFollowers && (
-                                <div style={{ marginTop: '8px', fontSize: '0.9em', color: '#666' }}>
-                                    {data.selectedFollowers.length} follower(s) selected
-                                </div>
+                                    {state.errors?.selectedFollowers && <span className="field-error">{state.errors.selectedFollowers}</span>}
+                                </>
                             )}
+                            {state.errors?.privacy && <span className="field-error">{state.errors.privacy}</span>}
                         </div>
-                    )}
-                </div>
-
-                <div className="flex-col gap-1">
-                    {/* Image Upload */}
-                    <div className={styles.formGrp}>
-                        <label htmlFor="img">Image (Optional):</label>
-                        <input
-                            className={styles.input}
-                            type="file"
-                            name="img"
-                            id="img"
-                            accept="image/*"
-                        />
-                        {state.errors?.img && <span className="field-error">{state.errors.img}</span>}
+                        {data.selectedFollowers.length > 0 && !loadingFollowers && (
+                            <div style={{ marginTop: '8px', fontSize: '0.9em', color: '#666' }}>
+                                {data.selectedFollowers.length} follower(s) selected
+                            </div>
+                        )}
                     </div>
+                )}
+
+                {/* Image Upload */}
+                <div className={styles.formGrp}>
+                    <label htmlFor="img">Image (Optional):</label>
+                    <input
+                        className={styles.input}
+                        type="file"
+                        name="img"
+                        id="img"
+                        accept="image/*"
+                    />
+                    {state.errors?.img && <span className="field-error">{state.errors.img}</span>}
                 </div>
             </div>
 

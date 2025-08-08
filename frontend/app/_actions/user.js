@@ -106,7 +106,7 @@ export async function registerUser(prevState, formData) {
         newFormData.append('profile_img', avatar);
     }
     try {
-        const res = await fetch(`http://localhost:3000/api/auth/register`, {
+        const res = await fetch(`http://localhost:8080/api/auth/register`, {
             method: "POST",
             body: newFormData,
             credentials: 'include'
