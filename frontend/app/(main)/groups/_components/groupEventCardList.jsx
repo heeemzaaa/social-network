@@ -112,6 +112,9 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
 
  
 
+
+    console.log("data", data)
+
     if (isAccessible?.status == 403) {
         return (
             <section className='posts_container w-full h-full flex-col justify-center align-center'>
@@ -129,6 +132,10 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
         />
     );
             console.log(data)
+
+    data.map((event)=> {
+        console.log(event, event.event_id)
+    })
 
     return (
         <div className="list-container flex flex-wrap gap-2 align-center justify-center overflow-y-auto h-full">

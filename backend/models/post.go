@@ -10,7 +10,7 @@ type Post struct {
 	TotalComments int      `json:"total_comments"`
 	Privacy       string   `json:"privacy"`
 	Liked         int      `json:"liked,omitempty"`
-	SelectedUsers []string `json:"selected_users,omitempty"`
+	SelectedUsers []string `json:"selectedFollowers,omitempty"`
 }
 
 func NewPost() *Post {

@@ -1,8 +1,10 @@
 'use client'
+
+import PostCard from '@/app/(main)/_components/posts/postCard'
 import React, { useEffect, useState } from 'react'
 import PostCard from '@/app/(main)/_components/posts/postCard'
 
-export default function UserPosts({ id, access }) {
+export default function UserPosts({ id, access, changed }) {
     const [posts, setPosts] = useState([])
 
     useEffect(() => {
@@ -17,9 +19,8 @@ export default function UserPosts({ id, access }) {
                 console.error("Error fetching posts:", err)
             }
         }
-
         getPosts()
-    }, [id])
+    }, [id, changed])
 
     if (access === false) {
         return (

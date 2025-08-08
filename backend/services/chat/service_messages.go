@@ -75,7 +75,7 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 }
 
 // get the messages between specific users
-func (service *ChatService) GetMessages(sender_id, target_id, lastMessageID, type_ string) ([]models.Message, *models.ErrorJson) {
+func (service *ChatService) GetMessages(sender_id, target_id, type_ string) ([]models.Message, *models.ErrorJson) {
 	if sender_id == "" || target_id == "" || type_ == "" {
 		return []models.Message{}, &models.ErrorJson{Status: 400, Error: "Invalid data format !"}
 	}
@@ -84,7 +84,7 @@ func (service *ChatService) GetMessages(sender_id, target_id, lastMessageID, typ
 		return []models.Message{}, &models.ErrorJson{Status: 400, Error: "Invalid target ID !"}
 	}
 
-	messages, errJson := service.repo.GetMessages(sender_id, target_id, lastMessageID, type_)
+	messages, errJson := service.repo.GetMessages(sender_id, target_id, type_)
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}

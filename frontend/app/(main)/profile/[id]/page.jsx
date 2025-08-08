@@ -14,11 +14,12 @@ export default function Page({ params }) {
   const [userInfos, setUserInfos] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isFollower, setIsFollower] = useState(null)
+  const [changed, setChanged] = useState(false)
   const resolvedParams = React.use(params);
   const id = resolvedParams.id;
 
   useEffect(() => {
-    async function fetchUserInfo(){
+    async function fetchUserInfo() {
       try {
         const res = await fetch(`http://localhost:8080/api/profile/${id}/info`, { credentials: 'include' })
         const profile = await res.json()
@@ -75,7 +76,7 @@ export default function Page({ params }) {
       if (!res.ok) return console.error("Follow/unfollow/cancel failed")
 
       const updated = await res.json()
-
+      setChanged(!changed)
       setUserInfos(prev => ({
         ...prev,
         isFollower: updated.is_follower || false,
@@ -87,7 +88,7 @@ export default function Page({ params }) {
             ? prev.followers + 1
             : prev.followers,
       }))
-      
+
       if (updated.is_follower) setIsFollower(updated.is_follower)
     } catch (err) {
       console.error("Error:", err)
@@ -122,7 +123,6 @@ export default function Page({ params }) {
 
   if (loading) return <p>Loading user info...</p>
   if (!userInfos) return <p>Failed to load user info.</p>
-
   return (
     <main className='profile_page_section flex h-full p4 gap-4'>
       <InfosDiv userInfos={userInfos}>
@@ -149,15 +149,16 @@ export default function Page({ params }) {
           )}
 
           {userInfos.isMyProfile && (
-            <Button variant="btn-icon glass-bg gap-1" onClick={handleTogglePrivacy}>
+            <Button variant="btn-icon privacy glass-bg gap-1" onClick={handleTogglePrivacy}   style={{ backgroundColor: userInfos.visibility === 'private' ? 'var(--color-red)' : 'var(--color-green)' }}
+>
               {userInfos.visibility === 'private' ? (
                 <>
-                  <FaLock size="24px" color="white" />
+                  <FaLock size="20px" color="white" />
                   <span style={{ color: 'white' }}>Private</span>
                 </>
               ) : (
                 <>
-                  <FaLockOpen size="24px" color="white" />
+                  <FaLockOpen size="20px" color="white" />
                   <span style={{ color: 'white' }}>Public</span>
                 </>
               )}
@@ -168,7 +169,7 @@ export default function Page({ params }) {
 
       <div className="data-container flex-col w-full align-center gap-4">
         {(userInfos.access && userInfos.aboutMe) && <AboutUser aboutMe={userInfos.aboutMe} />}
-        <UserPosts id={userInfos.id} access={userInfos.access} />
+        {<UserPosts id={userInfos.id} access={userInfos.access} changed={changed} />}
       </div>
     </main>
   )
