@@ -1,6 +1,5 @@
 'use client'
 
-import PostCard from '@/app/(main)/_components/posts/postCard'
 import React, { useEffect, useState } from 'react'
 import PostCard from '@/app/(main)/_components/posts/postCard'
 

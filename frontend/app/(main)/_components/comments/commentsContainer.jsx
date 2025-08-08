@@ -9,7 +9,6 @@ import {
 export default function CommentsContainer({ id, onCommentMessage }) {
   const [comments, setComments] = useState([]);
 
-
   useEffect(() => {
     const fetchComments = async () => {
       try {
@@ -17,7 +16,8 @@ export default function CommentsContainer({ id, onCommentMessage }) {
           method: 'GET',
           credentials: 'include',
         });
-        const raw = await res.json();
+        const raw = await res.json() || [];
+        console.log("commmmmmments: ", raw)
         const data = raw.map(comment => ({
           content: comment.content,
           fullName: comment.user?.fullname,
@@ -35,7 +35,6 @@ export default function CommentsContainer({ id, onCommentMessage }) {
     };
     fetchComments();
   }, [id]);
-
 
   return (
     <section className="comments_container w-full h-full flex-col justify-between gap-2">
