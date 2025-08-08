@@ -1,13 +1,12 @@
 package notification
 
 import (
-	"fmt"
 	"social-network/backend/models"
 	"social-network/backend/utils"
 	"time"
 )
 
-// Insert new notification after
+// PostService handles the creation of a new notification based on the provided data.
 func (NS *NotificationService) PostService(data *models.Notif) *models.ErrorJson {
 	if errJson := NS.DeleteService(data.RecieverId, data.SenderId, data.Type, data.GroupId); errJson != nil {
 		return errJson
@@ -66,7 +65,6 @@ func (NS *NotificationService) FollowPrivateProfile(notification models.Notifica
 	notification.Status = "later"
 
 	if errJson := NS.notifRepo.InsertNewNotification(notification); errJson != nil {
-		fmt.Println("error private insertion ---------> ", errJson)
 		return errJson
 	}
 	return nil
@@ -81,7 +79,6 @@ func (NS *NotificationService) FollowPublicProfile(notification models.Notificat
 	notification.Status = "accept"
 
 	if errJson := NS.notifRepo.InsertNewNotification(notification); errJson != nil {
-		fmt.Println("error public insertion ---------> ", errJson)
 		return errJson
 	}
 	return nil
@@ -96,7 +93,6 @@ func (NS *NotificationService) GroupInvitationRequest(notification models.Notifi
 	notification.Status = "later"
 
 	if errJson := NS.notifRepo.InsertNewNotification(notification); errJson != nil {
-		fmt.Println("error invitation insertion ---------> ", errJson)
 		return errJson
 	}
 	return nil
@@ -111,7 +107,6 @@ func (NS *NotificationService) GroupJoinRequest(notification models.Notification
 	notification.Status = "later"
 
 	if errJson := NS.notifRepo.InsertNewNotification(notification); errJson != nil {
-		fmt.Println("error join insertion ---------> ", errJson)
 		return errJson
 	}
 	return nil
@@ -126,7 +121,6 @@ func (NS *NotificationService) GroupEventRequest(notification models.Notificatio
 	notification.Status = "none"
 
 	if errJson := NS.notifRepo.InsertNewNotification(notification); errJson != nil {
-		fmt.Println("error event insertion ---------> ", errJson)
 		return errJson
 	}
 	return nil

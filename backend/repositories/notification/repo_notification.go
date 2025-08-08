@@ -3,7 +3,6 @@ package notification
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	"social-network/backend/models"
 )
@@ -45,15 +44,12 @@ func (repo *NotifRepository) SelectNotificationById(notifId string) (models.Noti
 }
 
 // select all notifications for reciever by sort first status [later-first], second sort by time
-// select all notifications by reciever_id
 func (repo *NotifRepository) SelectAllNotification(userId string) ([]models.Notification, *models.ErrorJson) {
 	all := []models.Notification{}
 	query := `SELECT * FROM notifications WHERE recieverId = ?`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		fmt.Println("****************************************************************")
-		log.Println("Error preparing the query to fetch the notifications: ", err)
 		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()

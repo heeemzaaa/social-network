@@ -15,10 +15,12 @@ type UpdateHandler struct {
 	NS *ns.NotificationService
 }
 
+// NewUpdateNotificationHandler creates a new instance of UpdateHandler.
 func NewUpdateNotificationHandler(NS *ns.NotificationService) *UpdateHandler {
 	return &UpdateHandler{NS: NS}
 }
 
+// ServeHTTP handles the HTTP requests for updating notifications.
 func (HUN *UpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodPost {
@@ -28,8 +30,9 @@ func (HUN *UpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	HUN.UpdateNotification(w, r)
 }
 
+// UpdateNotification updates a notification based on the provided data and user ID.
 func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Request) {
-	user_Id, err := middleware.GetUserIDFromContext(r.Context())
+	userId, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: err.Error()})
 		return
@@ -41,7 +44,7 @@ func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	errJson := HUN.NS.UpdateService(Data, user_Id.String());
+	errJson := HUN.NS.UpdateService(Data, userId.String());
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return

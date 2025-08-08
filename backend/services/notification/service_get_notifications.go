@@ -6,7 +6,7 @@ import (
 	"sort"
 )
 
-// get notification by 10
+// GetService retrieves notifications for a user, optionally filtering by notification ID.
 func (NS *NotificationService) GetService(userId, notificationId string) ([]models.Notification, *models.ErrorJson) {
 
 	all, err := NS.notifRepo.SelectAllNotification(userId)
@@ -30,7 +30,6 @@ func (NS *NotificationService) GetService(userId, notificationId string) ([]mode
 		return all[i].CreatedAt.After(all[j].CreatedAt)
 	})
 
-	// get nbr when equal to index of last notification in container
 	if notificationId == "0" {
 		if maxLen <= 10 {
 			return all, nil

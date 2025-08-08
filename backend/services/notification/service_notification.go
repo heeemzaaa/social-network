@@ -15,7 +15,7 @@ type NotificationService struct {
 	notifRepo   *rn.NotifRepository
 	profileRepo *rp.ProfileRepository
 	groupRepo   *rg.GroupRepository
-	chatServer  *sc.ChatServer //
+	chatServer  *sc.ChatServer
 }
 
 func NewNotifService(notifRepo *rn.NotifRepository, authRepo *ra.AuthRepository, profileRepo *rp.ProfileRepository, groupRepo *rg.GroupRepository, chatServer *sc.ChatServer) *NotificationService {
@@ -24,10 +24,11 @@ func NewNotifService(notifRepo *rn.NotifRepository, authRepo *ra.AuthRepository,
 		authRepo:    authRepo,
 		profileRepo: profileRepo,
 		groupRepo:   groupRepo,
-		chatServer:  chatServer, //
+		chatServer:  chatServer,
 	}
 }
 
+// ToggleAllSeenFalse sets the seen status of all notifications to true for a user.
 func (NS *NotificationService) ToggleAllSeenFalse(notifications []models.Notification) *models.ErrorJson {
 	for _, notification := range notifications {
 		if errJson := NS.notifRepo.UpdateSeen(notification.Id); errJson != nil {
@@ -41,6 +42,7 @@ func (NS *NotificationService) ToggleAllSeenFalse(notifications []models.Notific
 	return nil
 }
 
+// ToggleAllStaus updates the status of all notifications to the specified value.
 func (NS *NotificationService) ToggleAllStaus(notifications []models.Notification, value, notifType string) *models.ErrorJson {
 	for _, notification := range notifications {
 		if errJson := NS.notifRepo.UpdateStatus(notification.Id, value); errJson != nil {
@@ -50,15 +52,16 @@ func (NS *NotificationService) ToggleAllStaus(notifications []models.Notificatio
 	return nil
 }
 
+// GetAllNotificationByType retrieves all notifications of a specific type for a user.
 func (NS *NotificationService) GetAllNotificationByType(user_id, notifType string) ([]models.Notification, *models.ErrorJson) {
 	all, err := NS.notifRepo.SelectAllNotificationByType(user_id, notifType)
 	if err != nil {
 		return nil, err
 	}
-
 	return all, nil
 }
 
+// DeleteService deletes a notification based on the provided parameters.
 func (NS *NotificationService) DeleteService(recieverId, senderId, notifType, groupId string) *models.ErrorJson {
 	if strings.HasPrefix(notifType, "follow") {
 		if errJson := NS.notifRepo.DeleteFollowNotification(senderId, recieverId, notifType); errJson != nil {
@@ -70,10 +73,13 @@ func (NS *NotificationService) DeleteService(recieverId, senderId, notifType, gr
 		}
 	}
 
-	NS.broadcast(recieverId)
+	if errJson := NS.broadcast(recieverId); errJson != nil {
+		return errJson
+	}
 	return nil
 }
 
+// IsHasSeenFalse checks if the user has any notifications that are not seen.
 func (NS *NotificationService) IsHasSeenFalse(userId string) (bool, *models.ErrorJson) {
 	seen, errJson := NS.notifRepo.IsHasSeenFalse(userId)
 	if errJson != nil {
@@ -82,6 +88,7 @@ func (NS *NotificationService) IsHasSeenFalse(userId string) (bool, *models.Erro
 	return seen, nil
 }
 
+// broadcast sends a notification to the user about new notifications or no new notifications.
 func (NS *NotificationService) broadcast(recieverId string) *models.ErrorJson {
 	hasSeen, errJson := NS.IsHasSeenFalse(recieverId)
 	if errJson != nil {

@@ -20,6 +20,7 @@ import (
 	rp "social-network/backend/repositories/profile"
 )
 
+// SetNotificationsRoutes sets up the routes for notifications and returns the updated mux and notification service.
 func SetNotificationsRoutes(mux *http.ServeMux, db *sql.DB, authService *sa.AuthService, authRepo *ra.AuthRepository, chatServer *hc.ChatServer) (*http.ServeMux, *sn.NotificationService) {
 	repo := rn.NewNotifRepository(db)
 	profileRepo := rp.NewProfileRepository(db)
