@@ -201,9 +201,9 @@ export async function commentPostAction(prevState, formData) {
             nickname: response.user.nickname,
             fullName: response.user.fullname,
             avatar: response.user.avatar,
+            created_at: formatted,
+            imagePath: response.img || response.image_path,
             success: true,
-            createdAt: formatted,
-            imagePath: response.img,
         };
     } catch (err) {
         return { ...prevState, message: "Server error." };

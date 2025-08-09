@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { resolve } from "styled-jsx/css";
 
 
 export async function commentGroupPostAction(prevState, formData) {    
@@ -15,9 +16,9 @@ export async function commentGroupPostAction(prevState, formData) {
     const groupID = formData.get("groupId")
     const commentImg = formData.get("commentImg");
     const maxSize = 3 * 1024 * 1024;
-
+    console.log(commentImg)
     if (!commentContent && commentImg.size === 0) {
-        state.errors.commentContent = "Input comment is required";
+        state.errors.commentContent = "Can't send an empty comment";
         return state;
     }
     if (!postID) {
@@ -48,7 +49,7 @@ export async function commentGroupPostAction(prevState, formData) {
     newFormData.append("data", jsonData);
 
     if (commentImg && commentImg.size > 0) {
-        newFormData.append("img", commentImg);
+        newFormData.append("comment", commentImg);
     }
 
     const cookieStore = await cookies();
@@ -62,12 +63,12 @@ export async function commentGroupPostAction(prevState, formData) {
             body: newFormData,
         });
 
+        const response = await resp.json();
         if (!resp.ok) {
-            console.log("error fetching request");
+            console.log("error fetching request", response);
             return { ...state, message: "Failed to post comment." };
         }
         
-        const response = await resp.json();
         console.log('response', response)        
         const now = new Date();
         const formatted = now.toISOString().slice(0, 16).replace('T', ' ');

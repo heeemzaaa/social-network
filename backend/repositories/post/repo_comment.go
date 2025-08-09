@@ -45,6 +45,7 @@ func (repo *PostsRepository) GetComments(postID string) ([]models.Comment, *mode
 			&comment.Img,
 			&comment.CreatedAt,
 		)
+		fmt.Printf("comment: %v\n", comment)
 		if err != nil {
 			return []models.Comment{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}

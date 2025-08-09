@@ -13,6 +13,7 @@ export default function CommentsContainer({ id, onCommentMessage, groupID, creat
   const groupComment = `http://localhost:8080/api/groups/${groupID}/posts/${id}/comments?offset=0`
   useEffect(() => {
     const fetchComments = async () => {
+      console.log("trying to fetch: ", groupID ? groupComment : postComment)
       try {
         const res = await fetch(groupID ? groupComment : postComment, {
           method : 'GET',

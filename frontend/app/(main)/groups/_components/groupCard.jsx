@@ -85,7 +85,6 @@ export default function GroupCard({
                         :
                         <Button className={"text-center"}>Go to</Button>
                 }
-
             </div>
         </div>
     )

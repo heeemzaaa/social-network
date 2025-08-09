@@ -102,8 +102,8 @@ export async function createGroupPostAction(prevState, formData) {
     const content = formData.get("content")?.trim();
     const groupId = formData.get("groupId")?.trim();
     const img = formData.get("image");
-
-    if (!content) {
+    console.log(img)
+    if (!content && img.size == 0) {
         state.errors.content = "Content is required";
     }
 
