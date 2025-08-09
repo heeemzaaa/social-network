@@ -173,7 +173,7 @@ export default function Chat() {
   }, []);
 
   return (
-    <main className="chat_main_container p4 flex-row">
+    <main className="chat_main_container p4 flex-row" style={{overflow:"hidden"}}>
       <section
         className="user_groups_place h-full flex-col"
         ref={usersBlockRef}
@@ -247,7 +247,8 @@ export default function Chat() {
             <div ref={bottomRef} />
           </div>
         ) : (
-          <div className="chat_body empty">
+          <div style={{margin:"auto"}}>
+            <img src="/mobile-animate.svg"/>
             <p className="text-gray-500">
               Select a user or group to start chatting!
             </p>
