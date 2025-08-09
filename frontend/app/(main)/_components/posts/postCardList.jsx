@@ -23,7 +23,6 @@ export default function PostCardList() {
 
     useEffect(() => {
         async function fetchPosts() {
-            console.log("fetch posts here.");
             try {
                 const resp = await fetch("http://localhost:8080/api/posts", {
                     method: "GET",

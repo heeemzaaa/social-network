@@ -3,9 +3,7 @@
 import { cookies } from "next/headers";
 
 
-export async function commentGroupPostAction(prevState, formData) {
-    // console.log()
-    
+export async function commentGroupPostAction(prevState, formData) {    
     let state = {
         error: null,
         errors: {},
@@ -70,8 +68,7 @@ export async function commentGroupPostAction(prevState, formData) {
         }
         
         const response = await resp.json();
-        console.log(response);
-        
+        console.log('response', response)        
         const now = new Date();
         const formatted = now.toISOString().slice(0, 16).replace('T', ' ');
         return {

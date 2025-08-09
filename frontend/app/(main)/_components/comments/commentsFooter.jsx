@@ -6,11 +6,11 @@ import { useActionState } from 'react'
 import { commentPostAction } from '@/app/_actions/posts'
 import { commentGroupPostAction } from '@/app/_actions/groupPosts'
 
-export default function CommentsFooter({ id, groupId = null,  setComments, onCommentMessage }) {
-    console.log("+=====> group id: ", groupId)
+export default function CommentsFooter({ id, groupID = null,  setComments, onCommentMessage }) {
+    console.log("+=====> group id: ", groupID)
     const initialState = {
-        group: groupId ? true : false,
-        groupId: groupId,
+        group: groupID ? true : false,
+        groupID: groupID,
         message: '',
         content: '',
         nickname: '',
@@ -40,10 +40,10 @@ export default function CommentsFooter({ id, groupId = null,  setComments, onCom
                 onCommentMessage("A new comment was added");
             }
         }
-    }, [postActionState, groupActionState]); // This will run every time state changes (after submission)
+    }, [postActionState, groupActionState])
     return (
         <form
-            action={groupId ? groupAction : postAction}
+            action={groupID ? groupAction : postAction}
             className='comments_footer flex justify-center align-center p1 gap-1'
         >
             <label htmlFor="commentImg">
@@ -58,7 +58,7 @@ export default function CommentsFooter({ id, groupId = null,  setComments, onCom
             />
 
             <input type="hidden" name="postID" value={id} />
-            {groupId && <input type="hidden" name="groupId" value={groupId} />}
+            {groupID && <input type="hidden" name="groupId" value={groupID} />}
 
             <input
                 type="text"
