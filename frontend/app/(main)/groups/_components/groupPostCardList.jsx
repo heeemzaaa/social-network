@@ -122,7 +122,7 @@ export default function GroupPostCardList({ groupId, setIsAccessible, isAccessib
     return (
         <div className="list-container flex align-start flex-wrap gap-4 justify-center overflow-y-auto">
             {data.map((item) => (
-                <PostCard {...item} key={item.id} />
+                <PostCard {...item} key={item.id} groupID={groupId || ""} />
             ))}
             {isLoading && <p className="text-center w-full">Loading...</p>}
             {hasMore && !isLoading && (

@@ -91,7 +91,7 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 	}
 
 	// handle the image encoding in the phase that comes before the adding process
-	path, errUploadImg := utils.HanldeUploadImage(r, "group", "groups")
+	path, errUploadImg := utils.HanldeUploadImage(r, "group", "avatars/groups")
 	if errUploadImg != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message, Error: errUploadImg.Error})
 		return

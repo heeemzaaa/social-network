@@ -61,6 +61,7 @@ type PostGroup struct {
 	TotalLikes    int       `json:"total_likes"`
 	Liked         string    `json:"liked"`
 }
+
 type PostGroupErr struct {
 	Content string `json:"content"`
 }

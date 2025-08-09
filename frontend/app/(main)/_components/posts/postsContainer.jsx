@@ -9,7 +9,7 @@ import {
 
 export function PostsContainer({ post }) {
     const [posts, setPosts] = useState([])
-
+    
     useEffect(() => {
         async function fetchPosts() {
             try {
@@ -17,7 +17,7 @@ export function PostsContainer({ post }) {
                     method: "GET",
                     credentials: "include",
                 });
-
+                
                 if (!resp.ok) {
                     console.log("error fetching posts 1");
                     return;
@@ -28,15 +28,15 @@ export function PostsContainer({ post }) {
                 console.log("error fetching posts", error);
             }
         }
-
-        fetchPosts();
+        
+        fetchPosts(); 
     }, []);
-
+    
     useEffect(() => {
         if (!post) return;
         setPosts(prev => [post, ...prev])
     }, [post])
-
+    
     return (
         <div className="posts-container">
             {posts?.map((post) => (

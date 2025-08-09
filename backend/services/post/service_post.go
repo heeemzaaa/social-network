@@ -1,4 +1,4 @@
-package services
+package post
 
 import (
 	pr "social-network/backend/repositories/post"

@@ -13,7 +13,7 @@ export async function createPostAction(prevState, formData) {
     const content = formData.get("content")?.trim();
     const privacy = formData.get("privacy");
     const selectedFollowersRaw = formData.get("selectedFollowers");
-    const img = formData.get("img");
+    const img = formData.get("img")
 
     const maxSize = 3 * 1024 * 1024; // 3MB
 
@@ -131,6 +131,8 @@ export async function likePostAction(prevState, formData) {
 
 
 export async function commentPostAction(prevState, formData) {
+    console.log("======> inside the comm")
+    
     let state = {
         error: null,
         errors: {},
@@ -189,6 +191,7 @@ export async function commentPostAction(prevState, formData) {
         }
 
         const response = await resp.json();
+        console.log("post comment: ", response)
         const now = new Date();
         const formatted = now.toISOString().slice(0, 16).replace('T', ' ');
         return {
