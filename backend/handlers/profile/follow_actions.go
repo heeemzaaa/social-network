@@ -50,7 +50,7 @@ func (fa *FollowActionHandler) Follow(w http.ResponseWriter, r *http.Request) {
 
 	errJson := fa.NS.PostService(data)
 	if errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errFollow.Status, Error: errFollow.Error})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 
@@ -109,7 +109,7 @@ func (fa *FollowActionHandler) CancelFollow(w http.ResponseWriter, r *http.Reque
 	}
 
 	if errJson := fa.NS.DeleteService(request.ProfileID, authUserID.String(), "follow-private", ""); errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errCancel.Status, Error: errCancel.Error})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 	
