@@ -1,13 +1,16 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { useNotification } from "../../_context/NotificationContext";
+import "./styles.css";
 
 export default function NotificationsPopover() {
+  const containerRef = useRef();
+  
   const [notifications, setNotifications] = useState([]);
   const [notifId, setNotifId] = useState("0");
+  
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const containerRef = useRef();
 
   const { showNotification } = useNotification();
 
@@ -61,34 +64,26 @@ export default function NotificationsPopover() {
         },
         body: JSON.stringify({
           NotifId: notification.Id,
-          Status: status,
           Type: notification.Type,
-          GroupId: notification.GroupId,
+          Status: status,
         })
       };
 
       let response = await fetch("http://localhost:8080/api/notifications/update/", postRequest);
+
+      if (!response.ok) throw new Error("faild to update notification");
+
       let data = await response.json();
-      console.log(`UPDATE ==> Notification ${status} response:`, data);
+      console.log(`update notification response: Status: ${data.Status}, Data: ${data.Message}`);
 
-      showNotification({
-        Content: `Notification ${status}ed successfully`,
-        Status: "success",
-      });
+      showNotification({ Content: `Notification ${status}ed successfully`, Status: "success"});
 
-      setNotifications(prev =>
-        prev.map(notif =>
-          notif.Id === notification.Id ? { ...notif, Status: status } : notif
-        )
-      );
+      setNotifications(prev => prev.map(notif => notif.Id === notification.Id ? { ...notif, Status: status } : notif));
 
     } catch (error) {
       console.error(`Error ${status}ing notification:`, error);
 
-      showNotification({
-        Content: `Failed to ${status} notification: ${error.message}`,
-        Status: "error",
-      });
+      showNotification({ Content: `Failed to ${status} notification: ${error.message}`, Status: "error" });
     }
   };
 
@@ -98,27 +93,27 @@ export default function NotificationsPopover() {
 
   const loadNotifications = async (value) => {
     if (isLoading) return;
-
     setIsLoading(true);
+
     try {
-      const res = await fetch(`http://localhost:8080/api/notifications?Id=${value}`, {
-        method: "GET",
-        credentials: "include"
-      });
+      const res = await fetch(`http://localhost:8080/api/notifications?Id=${value}`, { method: "GET", credentials: "include" });
+
+      if (!res.ok) throw new Error("faild to update notification");
+
       const data = await res.json();
 
       const existingIds = new Set(notifications.map(notif => notif.Id));
+
       const newNotifications = data.filter(notif => !existingIds.has(notif.Id));
 
       setNotifications((prev) => [...prev, ...newNotifications]);
 
-      if (data.length < 10) {
-        setHasMore(false);
-      }
+      if (data.length < 10) setHasMore(false);
 
     } catch (error) {
       console.error("Error fetching notifications:", error);
       setHasMore(false);
+
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +126,9 @@ export default function NotificationsPopover() {
 
     if (scrollTop + clientHeight >= scrollHeight - 10) {
       const lastNotificationId = notifications?.[notifications.length - 1]?.Id || "0";
+
       console.log("Triggering next page load with ID:", lastNotificationId);
+
       setNotifId(lastNotificationId);
     }
   };
@@ -140,7 +137,7 @@ export default function NotificationsPopover() {
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      style={{ maxHeight: "350px", overflowY: "auto", width: "300px" }}
+      style={{ maxHeight: "350px", overflowY: "auto", width: "300px" }} // css
       className="bg-white shadow p-2 rounded"
     >
       {notifications.length === 0 && !isLoading && <p>No notifications</p>}
@@ -148,34 +145,20 @@ export default function NotificationsPopover() {
       {notifications.map((notif) => (
         <div
           key={notif.Id}
-          className={`notification-card ${notif.Type} ${notif.Status} ${notif.Seen ? "seen" : "unseen"}`}
+          className={`notification-card ${notif.Type} ${notif.Status} ${notif.Seen ? "seen" : "unseen"}`} // css remove type
         >
           <p>{notificationContent(notif)}</p>
 
           {notif.Status === "later" && notif.Type !== "follow-public" && (
             <div className="action-buttons">
-              <button
-                className="accept-btn"
-                onClick={() => handleNotificationAction(notif, "accept")}
-              >
-                ✔
-              </button>
-              <button
-                className="reject-btn"
-                onClick={() => handleNotificationAction(notif, "reject")}
-              >
-                ✘
-              </button>
+              <button className="accept-btn" onClick={() => handleNotificationAction(notif, "accept")}>✔</button>
+              <button className="reject-btn" onClick={() => handleNotificationAction(notif, "reject")}>✘</button>
             </div>
           )}
-
         </div>
       ))}
 
       {isLoading && <p className="text-center text-gray-400 text-xs">Loading...</p>}
-      {hasMore && !isLoading && notifications.length > 0 && (
-        <p className="text-center text-gray-400 text-xs">Scroll for more...</p>
-      )}
       {!hasMore && notifications.length > 0 && (
         <p className="text-center text-gray-400 text-xs">No more notifications</p>
       )}

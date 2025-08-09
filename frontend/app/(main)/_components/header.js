@@ -3,21 +3,12 @@ import Button from '../../_components/button'
 import NotificationsPopover from './notifications/NotificationsContainer'
 import {
   HiBell,
-  HiChatBubbleOvalLeftEllipsis,
-  HiMiniPlusCircle,
-  HiMiniPlusSmall
 } from "react-icons/hi2";
-import Popover from './popover';
 import { useModal } from '../_context/ModalContext';
-import CreatePost from './posts/createPost';
-import { createPostAction } from '@/app/_actions/posts';
-import CreateGroupForm from '../groups/_components/createGroupForm'
 import { useUserContext } from '../_context/userContext';
 
 export default function Header() {
   const { openModal } = useModal()
-  // const [hasNewNotification, setHasNewNotification] = useState(false)
-  // const { authenticatedUser } = useUserContext()
   const { authenticatedUser, hasNewNotification, setHasNewNotification } = useUserContext()
 
   // Fetch notification seen status
@@ -50,7 +41,7 @@ export default function Header() {
         </h2>
       </div>
 
-      <Button variant='btn-icon' className='flex gap-2 ' onClick={()=> openModal(<NotificationsPopover />)}>
+      <Button variant='btn-icon' className='flex gap-2 ' onClick={()=> openModal(<NotificationsPopover />)}> {/**/}
         <div className='relative' style={{height:"24px"}} >
               <HiBell size={24} />
               {hasNewNotification && (
