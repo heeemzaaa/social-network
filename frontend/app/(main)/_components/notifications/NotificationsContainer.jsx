@@ -137,16 +137,13 @@ export default function NotificationsPopover() {
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      style={{ maxHeight: "350px", overflowY: "auto", width: "300px" }} // css
+      style={{ maxHeight: "350px", overflowY: "auto", width: "300px" }}
       className="bg-white shadow p-2 rounded"
     >
       {notifications.length === 0 && !isLoading && <p>No notifications</p>}
 
       {notifications.map((notif) => (
-        <div
-          key={notif.Id}
-          className={`notification-card ${notif.Type} ${notif.Status} ${notif.Seen ? "seen" : "unseen"}`} // css remove type
-        >
+        <div key={notif.Id} className={`notification-card ${notif.Seen ? "seen" : "unseen"}`}>
           <p>{notificationContent(notif)}</p>
 
           {notif.Status === "later" && notif.Type !== "follow-public" && (

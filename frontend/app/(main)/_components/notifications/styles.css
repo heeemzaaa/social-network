@@ -1,60 +1,13 @@
-/* Notification styles */
-.notification-wrapper {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 9999;
-}
-
 .notification-card {
-  background: #fff;
-  border: 1px solid #ccc;
-  color: var(--color-dark);
-  padding: 1em;
-  border-radius: 8px;
-  max-width: 300px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-  animation: fadeIn 0.3s ease;
-}
-
-.notification-card.warning {
-  border-left: 5px solid orange;
-}
-
-.notification-card.info {
-  border-left: 5px solid blue;
-}
-
-.notification-card.error {
-  border-left: 5px solid red;
-}
-
-.action-buttons {
   display: flex;
-  gap: 10px;
-  margin-top: 1em;
-}
-
-.accept-btn, .reject-btn {
-  padding: 6px 12px;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.accept-btn {
-  background-color: #4caf50;
-  color: rgb(0, 0, 0);
-}
-
-.reject-btn {
-  background-color: #f44336;
-  color: rgb(0, 0, 0);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  color: var(--color-dark);
+  border-radius: 8px;
+  padding: 0.5rem;
+  font-size: 14px;
+  height: 4rem;
+  max-width: 300px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .notification-card.response.success {
@@ -64,114 +17,45 @@
 }
 
 .notification-card.response.error {
-    border-left: 4px solid #f44336;
-    background-color: #fff0f0;
-    color: var(--color-dark);
+  border-left: 4px solid #f44336;
+  background-color: #fff0f0;
+  color: var(--color-dark);
 }
 
-.green-dote {
-  width: 10px;
-  height: 10px;
-  background-color: green;
-  border-radius: 50%;
-  margin-top: 6px;
-}
-
-.red-dote {
-  width: 10px;
-  height: 10px;
-  background-color: red;
-  border-radius: 50%;
-  margin-top: 6px;
-}
-
-.accept-btn, .reject-btn {
-  margin-right: 8px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-}
-
-.accept-btn {
-  background-color: #4caf50;
-  color: rgb(0, 0, 0);
-}
-
-.reject-btn {
-  background-color: #f44336;
-  color: rgb(0, 0, 0);
-}
-
-/* Common card styling */
-.notification-card {
-  display: flex;
-  padding: 0.5rem;
-  margin-bottom: 0.3rem;
-  border-radius: 8px;
-  font-size: 14px;
-  border:3px solid rgb(9, 0, 181);
-  transition: background-color 0.2s;
-  height: 4rem;
-  align-items: center;
-}
-
-/* Action buttons container */
-.notification-card .action-buttons {
-  /* margin-top: 0.5rem; */
-  display: flex;
-  gap: 0.4rem;
-}
-
-.green-dote {
-    background-color: var(--color-green);
-    border-radius: 50%;
-    width: 1rem;
-    height: 1rem;
-}
-.red-dote {
-    background-color: var(--color-red);
-    border-radius: 50%;
-    width: 1rem;
-    height: 1rem;
-}
-
-/* Seen & Unseen Notifications */
 .notification-card.unseen {
   background-color: var(--color-gray);
   color: var(--color-white);
   border: 2px solid var(--color-white);
-  box-shadow: var(--shadow-lg);
 }
 
 .notification-card.seen {
   background-color: var(--color-secondary);
   color: var(--color-dark);
   border: 2px solid var(--color-white);
-  opacity: 0.85;
 }
 
-/* Enhance buttons using global tokens */
+.action-buttons {
+  display: flex;
+  gap: 0.4rem;
+}
+
 .notification-card .accept-btn {
   background-color: var(--color-green);
   color: var(--color-white);
-  border: none;
-  padding: var(--size-sm) var(--size-md);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  transition: background-color var(--transition-duration) var(--transition-timing);
 }
 
 .notification-card .reject-btn {
   background-color: var(--color-red);
   color: var(--color-white);
+}
+
+.accept-btn, .reject-btn {
+  font-size: var(--font-size-sm);
   border: none;
+  font-weight: bold;
   padding: var(--size-sm) var(--size-md);
   border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: var(--font-size-sm);
   transition: background-color var(--transition-duration) var(--transition-timing);
 }
 
