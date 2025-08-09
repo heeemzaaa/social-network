@@ -39,8 +39,10 @@ func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 	}
 
 	var Data models.Unotif
-	if err = json.NewDecoder(r.Body).Decode(&Data); err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "400 - Bad Request", Message: fmt.Sprintf("%v", err)})
+
+	err = json.NewDecoder(r.Body).Decode(&Data)
+	if err != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "bad request", Message: fmt.Sprintf("%v", err)})
 		return
 	}
 

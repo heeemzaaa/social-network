@@ -1,30 +1,31 @@
 package notification
 
 import (
+	"strings"
+
 	sc "social-network/backend/handlers/chat"
 	"social-network/backend/models"
-	ra "social-network/backend/repositories/auth"
 	rg "social-network/backend/repositories/group"
 	rn "social-network/backend/repositories/notification"
-	rp "social-network/backend/repositories/profile"
-	"strings"
+	sa "social-network/backend/services/auth"
+	sp "social-network/backend/services/profile"
 )
 
 type NotificationService struct {
-	authRepo    *ra.AuthRepository
-	notifRepo   *rn.NotifRepository
-	profileRepo *rp.ProfileRepository
-	groupRepo   *rg.GroupRepository
-	chatServer  *sc.ChatServer
+	authService    *sa.AuthService
+	notifRepo      *rn.NotifRepository
+	profileService *sp.ProfileService
+	groupRepo      *rg.GroupRepository
+	chatServer     *sc.ChatServer
 }
 
-func NewNotifService(notifRepo *rn.NotifRepository, authRepo *ra.AuthRepository, profileRepo *rp.ProfileRepository, groupRepo *rg.GroupRepository, chatServer *sc.ChatServer) *NotificationService {
+func NewNotifService(notifRepo *rn.NotifRepository, authService *sa.AuthService, profileService *sp.ProfileService, groupRepo *rg.GroupRepository, chatServer *sc.ChatServer) *NotificationService {
 	return &NotificationService{
-		notifRepo:   notifRepo,
-		authRepo:    authRepo,
-		profileRepo: profileRepo,
-		groupRepo:   groupRepo,
-		chatServer:  chatServer,
+		notifRepo:      notifRepo,
+		authService:    authService,
+		profileService: profileService,
+		groupRepo:      groupRepo,
+		chatServer:     chatServer,
 	}
 }
 

@@ -41,12 +41,13 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	offset := r.URL.Query().Get("offset")
-	fmt.Printf("[filter] offset: %v\n", offset)
 	errOffset := utils.IsValidUUID(offset)
 	if errOffset != nil && offset != "0" {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Incorrect Offset Format!"})
 		return
 	}
+
+	fmt.Printf("offset of groups: %v\n", offset)
 	groups, errJson := Ghandler.gService.GetGroups(filter, offset, userID.String())
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
@@ -90,7 +91,7 @@ func (Ghandler *GroupHanlder) CreateGroup(w http.ResponseWriter, r *http.Request
 	}
 
 	// handle the image encoding in the phase that comes before the adding process
-	path, errUploadImg := utils.HanldeUploadImage(r, "group", "groups")
+	path, errUploadImg := utils.HanldeUploadImage(r, "group", "avatars/groups")
 	if errUploadImg != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message, Error: errUploadImg.Error})
 		return

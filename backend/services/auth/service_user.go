@@ -14,6 +14,14 @@ func (s *AuthService) GetUser(login *models.Login) (*models.User, *models.ErrorJ
 	return user, nil
 }
 
+func (s *AuthService) GetUserFullName(userId string) (string, *models.ErrorJson) {
+	fullName, err := s.repo.GetUserFullNameById(userId)
+	if err != nil {
+		return "", &models.ErrorJson{Status: err.Status, Message: err.Message}
+	}
+	return fullName, nil
+}
+
 
 func (s *AuthService) UserExists(id int) (bool, *models.ErrorJson) {
 	exists, errJson := s.repo.UserExists(id)

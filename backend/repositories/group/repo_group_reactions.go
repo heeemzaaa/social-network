@@ -15,14 +15,14 @@ func (appRepo *GroupRepository) AddReaction(reaction *models.GroupReaction, type
 	(reactionID , entityType, entityID,reaction,userID) VALUES (?,?,?,?,?) RETURNING reaction`
 	stmt, err := appRepo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 1", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()
 
 	err = stmt.QueryRow(reactionID, reaction.EntityType, reaction.EntityId, type_reaction, reaction.UserId).Scan(
 		&reaction_created.Reaction)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v 2", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 2", err)}
 	}
 	return reaction_created, nil
 }
@@ -39,7 +39,7 @@ func (appRepo *GroupRepository) UpdateReactionLike(reaction *models.GroupReactio
 
 	err := appRepo.db.QueryRow(query, reaction.Id).Scan(&reaction_created.Reaction)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v ", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v ", err)}
 	}
 
 	return reaction_created, nil
@@ -52,7 +52,7 @@ func (appRepo *GroupRepository) HanldeReaction(reaction *models.GroupReaction) (
 	 `
 	stmt, err := appRepo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v jj", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v jj", err)}
 	}
 	defer stmt.Close()
 	
@@ -66,7 +66,7 @@ func (appRepo *GroupRepository) HanldeReaction(reaction *models.GroupReaction) (
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v jjj", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v jjj", err)}
 	}
 	return reaction_existed, nil
 }

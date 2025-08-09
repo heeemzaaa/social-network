@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react'
 import "./comments.css"
+import { useEffect } from 'react'
 import { MdPermMedia } from "react-icons/md";
 import { FaPaperPlane } from "react-icons/fa";
-
 import { useActionState } from 'react'
 import { commentPostAction } from '@/app/_actions/posts'
+import { commentGroupPostAction } from '@/app/_actions/groupPosts'
 
-export default function CommentsFooter({ id, setComments, onCommentMessage }) {
+export default function CommentsFooter({ id, groupID = null,  setComments, onCommentMessage }) {
+    console.log("+=====> group id: ", groupID)
     const initialState = {
+        group: groupID ? true : false,
+        groupID: groupID,
         message: '',
         content: '',
         nickname: '',
@@ -18,10 +21,11 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
         imagePath: '',
     };
 
-    const [state, formAction] = useActionState(commentPostAction, initialState)
-
+    const [postActionState, postAction] = useActionState(commentPostAction, initialState)
+    const [groupActionState, groupAction] = useActionState(commentGroupPostAction, initialState)
     useEffect(() => {
-        if (state.success) {
+        let state = postActionState.success ?  postActionState :  groupActionState.success ? groupActionState : null
+        if (state?.success) {
             const newComment = {
                 content: state.content,
                 nickName: state.nickname,
@@ -30,18 +34,16 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 createdAt: new Date(),
                 imagePath: state.imagePath,
             };
-            console.log('newComment', newComment)
             setComments(prev => [newComment, ...prev]);
 
             if (onCommentMessage) {
                 onCommentMessage("A new comment was added");
             }
         }
-    }, [state]); // This will run every time state changes (after submission)
-    console.log('state', state)
+    }, [postActionState, groupActionState])
     return (
         <form
-            action={formAction}
+            action={groupID ? groupAction : postAction}
             className='comments_footer flex justify-center align-center p1 gap-1'
         >
             <label htmlFor="commentImg">
@@ -56,6 +58,7 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
             />
 
             <input type="hidden" name="postID" value={id} />
+            {groupID && <input type="hidden" name="groupId" value={groupID} />}
 
             <input
                 type="text"
@@ -68,9 +71,6 @@ export default function CommentsFooter({ id, setComments, onCommentMessage }) {
                 <FaPaperPlane size="24px" />
             </button>
 
-            {state.errors?.commentContent && (
-                <span className="field-error">{state.errors.commentContent}</span>
-            )}
         </form>
     );
 }

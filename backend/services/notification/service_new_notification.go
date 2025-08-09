@@ -1,9 +1,10 @@
 package notification
 
 import (
+	"time"
+
 	"social-network/backend/models"
 	"social-network/backend/utils"
-	"time"
 )
 
 // PostService handles the creation of a new notification based on the provided data.
@@ -12,7 +13,7 @@ func (NS *NotificationService) PostService(data *models.Notif) *models.ErrorJson
 		return errJson
 	}
 
-	fullName, errJson := NS.authRepo.GetUserFullNameById(data.SenderId)
+	fullName, errJson := NS.authService.GetUserFullName(data.SenderId)
 	if errJson != nil {
 		return errJson
 	}

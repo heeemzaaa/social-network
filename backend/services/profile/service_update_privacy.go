@@ -4,11 +4,10 @@ import (
 	"fmt"
 
 	"social-network/backend/models"
-	ns "social-network/backend/services/notification"
 )
 
 // here we will handle the logic of updating the privacy of a user
-func (s *ProfileService) UpdatePrivacy(userID string, requestorID string, wantedStatus string, NS *ns.NotificationService) (*models.Profile, *models.ErrorJson) {
+func (s *ProfileService) UpdatePrivacy(userID string, requestorID string, wantedStatus string) (*models.Profile, *models.ErrorJson) {
 	profile := &models.Profile{}
 	exists, err := s.repo.UserExists(userID)
 	if err != nil {
@@ -46,16 +45,6 @@ func (s *ProfileService) UpdatePrivacy(userID string, requestorID string, wanted
 		err = s.repo.AcceptAllrequest(userID)
 		if err != nil {
 			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
-		}
-
-		all, errJson := NS.GetAllNotificationByType(userID, "follow-private")
-		if errJson != nil {
-			return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
-		}
-		
-		errJson = NS.ToggleAllStaus(all, "accept", "follow-private")
-		if errJson != nil {
-			return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 		}
 
 		profile, err = s.GetProfileData(userID, requestorID)

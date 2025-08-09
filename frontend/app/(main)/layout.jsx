@@ -2,9 +2,9 @@
 
 import Header from './_components/header'
 import Navigation from './_components/navigation'
+import UserProvider from './_lib/webSocket';
 import { ModalProvider } from './_context/ModalContext'
 import { NotificationProvider } from './_context/NotificationContext';
-import UserProvider from './_lib/webSocket';
 
 export default function MainLayout({ children }) {
   return (

@@ -8,7 +8,6 @@ import { useModal } from '../../_context/ModalContext';
 
 // InviteFriendForm component
 const InviteFriendForm = ({ groupId }) => {
-    console.log("grp id ", groupId);
     const [followers, setFollowers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -24,10 +23,7 @@ const InviteFriendForm = ({ groupId }) => {
 
                 if (res.ok) {
                     const result = await res.json()
-
                     setFollowers(result)
-                    console.log("followers", result);
-
                 }
 
             } catch (err) {

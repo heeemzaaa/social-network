@@ -22,7 +22,6 @@ func isValidName(name string) error {
 	return nil
 }
 
-
 func (s *AuthService) isValidEmail(email string) error {
 	if strings.TrimSpace(email) == "" {
 		return errors.New("email is required")
@@ -84,9 +83,6 @@ func HashPassword(password string) (string, error) {
 
 func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	if err != nil {
-		fmt.Println("error comparing the password and the hash", err)
-	}
 	return err == nil
 }
 
@@ -103,10 +99,12 @@ func ValidateDateRegister(date string) error {
 	if timeParsed.After(time.Now()) {
 		return fmt.Errorf("please set a date that comes before %v", models.NewDate(time.Now()).Format("2006-01-02"))
 	}
-	// minimum to have 14 yo if u wanna join us 
+	// minimum to have 14 yo if u wanna join us
 	if time.Since(timeParsed) < time.Duration(float64(time.Hour)*24*365.25*14) {
 		return errors.New("too young! go play outside and enjoy your childhood")
 	}
-
+	if time.Since(timeParsed) > time.Duration(float64(time.Hour)*24*365.25*100) {
+		return errors.New("You need some rest")
+	}
 	return nil
 }

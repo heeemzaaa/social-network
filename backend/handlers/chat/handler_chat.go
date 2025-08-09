@@ -58,6 +58,7 @@ func (server *ChatServer) ChatServerHandler(w http.ResponseWriter, r *http.Reque
 	// kinda of repetitive but i'm really done with everything!!!
 	server.AddClient(client)
 	go server.BroadCastOnlineStatus()
+	// go  server.SendNotificationToUser()
 	go client.ReadMessages()
 	go client.WriteMessages()
 }

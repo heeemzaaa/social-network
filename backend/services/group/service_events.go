@@ -9,7 +9,7 @@ import (
 
 // the process of checking if a user is a member of a group of not will be hold at the service of every function
 
-func (gService *GroupService) GetGroupEvents(groupID, userID string, offset int64) ([]models.Event, *models.ErrorJson) {
+func (gService *GroupService) GetGroupEvents(groupID, userID, offset string) ([]models.Event, *models.ErrorJson) {
 	if errJson := gService.gRepo.GetGroupById(groupID); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
@@ -30,18 +30,17 @@ func (gService *GroupService) GetGroupEvents(groupID, userID string, offset int6
 //  check if the values entered by the user are correct ( waaa tleee3  liya hadshii frassii mumiil)
 // as always we need to check if the user is part of the group before adding an event
 
-func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
-	group, errJson := gService.GetGroupInfo(event.GroupId)
-	if errJson != nil {
-		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+func (gService *GroupService) AddGroupEvent(event *models.Event) ([]models.User, *models.Event, *models.ErrorJson) {
+	if errJson := gService.gRepo.GetGroupById(event.Group.GroupId); errJson != nil {
+		return nil, nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	// // rani bedelt GetGroupById by GetGroupInfo // //
 	// if errJson := gService.gRepo.GetGroupById(event.GroupId); errJson != nil {
-	// 	return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	// 	return nil, nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	// }
 	// always check the membership and also the the group is a valid one
-	if errMembership := gService.CheckMembership(event.GroupId, event.EventCreator.Id); errMembership != nil {
-		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+	if errMembership := gService.CheckMembership(event.Group.GroupId, event.EventCreator.Id); errMembership != nil {
+		return nil, nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 	// here we'll be checking if the input is valid
 	errValidation := models.ErrEventGroup{}
@@ -59,37 +58,16 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event,
 	}
 
 	if errValidation != (models.ErrEventGroup{}) {
-		return nil, &models.ErrorJson{Status: 400, Message: errValidation}
+		return nil, nil, &models.ErrorJson{Status: 400, Message: errValidation}
 	}
-	event, errJson = gService.gRepo.AddGroupEvent(event)
+	event, errJson := gService.gRepo.AddGroupEvent(event)
 	if errJson != nil {
-		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return nil, nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 
-	members, errJson := gService.gRepo.GetGroupMembers(event.GroupId)
+	members, errJson := gService.gRepo.GetGroupMembers(event.Group.GroupId)
 	if errJson != nil {
-		return nil, errJson
+		return nil, nil, errJson
 	}
-
-	for _, user := range members {
-		if user.Id == event.EventCreator.Id {
-			continue
-		}
-		//  add the notification for the adding of the event so we need the func of amine too
-		//  group_id / sender_id (the one who creted the event / group-event)
-		// {event}
-
-		if errJson := gService.sNotif.PostService(&models.Notif{
-			SenderId:   event.EventCreator.Id,
-			RecieverId: user.Id,
-			Type:       "group-event",
-			GroupId:    event.GroupId,
-			EventId:    event.EventId,
-			GroupName:  group.Title,
-		}); errJson != nil {
-			return nil, errJson
-		}
-	}
-
-	return event, nil
+	return members, event, nil
 }

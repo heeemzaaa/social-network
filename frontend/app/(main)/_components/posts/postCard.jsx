@@ -1,17 +1,22 @@
 "use client "
-import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa"
 import "./style.css"
 import Avatar from "../avatar"
+import { timeAgo } from "@/app/_utils/time"
 import { useModal } from "../../_context/ModalContext"
+import { useRouter } from "next/navigation"
+import CommentsContainer from "../comments/commentsContainer"
+import { HiOutlineClock } from "react-icons/hi2"
 import { likePostAction } from "@/app/_actions/posts"
 import { useActionState, useState } from "react"
-import CommentsContainer from "../comments/commentsContainer"
-import { useRouter } from "next/navigation"
-import { timeAgo } from "@/app/_utils/time"
+import {
+    FaRegHeart,
+    FaHeart,
+    FaRegComment
+} from "react-icons/fa"
 
-import { HiOutlineClock } from "react-icons/hi2"
 
 export default function PostCard({
+
     id,
     user,
     content,
@@ -20,10 +25,10 @@ export default function PostCard({
     total_likes,
     total_comments,
     liked,
-    privacy
+    privacy,
+    groupID
 }) {
     const [totalComments, setTotalComments] = useState(total_comments)
-    console.log(user)
     const handleCommentMessage = (msg) => {
         setTotalComments(prev => prev + 1)
     }
@@ -39,7 +44,7 @@ export default function PostCard({
         router.push(`/profile/${profileId}`);
     }
 
-
+    console.log('user.avatar', user.avatar)
     const [state, formAction] = useActionState(likePostAction, initialState)
     return (
         <div className="post-card">
@@ -51,7 +56,7 @@ export default function PostCard({
                             <h3 className="post-user hover-pointer">
                                 {user.fullname}
                             </h3>
-                            <span className="hover-pointer text-sm font-medium " style={{opacity:".8"}}>
+                            <span className="hover-pointer text-sm font-medium " style={{ opacity: ".8" }}>
                                 {user.nickname && `@${user.nickname}`}
                             </span>
                         </div>
@@ -61,7 +66,8 @@ export default function PostCard({
                 <p className="post-content">{content}</p>
                 {image_path && (
                     <div className="post-card-img" >
-                        <img src={`http://localhost:8080/static/${image_path}`} alt={image_path} className="rounded-md" style={{width: '100%', height: 'max-content'}} />
+                        <img src={`http://localhost:8080/static/${image_path}?creator=${user.id || ""}&groupID=${groupID || ""}&postID=${id || ""}`} alt={image_path}
+                            className="rounded-md" style={{ width: '100%', height: 'max-content' }} />
                     </div>
                 )}
 
@@ -75,7 +81,7 @@ export default function PostCard({
                             </button>
                         </div>
                     </form>
-                    <div onClick={() => { openModal(<CommentsContainer id={id} onCommentMessage={handleCommentMessage} />) }}>
+                    <div onClick={() => { openModal(<CommentsContainer id={id} onCommentMessage={handleCommentMessage} groupID={groupID || ""} creatorID={user.id} />) }}>
                         <div style={actionStyle}>
                             <FaRegComment />
                             <span>

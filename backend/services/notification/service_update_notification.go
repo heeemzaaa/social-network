@@ -43,12 +43,12 @@ func (NS *NotificationService) UpdateService(data models.Unotif, userId string) 
 func (NS *NotificationService) UpdateFollowPrivateProfile(data models.Unotif, notification models.Notification) *models.ErrorJson {
 	switch data.Status {
 	case "accept":
-		if err := NS.profileRepo.AcceptedRequest(notification.RecieverId, notification.SenderId); err != nil {
+		if err := NS.profileService.AcceptedRequest(notification.RecieverId, notification.SenderId); err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 
 	case "reject":
-		if err := NS.profileRepo.RejectedRequest(notification.RecieverId, notification.SenderId); err != nil {
+		if err := NS.profileService.RejectedRequest(notification.RecieverId, notification.SenderId); err != nil {
 			return models.NewErrorJson(500, "500 - cannot reject request", err)
 		}
 

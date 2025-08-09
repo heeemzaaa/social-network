@@ -172,6 +172,9 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 				conn.Message <- message
 			}
 		}
+	case  "notification": 
+	
+	   
 	}
 }
 

@@ -17,16 +17,13 @@ func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string)
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(invitationID, userId, userToInvite, groupId, "invitation-request")
+	_, err = stmt.Exec(invitationID, userId, userToInvite, groupId, "invitation-request")
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
-	}
-	if count, _ := res.RowsAffected(); count == 0 {
-		return &models.ErrorJson{Status: 404, Error: "Invitation not found"}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	return nil
@@ -43,14 +40,14 @@ func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId, invitedUserId
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(userId, invitedUserId, groupId, "invitation-request")
+	_, err = stmt.Exec(userId, invitedUserId, groupId, "invitation-request")
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	// it must be here :)
-	if count, _ := res.RowsAffected(); count == 0 {
-		return &models.ErrorJson{Status: 404, Error: "Invitation not found"}
-	}
+	// if count, _ := res.RowsAffected(); count == 0 {
+	// 	return &models.ErrorJson{Status: 404, Error: "Invitation not found"}
+	// }
 
 	return nil
 }

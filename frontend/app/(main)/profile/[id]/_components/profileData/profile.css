@@ -92,11 +92,9 @@
     .profile_page_section {
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        /* justify-content: center; */
         align-items: center;
         overflow-y: auto;
-        min-height: 100vh;
-        height: max-content;
     }
 
     .ProfileContainer {

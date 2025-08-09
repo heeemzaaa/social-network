@@ -7,6 +7,9 @@ import (
 	"time"
 
 	"social-network/backend/models"
+
+	"social-network/backend/services/images"
+
 	auth "social-network/backend/services/auth"
 )
 
@@ -24,6 +27,10 @@ type UserInfo struct {
 	UserID      string
 	Count       int
 	LastRequest time.Time
+}
+
+type ImageMiddleware struct {
+	service *images.ServiceImages
 }
 
 type RateLimitMiddleWare struct {
@@ -49,6 +56,10 @@ func NewMiddleWare(handler http.Handler, service *auth.AuthService) *Middleware 
 
 func NewLoginMiddleware(handler http.Handler, service *auth.AuthService) *LoginRegisterMiddleWare {
 	return &LoginRegisterMiddleWare{handler, service}
+}
+
+func NewImagesMiddleware(handler http.Handler, service *images.ServiceImages) *ImageMiddleware {
+	return &ImageMiddleware{service: service}
 }
 
 func WriteJsonErrors(w http.ResponseWriter, errJson models.ErrorJson) {

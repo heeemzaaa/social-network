@@ -73,10 +73,10 @@ func SetGroupRoutes(mux *http.ServeMux, db *sql.DB,
 	// authService := sa.NewAuthServer(authRepo)
 	// other setups
 	groupRepo := gRepo.NewGroupRepository(db)
-	groupService := gService.NewGroupService(groupRepo, profileService, notifService)
+	groupService := gService.NewGroupService(groupRepo, profileService)
 	GroupHandler := group.NewGroupHandler(groupService)
 	GroupIDHandler := group.NewGroupIDHandler(groupService)
-	GroupEventHandler := group.NewGroupEventHandler(groupService)
+	GroupEventHandler := group.NewGroupEventHandler(groupService, notifService)
 	GroupPostHandler := group.NewGroupPostHandler(groupService)
 	GroupCommentHandler := group.NewGroupCommentHandler(groupService)
 	GroupEventIDHandler := group.NewGroupEventIDHandler(groupService)

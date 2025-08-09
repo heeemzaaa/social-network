@@ -22,7 +22,7 @@ func NewNotificationHandler(ns *notification.NotificationService) *NotificationH
 func (HN *NotificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodGet {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "405 - Method Not Allowed", Message: "ERROR!! Method Not Allowed!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "405 - Method Not Allowed"})
 		return
 	}
 	HN.GetNotifications(w, r)

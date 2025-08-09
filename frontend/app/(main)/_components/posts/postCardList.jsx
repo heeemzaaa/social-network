@@ -1,7 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
 import PostCard from "./postCard";
 import { useModal } from "../../_context/ModalContext";
+import {
+    useEffect,
+    useState
+} from "react";
 
 export default function PostCardList() {
     const [posts, setPosts] = useState([])
@@ -11,7 +14,6 @@ export default function PostCardList() {
         if (postData?.type !== 'post') return;
 
         setPosts((prev) => {
-            console.log("prev: ", prev)
             if (!prev) {
                 return [postData]
             } else {
@@ -23,7 +25,6 @@ export default function PostCardList() {
 
     useEffect(() => {
         async function fetchPosts() {
-            console.log("fetch posts here.");
             try {
                 const resp = await fetch("http://localhost:8080/api/posts", {
                     method: "GET",
@@ -35,7 +36,6 @@ export default function PostCardList() {
                     return;
                 }
                 const data = await resp.json();
-                console.log(data)
                 setPosts(data);
             } catch (error) {
                 console.log("error fetching posts", error);
@@ -44,12 +44,18 @@ export default function PostCardList() {
 
         fetchPosts();
     }, []);
-    console.log("***", posts)
     return (
-        <div className="list-container " style={{ overflowY: "auto" }}>
-            {posts?.map((post) => (
-                <PostCard key={post.id} {...post} />
-            ))}
+        <div className="list-container" style={{ overflowY: "auto" }}>
+            {
+                posts?.length > 0 
+                    ? posts?.map((post) => (
+                        <PostCard key={post.id} {...post} />
+                    ))
+                    : <div style={{width:"100%", maxWidth:"500px", margin:"auto", textAlign:"center"}}>
+                        <img src="/noFeed.svg" alt="" />
+                        <p className="font-semibold">Be thet first to post on our platform.</p>
+                    </div>
+            }
         </div>
     );
 }
