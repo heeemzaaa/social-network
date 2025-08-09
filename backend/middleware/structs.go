@@ -56,7 +56,7 @@ func NewLoginMiddleware(handler http.Handler, service *auth.AuthService) *LoginR
 	return &LoginRegisterMiddleWare{handler, service}
 }
 
-func NewImagesMiddleware(handler http.Handler, service *images.ServiceImages) *ImageMiddleware {
+func NewImagesMiddleware(service *images.ServiceImages) *ImageMiddleware {
 	return &ImageMiddleware{service: service}
 }
 
