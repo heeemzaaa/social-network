@@ -1,23 +1,21 @@
 # Development Stage
-FROM node:18-alpine AS development
+# FROM node:18-alpine AS development
 
-WORKDIR /app
+# WORKDIR /app
 
-COPY package*.json ./
+# COPY package*.json ./
 
-RUN npm ci
+# RUN npm ci
 
-COPY . .
+# COPY . .
 
-EXPOSE 3000
+# EXPOSE 3000
 
 
-CMD ["npm", "run", "dev"]
+# CMD ["npm", "run", "dev"]
 
 # Builder Stage
-FROM node:18-alpine AS builder
-
-
+FROM node:18-alpine 
 
 WORKDIR /app
 

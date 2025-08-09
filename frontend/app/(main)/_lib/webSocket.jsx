@@ -11,12 +11,13 @@ export default function UserProvider({ children }) {
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
+        console.log("wwwwwwwwwwwwwwwwwwwwwwwayli",`${process.env.NEXT_PUBLIC_API_URL}`);
+        console.log("data user", `${process.env.NEXT_PUBLIC_API_URL}/api/loggedin`);
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/loggedin`, {
           credentials: "include",
         });
         const data = await res.json();
         console.log("✅ Logged in user:", data);
-
         if (data.is_logged_in) {
           setAuthenticatedUser({
             id: data.id,

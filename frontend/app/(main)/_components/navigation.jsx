@@ -24,8 +24,10 @@ export default function Navigation() {
 
   useEffect(() => {
     async function GetUserInfo() {
+      console.log("profile heeree the endpoint", `${process.env.NEXT_PUBLIC_API_URL}/api/loggedin`);
       let res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/loggedin`, { credentials: 'include' })
       let data = await res.json()
+      console.log("data feteched", data);
       setId(data.id)
     }
     GetUserInfo()

@@ -77,7 +77,7 @@ export async function createPostAction(prevState, formData) {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("session")?.value;
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`, {
+    const response = await fetch(`http://localhost:8080/api/posts`, {
         method: "POST",
         body: newFormData,
         headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},

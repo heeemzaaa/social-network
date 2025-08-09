@@ -7,7 +7,7 @@ import AboutUser from "./_components/profileData/abouUser"
 import UserPosts from "./_components/profilePosts/userPosts"
 import { MdPending } from "react-icons/md"
 import { FaLockOpen, FaLock } from "react-icons/fa"
-import React, {  useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { RiUserFollowFill, RiUserUnfollowFill } from "react-icons/ri"
 
 export default function Page({ params }) {
@@ -18,7 +18,7 @@ export default function Page({ params }) {
   const id = resolvedParams.id;
 
   useEffect(() => {
-    async function fetchUserInfo(){
+    async function fetchUserInfo() {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${id}/info`, { credentials: 'include' })
         const profile = await res.json()
@@ -87,7 +87,7 @@ export default function Page({ params }) {
             ? prev.followers + 1
             : prev.followers,
       }))
-      
+
       if (updated.is_follower) setIsFollower(updated.is_follower)
     } catch (err) {
       console.error("Error:", err)
@@ -98,6 +98,7 @@ export default function Page({ params }) {
   async function handleTogglePrivacy() {
     const newPrivacy = userInfos.visibility === 'private' ? 'public' : 'private'
     try {
+      console.log("endpoint requested is ", `${process.env.NEXT_PUBLIC_API_URL}/api/profile/${id}/edit/update-privacy`);
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${id}/edit/update-privacy`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },

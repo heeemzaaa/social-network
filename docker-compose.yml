@@ -1,4 +1,3 @@
-
 services:
 
   backend:
@@ -7,9 +6,15 @@ services:
       dockerfile: go.Dockerfile
     ports:
       - "8080:8080"
-
+    environment:
+      - PORT=8080
+    networks:
+      - app-network
   frontend:
     build:
+      args:
+        - NEXT_PUBLIC_API_URL=http://backend:8080
+        - NEXT_PUBLIC_WS_URL=ws://backend:8080
       context: ./frontend
       dockerfile: next.Dockerfile
     ports:
@@ -19,3 +24,9 @@ services:
       - NEXT_PUBLIC_WS_URL=ws://backend:8080
     depends_on:
       - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

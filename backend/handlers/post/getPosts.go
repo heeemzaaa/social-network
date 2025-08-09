@@ -10,6 +10,7 @@ import (
 )
 
 func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("heere inside the get posts handler", r.Method)
 	usID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)})
