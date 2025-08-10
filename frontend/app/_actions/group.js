@@ -70,7 +70,7 @@ export async function createGroupAction(prevState, formData) {
             credentials: 'include',
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {}
         })
-        const data = await res.json();
+        const data = await res.json()
         if (!res.ok) {
             return {
                 ...prevState,

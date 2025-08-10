@@ -9,6 +9,8 @@ import GroupList from "../_components/group_list";
 import { useUserContext } from "../_context/userContext";
 import { fetchMessages } from "../_components/fetchMessages";
 import { SlActionUndo } from "react-icons/sl";
+import Avatar from "../_components/avatar"
+
 
 const emojis = ["😀", "😂", "😍", "🔥", "🥺", "👍", "❤️", "🎉"];
 
@@ -17,7 +19,8 @@ export default function Chat() {
   const [groups, setGroups] = useState([]);
   const usersBlockRef = useRef(null);
   const chatBlockRef = useRef(null);
-  const [chatBodyName, setChatBodyName] = useState("");
+  const [chatHeaderName, setChatHeaderName] = useState("")
+  const [chatHeaderImg, setChatHeaderImg] = useState("")
   const [chatTarget, setChatTarget] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const { socket, messages, setMessages, authenticatedUser } = useUserContext();
@@ -37,7 +40,7 @@ export default function Chat() {
       const mapped = usersList.map((user) => ({
         userID: user.id,
         username: user.fullname,
-        img: user.img || "/no-profile.png",
+        img: user.avatar,
       }));
       setUsers(mapped);
     } catch (err) {
@@ -56,7 +59,7 @@ export default function Chat() {
       const mappedG = groupList.map((group) => ({
         group_id: group.group_id,
         title: group.title,
-        image_path: group.image_path || "/no-profile.png",
+        image_path: group.image_path,
       }));
 
       setGroups(mappedG);
@@ -105,7 +108,8 @@ export default function Chat() {
       usersBlockRef.current.style.display = "none";
     }
 
-    setChatBodyName(user.username);
+    setChatHeaderName(user.username)
+    setChatHeaderImg(user.img)
   };
 
   // handle group click selection
@@ -118,7 +122,8 @@ export default function Chat() {
       chatBlockRef.current.style.display = "flex";
       usersBlockRef.current.style.display = "none";
     }
-    setChatBodyName(group.title);
+    setChatHeaderName(group.title)
+    setChatHeaderImg(group.image_path)
   };
 
   const sendMessage = () => {
@@ -205,7 +210,7 @@ export default function Chat() {
       </section>
 
       <section className="chat_place flex-col" ref={chatBlockRef}>
-        {chatBodyName ? (
+        {chatHeaderName ? (
           <div className="chat_header p2">
             <div
               className="goBack cursor-pointer w-8 h-8"
@@ -214,8 +219,8 @@ export default function Chat() {
             >
               <SlActionUndo />
             </div>
-            <img src="/no-profile.png" alt="Profile" />
-            <p className="text-lg font-semibold">{chatBodyName}</p>
+            <Avatar img={chatHeaderImg} size="42" />
+            <p className="text-lg font-semibold">{chatHeaderName}</p>
           </div>
         ) : (
           <div className="chat_header p2 text-gray-500 italic">
@@ -223,7 +228,7 @@ export default function Chat() {
           </div>
         )}
 
-        {chatBodyName ? (
+        {chatHeaderName ? (
           <div className="chat_body">
             {(messages[chatTarget?.ID] || []).map((msg, i) => (
               <div

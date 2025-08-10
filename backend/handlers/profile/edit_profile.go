@@ -26,40 +26,39 @@ func NewEditProfileHandler(service *ps.ProfileService, NS *ns.NotificationServic
 
 // PATCH api/profile/id/edit/update-privacy
 func (ep *EditProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Request) {
-	authSessionID, err := middleware.GetUserIDFromContext(r.Context())
+	authUserID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
 	}
 
 	type RequestBody struct {
-		ProfileID    string `json:"profile_id"`
 		WantedStatus string `json:"wanted_status"`
 	}
 
 	var request RequestBody
 	err = json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid data !"})
 		return
 	}
 
-	profile, errUpdate := ep.service.UpdatePrivacy(request.ProfileID, authSessionID.String(), request.WantedStatus)
+	profile, errUpdate := ep.service.UpdatePrivacy(authUserID.String(), request.WantedStatus)
 	if errUpdate != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUpdate.Status, Message: errUpdate.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUpdate.Status, Error: errUpdate.Error})
 		return
 	}
 
 	if profile.User.Visibility == "public" {
-		all, errJson := ep.NS.GetAllNotificationByType(request.ProfileID, "follow-private")
+		all, errJson := ep.NS.GetAllNotificationByType(authUserID.String(), "follow-private")
 		if errJson != nil {
-			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 			return
 		}
 
 		errJson = ep.NS.ToggleAllStaus(all, "accept", "follow-private")
 		if errJson != nil {
-			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 			return
 		}
 	}
