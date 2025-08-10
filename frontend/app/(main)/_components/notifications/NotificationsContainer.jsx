@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNotification } from "../../_context/NotificationContext";
 import "./styles.css";
+import { imageConfigDefault } from "next/dist/shared/lib/image-config";
 
 export default function NotificationsPopover() {
   const containerRef = useRef();
@@ -15,6 +16,7 @@ export default function NotificationsPopover() {
   const { showNotification } = useNotification();
 
   const notificationContent = (notification) => {
+    console.log('notification.SenderFullName', notification.SenderFullName)
     if (notification.Status == "later") {
       switch (notification.Type) {
         case "follow-private":
@@ -140,7 +142,7 @@ export default function NotificationsPopover() {
       style={{ maxHeight: "350px", overflowY: "auto", width: "300px" }}
       className="bg-white shadow p-2 rounded"
     >
-      {notifications.length === 0 && !isLoading && <p>No notifications</p>}
+      {notifications.length === 0 && !isLoading && <img src="/no-notifications.svg" style={{width: '100%', height: '100%'}}/>}
 
       {notifications.map((notif) => (
         <div key={notif.Id} className={`notification-card ${notif.Seen ? "seen" : "unseen"}`}>
@@ -156,9 +158,9 @@ export default function NotificationsPopover() {
       ))}
 
       {isLoading && <p className="text-center text-gray-400 text-xs">Loading...</p>}
-      {!hasMore && notifications.length > 0 && (
+      {/* {!hasMore && notifications.length > 0 && (
         <p className="text-center text-gray-400 text-xs">No more notifications</p>
-      )}
+      )} */}
     </div>
   );
 }

@@ -56,9 +56,8 @@ func (appRep *AuthRepository) GetUser(login *models.Login) (*models.User, *model
 
 // get the username from the userId
 func (appRepo *AuthRepository) GetUserFullNameById(userId string) (string, *models.ErrorJson) {
-	var firstName string
-	var lastName string
-	query := `SELECT firstName, lastName FROM users WHERE userID = ?`
+	var fullName string
+	query := `SELECT CONCAT(firstName, ' ', lastName) FROM users WHERE userID = ?`
 
 	stmt, err := appRepo.db.Prepare(query)
 	if err != nil {
@@ -66,12 +65,11 @@ func (appRepo *AuthRepository) GetUserFullNameById(userId string) (string, *mode
 	}
 	defer stmt.Close()
 	
-	err = stmt.QueryRow(userId).Scan(&firstName, &lastName)
+	err = stmt.QueryRow(userId).Scan(&fullName)
 	if err != nil {
 		return "", &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
-
-	return firstName+lastName, nil
+	return fullName, nil
 }
 
 func (appRepo *AuthRepository) UserExists(id int) (bool, *models.ErrorJson) {

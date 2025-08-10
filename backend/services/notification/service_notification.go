@@ -31,6 +31,10 @@ func NewNotifService(notifRepo *rn.NotifRepository, authService *sa.AuthService,
 
 // ToggleAllSeenFalse sets the seen status of all notifications to true for a user.
 func (NS *NotificationService) ToggleAllSeenFalse(notifications []models.Notification) *models.ErrorJson {
+	if len(notifications) == 0 {
+		return nil
+	}
+
 	for _, notification := range notifications {
 		if errJson := NS.notifRepo.UpdateSeen(notification.Id); errJson != nil {
 			return errJson
