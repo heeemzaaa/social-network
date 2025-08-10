@@ -35,7 +35,7 @@ export default function Header() {
   return (
     <header className='p3 flex justify-between align-center'>
       <div>
-        <h2>
+        <h2 className='font-semibold text-2xl '>
           {authenticatedUser && `Welcome ${authenticatedUser.fullName}!`}
         </h2>
       </div>

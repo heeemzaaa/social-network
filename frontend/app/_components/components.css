@@ -12,8 +12,11 @@ button {
 }
 
 .btn-primary {
+    display: flex;
+    gap: 8px;
     background-color: var(--color-primary);
     color: var(--color-dark);
+    padding: 12px;
 }
 
 .btn-secondary {

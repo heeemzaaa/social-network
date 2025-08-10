@@ -13,7 +13,7 @@ export default function Home() {
       <div style={{position:"sticky", top:"0", borderBottom:"solid 1px", paddingBottom:".5rem", margin:".5rem"}} >
         <Button style={{marginLeft:"auto"}} onClick={() => openModal(<CreatePost postAction={createPostAction} />)}>
           <HiOutlineDocumentPlus size={24} />
-          <span>Add New Post</span>
+          <span className="text-lg font-medium">Add New Post</span>
         </Button>
       </div>
       <PostCardList />
