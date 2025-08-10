@@ -8,24 +8,22 @@ import {
 
 export default function CommentsContainer({ id, onCommentMessage, groupID, creatorID }){
   const [comments, setComments] = useState([]);
-
   const postComment = `http://localhost:8080/api/posts/comments/${id}`
   const groupComment = `http://localhost:8080/api/groups/${groupID}/posts/${id}/comments?offset=0`
   useEffect(() => {
     const fetchComments = async () => {
-      console.log("trying to fetch: ", groupID ? groupComment : postComment)
       try {
         const res = await fetch(groupID ? groupComment : postComment, {
           method : 'GET',
           credentials: 'include',
         });
         const raw = await res.json();
-
+        
         const data = raw.map(comment => ({
           content: comment.content,
           fullName: comment.user?.fullname,
           nickName: comment.user?.nickname,
-          imagePath: comment.img,
+          imagePath: comment.img || comment.image_path,
           userImage: comment.user.avatar,
           createdAt: comment.created_at || new Date().toISOString(),
           likes: comment.likes || 0,

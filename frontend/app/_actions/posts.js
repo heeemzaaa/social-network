@@ -102,24 +102,49 @@ export async function createPostAction(prevState, formData) {
 
 
 export async function likePostAction(prevState, formData) {
+    console.log(prevState)
+
+    let url
+    let body
     const postId = formData.get("postId");
+    const groupId = formData.get("groupId");
+
     if (!postId) {
         return { ...prevState, message: "Post ID is required." };
     }
+
+    if (groupId && postId) {
+        url = `http://localhost:8080/api/groups/${groupId}/react/like`
+        console.log(postId)
+        body = {
+            entity_type: "post",
+            entity_id: postId
+        }
+    } else {
+        url = `http://localhost:8080/api/posts/like/${postId}`
+    }
+
+    console.log()
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
-        const res = await fetch(`http://localhost:8080/api/posts/like/${postId}`, {
+        const res = await fetch(url, {
             method: "POST",
+            body: JSON.stringify(body || {}),
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
         });
         const data = await res.json();
-        if (data.success) {
-            return {
+        if (res.ok) {
+            let state = {
                 message: "Liked successfully!",
-                liked: data.liked,
-                likes: data.total_likes,
-            };
+                liked: data.liked || data.reaction,
+                likes: data.total_likes || 0,
+            }
+            if (data.reaction) {
+                console.log(data.reaction)
+                data.reaction === 1 ? state.likes++ : state.likes--
+            }
+            return state
         } else {
             return { ...prevState, message: data.message || "Failed to like post." };
         }
@@ -132,7 +157,7 @@ export async function likePostAction(prevState, formData) {
 
 export async function commentPostAction(prevState, formData) {
     console.log("======> inside the comm")
-    
+
     let state = {
         error: null,
         errors: {},

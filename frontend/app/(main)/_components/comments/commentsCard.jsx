@@ -4,14 +4,14 @@ import Avatar from "../avatar"
 import { timeAgo } from '@/app/_utils/time'
 
 export default function CommentsCard({ comment, id, groupID, creatorID }) {
-    console.log(comment)
+    
     return (
         <div className='comments_card w-full p3 flex-col gap-3 shadow-lg'>
             <div className='card_header flex align-center gap-1'>
-                <Avatar img={comment.userImage || comment.user.avatar} size="42" />
+                <Avatar img={comment.userImage } size="42" />
                 <div className='flex-col'>
                     <span className='user_name text-md'>{comment.fullName}</span>
-                    <span className='nickname_comment text-sm' style={{ opacity: '.5' }}>{comment.nickName || comment.user.nickname && `@${comment.nickName}`}</span>
+                    <span className='nickname_comment text-sm' style={{ opacity: '.5' }}>{comment.nickName && `@${comment.nickName}`}</span>
                 </div>
             </div>
 

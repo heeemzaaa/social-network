@@ -7,16 +7,16 @@ import { useRouter } from "next/navigation"
 import CommentsContainer from "../comments/commentsContainer"
 import { HiOutlineClock } from "react-icons/hi2"
 import { likePostAction } from "@/app/_actions/posts"
-import { useActionState, useState } from "react"
+import { useActionState, useEffect, useState } from "react"
 import {
     FaRegHeart,
     FaHeart,
     FaRegComment
 } from "react-icons/fa"
-
+import { createParamsFromClient } from "next/dist/server/request/params"
 
 export default function PostCard({
-
+    post,
     id,
     user,
     content,
@@ -34,7 +34,7 @@ export default function PostCard({
     }
     const { openModal } = useModal()
     const initialState = {
-        liked: liked === 1,
+        liked: liked != 0,
         likes: total_likes,
         message: null,
     }
@@ -44,8 +44,8 @@ export default function PostCard({
         router.push(`/profile/${profileId}`);
     }
 
-    console.log('user.avatar', user.avatar)
     const [state, formAction] = useActionState(likePostAction, initialState)
+    console.log(post, groupID)
     return (
         <div className="post-card">
             <div className="post-card-body">
@@ -74,6 +74,7 @@ export default function PostCard({
                 <div className="post-actions flex gap-2 align-center flex-wrap" >
                     <form action={formAction}>
                         <input type="hidden" name="postId" value={id} />
+                        <input type="hidden" name="groupId" value={groupID} />
                         <div className="post-actions flex gap-2 align-center">
                             <button type="submit" style={actionStyle}>
                                 {state.liked ? <FaHeart color="red" /> : <FaRegHeart />}
@@ -100,7 +101,7 @@ export default function PostCard({
 }
 
 const actionStyle = {
-    fontSize: '20px',
+    fontSize: '16px',
     height: "min-content",
     display: "flex",
     alignItems: "center",

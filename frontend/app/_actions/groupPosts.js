@@ -79,9 +79,9 @@ export async function commentGroupPostAction(prevState, formData) {
             nickname: response.user.nickname,
             fullName: response.user.fullname,
             avatar: response.user.avatar,
-            success: true,
             createdAt: formatted,
-            imagePath: response.img,
+            imagePath: response.image_path,
+            success: true,
         };
     } catch (err) {
         return { ...prevState, message: "Server error." };

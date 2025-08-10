@@ -15,7 +15,6 @@ export default function UserProvider({ children }) {
           credentials: "include",
         });
         const data = await res.json();
-        console.log("✅ Logged in user:", data);
 
         if (data.is_logged_in) {
           setAuthenticatedUser({
@@ -25,11 +24,10 @@ export default function UserProvider({ children }) {
           });
         } else {
           setAuthenticatedUser(null);
-          console.warn("🚫 User not logged in");
         }
         console.log("Authenticated user set:", data.id);
       } catch (err) {
-        console.error("❌ Error fetching user:", err);
+        console.error(" Error fetching user:", err);
       }
     };
     fetchLoggedInUser();
@@ -42,7 +40,7 @@ export default function UserProvider({ children }) {
     socketRef.current = socket;
 
     socket.onopen = () => {
-      console.log("🟢 WebSocket connected");
+      console.log(" WebSocket connected");
     };
 
     socket.onmessage = (event) => {
@@ -76,16 +74,16 @@ export default function UserProvider({ children }) {
           }));
         }
       } catch (err) {
-        console.error("❌ Failed to parse WebSocket message:", err);
+        console.error(" Failed to parse WebSocket message:", err);
       }
     };
 
     socket.onerror = (err) => {
-      console.error("❌ WebSocket error:", err);
+      console.error(" WebSocket error:", err);
     };
 
     socket.onclose = () => {
-      console.log("🔌 WebSocket closed");
+      console.log(" WebSocket closed");
     };
     return () => {
       socket.close();

@@ -7,7 +7,6 @@ import { commentPostAction } from '@/app/_actions/posts'
 import { commentGroupPostAction } from '@/app/_actions/groupPosts'
 
 export default function CommentsFooter({ id, groupID = null,  setComments, onCommentMessage }) {
-    console.log("+=====> group id: ", groupID)
     const initialState = {
         group: groupID ? true : false,
         groupID: groupID,
