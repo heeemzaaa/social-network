@@ -30,6 +30,7 @@ func NewGroupHandler(gservice *gservice.GroupService) *GroupHanlder {
 
 // we only need the userId and filter based on owned, availabe and created
 func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("inside the get groups handler ")
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
@@ -46,8 +47,6 @@ func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Incorrect Offset Format!"})
 		return
 	}
-
-	fmt.Printf("offset of groups: %v\n", offset)
 	groups, errJson := Ghandler.gService.GetGroups(filter, offset, userID.String())
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})

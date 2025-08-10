@@ -4,11 +4,11 @@
 import { NextResponse } from "next/server";
 
 export async function middleware(request) {
-    console.log("heeere", `${process.env.NEXT_PUBLIC_API_URL}`);
-    console.log(` the endpoint is : ${process.env.NEXT_PUBLIC_API_URL}/api/loggedin`);
+    console.log("heeere", `${process.env.BACKEND_URL}`);
+    console.log(` the endpoint is : ${process.env.BACKEND_URL}/api/loggedin`);
     try {
         // Fetch authentication status from the external API
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/loggedin`, {
+        const response = await fetch(`${process.env.BACKEND_URL}/api/loggedin`, {
             headers: {
                 Cookie: request.headers.get('cookie'), // Forward client cookies to API
             },
