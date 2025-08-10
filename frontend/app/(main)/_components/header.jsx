@@ -1,20 +1,15 @@
 import { useEffect, useState } from 'react'
 import Button from '../../_components/button'
-import NotificationsPopover from './notifications/NotificationsPopover'
+import NotificationsPopover from './notifications/NotificationsContainer'
 import {
   HiBell,
-  HiChatBubbleOvalLeftEllipsis,
-  HiMiniPlusCircle,
-  HiMiniPlusSmall
 } from "react-icons/hi2";
-import Popover from './popover';
 import { useModal } from '../_context/ModalContext';
 import { useUserContext } from '../_context/userContext';
 
 export default function Header() {
   const { openModal } = useModal()
-  const [hasNewNotification, setHasNewNotification] = useState(false)
-  const { authenticatedUser } = useUserContext()
+  const { authenticatedUser, hasNewNotification, setHasNewNotification } = useUserContext()
 
   // Fetch notification seen status
   useEffect(() => {
@@ -45,17 +40,14 @@ export default function Header() {
         </h2>
       </div>
 
-      <div className='flex gap-2'>
-
-            <Button variant='btn-icon ' className="relative" onClick={()=>openModal(<NotificationsPopover />)}>
+      <Button variant='btn-icon' className='flex gap-2 ' onClick={()=> openModal(<NotificationsPopover />)}>
+        <div className='relative' style={{height:"24px"}} >
               <HiBell size={24} />
               {hasNewNotification && (
                 <span className="notification-badge"></span>
               )}
-            </Button>
-        
-
-      </div>
+        </div>
+      </Button>
     </header>
   )
 }

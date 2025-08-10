@@ -11,7 +11,6 @@ type Group struct {
 	GroupCreator    User      `json:"user"`
 	Description     string    `json:"description"`
 	ImagePath       string    `json:"image_path,omitempty"`
-	Image           string    `json:"image,omitempty"`
 	CreatedAt       time.Time `json:"created_at,omitempty"`
 	Total_Members   int       `json:"total_members,omitempty"`
 	Members         []User    `json:"members,omitempty"`

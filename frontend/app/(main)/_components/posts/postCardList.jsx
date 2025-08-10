@@ -53,7 +53,7 @@ export default function PostCardList() {
                     ))
                     : <div style={{width:"100%", maxWidth:"500px", margin:"auto", textAlign:"center"}}>
                         <img src="/noFeed.svg" alt="" />
-                        <p className="font-semibold">Be thet first to post on our platform.</p>
+                        <p className="font-semibold">No posts available for you !</p>
                     </div>
             }
         </div>

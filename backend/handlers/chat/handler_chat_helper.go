@@ -172,6 +172,9 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 				conn.Message <- message
 			}
 		}
+	case  "notification": 
+	
+	   
 	}
 }
 
@@ -208,4 +211,29 @@ func (server *ChatServer) BroadCastOnlineStatus() {
 			}
 		}
 	}
+}
+
+func (server *ChatServer) SendNotificationToUser(userID, notifContent string, hasSeen string) *models.ErrorJson { // boolean
+	server.RLock()
+	defer server.RUnlock()
+
+	notification := map[string]string{ // struct not map
+		"type":    "notification",
+		"content": notifContent,
+		"seen": hasSeen,
+	}
+
+	var errs []error
+	if clients, ok := server.client[userID]; ok {
+		for _, conn := range clients {
+			if err := conn.connection.WriteJSON(notification); err != nil {
+				errs = append(errs, err)
+			}
+		}
+	}
+
+	if len(errs) > 0 {
+		return &models.ErrorJson{Status: 500, Message: "sendNotificationToUser fail", Error: errs[0].Error()}
+	}
+	return nil
 }

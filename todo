@@ -12,5 +12,20 @@ posts f main:
 
 -- khass thandla l case dyal public post dyal private profile
 
+mellagui notifications:
+
+-- khass yt9ado kamlin
+
+docker:
+-- check some errors
+
+groups invit/join:
+
+-- handle the case of sending join request and invite in the same time
+
+-- invitaions : 
+when cancelling an invitaion, check if it's already accepted
+
+-- joins:
 
 
