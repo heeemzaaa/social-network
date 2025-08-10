@@ -17,6 +17,9 @@ import {
   HiChatBubbleOvalLeft
 } from "react-icons/hi2";
 
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+
 export default function Navigation() {
   const currentPath = usePathname()
 
@@ -24,8 +27,10 @@ export default function Navigation() {
 
   useEffect(() => {
     async function GetUserInfo() {
-      let res = await fetch("http://localhost:8080/api/loggedin", { credentials: 'include' })
+      console.log("profile heeree the endpoint", `${process.env.NEXT_PUBLIC_API_URL}/api/loggedin`);
+      let res = await fetch(`${API_URL}/api/loggedin`, { credentials: 'include' })
       let data = await res.json()
+      console.log("data feteched", data);
       setId(data.id)
     }
     GetUserInfo()

@@ -6,6 +6,8 @@ import {
   useState
 } from 'react'
 
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 export default function CommentsContainer({ id, onCommentMessage, groupID, creatorID }){
   const [comments, setComments] = useState([]);
   const postComment = `http://localhost:8080/api/posts/comments/${id}`

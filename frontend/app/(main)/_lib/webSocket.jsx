@@ -13,11 +13,11 @@ export default function UserProvider({ children }) {
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/loggedin", {
+        console.log("data user", `http://localhost:8080/api/loggedin`);
+        const res = await fetch(`http://localhost:8080/api/loggedin`, {
           credentials: "include",
         });
         const data = await res.json();
-
         if (data.is_logged_in) {
           setAuthenticatedUser({
             id: data.id,
@@ -38,7 +38,7 @@ export default function UserProvider({ children }) {
   useEffect(() => {
     if (!authenticatedUser) return;
 
-    const socket = new WebSocket("ws://localhost:8080/ws/chat/");
+    const socket = new WebSocket(`ws://localhost:8080/ws/chat/`);
     socketRef.current = socket;
 
     socket.onopen = () => {
@@ -69,8 +69,8 @@ export default function UserProvider({ children }) {
             data.type === "group"
               ? data.target_id
               : isMe
-              ? data.target_id
-              : data.sender_id;
+                ? data.target_id
+                : data.sender_id;
 
           const newMsg = {
             content: data.content,

@@ -3,6 +3,9 @@ import { useModal } from '../../_context/ModalContext';
 import { useUserContext } from '../../_context/userContext';
 import { useActionState, useState, useEffect } from 'react';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+
+
 const initialPostData = {
     title: '',
     content: '',
@@ -30,7 +33,7 @@ export default function CreatePost({ postAction }) {
     useEffect(() => {
         const fetchFollowers = async () => {
             try {
-                const res = await fetch(`http://localhost:8080/api/profile/${authenticatedUser.id}/connections/followers`, {
+                const res = await fetch(`${API_URL}/api/profile/${authenticatedUser.id}/connections/followers`, {
                     method: 'GET',
                     credentials: 'include',
                 });

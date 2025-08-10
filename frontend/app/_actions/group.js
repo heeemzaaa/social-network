@@ -1,6 +1,9 @@
 "use server"
 import { cookies } from "next/headers"
 
+const API_URL = process.env.BACKEND_URL || 'http://localhost:8080'
+
+
 
 /*
     state = {
@@ -66,7 +69,7 @@ export async function createGroupAction(prevState, formData) {
     try {
         const cookieStore = await cookies()
         const sessionCookie = cookieStore.get("session")?.value;
-        const res = await fetch(`http://localhost:8080/api/groups/`, {
+        const res = await fetch(`${API_URL}/api/groups/`, {
             method: "POST",
             body: newFormData,
             credentials: 'include',
@@ -135,7 +138,7 @@ export async function createGroupPostAction(prevState, formData) {
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
-        const res = await fetch(`http://localhost:8080/api/groups/${groupId}/posts/`, {
+        const res = await fetch(`${API_URL}/api/groups/${groupId}/posts/`, {
             method: "POST",
             body: newFormData,
             credentials: 'include',
@@ -206,7 +209,7 @@ export async function createGroupEventAction(prevState, formData) {
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
-        const res = await fetch(`http://localhost:8080/api/groups/${groupId}/events/`, {
+        const res = await fetch(`${API_URL}/api/groups/${groupId}/events/`, {
             method: "POST",
             body: JSON.stringify({ title, description, event_date }),
             credentials: 'include',
@@ -244,7 +247,7 @@ export async function JoinGroupAction(groupId) {
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
-        const res = await fetch(`http://localhost:8080/api/groups/${groupId}/join-request`, {
+        const res = await fetch(`${API_URL}/api/groups/${groupId}/join-request`, {
             method: "POST",
             credentials: 'include',
             headers: {
@@ -269,7 +272,7 @@ export async function inviteUserAction(prevState, formData) {
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
-        const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
+        const res = await fetch(`${API_URL}/api/groups/${groupId}/invitations/`, {
             credentials: 'include',
             method: "POST",
             body: JSON.stringify({ "id": id }),
@@ -299,7 +302,7 @@ export async function CancelInvitationAction(prevState, formData) {
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
-        const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
+        const res = await fetch(`${API_URL}/api/groups/${groupId}/invitations/`, {
             credentials: 'include',
             method: "DELETE",
             body: JSON.stringify({ "id": id }),

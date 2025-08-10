@@ -1,6 +1,10 @@
+'use client'
 import { useCallback, useEffect, useState, useRef } from "react"
 import GroupCard from "./groupCard"
 import { useModal } from "../../_context/ModalContext"
+
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
 export default function GroupCardList({ filter }) {
     const [data, setData] = useState([])
@@ -8,7 +12,6 @@ export default function GroupCardList({ filter }) {
     const [isLoading, setIsLoading] = useState(false)
     const [hasMore, setHasMore] = useState(true)
     const [error, setError] = useState(null)
-    const abortControllerRef = useRef(null)
     const observerRef = useRef(null)
     const loadMoreRef = useRef(null)
 
@@ -16,7 +19,7 @@ export default function GroupCardList({ filter }) {
 
     useEffect(() => {
         const data = getModalData()
-        if (data?.type === "groupCard" && filter === "owned") {
+        if (data?.type === "groupCard" && filter == "owned") {
             setData((prev) => [data, ...prev])
             setModalData(null)
         }
@@ -26,11 +29,13 @@ export default function GroupCardList({ filter }) {
         async (id) => {
             if (isLoading || !hasMore) return
             setIsLoading(true)
-            abortControllerRef.current = new AbortController()
-            const signal = abortControllerRef.current.signal
             try {
-                const response = await fetch(`http://localhost:8080/api/groups?filter=${filter}&offset=${id}`,
-                    { credentials: "include", signal })
+                const response = await fetch(`http://localhost:8080/api/groups/?filter=${filter}&offset=${id}`, {
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`)
                 }
