@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
+
 import ConnectionCard from './followerCard'
+import { useEffect, useState } from 'react'
 
 
 export default function UsersContainer({ type, userID }) {

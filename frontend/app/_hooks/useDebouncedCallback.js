@@ -1,7 +1,6 @@
 import { useCallback, useRef, useEffect } from 'react'
 
-function useDebouncedCallback(callback, delay=500) {
-    console.log("inside the use debounce hook", callback);
+function useDebouncedCallback(callback, delay=200) {
     const timeoutRef = useRef(null)
     const callbackRef = useRef(callback)
 
@@ -15,9 +14,10 @@ function useDebouncedCallback(callback, delay=500) {
             clearTimeout(timeoutRef.current)
         }
 
-      
         timeoutRef.current = setTimeout(() => {
-            callbackRef.current(...args)
+            if (callbackRef.current) {
+                callbackRef.current(...args)
+            }
         }, delay)
     }, [delay])
 

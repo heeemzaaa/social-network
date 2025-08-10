@@ -13,4 +13,12 @@ groups invit/join:
 
 -- handle the case of sending join request and invite in the same time
 
+-- Hamzzzzzzzzza : 
+ fix cycle import error. 
+
+-- invitaions : 
+when cancelling an invitaion, check if it's already accepted
+
+-- joins:
+
 

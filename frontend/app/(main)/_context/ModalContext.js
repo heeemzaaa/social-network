@@ -20,7 +20,6 @@ export function ModalProvider({ children }) {
     // data passed when a form is submitted successfuly.
     const [data, setData] = useState(null) 
     const openModal = (content) => { 
-        console.log("opening modal: ", content)
         setIsModalOpen(true);
         setModalContent(content);
     };

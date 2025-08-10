@@ -2,20 +2,20 @@
 
 import Header from './_components/header'
 import Navigation from './_components/navigation'
-import { ModalProvider } from './_context/ModalContext'
-import { NotificationProvider } from './_context/NotificationContext'; // ✅ import it
 import UserProvider from './_lib/webSocket';
+import { ModalProvider } from './_context/ModalContext'
+import { NotificationProvider } from './_context/NotificationContext';
 
 export default function MainLayout({ children }) {
   return (
     <UserProvider>
-      <ModalProvider>
-        <NotificationProvider> {/* ✅ wrap everything */}
+      <NotificationProvider>
+        <ModalProvider>
           <Header />
           <Navigation />
           {children}
-        </NotificationProvider>
-      </ModalProvider>
+        </ModalProvider>
+      </NotificationProvider>
     </UserProvider>
   )
 }

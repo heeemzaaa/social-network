@@ -38,7 +38,7 @@ export default function GroupCardList({ filter }) {
                 if (result.length === 0) {
                     setHasMore(false)
                 } else {
-                    if (result.length < 6) setHasMore(false)
+                    if (result.length < 3) setHasMore(false)
                     setData((prevData) => [...prevData, ...result])
                 }
             } catch (err) {
@@ -61,7 +61,6 @@ export default function GroupCardList({ filter }) {
 
     useEffect(() => {
         if (!hasMore || isLoading || data.length === 0) return;
-
         observerRef.current = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting) {
@@ -88,6 +87,7 @@ export default function GroupCardList({ filter }) {
             fetchData(id)
         }
     }, [page])
+
     return (
         <div className="list-container flex flex-wrap gap-4 justify-center items-start overflow-y-auto">
             {data.map((item, index) => (

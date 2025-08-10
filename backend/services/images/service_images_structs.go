@@ -12,11 +12,7 @@ type ServiceImages struct {
 	postService    *post.PostService
 }
 
-func NewServiceImages(
-	groupService *group.GroupService,
-	profileService *profile.ProfileService,
-	postService *post.PostService,
-) *ServiceImages {
+func NewServiceImages(groupService *group.GroupService, profileService *profile.ProfileService, postService *post.PostService,) *ServiceImages {
 	return &ServiceImages{
 		groupService:   groupService,
 		profileService: profileService,

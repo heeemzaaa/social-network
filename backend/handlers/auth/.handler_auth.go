@@ -22,7 +22,6 @@ func NewAuthHandler(service *auth.AuthService) *AuthHandler {
 
 func (auth *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Println("inside serveHttp: ", r.URL.Path)
 	method := r.Method
 	path := r.URL.Path
 
@@ -71,7 +70,6 @@ func (handler *AuthHandler) isLoggedIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookie, err := r.Cookie("session")
-	fmt.Printf("cookie: %v\n", cookie)
 	if err != nil {
 		islogged.IsLoggedIn = false
 		utils.WriteDataBack(w, islogged)
@@ -201,7 +199,6 @@ func (authHandler *AuthHandler) register(w http.ResponseWriter, r *http.Request)
 
 func (handler *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie("session")
-	fmt.Printf("cookie: %v\n", cookie)
 	session, errJson := handler.service.GetSessionByTokenEnsureAuth(cookie.Value)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, *models.NewErrorJson(errJson.Status, "", errJson.Message))

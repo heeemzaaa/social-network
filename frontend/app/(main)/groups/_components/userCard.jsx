@@ -1,7 +1,6 @@
-import React, { use, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Avatar from '../../_components/avatar';
 import Button from '@/app/_components/button';
-
 
 
 export default function UserCard({ user, groupId }) {

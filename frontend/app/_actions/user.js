@@ -41,10 +41,6 @@ export async function loginUser(prevState, formData) {
     redirect("/")
 }
 
-// Registers a new user by validating form data, handling file uploads, and sending the data to the register API.
-// @param {Object} prevState - The previous state of the form, used to preserve state across calls.
-// @param {FormData} formData - The form data containing user inputs.
-// @returns {Object} - The updated state with errors, success message, or redirect on success.
 export async function registerUser(prevState, formData) {
     const state = {
         errors: {},
@@ -110,7 +106,7 @@ export async function registerUser(prevState, formData) {
         newFormData.append('profile_img', avatar);
     }
     try {
-        const res = await fetch(`http://localhost:3000/api/auth/register`, {
+        const res = await fetch(`http://localhost:8080/api/auth/register`, {
             method: "POST",
             body: newFormData,
             credentials: 'include'
@@ -131,11 +127,10 @@ export async function registerUser(prevState, formData) {
     redirect("/")
 }
 
-
 export async function logout() {
     try {
         const sessionCookie = cookies().get("session")?.value;
-        const res = await fetch(`http://localhost:3000/api/auth/logout`, {
+        const res = await fetch(`http://localhost:8080/api/auth/logout`, {
             method: "POST",
             credentials: 'include',
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {}
@@ -144,22 +139,19 @@ export async function logout() {
             let cookieStore = await cookies()
             cookieStore.delete("session")
         }
-    } catch (error) {
+    }catch (error) {
         console.log(error)
     }
     redirect("/login")
 }
 
-
 export async function setCookie(cookieStr) {
     const parts = cookieStr.split(';');
     const result = {};
-    console.log(parts);
     parts.forEach(part => {
         const trimmed = part.trim();
         if (trimmed.includes('=')) {
             const [key, value] = trimmed.split('=');
-            console.log(key)
             if (key === "session") {
                 result.name = key
                 result.value = value

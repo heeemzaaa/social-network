@@ -103,7 +103,6 @@ func ValidateDateRegister(date string) error {
 	if time.Since(timeParsed) < time.Duration(float64(time.Hour)*24*365.25*14) {
 		return errors.New("too young! go play outside and enjoy your childhood")
 	}
-	fmt.Println(timeParsed, time.Duration(float64(time.Hour)*24*365.25*100))
 	if time.Since(timeParsed) > time.Duration(float64(time.Hour)*24*365.25*100) {
 		return errors.New("You need some rest")
 	}

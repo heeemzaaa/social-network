@@ -53,7 +53,7 @@ func (img *ImageMiddleware) AuthImageMiddleware(handler http.Handler) http.Handl
 			}
 
 		case strings.HasPrefix(trimmedPath, "avatars"):
-			// nothing to check here , just add it to avoid using it in default 
+			// nothing to check here , just add it to avoid using it in default
 		default:
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "File not found"})
 			return

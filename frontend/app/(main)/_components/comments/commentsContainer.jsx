@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react'
 import "./comments.css"
 import Comments from './comments'
 import CommentsFooter from './commentsFooter'
+import {
+  useEffect,
+  useState
+} from 'react'
 
 export default function CommentsContainer({ id, onCommentMessage, groupID, creatorID }){
   const [comments, setComments] = useState([]);
@@ -22,7 +25,7 @@ export default function CommentsContainer({ id, onCommentMessage, groupID, creat
           fullName: comment.user?.fullname,
           nickName: comment.user?.nickname,
           imagePath: comment.img,
-          userImage : comment.user.avatar,
+          userImage: comment.user.avatar,
           createdAt: comment.created_at || new Date().toISOString(),
           likes: comment.likes || 0,
         }));
@@ -34,7 +37,6 @@ export default function CommentsContainer({ id, onCommentMessage, groupID, creat
     };
     fetchComments();
   }, [id]);
-
 
   return (
     <section className="comments_container w-full h-full flex-col justify-between gap-2">

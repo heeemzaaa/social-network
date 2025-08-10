@@ -27,7 +27,6 @@ func HanldeUploadImage(r *http.Request, fileName, subDirectoryName string) (stri
 			
 			return "", nil
 		}
-		fmt.Printf("err: %v\n", err)
 		return "", &models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)}
 	}
 	defer file.Close()

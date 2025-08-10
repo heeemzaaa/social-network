@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"social-network/backend/models"
-	auth "social-network/backend/services/auth"
+
 	"social-network/backend/services/images"
+
+	auth "social-network/backend/services/auth"
 )
 
 type Middleware struct {

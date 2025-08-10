@@ -44,10 +44,24 @@ func (ep *EditProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	profile, errUpdate := ep.service.UpdatePrivacy(request.ProfileID, authSessionID.String(), request.WantedStatus, ep.NS)
+	profile, errUpdate := ep.service.UpdatePrivacy(request.ProfileID, authSessionID.String(), request.WantedStatus)
 	if errUpdate != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUpdate.Status, Message: errUpdate.Message})
 		return
+	}
+
+	if profile.User.Visibility == "public" {
+		all, errJson := ep.NS.GetAllNotificationByType(request.ProfileID, "follow-private")
+		if errJson != nil {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+			return
+		}
+
+		errJson = ep.NS.ToggleAllStaus(all, "accept", "follow-private")
+		if errJson != nil {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+			return
+		}
 	}
 
 	utils.WriteDataBack(w, profile)

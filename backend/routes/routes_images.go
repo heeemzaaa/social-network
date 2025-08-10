@@ -21,7 +21,8 @@ func SetImageRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthServic
 	repoProfiles := profile.NewProfileRepository(db)
 	repoPosts := post.NewPostRepository(db)
 
-	groupSvc := groupService.NewGroupService(repoGroups, nil, nil) // don't need other dependencies
+	// ✅ Services
+	groupSvc := groupService.NewGroupService(repoGroups, nil) // pass real dependencies if needed
 	profileSvc := profileService.NewProfileService(repoProfiles)
 	postSvc := postService.NewPostService(repoPosts)
 
@@ -32,9 +33,6 @@ func SetImageRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthServic
 	fs := http.FileServer(http.Dir("./static"))
 	mux.Handle(
 		"/static/",
-		middleware.NewMiddleWare(
-			imgMiddleware.AuthImageMiddleware(http.StripPrefix("/static/", fs)),
-			authService,
-		),
+		middleware.NewMiddleWare(imgMiddleware.AuthImageMiddleware(http.StripPrefix("/static/", fs)), authService,),
 	)
 }

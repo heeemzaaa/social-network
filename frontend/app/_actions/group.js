@@ -128,7 +128,6 @@ export async function createGroupPostAction(prevState, formData) {
     newFormData.append('data', JSON.stringify({ content }));
 
     if (img && img.size > 0) {
-        console.log("post image: ", img)
         newFormData.append('post', img);
     }
 
@@ -149,7 +148,6 @@ export async function createGroupPostAction(prevState, formData) {
                 errors: data.errors || null
             };
         }
-        console.log("post created: ", data)
         return {
             ...state,
             message: `Post has been created successfuly.`,
@@ -165,7 +163,6 @@ export async function createGroupPostAction(prevState, formData) {
 
 // Creates a new group event by validating form data and sending it to the event creation API endpoint.
 export async function createGroupEventAction(prevState, formData) {
-    console.log("inside the creation of the event !!");
     const state = {
         errors: {},
         error: null,
@@ -196,7 +193,6 @@ export async function createGroupEventAction(prevState, formData) {
             state.errors.event_date = "Event date must be in the future";
         }
     }
-    console.log(state);
     if (Object.keys(state.errors).length > 0) {
         return {
             ...prevState,
@@ -204,14 +200,7 @@ export async function createGroupEventAction(prevState, formData) {
         };
     }
 
-    console.log("date before format: ", event_date)
     event_date = formatDate(event_date)
-    console.log("date after format: ", event_date)
-
-
-
-
-
 
     try {
         const cookieStore = await cookies();
@@ -250,12 +239,10 @@ export async function createGroupEventAction(prevState, formData) {
 }
 
 export async function JoinGroupAction(groupId) {
-    console.log(groupId)
 
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
-        console.log("coookieeeeeee", sessionCookie);
         const res = await fetch(`http://localhost:8080/api/groups/${groupId}/join-request`, {
             method: "POST",
             credentials: 'include',
@@ -268,7 +255,6 @@ export async function JoinGroupAction(groupId) {
         if (!res.ok) {
             console.error("!ok" + data)
         }
-        console.log("DATA ===== > " + data)
     } catch (error) {
         console.error(error);
     }
@@ -276,13 +262,12 @@ export async function JoinGroupAction(groupId) {
 
 //  todo : handle the invite friend form.
 export async function inviteUserAction(prevState, formData) {
-    console.log("=============> inviting");
     let id = formData.get("user_id")
     let groupId = formData.get("groupId")
+    console.log(id)
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
-        console.log("coookieeeeeee", sessionCookie);
         const res = await fetch(`http://localhost:8080/api/groups/${groupId}/invitations/`, {
             credentials: 'include',
             method: "POST",
@@ -294,10 +279,12 @@ export async function inviteUserAction(prevState, formData) {
         });
 
         if (res.ok) {
-            const result = await res.json()
-            console.log("result", result);
-            return { message: "success" }
-
+            const result = await res.json();
+            console.log("invite response ==> " + result )
+            return { message: "done" };
+        } else {
+            const errorText = await res.text();
+            return { message: "error", error: errorText || "Failed to invite." };
         }
     } catch (err) {
         console.error("Failed to fetch invitations", err)
@@ -306,9 +293,7 @@ export async function inviteUserAction(prevState, formData) {
 
 // function to handle the cancel process of an invitation 
 export async function CancelInvitationAction(prevState, formData) {
-    console.log("=============> canceling");
     let groupId = formData.get("groupId")
-    console.log("inside the actions", groupId);
     let id = formData.get("user_id")
     try {
         const cookieStore = await cookies();
@@ -323,14 +308,15 @@ export async function CancelInvitationAction(prevState, formData) {
             }
         });
 
-        if (res.ok) {
-            const result = await res.json()
-            console.log("result inside the cancel", result);
-            return {
-                message: "success"
-            }
-
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.log("cancel response error ===>   " + errorText)
+            return { message: "error", error: errorText || "Failed to cancel." };
         }
+        const result = await res.json();
+        console.log("cancel response ===>   " + result)
+        return { message: "done" };
+
     } catch (err) {
         console.error("Failed to fetch invitations", err)
     }

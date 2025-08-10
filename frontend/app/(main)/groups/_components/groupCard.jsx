@@ -15,14 +15,13 @@ export default function GroupCard({
     total_members,
     requested
 }) {
-    const router = useRouter()
+    const router = useRouter()   ///////////
 
     const [requestState, setRequestState] = useState(requested)
 
     // let's create here the function that toggles the state of the button with the same
     // way as hamza 
     async function handleJoingGrp() {
-        console.log("inside handle the join");
         let endpoint = `http://localhost:8080/api/groups/${group_id}/join-request`
         let method = requestState === 0 ? 'POST' : 'DELETE'
         try {

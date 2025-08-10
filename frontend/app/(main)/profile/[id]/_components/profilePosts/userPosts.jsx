@@ -1,11 +1,26 @@
 'use client'
 
-import PostCard from '@/app/(main)/_components/posts/postCard'
 import React, { useEffect, useState } from 'react'
+import PostCard from '@/app/(main)/_components/posts/postCard'
+import { useModal } from '@/app/(main)/_context/ModalContext'
 
 export default function UserPosts({ id, access, changed }) {
     const [posts, setPosts] = useState([])
+    const {setModalData, getModalData} = useModal()
 
+     useEffect(() => {
+        let postData = getModalData()
+        if (postData?.type !== 'post') return;
+
+        setPosts((prev) => {
+            if (!prev) {
+                return [postData]
+            } else {
+                return [postData, ...prev]
+            }
+        })
+        setModalData(null)
+    }, [setModalData])
     useEffect(() => {
         async function getPosts() {
             try {

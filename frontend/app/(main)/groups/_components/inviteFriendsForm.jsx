@@ -8,7 +8,6 @@ import { useModal } from '../../_context/ModalContext';
 
 // InviteFriendForm component
 const InviteFriendForm = ({ groupId }) => {
-    console.log("grp id ", groupId);
     const [followers, setFollowers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -24,10 +23,7 @@ const InviteFriendForm = ({ groupId }) => {
 
                 if (res.ok) {
                     const result = await res.json()
-
                     setFollowers(result)
-                    console.log("followers", result);
-
                 }
 
             } catch (err) {
@@ -51,7 +47,7 @@ const InviteFriendForm = ({ groupId }) => {
             {error && <p style={{ color: '#dc2626', fontSize: '16px' }}>{error}</p>}
             {followers.length === 0 && <span>You currently have no followers available for invitation. Follow others to build your community.</span>}
             <div style={{ maxHeight: '400px', overflowY: 'auto', marginBottom: '16px', paddingInline: ".5rem" }}>
-                {followers.map((user) => (
+                {followers?.map((user) => (
                     <UserCard
                         key={user.id}
                         user={user}
