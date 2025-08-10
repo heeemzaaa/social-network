@@ -1,7 +1,9 @@
 "use server";
 
-
 import { cookies } from "next/headers";
+
+const API_URL = process.env.BACKEND_URL || 'http://localhost:8080'
+
 
 export async function createPostAction(prevState, formData) {
     let state = {
@@ -77,7 +79,7 @@ export async function createPostAction(prevState, formData) {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("session")?.value;
 
-    const response = await fetch(`${process.env.BACKEND_URL}/api/posts/`, {
+    const response = await fetch(`${API_URL}/api/posts/`, {
         method: "POST",
         body: newFormData,
         headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
@@ -109,7 +111,7 @@ export async function likePostAction(prevState, formData) {
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
-        const res = await fetch(`${process.env.BACKEND_URL}/api/posts/like/${postId}`, {
+        const res = await fetch(`${API_URL}/api/posts/like/${postId}`, {
             method: "POST",
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
         });
@@ -177,7 +179,7 @@ export async function commentPostAction(prevState, formData) {
     const sessionCookie = cookieStore.get("session")?.value;
 
     try {
-        const resp = await fetch(`${process.env.BACKEND_URL}/api/posts/comment`, {
+        const resp = await fetch(`${API_URL}/api/posts/comment`, {
             method: "POST",
             credentials: "include",
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},

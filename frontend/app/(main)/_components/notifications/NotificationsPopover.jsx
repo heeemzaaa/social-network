@@ -6,6 +6,9 @@ import {
   useRef
 } from "react";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+
+
 export default function NotificationsPopover() {
   const [notifications, setNotifications] = useState([]);
   const [page, setPage] = useState(0);
@@ -76,7 +79,7 @@ export default function NotificationsPopover() {
         })
       };
 
-      let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/update/`, postRequest);
+      let response = await fetch(`${API_URL}/api/notifications/update/`, postRequest);
       let data = await response.json();
 
       // Show popup with response message
@@ -111,7 +114,7 @@ export default function NotificationsPopover() {
 
   const loadNotifications = async (data_length) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications?Count=${data_length}`, {
+      const res = await fetch(`${API_URL}/api/notifications?Count=${data_length}`, {
         method: "GET",
         credentials: "include"
       });

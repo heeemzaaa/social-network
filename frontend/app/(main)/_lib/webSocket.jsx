@@ -11,9 +11,8 @@ export default function UserProvider({ children }) {
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
-        console.log("wwwwwwwwwwwwwwwwwwwwwwwayli",`${process.env.NEXT_PUBLIC_API_URL}`);
-        console.log("data user", `${process.env.NEXT_PUBLIC_API_URL}/api/loggedin`);
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/loggedin`, {
+        console.log("data user", `http://localhost:8080/api/loggedin`);
+        const res = await fetch(`http://localhost:8080/api/loggedin`, {
           credentials: "include",
         });
         const data = await res.json();
@@ -39,7 +38,7 @@ export default function UserProvider({ children }) {
   useEffect(() => {
     if (!authenticatedUser) return;
 
-    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/ws/chat/`);
+    const socket = new WebSocket(`ws://localhost:8080/ws/chat/`);
     socketRef.current = socket;
 
     socket.onopen = () => {

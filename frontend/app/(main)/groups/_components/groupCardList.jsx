@@ -3,6 +3,9 @@ import { useCallback, useEffect, useState, useRef } from "react"
 import GroupCard from "./groupCard"
 import { useModal } from "../../_context/ModalContext"
 
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+
 export default function GroupCardList({ filter }) {
     const [data, setData] = useState([])
     const [page, setPage] = useState(0)
@@ -27,7 +30,7 @@ export default function GroupCardList({ filter }) {
             if (isLoading || !hasMore) return
             setIsLoading(true)
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/groups/?filter=${filter}&offset=${id}`, {
+                const response = await fetch(`http://localhost:8080/api/groups/?filter=${filter}&offset=${id}`, {
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'

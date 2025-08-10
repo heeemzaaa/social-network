@@ -6,6 +6,8 @@ import {
     useState
 } from "react";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+
 export default function PostCardList() {
     const [posts, setPosts] = useState([])
     const { getModalData, setModalData } = useModal()
@@ -26,7 +28,7 @@ export default function PostCardList() {
     useEffect(() => {
         async function fetchPosts() {
             try {
-                const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`, {
+                const resp = await fetch(`${API_URL}/api/posts`, {
                     method: "GET",
                     credentials: "include",
                 });
