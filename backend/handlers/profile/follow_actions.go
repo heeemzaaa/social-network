@@ -6,20 +6,20 @@ import (
 
 	"social-network/backend/middleware"
 	"social-network/backend/models"
-	ps "social-network/backend/services/profile"
 	ns "social-network/backend/services/notification"
+	ps "social-network/backend/services/profile"
 	"social-network/backend/utils"
 )
 
 type FollowActionHandler struct {
 	service *ps.ProfileService
-	NS *ns.NotificationService
+	NS      *ns.NotificationService
 }
 
 func NewFollowActionHandler(service *ps.ProfileService, NS *ns.NotificationService) *FollowActionHandler {
 	return &FollowActionHandler{
 		service: service,
-		NS: NS,
+		NS:      NS,
 	}
 }
 
@@ -108,11 +108,15 @@ func (fa *FollowActionHandler) CancelFollow(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if errJson := fa.NS.DeleteService(request.ProfileID, authUserID.String(), "follow-private", ""); errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
-		return
+	// fmt.Println("Profile:", profile)
+
+	if !profile.IsFollower && profile.IsRequested {
+		if errJson := fa.NS.DeleteService(request.ProfileID, authUserID.String(), "follow-private", ""); errJson != nil {
+			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
+			return
+		}
+		profile.IsRequested = false
 	}
-	
 
 	utils.WriteDataBack(w, profile)
 }
