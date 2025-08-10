@@ -67,7 +67,7 @@ export async function createGroupAction(prevState, formData) {
     try {
         const cookieStore = await cookies()
         const sessionCookie = cookieStore.get("session")?.value;
-        const res = await fetch(`${process.env.BACKEND_URL}/api/groups/`, {
+        const res = await fetch(`${API_URL}/api/groups/`, {
             method: "POST",
             body: newFormData,
             credentials: 'include',
