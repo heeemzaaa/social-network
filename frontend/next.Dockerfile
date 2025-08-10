@@ -15,7 +15,7 @@ EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
 # Builder Stage
-FROM node:18-alpine 
+FROM node:18-alpine as builder
 
 WORKDIR /app
 
