@@ -36,6 +36,7 @@ func (loggedin *UserData) GetLoggedIn(w http.ResponseWriter, r *http.Request) {
 	user_data.Id = userData.Id
 	user_data.FullName = userData.FullName
 	user_data.Nickname = userData.Nickname
+	user_data.Token = cookie.Value
 	utils.WriteDataBack(w, user_data)
 }
 

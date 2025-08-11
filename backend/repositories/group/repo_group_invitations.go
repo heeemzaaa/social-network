@@ -40,14 +40,13 @@ func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId, invitedUserId
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(userId, invitedUserId, groupId, "invitation-request")
+	res, err := stmt.Exec(userId, invitedUserId, groupId, "invitation-request")
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
-	// it must be here :)
-	// if count, _ := res.RowsAffected(); count == 0 {
-	// 	return &models.ErrorJson{Status: 404, Error: "Invitation not found"}
-	// }
+	if count, _ := res.RowsAffected(); count == 0 {
+		return &models.ErrorJson{Status: 404, Error: "Invitation not found"}
+	}
 
 	return nil
 }

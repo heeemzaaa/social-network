@@ -13,12 +13,10 @@ export default function UserProvider({ children }) {
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/loggedin", {
+        const res = await fetch(`http://localhost:8080/api/loggedin`, {
           credentials: "include",
         });
         const data = await res.json();
-        console.log("✅ Logged in user:", data);
-
         if (data.is_logged_in) {
           setAuthenticatedUser({
             id: data.id,
@@ -27,11 +25,9 @@ export default function UserProvider({ children }) {
           });
         } else {
           setAuthenticatedUser(null);
-          console.warn("🚫 User not logged in");
         }
-        console.log("Authenticated user set:", data.id);
       } catch (err) {
-        console.error("❌ Error fetching user:", err);
+        console.error(" Error fetching user:", err);
       }
     };
     fetchLoggedInUser();
@@ -40,11 +36,11 @@ export default function UserProvider({ children }) {
   useEffect(() => {
     if (!authenticatedUser) return;
 
-    const socket = new WebSocket("ws://localhost:8080/ws/chat/");
+    const socket = new WebSocket(`ws://localhost:8080/ws/chat/`);
     socketRef.current = socket;
 
     socket.onopen = () => {
-      console.log("🟢 WebSocket connected");
+      console.log(" WebSocket connected");
     };
 
     socket.onmessage = (event) => {
@@ -52,7 +48,6 @@ export default function UserProvider({ children }) {
         const data = JSON.parse(event.data);
 
         if (data.type === "notification") { // type notification
-          console.log("New notification received:", data.content);
 
           if (data.seen === "true") setHasNewNotification(true);
           else if (data.seen === "false") setHasNewNotification(false);
@@ -71,8 +66,8 @@ export default function UserProvider({ children }) {
             data.type === "group"
               ? data.target_id
               : isMe
-              ? data.target_id
-              : data.sender_id;
+                ? data.target_id
+                : data.sender_id;
 
           const newMsg = {
             content: data.content,
@@ -87,16 +82,16 @@ export default function UserProvider({ children }) {
           }));
         }
       } catch (err) {
-        console.error("❌ Failed to parse WebSocket message:", err);
+        console.error(" Failed to parse WebSocket message:", err);
       }
     };
 
     socket.onerror = (err) => {
-      console.error("❌ WebSocket error:", err);
+      console.error(" WebSocket error:", err);
     };
 
     socket.onclose = () => {
-      console.log("🔌 WebSocket closed");
+      console.log(" WebSocket closed");
     };
     return () => {
       socket.close();

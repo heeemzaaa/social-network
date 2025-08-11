@@ -1,6 +1,7 @@
 package group
 
 import (
+	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -58,10 +59,14 @@ func (gService *GroupService) GetGroups(filter string, offset string, userID str
 	switch filter {
 	case "owned":
 		groups, err = gService.gRepo.GetCreatedGroups(offset, userID)
+		fmt.Println("inside this handler of owned", groups)
 	case "available":
 		groups, err = gService.gRepo.GetAvailableGroups(offset, userID)
+		fmt.Println("inside this handler of available", groups)
+
 	case "joined":
 		groups, err = gService.gRepo.GetJoinedGroups(offset, userID)
+		fmt.Println("inside this handler of joined", groups)
 	}
 
 	if err != nil {

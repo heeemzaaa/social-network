@@ -7,13 +7,16 @@ import {
     useState
 } from "react";
 
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+
 export function PostsContainer({ post }) {
     const [posts, setPosts] = useState([])
     
     useEffect(() => {
         async function fetchPosts() {
             try {
-                const resp = await fetch("http://localhost:8080/api/posts", {
+                const resp = await fetch(`${API_URL}/api/posts`, {
                     method: "GET",
                     credentials: "include",
                 });

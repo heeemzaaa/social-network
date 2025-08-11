@@ -3,10 +3,13 @@
 
 import { NextResponse } from "next/server";
 
+
+const API_URL = process.env.BACKEND_URL || 'http://localhost:8080'
+
 export async function middleware(request) {
     try {
         // Fetch authentication status from the external API
-        const response = await fetch('http://localhost:8080/api/loggedin', {
+        const response = await fetch(`${API_URL}/api/loggedin`, {
             headers: {
                 Cookie: request.headers.get('cookie'), // Forward client cookies to API
             },
@@ -35,6 +38,7 @@ export async function middleware(request) {
         console.error('Middleware error:', error);
         return NextResponse.redirect(new URL('/login', request.url));
     }
+
 }
 
 // Apply middleware to all routes except API and static files

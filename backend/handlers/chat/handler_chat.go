@@ -30,6 +30,7 @@ func NewChatServer(service *chat.ChatService) *ChatServer {
 			CheckOrigin: func(r *http.Request) bool {
 				return true
 			},
+			
 		},
 	}
 }

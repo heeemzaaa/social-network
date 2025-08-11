@@ -6,6 +6,7 @@ import {
 } from "react-icons/hi2";
 import { useModal } from '../_context/ModalContext';
 import { useUserContext } from '../_context/userContext';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
 export default function Header() {
   const { openModal } = useModal()
@@ -18,8 +19,9 @@ export default function Header() {
         method: "GET",
         credentials: "include"
       }
+      
       try {
-        let res = await fetch("http://localhost:8080/api/notifications/", getRequest)
+        let res = await fetch(`${API_URL}/api/notifications/`, getRequest)
         let response = await res.json()
         if (response?.Status === true) {
           setHasNewNotification(true)

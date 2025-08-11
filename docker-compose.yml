@@ -1,27 +1,29 @@
-version: "3.8"
-
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8080
-    depends_on:
-      - backend
-    networks:
-      - app-network
 
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: go.Dockerfile
     ports:
       - "8080:8080"
     environment:
-      - DB_PATH=/app/data/social_app.db
+      - PORT=8080
+    networks:
+      - app-network
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: next.Dockerfile
+      target : builder
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8080
+      - BACKEND_URL=http://backend:8080
+      - BACKEND_WS_URL=ws://backend:8080
+    depends_on:
+      - backend
     networks:
       - app-network
 

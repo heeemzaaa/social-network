@@ -64,5 +64,6 @@ func (authHandler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		IsLoggedIn: true,
 		Id:         user.Id,
 		Nickname:   user.Nickname,
+		Token: session.Token,
 	})
 }

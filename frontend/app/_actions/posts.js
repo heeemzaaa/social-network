@@ -1,7 +1,7 @@
 "use server";
 
-
 import { cookies } from "next/headers";
+const API_URL = process.env.BACKEND_URL || 'http://localhost:8080'
 
 export async function createPostAction(prevState, formData) {
     let state = {
@@ -53,7 +53,7 @@ export async function createPostAction(prevState, formData) {
         return {
             ...prevState,
             ...state,
-            error: "Please fix the highlighted fields.",
+            error: "Post creation failed",
         };
     }
 
@@ -77,7 +77,7 @@ export async function createPostAction(prevState, formData) {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("session")?.value;
 
-    const response = await fetch("http://localhost:8080/api/posts", {
+    const response = await fetch(`${API_URL}/api/posts`, {
         method: "POST",
         body: newFormData,
         headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
@@ -102,37 +102,57 @@ export async function createPostAction(prevState, formData) {
 
 
 export async function likePostAction(prevState, formData) {
+    let url
+    let body
     const postId = formData.get("postId");
+    const groupId = formData.get("groupId");
+
     if (!postId) {
-        return { ...prevState, message: "Post ID is required." };
+        return { ...prevState, error: `Failed to ${prevState.liked ? "unlike" : "like"} post` };
     }
+
+    if (groupId && postId) {
+        url = `${API_URL}/api/groups/${groupId}/react/like`
+        body = {
+            entity_type: "post",
+            entity_id: postId
+        }
+    } else {
+        url = `${API_URL}/api/posts/like/${postId}`
+    }
+
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
-        const res = await fetch(`http://localhost:8080/api/posts/like/${postId}`, {
+        const res = await fetch(url, {
             method: "POST",
+            body: JSON.stringify(body || {}),
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
         });
         const data = await res.json();
-        if (data.success) {
-            return {
-                message: "Liked successfully!",
-                liked: data.liked,
-                likes: data.total_likes,
-            };
+        if (res.ok) {
+            let state = {
+                message: `You ${prevState.liked ? "unliked" : "liked"} a post`,
+                liked: data.liked || data.reaction,
+                likes: data.total_likes || 0,
+            }
+            if (data.reaction) {
+                data.reaction === 1 ? state.likes++ : state.likes--
+            }
+            return state
         } else {
-            return { ...prevState, message: data.message || "Failed to like post." };
+            return { ...prevState, error: data.error || `Failed to ${prevState.liked ? "unlike" : "like"} post` };
         }
     } catch (err) {
         console.error("Error liking post:", err);
-        return { ...prevState, message: "Server error." };
+        return { ...prevState, error: "Unexpected error while trying liking the post" };
     }
 }
 
 
 export async function commentPostAction(prevState, formData) {
-    console.log("======> inside the comm")
-    
+
+    console.log("====> inside the coomment post action")
     let state = {
         error: null,
         errors: {},
@@ -145,8 +165,8 @@ export async function commentPostAction(prevState, formData) {
     const maxSize = 3 * 1024 * 1024;
 
     if (!commentContent && commentImg.size === 0) {
-        state.errors.commentContent = "Input comment is required";
-        return state;
+        state.error = "Can't send an empty comment"
+        return state
     }
     if (!postID) {
         state.errors.postID = "Post ID is required";
@@ -168,6 +188,8 @@ export async function commentPostAction(prevState, formData) {
         content: commentContent,
     });
 
+    console.log(jsonData)
+
     const newFormData = new FormData();
     newFormData.append("data", jsonData);
 
@@ -175,11 +197,11 @@ export async function commentPostAction(prevState, formData) {
         newFormData.append("img", commentImg);
     }
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("session")?.value;
 
     try {
-        const resp = await fetch("http://localhost:8080/api/posts/comment", {
+        const resp = await fetch(`${API_URL}/api/posts/comment`, {
             method: "POST",
             credentials: "include",
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
@@ -187,25 +209,25 @@ export async function commentPostAction(prevState, formData) {
         });
 
         if (!resp.ok) {
-            return { ...state, message: "Failed to post comment." };
+            return { ...state, error: "Failed to comment on post" };
         }
 
         const response = await resp.json();
-        console.log("post comment: ", response)
         const now = new Date();
         const formatted = now.toISOString().slice(0, 16).replace('T', ' ');
         return {
             ...state,
-            message: "Commented successfully",
+            message: "You commented on a post",
             content: response.content,
             nickname: response.user.nickname,
             fullName: response.user.fullname,
             avatar: response.user.avatar,
+            created_at: formatted,
+            imagePath: response.img || response.image_path,
             success: true,
-            createdAt: formatted,
-            imagePath: response.img,
         };
     } catch (err) {
-        return { ...prevState, message: "Server error." };
+        console.error("Unxpected error while trying to comment a post: ", err)
+        return { ...prevState, error: "Unexpected Server error." };
     }
 }

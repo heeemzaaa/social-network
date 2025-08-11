@@ -32,7 +32,7 @@ export default function Chat() {
   // fetch users
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/get-users/", {
+      const res = await fetch(`http://localhost:8080/api/get-users/`, {
         credentials: "include",
       });
       const usersList = await res.json();
@@ -51,7 +51,7 @@ export default function Chat() {
   // fetch groups
   const fetchGroup = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/get-groups/", {
+      const res = await fetch(`http://localhost:8080/api/get-groups/`, {
         credentials: "include",
       });
       const groupList = await res.json();
@@ -233,9 +233,8 @@ export default function Chat() {
             {(messages[chatTarget?.ID] || []).map((msg, i) => (
               <div
                 key={i}
-                className={`message ${
-                  msg.sender === "me" ? "sent" : "received"
-                }`}
+                className={`message ${msg.sender === "me" ? "sent" : "received"
+                  }`}
               >
                 {msg.username && (
                   <span className="username">{msg.username}</span>
