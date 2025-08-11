@@ -131,10 +131,10 @@ export async function likePostAction(prevState, formData) {
         });
         const data = await res.json();
         if (res.ok) {
+            if (!groupId) state.likes=  data.total_likes
             let state = {
                 message: `You ${prevState.liked ? "unliked" : "liked"} a post`,
                 liked: data.liked || data.reaction,
-                likes: data.total_likes || 0,
             }
             if (data.reaction) {
                 data.reaction === 1 ? state.likes++ : state.likes--

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import Button from '../../_components/button'
-import {HiBell} from "react-icons/hi2";
-
+import NotificationsPopover from './notifications/NotificationsContainer'
+import {
+  HiBell,
+} from "react-icons/hi2";
 import { useModal } from '../_context/ModalContext';
 import { useUserContext } from '../_context/userContext';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
@@ -40,17 +42,14 @@ export default function Header() {
         </h2>
       </div>
 
-      <div className='flex gap-2'>
-
-        <Button variant='btn-icon ' className="relative" onClick={() => openModal(<NotificationsPopover />)}>
-          <HiBell size={24} />
-          {hasNewNotification && (
-            <span className="notification-badge"></span>
-          )}
-        </Button>
-
-
-      </div>
+      <Button variant='btn-icon' className='flex gap-2 ' onClick={()=> openModal(<NotificationsPopover />)}>
+        <div className='relative' style={{height:"24px"}} >
+              <HiBell size={24} />
+              {hasNewNotification && (
+                <span className="notification-badge"></span>
+              )}
+        </div>
+      </Button>
     </header>
   )
 }
