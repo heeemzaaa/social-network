@@ -42,7 +42,7 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPos
 			args = append(args, lastPostID)
 		}
 
-		query += ` ORDER BY p.createdAt DESC LIMIT 4`
+		query += ` ORDER BY p.createdAt DESC LIMIT 10`
 	default:
 		query = `
 		WITH 
@@ -98,7 +98,7 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPos
 			args = append(args, lastPostID)
 		}
 
-		query += ` ORDER BY p.createdAt DESC LIMIT 4`
+		query += ` ORDER BY p.createdAt DESC LIMIT 10`
 	}
 
 	stmt, err := repo.db.Prepare(query)

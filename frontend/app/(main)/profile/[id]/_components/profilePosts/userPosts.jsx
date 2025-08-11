@@ -18,7 +18,7 @@ export default function UserPosts({ profileId, access, changed }) {
 
 
     // add the new created post to posts state
-    useEffect(() => { 
+    useEffect(() => {
         let postData = getModalData()
         if (postData?.type !== 'post') return;
 
@@ -35,7 +35,6 @@ export default function UserPosts({ profileId, access, changed }) {
     // post fetch function
     const fetchData = useCallback(
         async (id) => {
-            console.log(id)
             if ((isLoading || !hasMore) && posts.length !== 0) return
             try {
                 const response = await fetch(`http://localhost:8080/api/profile/${profileId}/data/posts${id != 0 ? "?last=" + id : ""}`, {
@@ -47,15 +46,14 @@ export default function UserPosts({ profileId, access, changed }) {
                 const result = await response.json()
                 if (!response.ok) {
                     setError(result.error || `Failed to fetch posts`)
-                    return
                 }
                 if (result.length === 0) {
                     setHasMore(false)
                 } else {
-                    if (result.length < 4) setHasMore(false)
+                    if (result.length < 10) setHasMore(false)
                     setPosts((prevData) => [...prevData, ...result])
-                }
-                setIsLoading(false)
+            }
+            setIsLoading(false)
             } catch (err) {
                 setError(err.message)
                 setIsLoading(false)
@@ -102,7 +100,6 @@ export default function UserPosts({ profileId, access, changed }) {
     useEffect(() => {
         if (page > 0) {
             let id = posts[posts.length - 1]?.id
-            console.log(id)
             setIsLoading(true)
             fetchData(id)
         }

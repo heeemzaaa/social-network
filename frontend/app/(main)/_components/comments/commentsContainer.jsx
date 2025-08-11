@@ -4,7 +4,6 @@ import "./comments.css"
 import Comments from './comments'
 import CommentsFooter from './commentsFooter'
 import { useEffect, useState } from 'react'
-import { useNotification } from "../../_context/NotificationContext"
 import Loader from "../loader"
 import Error from "../error"
 
