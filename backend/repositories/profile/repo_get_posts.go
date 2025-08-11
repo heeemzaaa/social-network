@@ -9,7 +9,7 @@ import (
 )
 
 // here I will get the posts of the user with conditions
-func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPostTime string, myProfile bool) ([]models.Post, *models.ErrorJson) {
+func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPostID string, myProfile bool) ([]models.Post, *models.ErrorJson) {
 	var query string
 	posts := []models.Post{}
 	var args []any
@@ -37,12 +37,12 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPos
 		`
 		args = append(args, userID, userID)
 
-		if lastPostTime != "" {
-			query += " AND p.createdAt < ?"
-			args = append(args, lastPostTime)
+		if lastPostID != "" {
+			query += " AND p.createdAt < (SELECT createdAt FROM posts WHERE postID = ?)"
+			args = append(args, lastPostID)
 		}
 
-		query += ` ORDER BY p.createdAt DESC LIMIT 10`
+		query += ` ORDER BY p.createdAt DESC LIMIT 4`
 	default:
 		query = `
 		WITH 
@@ -93,12 +93,12 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPos
 		`
 		args = append(args, profileID, userID, profileID, userID, profileID, userID, userID)
 
-		if lastPostTime != "" {
-			query += " AND p.createdAt < ?"
-			args = append(args, lastPostTime)
+		if lastPostID != "" {
+			query += " AND p.createdAt < (SELECT createdAt FROM posts WHERE postID = ?)"
+			args = append(args, lastPostID)
 		}
 
-		query += ` ORDER BY p.createdAt DESC LIMIT 10`
+		query += ` ORDER BY p.createdAt DESC LIMIT 4`
 	}
 
 	stmt, err := repo.db.Prepare(query)
