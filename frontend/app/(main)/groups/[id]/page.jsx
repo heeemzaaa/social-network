@@ -99,8 +99,8 @@ export default function GroupPage({ params }) {
       </div>
 
       {/* tabs for posts and  */}
-      <div className="flex-grow h-full ">
-        <div className="flex gap-1">
+      <div className="group-page-content flex-grow h-full ">
+        <div className="group-page-actions flex gap-1">
           {isAccessible?.status != 403 && actionButtons.map((button, index) =>
             <Button onClick={button.onClick} key={index}>
               {button.icon}

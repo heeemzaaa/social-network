@@ -1,4 +1,4 @@
-package repositories
+package post
 
 import (
 	"fmt"
@@ -9,27 +9,46 @@ import (
 
 func (r *PostsRepository) GetAllPosts(userID string) ([]models.Post, *models.ErrorJson) {
 	query := `
-SELECT DISTINCT  p.postID, p.userID,   p.content,   p.createdAt,   p.privacy,   p.image_url, CONCAT(u.firstName, ' ', u.lastName) AS fullName, u.nickname, u.avatarPath,  
+SELECT DISTINCT  p.postID, p.userID, p.content, p.createdAt,  p.privacy,   p.image_url,  CONCAT(u.firstName, ' ', u.lastName) AS fullName, 
+    u.nickname, 
+    u.avatarPath,  
     COUNT(DISTINCT r1.reactionID) AS total_likes,
     CASE WHEN r2.reaction = 1 THEN 1 ELSE 0 END AS liked, 
-    COUNT(DISTINCT c.commentID) AS total_comments  -- <-- count of comments
-
+    COUNT(DISTINCT c.commentID) AS total_comments
 FROM posts p
-JOIN users u ON p.userID = u.userID
-LEFT JOIN post_access pa ON p.postID = pa.postID
-LEFT JOIN followers f ON p.userID = f.userID
-LEFT JOIN reactions r1 ON r1.entityID = p.postID AND r1.entityType = 'post' AND r1.reaction = 1
-LEFT JOIN reactions r2 ON r2.entityID = p.postID AND r2.entityType = 'post' AND r2.userID = ?  -- current user
-LEFT JOIN comments c ON c.postID = p.postID  -- <-- join with comments
+JOIN users u 
+    ON p.userID = u.userID
+LEFT JOIN post_access pa 
+    ON p.postID = pa.postID
+LEFT JOIN followers f 
+    ON p.userID = f.userID
+LEFT JOIN reactions r1 
+    ON r1.entityID = p.postID 
+   AND r1.entityType = 'post' 
+   AND r1.reaction = 1
+LEFT JOIN reactions r2 
+    ON r2.entityID = p.postID 
+   AND r2.entityType = 'post' 
+   AND r2.userID = ?   -- current user
+LEFT JOIN comments c 
+    ON c.postID = p.postID
 WHERE
-    p.privacy = 'public'
-    OR p.userID = ?                    -- author's own posts
-    OR (p.privacy = 'private' AND pa.userID = ?)
-    OR (p.privacy = 'almost private' AND f.followerID = ?)
+    (
+        u.visibility = 'public'  -- profile is public
+        OR p.userID = ?           -- viewing own posts
+        OR (u.visibility = 'private' AND pa.userID = ?)  -- allowed via post_access
+        OR (u.visibility = 'private' AND f.followerID = ?) -- optional: if you allow followers to see
+    )
+    AND (
+        p.privacy = 'public'
+        OR p.userID = ?                    -- author's own posts
+        OR (p.privacy = 'private' AND pa.userID = ?)
+        OR (p.privacy = 'almost private' AND f.followerID = ?)
+    )
 GROUP BY
     p.postID, p.userID, p.content, p.createdAt, p.privacy, p.image_url, fullName, r2.reaction
 ORDER BY
-    p.createdAt DESC;
+    p.createdAt DESC;t 
 
 `
 	stmt, err := r.db.Prepare(query)
@@ -39,7 +58,16 @@ ORDER BY
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(userID, userID, userID, userID)
+rows, err := stmt.Query(
+    userID, // r2.userID
+    userID, // p.userID (visibility check)
+    userID, // pa.userID (visibility check)
+    userID, // f.followerID (visibility check)
+    userID, // p.userID (post privacy check)
+    userID, // pa.userID (post privacy check)
+    userID, // f.followerID (post privacy check)
+)
+
 	if err != nil {
 		log.Println("error getting the post from database: ", err)
 		return []models.Post{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}

@@ -9,8 +9,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
 export default function Header() {
   const { openModal } = useModal()
-  const [hasNewNotification, setHasNewNotification] = useState(false)
-  const { authenticatedUser } = useUserContext()
+  const { authenticatedUser, hasNewNotification, setHasNewNotification } = useUserContext()
 
   // Fetch notification seen status
   useEffect(() => {
@@ -41,7 +40,7 @@ export default function Header() {
   return (
     <header className='p3 flex justify-between align-center'>
       <div>
-        <h2>
+        <h2 className='font-semibold text-2xl '>
           {authenticatedUser && `Welcome ${authenticatedUser.fullName}!`}
         </h2>
       </div>

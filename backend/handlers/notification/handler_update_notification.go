@@ -7,32 +7,32 @@ import (
 	"social-network/backend/middleware"
 	"social-network/backend/models"
 
-	GS "social-network/backend/services/group"
-	NS "social-network/backend/services/notification"
 	"social-network/backend/utils"
+	ns "social-network/backend/services/notification"
 )
 
 type UpdateHandler struct {
-	NSU *NS.NotificationServiceUpdate
-	GS *GS.GroupService
+	NS *ns.NotificationService
 }
 
-func NewUpdateHandler(nsu *NS.NotificationServiceUpdate) *UpdateHandler {
-	return &UpdateHandler{NSU: nsu}
+// NewUpdateNotificationHandler creates a new instance of UpdateHandler.
+func NewUpdateNotificationHandler(NS *ns.NotificationService) *UpdateHandler {
+	return &UpdateHandler{NS: NS}
 }
 
-func (NUH *UpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// ServeHTTP handles the HTTP requests for updating notifications.
+func (HUN *UpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
 	if r.Method != http.MethodPost {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!", Error: "405 - Method Not Allowed"})
 		return
 	}
-	NUH.UpdateNotification(w, r)
+	HUN.UpdateNotification(w, r)
 }
 
-func (NUH *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Request) {
-	user_Id, err := middleware.GetUserIDFromContext(r.Context())
+// UpdateNotification updates a notification based on the provided data and user ID.
+func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Request) {
+	userId, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: err.Error()})
 		return
@@ -46,14 +46,15 @@ func (NUH *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if errJson := NUH.NSU.UpdateService(Data, user_Id.String()); errJson != nil {
+	errJson := HUN.NS.UpdateService(Data, userId.String());
+	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
 	}
 
 	data := models.ResponseMsg{
 		Status: true,
-		Message: "oo follow you",
+		Message: "Your action was successful",
 	}
 	utils.WriteDataBack(w, data)
 }

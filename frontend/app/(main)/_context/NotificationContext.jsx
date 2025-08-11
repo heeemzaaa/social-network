@@ -1,7 +1,7 @@
-// _context/NotificationContext.jsx
+// _context/NotificationContext.js
 "use client"
-import React, { createContext, useState, useContext, useCallback } from "react";
-import Notification from "../_components/notifications/Notification"; // adjust if needed
+
+import React, { createContext, useContext, useState } from "react";
 
 const NotificationContext = createContext();
 
@@ -10,37 +10,27 @@ export function useNotification() {
 }
 
 export function NotificationProvider({ children }) {
-  const [notif, setNotif] = useState(null);
-  const [confirmationCallback, setConfirmationCallback] = useState(null);
+  const [notification, setNotification] = useState(null);
 
-  const showNotification = (notifObj) => {
-    setNotif(notifObj);
-    setTimeout(() => setNotif(null), 4000); // Auto-dismiss
+  const showNotification = ({ Content, Status }) => {
+    setNotification({ Content, Status });
+    setTimeout(() => setNotification(null), 4000);
   };
 
-  const confirmNotification = useCallback((notifObj) => {
-    return new Promise((resolve) => {
-      setNotif({ ...notifObj, isConfirm: true });
-      setConfirmationCallback(() => (result) => {
-        resolve(result);
-        setNotif(null);
-        setConfirmationCallback(null);
-      });
-    });
-  }, []);
-
-  const handleConfirm = (response) => {
-    if (confirmationCallback) {
-      confirmationCallback(response);
-    }
-  };
+  const onClose = () => setNotification(null);
 
   return (
-    <NotificationContext.Provider value={{ showNotification, confirmNotification }}>
+    <NotificationContext.Provider value={{ showNotification }}>
       {children}
-      {notif && (
-        <div className="notification-wrapper">
-          <Notification notif={notif} isPopup={true} onConfirm={handleConfirm} />
+
+      {notification && (
+        <div className={`toast-popup ${notification.Status}`}>
+          <div className="toast-content">
+            <div className="toast-message">
+              {notification.Content}
+            </div>
+            <button className="toast-close" onClick={onClose}>x</button>
+          </div>
         </div>
       )}
     </NotificationContext.Provider>

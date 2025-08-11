@@ -47,7 +47,7 @@ const InviteFriendForm = ({ groupId }) => {
             {error && <p style={{ color: '#dc2626', fontSize: '16px' }}>{error}</p>}
             {followers.length === 0 && <span>You currently have no followers available for invitation. Follow others to build your community.</span>}
             <div style={{ maxHeight: '400px', overflowY: 'auto', marginBottom: '16px', paddingInline: ".5rem" }}>
-                {followers.map((user) => (
+                {followers?.map((user) => (
                     <UserCard
                         key={user.id}
                         user={user}

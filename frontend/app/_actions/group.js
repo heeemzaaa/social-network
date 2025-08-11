@@ -73,7 +73,7 @@ export async function createGroupAction(prevState, formData) {
             credentials: 'include',
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {}
         })
-        const data = await res.json();
+        const data = await res.json()
         if (!res.ok) {
             return {
                 ...prevState,
@@ -267,6 +267,7 @@ export async function JoinGroupAction(groupId) {
 export async function inviteUserAction(prevState, formData) {
     let id = formData.get("user_id")
     let groupId = formData.get("groupId")
+    console.log(id)
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
@@ -281,9 +282,12 @@ export async function inviteUserAction(prevState, formData) {
         });
 
         if (res.ok) {
-            const result = await res.json()
-            return { message: "success" }
-
+            const result = await res.json();
+            console.log("invite response ==> " + result )
+            return { message: "done" };
+        } else {
+            const errorText = await res.text();
+            return { message: "error", error: errorText || "Failed to invite." };
         }
     } catch (err) {
         console.error("Failed to fetch invitations", err)
@@ -307,13 +311,15 @@ export async function CancelInvitationAction(prevState, formData) {
             }
         });
 
-        if (res.ok) {
-            const result = await res.json()
-            return {
-                message: "success"
-            }
-
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.log("cancel response error ===>   " + errorText)
+            return { message: "error", error: errorText || "Failed to cancel." };
         }
+        const result = await res.json();
+        console.log("cancel response ===>   " + result)
+        return { message: "done" };
+
     } catch (err) {
         console.error("Failed to fetch invitations", err)
     }

@@ -22,7 +22,7 @@ export default function Avatar({ img, size }) {
   }
 
   return (
-    <div className='flex align-center justify-center glass-bg' style={avatar} >
+    <div className='avatar flex align-center justify-center glass-bg' style={avatar} >
       <div style={{ ...imgContainer, backgroundImage: img ? `url(http://localhost:8080/static/${img})` : 'url(/no-profile.png)' }} >
       </div>
     </div>

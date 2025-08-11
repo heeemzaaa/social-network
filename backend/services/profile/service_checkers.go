@@ -26,4 +26,10 @@ func (s *ProfileService) IsFollower(userID, authUserID string) (bool, *models.Er
 	return isFollower, nil
 }
 
-
+func (s *ProfileService) Visibility(userID string) (string, *models.ErrorJson) {
+	visibility, err := s.repo.Visibility(userID)
+	if err != nil {
+		return "", &models.ErrorJson{Status: err.Status, Error: err.Error}
+	}
+	return visibility, nil
+}

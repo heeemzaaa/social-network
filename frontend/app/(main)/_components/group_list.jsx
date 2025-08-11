@@ -1,4 +1,6 @@
-import React from "react";
+import React from "react"
+import Avatar from "./avatar"
+
 
 export default function GroupList({ groups, onGroupClick }) {
   return (
@@ -10,7 +12,7 @@ export default function GroupList({ groups, onGroupClick }) {
             onClick={() => onGroupClick(grp)}
             style={{ cursor: "pointer" }}
           >
-            <img src={grp.image_path || "/no-profile.png"} />
+            <Avatar img={grp.image_path} size="42" />
             <p className="text-md">{grp.title}</p>
           </div>
           <div className="sep"></div>

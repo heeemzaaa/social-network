@@ -17,7 +17,7 @@ func (h *PostHandler) CommentPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path, errUploadImg := utils.HanldeUploadImage(r, "img", "posts/commentImg")
+	path, errUploadImg := utils.HanldeUploadImage(r, "img", "postsComments")
 	if errUploadImg != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUploadImg.Status, Message: errUploadImg.Message})
 		return

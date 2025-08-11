@@ -66,7 +66,6 @@ export default function GroupCardList({ filter }) {
 
     useEffect(() => {
         if (!hasMore || isLoading || data.length === 0) return;
-
         observerRef.current = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting) {
@@ -94,6 +93,7 @@ export default function GroupCardList({ filter }) {
             fetchData(id)
         }
     }, [page])
+
     return (
         <div className="list-container flex flex-wrap gap-4 justify-center items-start overflow-y-auto">
             {data.map((item, index) => (

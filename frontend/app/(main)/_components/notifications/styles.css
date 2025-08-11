@@ -1,0 +1,68 @@
+.notification-card {
+  display: flex;
+  color: var(--color-dark);
+  border-radius: 8px;
+  padding: 0.5rem;
+  font-size: 14px;
+  height: 4rem;
+  max-width: 300px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notification-card.response.success {
+  border-left: 4px solid #4caf50;
+  background-color: #f0fff4;
+  color: var(--color-dark);
+}
+
+.notification-card.response.error {
+  border-left: 4px solid #f44336;
+  background-color: #fff0f0;
+  color: var(--color-dark);
+}
+
+.notification-card.unseen {
+  background-color: var(--color-gray);
+  color: var(--color-white);
+  border: 2px solid var(--color-white);
+}
+
+.notification-card.seen {
+  background-color: var(--color-secondary);
+  color: var(--color-dark);
+  border: 2px solid var(--color-white);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.notification-card .accept-btn {
+  background-color: var(--color-green);
+  color: var(--color-white);
+}
+
+.notification-card .reject-btn {
+  background-color: var(--color-red);
+  color: var(--color-white);
+}
+
+.accept-btn, .reject-btn {
+  font-size: var(--font-size-sm);
+  border: none;
+  font-weight: bold;
+  padding: var(--size-sm) var(--size-md);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-duration) var(--transition-timing);
+}
+
+.notification-card .accept-btn:hover {
+  background-color: #004d2a;
+}
+
+.notification-card .reject-btn:hover {
+  background-color: #b30000;
+}

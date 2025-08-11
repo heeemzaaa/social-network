@@ -53,7 +53,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId, offset string) ([]
         LEFT JOIN cte_interested ON cte_interested.ID = group_events.eventID
     %v
     ORDER BY group_events.createdAt DESC
-    LIMIT 10	
+    LIMIT 5	
 	`, where)
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {

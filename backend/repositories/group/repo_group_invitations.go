@@ -8,7 +8,8 @@ import (
 	"social-network/backend/utils"
 )
 
-func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite string) *models.ErrorJson {
+func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string) *models.ErrorJson {
+	fmt.Println(userId, groupId, userToInvite)
 	invitationID := utils.NewUUID()
 	query := `
 	INSERT INTO group_requests (requestID, senderID, receiverID, groupID, typeRequest)
@@ -28,7 +29,7 @@ func (gRepo *GroupRepository) InviteToJoin(userId, groupId string, userToInvite 
 	return nil
 }
 
-func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId string, invitedUser *models.User) *models.ErrorJson {
+func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId, invitedUserId string) *models.ErrorJson {
 	query := `
 	DELETE FROM group_requests WHERE 
 	senderID = ? AND receiverID = ? AND groupID = ? AND typeRequest = ? 
@@ -39,14 +40,14 @@ func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId string, invite
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(userId, invitedUser.Id, groupId, "invitation-request")
+	_, err = stmt.Exec(userId, invitedUserId, groupId, "invitation-request")
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	// it must be here :)
-	if count, _ := res.RowsAffected(); count == 0 {
-		return &models.ErrorJson{Status: 404, Error: "Invitation not found"}
-	}
+	// if count, _ := res.RowsAffected(); count == 0 {
+	// 	return &models.ErrorJson{Status: 404, Error: "Invitation not found"}
+	// }
 
 	return nil
 }
@@ -139,7 +140,7 @@ func (gRepo *GroupRepository) GetUsersToInvite(userID, groupID string) ([]models
 }
 
 // check this later
-func (gRepo *GroupRepository) AlreadyInvited(groupID, userID string) *models.ErrorJson {
+func (gRepo *GroupRepository) AlreadyInvited(groupID, userID string) *models.ErrorJson { // // userID
 	var found int
 	query := `SELECT 1 FROM groups WHERE groupID = ?`
 	stmt, err := gRepo.db.Prepare(query)

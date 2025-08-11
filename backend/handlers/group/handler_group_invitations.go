@@ -9,15 +9,20 @@ import (
 	"social-network/backend/middleware"
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
+	nService "social-network/backend/services/notification"
 	"social-network/backend/utils"
 )
 
 type GroupInvitationHandler struct {
 	gService *gservice.GroupService
+	nService *nService.NotificationService
 }
 
-func NewGroupInvitationHandler(service *gservice.GroupService) *GroupInvitationHandler {
-	return &GroupInvitationHandler{gService: service}
+func NewGroupInvitationHandler(service *gservice.GroupService, nService *nService.NotificationService) *GroupInvitationHandler {
+	return &GroupInvitationHandler{
+		gService: service,
+		nService: nService,
+	}
 }
 
 func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +49,13 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 
 	}
 
-	if errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String(), userToInvite); errJson != nil {
+	newNotif, errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String(), userToInvite)
+	if errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		return
+	}
+	
+	if errJson := invHanlder.nService.PostService(newNotif); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
@@ -81,8 +92,13 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
+
+	if errJson := invHanlder.nService.DeleteService(invitedUser.Id, userID.String(), "group-invitation", groupID.String()); errJson != nil {
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		return
+	}
+
 	utils.WriteDataBack(w, "done")
-	// delete the notification from the database
 }
 
 func (invHanlder *GroupInvitationHandler) GetUsersToInvite(w http.ResponseWriter, r *http.Request) {
@@ -102,14 +118,17 @@ func (invHanlder *GroupInvitationHandler) GetUsersToInvite(w http.ResponseWriter
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
-	if err := json.NewEncoder(w).Encode(users); err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
-		return
-	}
+
+	// if err := json.NewEncoder(w).Encode(users); err != nil {
+	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
+	// 	return
+	// }
+	utils.WriteDataBack(w, users)
 }
 
 func (invHanlder *GroupInvitationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
 	switch r.Method {
 	case http.MethodDelete:
 		invHanlder.CancelTheInvitation(w, r)

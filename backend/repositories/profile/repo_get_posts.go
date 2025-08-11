@@ -21,13 +21,21 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPos
     		p.postID,
     		u.userID, CONCAT(u.firstName, ' ', u.lastName) AS fullName, u.nickname, u.avatarPath,
     		p.content AS postContent, p.image_url AS postMedia, p.createdAt AS postCreatedAt, p.privacy,
+			(
+  			SELECT CASE 
+    			WHEN EXISTS (
+      			SELECT 1 FROM reactions 
+      		WHERE userID = ? AND entityType = 'post' AND entityID = p.postID AND reaction = 1
+    		) THEN 1 ELSE 0
+ 	 			END
+			) AS liked,
     		(SELECT COUNT(*) FROM reactions r1 WHERE r1.entityType = 'post' AND r1.entityID = p.postID) AS post_total_likes,
     		(SELECT COUNT(*) FROM comments c1 WHERE c1.postID = p.postID) AS post_total_comments
 		FROM posts p
 		JOIN users u ON u.userID = p.userID
 		WHERE p.userID = ?
 		`
-		args = append(args, userID)
+		args = append(args, userID, userID)
 
 		if lastPostTime != "" {
 			query += " AND p.createdAt < ?"
@@ -50,7 +58,15 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPos
     		p.postID,
     		u.userID, CONCAT(u.firstName, ' ', u.lastName) AS fullName, u.nickname, u.avatarPath,
     		p.content AS postContent, p.image_url AS postMedia, p.createdAt AS postCreatedAt, p.privacy,
-    		(SELECT COUNT(*) FROM reactions r1 WHERE r1.entityType = 'post' AND r1.entityID = p.postID) AS post_total_likes,
+			(
+  		SELECT CASE 
+    		WHEN EXISTS (
+      		SELECT 1 FROM reactions 
+     		WHERE userID = ? AND entityType = 'post' AND entityID = p.postID AND reaction = 1
+    	) THEN 1 ELSE 0
+  			END
+		) AS liked,
+			(SELECT COUNT(*) FROM reactions r1 WHERE r1.entityType = 'post' AND r1.entityID = p.postID) AS post_total_likes,
    	 		(SELECT COUNT(*) FROM comments c1 WHERE c1.postID = p.postID) AS post_total_comments
 		FROM posts p
 		JOIN users u ON u.userID = p.userID
@@ -75,7 +91,7 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPos
         	))
     	)
 		`
-		args = append(args, profileID, userID, profileID, profileID, userID, userID)
+		args = append(args, profileID, userID, profileID, userID, profileID, userID, userID)
 
 		if lastPostTime != "" {
 			query += " AND p.createdAt < ?"
@@ -109,7 +125,7 @@ func (repo *ProfileRepository) GetPosts(profileID string, userID string, lastPos
 			&post.Id,
 			&user.Id, &user.FullName, &user.Nickname, &user.ImagePath,
 			&post.Content, &post.Img, &post.CreatedAt, &post.Privacy,
-			&post.TotalLikes, &post.TotalComments,
+			&post.Liked, &post.TotalLikes, &post.TotalComments,
 		)
 		if err != nil {
 			log.Println("Error scanning the post: ", err)

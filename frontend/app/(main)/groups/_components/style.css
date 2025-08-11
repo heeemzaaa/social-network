@@ -20,7 +20,6 @@
 
 .grp-card:hover {
     box-shadow: var(--shadow-lg);
-    transform: scale(.99) translateY(2px);
     cursor: pointer;
 }
 
@@ -42,9 +41,6 @@
     border-radius: var(--border-radius-md)
 }
 
-.grp-card-body {
-}
-
 .grp-card-body .grp-description {
     padding: .5rem;
     text-align: justify;
@@ -52,4 +48,32 @@
     overflow-wrap: break-word;
     white-space: normal;
     overflow: scroll;
+}
+
+@media (max-width: 768px) {
+    .grp-card {
+        width: 100%;
+        max-width: 300px !important;
+        padding: var(--card-padding);
+        padding-top: calc(var(--img-width) / 2 + var(--card-padding));
+        margin-left: unset;
+        margin-top: var(--margin-left);
+    }
+
+    .grp-card-img-holder {
+        height: calc(90% - var(--card-padding) / 2);
+        max-height: var(--img-width);
+        position: absolute;
+        top: calc(-1 * var(--img-width) / 2);
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .grp-card-body, .grp-description {
+        
+        display: flex;
+        text-align: center;
+        justify-content: center;
+        align-items: center; 
+    }
 }

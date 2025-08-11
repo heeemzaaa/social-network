@@ -27,8 +27,6 @@ func (messages *MessagesHandler) GetMessages(w http.ResponseWriter, r *http.Requ
 
 	targetId := r.URL.Query().Get("target_id")
 
-	lastMessageID := r.URL.Query().Get("message_id")
-
 	type_ := r.URL.Query().Get("type")
 	if type_ != "private" && type_ != "group" {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "type is not specified"})
@@ -46,7 +44,7 @@ func (messages *MessagesHandler) GetMessages(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	mesages, errJson := messages.service.GetMessages(senderId.String(), targetId, lastMessageID, type_)
+	mesages, errJson := messages.service.GetMessages(senderId.String(), targetId, type_)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return

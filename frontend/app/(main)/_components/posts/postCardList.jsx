@@ -47,10 +47,17 @@ export default function PostCardList() {
         fetchPosts();
     }, []);
     return (
-        <div className="list-container " style={{ overflowY: "auto" }}>
-            {posts?.map((post) => (
-                <PostCard key={post.id} {...post} />
-            ))}
+        <div className="list-container" style={{ overflowY: "auto" }}>
+            {
+                posts?.length > 0 
+                    ? posts?.map((post) => (
+                        <PostCard key={post.id} {...post} />
+                    ))
+                    : <div style={{width:"100%", maxWidth:"500px", margin:"auto", textAlign:"center"}}>
+                        <img src="/noFeed.svg" alt="" />
+                        <p className="font-semibold">No posts available for you !</p>
+                    </div>
+            }
         </div>
     );
 }
