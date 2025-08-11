@@ -60,7 +60,7 @@ export default function PostCardList() {
         <div className="list-container" style={{ overflowY: "auto" }}>
             {posts?.length > 0 ? (
                 posts?.map((post) => (
-                    <PostCard key={post.id} {...post} />
+                    <PostCard key={post.id} {...post} post={post}/>
                 ))
             ) : (
                 <div style={{ width: "100%", maxWidth: "500px", margin: "auto", textAlign: "center" }}>

@@ -28,6 +28,7 @@ export default function PostCard({
     privacy,
     groupID
 }) {
+    console.log(post)
     const [totalComments, setTotalComments] = useState(total_comments)
     const { openModal } = useModal()
     const { showNotification } = useNotification()
@@ -36,6 +37,7 @@ export default function PostCard({
         likes: total_likes,
         message: null,
     }
+    console.log(initialState)
     const [state, formAction] = useActionState(likePostAction, initialState)
 
     const handleCommentMessage = (msg) => {

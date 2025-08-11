@@ -130,15 +130,17 @@ export async function likePostAction(prevState, formData) {
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
         });
         const data = await res.json();
+        console.log("daaaata: ", data)
         if (res.ok) {
-            if (!groupId) state.likes=  data.total_likes
+            // if (!groupId) state.likes=  data.total_likes
             let state = {
                 ...prevState,
                 message: `You ${prevState.liked ? "unliked" : "liked"} a post`,
-                liked: data.liked || data.reaction,
+                liked: data.liked ,
             }
-            
-            if (data.reaction === 1 || data.liked === 1) {
+            console.log("previous stte:", prevState)
+            console.log("=>>>>",state.liked)
+            if (state.liked) {
                 console.log("you liked post ")
                 state.likes = prevState.likes + 1
             } else {
