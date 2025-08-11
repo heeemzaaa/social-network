@@ -592,19 +592,19 @@ main.login {
     max-width: 450px;
     background-color: var(--color-secondary) !important;
     align-items: center;
-    box-shadow: 5px 5px var(--color-white);
   }
 
   input {
     padding: .8rem;
     border-radius: 16px;
     width: 450px;
-    box-shadow: 4px 4px var(--color-white);
     border: 2px solid;
   }
 
   input:focus {
-    outline: none;
+    border-radius: 16px;
+    outline: 2px solid var(--color-primary);
+    border: 1px solid var(--color-dark);
   }
 
   span {
@@ -637,12 +637,11 @@ main.register {
       var(--color-gray));
 
   form {
-    margin-top: 8rem;
+    margin-top: 12rem;
     max-width: 850px;
     background-color: var(--color-secondary) !important;
     border-radius: 50px;
     align-items: center;
-    box-shadow: 5px 5px 3px var(--color-white);
   }
 
   .logo {
@@ -650,7 +649,7 @@ main.register {
     top: 60px;
   }
 
-  span {
+  label {
     margin-top: .8rem;
     font-size: var(--font-size-md);
   }
@@ -659,14 +658,20 @@ main.register {
     border-radius: 16px;
     padding: .8rem;
     width: 450px;
-    box-shadow: 4px 4px var(--color-white);
     border: 2px solid;
   }
+
+  input:focus, textarea:focus {
+    border-radius: 16px;
+    outline: 2px solid var(--color-primary);
+    border: 1px solid var(--color-dark);
+  }
+
+  
 
   textarea {
     border-radius: 16px;
     padding: .8rem;
-    box-shadow: 4px 4px var(--color-white);
     border: 2px solid;
     width: 450px;
   }
@@ -680,11 +685,6 @@ main.register {
     border: 1px solid var(--color-dark);
     color: var(--color-dark);
     box-shadow: 1px 1px 2px var(--color-gray);
-  }
-
-  input:focus,
-  textarea {
-    outline: none !important;
   }
 
   button {
