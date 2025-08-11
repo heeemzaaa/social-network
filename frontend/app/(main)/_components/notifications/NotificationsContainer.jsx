@@ -68,7 +68,7 @@ export default function NotificationsPopover() {
       };
 
       let response = await fetch("http://localhost:8080/api/notifications/update/", postRequest);
-      if (!response.ok) throw new Error("faild to update notification");
+      if (!response.ok) showNotification({Content:"failed to update notification", Status:"error"})
       let data = await response.json();
       console.log("update notification response:", data.Status);
       console.log("update notification response:", data.Message);
@@ -101,7 +101,7 @@ export default function NotificationsPopover() {
     try {
       const res = await fetch(`http://localhost:8080/api/notifications?Id=${value}`, { method: "GET", credentials: "include" });
 
-      if (!res.ok) throw new Error("faild to update notification");
+      if (!res.ok) showNotification({Content:"failed to update notification", Status:"error"})
 
       const data = await res.json();
 

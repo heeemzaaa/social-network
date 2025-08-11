@@ -17,9 +17,6 @@
     background-repeat: no-repeat;
 }
 
-
-
-
 .ProfileData {
     background: rgba(148, 147, 147, 0.33);
     border-radius: 16px;
@@ -89,12 +86,29 @@
         overflow-y: auto;
     }
 
+
+    main:has(.profile_page_section) {
+        overflow-y: auto;
+    }
+
     .profile_page_section {
         display: flex;
         flex-direction: column;
         /* justify-content: center; */
         align-items: center;
         overflow-y: auto;
+        background-color: var(--color-secondary);
+
+    }
+
+    .data-container {
+        padding-top: 2rem;
+        overflow-y: unset;
+        background-color: var(--color-secondary);
+    }
+
+    .data-container div:has(button.btn-primary) {
+        top: 100px;
     }
 
     .ProfileContainer {
@@ -105,9 +119,9 @@
     .UserNumbers {
         width: 100%;
     }
-    
+
     .posts_container {
         height: max-content;
-        overflow: hidden;
+        /* overflow: hidden; */
     }
 }

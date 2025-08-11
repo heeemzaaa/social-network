@@ -70,7 +70,7 @@
 
 .chat_footer {
   width: 100%;
-  padding-inline: 5rem;
+  /* padding-inline: 5rem; */
   border-bottom-right-radius: var(--border-radius-lg);
   display: flex;
   justify-content: center;

@@ -15,7 +15,7 @@ export default function UserList({ users, onUserClick }) {
             <div className="sep"></div>
           </React.Fragment>
         ))
-        : <div style={{ width: "100%", maxWidth: "150px", display: "flex", flexDirection: "column", margin: "2rem auto", opacity: ".8", gap: "10px", }}>
+        : <div style={{ height: "100%", width: "100%", maxWidth: "150px", display: "flex", flexDirection: "column", margin: "2rem auto", opacity: ".8", gap: "10px", }}>
           <img src="/search.png" />
           <p className="font-semibold" style={{ textAlign: "center" }} >You have no friends, you need to follow others.</p>
         </div>
