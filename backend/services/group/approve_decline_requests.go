@@ -5,7 +5,7 @@ import (
 	"social-network/backend/utils"
 )
 
-func (gService *GroupService) Approve(userId, groupId string, userToBeAdded *models.User) *models.ErrorJson { ///////
+func (gService *GroupService) Approve(userId, groupId string, userToBeAddedId string) *models.ErrorJson { ///////
 	// to approve wheter it we need
 	// awalan userId ykun dyal l admin
 	// tanyan l user_id lakhur ykun valid (format , and aslo kayn f db)
@@ -24,13 +24,13 @@ func (gService *GroupService) Approve(userId, groupId string, userToBeAdded *mod
 		return &models.ErrorJson{Status: 403, Error: "ERROR!! Access Forbidden"}
 	}
 	// validate the format of the user to be added
-	if err := utils.IsValidUUID(userToBeAdded.Id); err != nil {
+	if err := utils.IsValidUUID(userToBeAddedId); err != nil {
 		return &models.ErrorJson{Status: 400, Message: models.UserErr{
 			UserId: "ERROR!! Incorrect UUID Format!",
 		}}
 	}
 
-	_, exists, _ := gService.gRepo.GetItem("users", "userID", userToBeAdded.Id)
+	_, exists, _ := gService.gRepo.GetItem("users", "userID", userToBeAddedId)
 	if !exists {
 		return &models.ErrorJson{Status: 400, Message: models.UserErr{
 			UserId: "ERROR!! user not found",
@@ -38,13 +38,13 @@ func (gService *GroupService) Approve(userId, groupId string, userToBeAdded *mod
 	}
 	// validate if wheter exists or not !!
 
-	if errJson := gService.gRepo.Approve(groupId, userToBeAdded.Id); errJson != nil {
+	if errJson := gService.gRepo.Approve(groupId, userToBeAddedId); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return nil
 }
 
-func (gService *GroupService) Decline(userId, groupId string, userToBeRejected *models.User) *models.ErrorJson {
+func (gService *GroupService) Decline(userId, groupId string, userToBeRejectedId string) *models.ErrorJson {
 	if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
@@ -56,19 +56,19 @@ func (gService *GroupService) Decline(userId, groupId string, userToBeRejected *
 		return &models.ErrorJson{Status: 403, Error: "ERROR!! Access Forbidden"}
 	}
 	// validate the format of the user to be added
-	if err := utils.IsValidUUID(userToBeRejected.Id); err != nil {
+	if err := utils.IsValidUUID(userToBeRejectedId); err != nil {
 		return &models.ErrorJson{Status: 400, Message: models.UserErr{
 			UserId: "ERROR!! Incorrect UUID Format!",
 		}}
 	}
 
-	_, exists, _ := gService.gRepo.GetItem("users", "userID", userToBeRejected.Id)
+	_, exists, _ := gService.gRepo.GetItem("users", "userID", userToBeRejectedId)
 	if !exists {
 		return &models.ErrorJson{Status: 400, Message: models.UserErr{
 			UserId: "ERROR!! user not found",
 		}}
 	}
-	if errJson := gService.gRepo.Decline(groupId, userToBeRejected.Id); errJson != nil {
+	if errJson := gService.gRepo.Decline(groupId, userToBeRejectedId); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return nil

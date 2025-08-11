@@ -44,7 +44,7 @@ func (decApprHandler *ApproveDeclineReqHandler) Approve(w http.ResponseWriter, r
 		return
 	}
 
-	if errJson := decApprHandler.gService.Approve(userID.String(), groupID.String(), userToBeAdded); errJson != nil {
+	if errJson := decApprHandler.gService.Approve(userID.String(), groupID.String(), userToBeAdded.Id); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
@@ -74,7 +74,7 @@ func (decApprHandler *ApproveDeclineReqHandler) Decline(w http.ResponseWriter, r
 		return
 	}
 
-	if errJson := decApprHandler.gService.Decline(userID.String(), groupID.String(), userToBeRejected); errJson != nil {
+	if errJson := decApprHandler.gService.Decline(userID.String(), groupID.String(), userToBeRejected.Id); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}

@@ -5,9 +5,9 @@ import (
 
 	sc "social-network/backend/handlers/chat"
 	"social-network/backend/models"
-	rg "social-network/backend/repositories/group"
 	rn "social-network/backend/repositories/notification"
 	sa "social-network/backend/services/auth"
+	sg "social-network/backend/services/group"
 	sp "social-network/backend/services/profile"
 )
 
@@ -15,16 +15,16 @@ type NotificationService struct {
 	authService    *sa.AuthService
 	notifRepo      *rn.NotifRepository
 	profileService *sp.ProfileService
-	groupRepo      *rg.GroupRepository
+	groupService   *sg.GroupService
 	chatServer     *sc.ChatServer
 }
 
-func NewNotifService(notifRepo *rn.NotifRepository, authService *sa.AuthService, profileService *sp.ProfileService, groupRepo *rg.GroupRepository, chatServer *sc.ChatServer) *NotificationService {
+func NewNotifService(notifRepo *rn.NotifRepository, authService *sa.AuthService, profileService *sp.ProfileService, groupService *sg.GroupService, chatServer *sc.ChatServer) *NotificationService {
 	return &NotificationService{
 		notifRepo:      notifRepo,
 		authService:    authService,
 		profileService: profileService,
-		groupRepo:      groupRepo,
+		groupService:   groupService,
 		chatServer:     chatServer,
 	}
 }

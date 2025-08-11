@@ -2,9 +2,14 @@ import React, { useEffect, useState } from 'react'
 import Avatar from '../../_components/avatar';
 import Button from '@/app/_components/button';
 
+import { useNotification } from "../../_context/NotificationContext";
+
 
 export default function UserCard({ user, groupId }) {
     const [inviteState, setInviteState] = useState(user.invited)
+
+    const { showNotification } = useNotification();
+    
 
     // let's create here the function that toggles the state of the button with the same
     // way as hamza 
@@ -19,7 +24,20 @@ export default function UserCard({ user, groupId }) {
                 body: JSON.stringify({ 'id': user.id }),
             })
 
-            if (!res.ok) return console.error("Failed to send the request")
+            if (!res.ok) console.error("Failed to send the request")
+            const data = await res.json();
+            console.log(" ==>> ", data);
+            if (data.Message === 'ERROR!! You are already a member!') {
+                showNotification({ Content: `already a member!`, Status: "error" });
+
+                // should access to the followers list and remove the user from the list
+
+                console.warn(`already a member!`)
+                return
+            } else if (data.Message === 'Invitation not found') {
+                console.warn(`Invitation not found !!`)
+                showNotification({ Content: `Invitation not found`, Status: "error" });
+            }
 
             inviteState === 0 ? setInviteState(1) : setInviteState(0)
         } catch (err) {

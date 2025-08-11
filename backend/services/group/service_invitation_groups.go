@@ -30,6 +30,11 @@ func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite 
 	if !isFollower {
 		return nil, &models.ErrorJson{Status: 403, Error: "ERROR!! it is not from your followers!"}
 	}
+
+	if errMembership := gService.CheckNotMember(groupId, userToInvite.Id); errMembership != nil {
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+	}
+
 	if err := gService.gRepo.InviteToJoin(userId, groupId, userToInvite.Id); err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
 	}
@@ -47,7 +52,7 @@ func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite 
 	}, nil
 }
 
-func (gService *GroupService) CancelTheInvitation(userId, groupId string, invitedUser *models.User) *models.ErrorJson {
+func (gService *GroupService) CancelTheInvitation(userId, groupId string, invitedUserId string) *models.ErrorJson {
 	// check the group if a valid one
 	// check the user is member before he can invite
 	// we need to check if the request of invitation is there before canceling it
@@ -60,7 +65,7 @@ func (gService *GroupService) CancelTheInvitation(userId, groupId string, invite
 		return &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 	
-	if errJson := gService.gRepo.CancelTheInvitation(userId, groupId, invitedUser.Id); errJson != nil {
+	if errJson := gService.gRepo.CancelTheInvitation(userId, groupId, invitedUserId); errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return nil
