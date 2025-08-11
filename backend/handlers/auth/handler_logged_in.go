@@ -8,15 +8,13 @@ import (
 	"social-network/backend/utils"
 )
 
-type UserData struct {
-	service *auth.AuthService
+type LoggedInHanlder AuthHandler
+
+func NewLoggedInHanlder(service *auth.AuthService) *LoggedInHanlder {
+	return &LoggedInHanlder{service: service}
 }
 
-func NewLoggedInHanlder(service *auth.AuthService) *UserData {
-	return &UserData{service: service}
-}
-
-func (loggedin *UserData) GetLoggedIn(w http.ResponseWriter, r *http.Request) {
+func (loggedin *LoggedInHanlder) GetLoggedIn(w http.ResponseWriter, r *http.Request) {
 	user_data := &models.UserData{}
 	cookie, err := r.Cookie("session")
 	if err != nil {
@@ -40,7 +38,7 @@ func (loggedin *UserData) GetLoggedIn(w http.ResponseWriter, r *http.Request) {
 	utils.WriteDataBack(w, user_data)
 }
 
-func (loggedin *UserData) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (loggedin *LoggedInHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch {
 	case r.Method != http.MethodGet && r.URL.Path == "/api/loggedin":

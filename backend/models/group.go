@@ -128,7 +128,3 @@ type Request struct {
 	GroupId          string
 	GroupTitle       string
 }
-
-type InvitedUsers struct {
-	Users []string `json:"users_ids"`
-}

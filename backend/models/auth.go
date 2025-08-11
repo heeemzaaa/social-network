@@ -27,9 +27,7 @@ type Login struct {
 	Password   string `json:"password"`
 }
 
-func NewLogin() *Login {
-	return &Login{}
-}
+
 
 type Session struct {
 	Id       int    `json:"id,omitempty"`
@@ -51,12 +49,4 @@ type UserData struct {
 	Token      string  `json:"token,omitempty"`
 }
 
-type ContextKey struct {
-	Key string
-}
 
-// there is a  problem when doing this with contexts
-
-func NewContextKey(key string) *ContextKey {
-	return &ContextKey{Key: key}
-}
