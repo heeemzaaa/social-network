@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import Button from '../../_components/button'
-import NotificationsPopover from './notifications/NotificationsPopover'
 import {HiBell} from "react-icons/hi2";
 
 import { useModal } from '../_context/ModalContext';

@@ -42,7 +42,7 @@ func (s *AuthService) validateUserData(user *models.User) (*models.User, *models
 	trimmedUsername := strings.TrimSpace(user.Nickname)
 	trimmedAboutMe := strings.TrimSpace(user.AboutMe)
 	userErrorJson := models.User{}
-	
+
 	if err := isValidName(trimmedFirstName, "firstname"); err != nil {
 		userErrorJson.FirstName = err.Error()
 	}
@@ -64,7 +64,7 @@ func (s *AuthService) validateUserData(user *models.User) (*models.User, *models
 	}
 
 	// optianal user data
-	if err := s.isValidNickname(user.Nickname); err != nil {
+	if err := s.isValidNickname(trimmedUsername); err != nil {
 		userErrorJson.Nickname = err.Error()
 	}
 

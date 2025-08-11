@@ -53,6 +53,9 @@ func (s *AuthService) isValidEmail(email string) error {
 }
 
 func (s *AuthService) isValidNickname(nickname string) error {
+	if nickname == "" {
+		return nil
+	}
 	if len(nickname) < 3 {
 		return errors.New("nickname must be 3 characters or higher")
 	}
