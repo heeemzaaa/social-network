@@ -3,8 +3,6 @@ import Avatar from '../../_components/avatar';
 import Button from '@/app/_components/button';
 import { useNotification } from '../../_context/NotificationContext';
 
-import { useNotification } from "../../_context/NotificationContext";
-
 
 export default function UserCard({ user, groupId }) {
     const [inviteState, setInviteState] = useState(user.invited)

@@ -200,7 +200,7 @@ export default function Chat() {
           </Button>
         </div>
 
-        <div className="chosing_param">
+        <div className="overflow-y-auto" >
           {view === "Users" ? (
             <UserList users={users} onUserClick={handleUserClick} />
           ) : (
