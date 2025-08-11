@@ -50,17 +50,17 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 
 	newNotif, errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String(), userToInvite)
 	if errJson != nil {
-		if errJson.Status == 403 && errJson.Message ==  "ERROR!! You are already a member!" {
+		if errJson.Status == 403 && errJson.Message == "ERROR!! You are already a member!" {
 			utils.WriteDataBack(w, models.ResponseMsg{
 				Status:  false,
-				Message:  "ERROR!! You are already a member!",
+				Message: "ERROR!! You are already a member!",
 			})
 			return
 		}
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
-	
+
 	if errJson := invHanlder.nService.PostService(newNotif); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
@@ -95,30 +95,11 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 	}
 
 	if errJson := invHanlder.gService.CancelTheInvitation(userID.String(), groupID.String(), invitedUser.Id); errJson != nil {
-		if errJson.Status == 404 && errJson.Error == "Invitation not found" {
-			utils.WriteDataBack(w, models.ResponseMsg{
-				Status:  false,
-				Message: "Invitation not found",
-			})
-			return
-		}
-		if errJson.Status == 403 && errJson.Message == "ERROR!! Acces Forbidden!" {
-			utils.WriteDataBack(w, models.ResponseMsg{
-				Status:  false,
-				Message: "request not found",
-			})
-			return
-		}
-
-		if errJson.Status == 403 && errJson.Message == "ERROR!! You are already a member!" {
-			utils.WriteDataBack(w, models.ResponseMsg{
-				Status:  false,
-				Message: "ERROR!! You are already a member!",
-			})
-			return
-		}
-	
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		utils.WriteDataBack(w, models.ErrorJson{
+			Status:  errJson.Status,
+			Error:   errJson.Error,
+			Message: errJson.Message,
+		})
 		return
 	}
 

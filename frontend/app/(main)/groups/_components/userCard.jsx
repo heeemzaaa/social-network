@@ -21,8 +21,8 @@ export default function UserCard({ user, groupId }) {
                 body: JSON.stringify({ 'id': user.id }),
             })
 
-            if (!res.ok) console.error("Failed to send the request")
-            const data = await res.json();
+            if (!response.ok) console.error("Failed to send the request")
+            const data = await response.json();
             console.log(" ==>> ", data);
             if (data.Message === 'ERROR!! You are already a member!') {
                 showNotification({ Content: `already a member!`, Status: "error" });

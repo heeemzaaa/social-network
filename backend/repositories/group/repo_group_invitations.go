@@ -32,17 +32,17 @@ func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string)
 func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId, invitedUserId string) *models.ErrorJson {
 	query := `
 	DELETE FROM group_requests WHERE 
-	senderID = ? AND receiverID = ? AND groupID = ? AND typeRequest = ? 
+	senderID = ? AND receiverID = ? AND groupID = ? AND typeRequest = 'invitation-request'
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v ", err)}
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(userId, invitedUserId, groupId, "invitation-request")
+	res, err := stmt.Exec(userId, invitedUserId, groupId)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	// it must be here :)
 	if count, _ := res.RowsAffected(); count == 0 {
