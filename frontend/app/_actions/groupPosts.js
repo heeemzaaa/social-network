@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { resolve } from "styled-jsx/css";
 
 
 export async function commentGroupPostAction(prevState, formData) {    
@@ -15,9 +16,9 @@ export async function commentGroupPostAction(prevState, formData) {
     const groupID = formData.get("groupId")
     const commentImg = formData.get("commentImg");
     const maxSize = 3 * 1024 * 1024;
-
     if (!commentContent && commentImg.size === 0) {
-        state.errors.commentContent = "Input comment is required";
+        state.error = "Can't send an empty comment"
+        console.log(state)
         return state;
     }
     if (!postID) {
@@ -41,14 +42,11 @@ export async function commentGroupPostAction(prevState, formData) {
         content: commentContent,
     });
 
-    console.log("---------------> ", jsonData);
-    
-
     const newFormData = new FormData();
     newFormData.append("data", jsonData);
 
     if (commentImg && commentImg.size > 0) {
-        newFormData.append("img", commentImg);
+        newFormData.append("comment", commentImg);
     }
 
     const cookieStore = await cookies();
@@ -62,25 +60,24 @@ export async function commentGroupPostAction(prevState, formData) {
             body: newFormData,
         });
 
+        const response = await resp.json();
         if (!resp.ok) {
-            console.log("error fetching request");
-            return { ...state, message: "Failed to post comment." };
+            return { ...state, error: "Failed to post comment." };
         }
         
-        const response = await resp.json();
-        console.log('response', response)        
         const now = new Date();
+
         const formatted = now.toISOString().slice(0, 16).replace('T', ' ');
         return {
             ...state,
-            message: "Commented successfully",
+            message: "You commented on a post",
             content: response.content,
             nickname: response.user.nickname,
             fullName: response.user.fullname,
             avatar: response.user.avatar,
-            success: true,
             createdAt: formatted,
-            imagePath: response.img,
+            imagePath: response.image_path,
+            success: true,
         };
     } catch (err) {
         return { ...prevState, message: "Server error." };

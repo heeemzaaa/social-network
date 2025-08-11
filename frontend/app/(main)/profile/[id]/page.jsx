@@ -13,13 +13,15 @@ import { HiOutlineDocumentPlus } from "react-icons/hi2"
 import { useModal } from "../../_context/ModalContext"
 import CreatePost from "../../_components/posts/createPost"
 import { createPostAction } from "@/app/_actions/posts"
+import Loader from "../../_components/loader"
 
 export default function Page({ params }) {
   const [userInfos, setUserInfos] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [isFollower, setIsFollower] = useState(null)
   const [changed, setChanged] = useState(false)
-  const {openModal} = useModal()
+  const { openModal } = useModal()
 
   const resolvedParams = React.use(params);
   const id = resolvedParams.id;
@@ -127,7 +129,9 @@ export default function Page({ params }) {
     }
   }
 
-  if (loading) return <p>Loading user info...</p>
+  if (loading) return <main className='profile_page_section flex h-full p4 gap-4'>
+    <Loader/>
+  </main>
   if (!userInfos) return <p>Failed to load user info.</p>
   return (
     <main className='profile_page_section flex h-full p4 gap-4'>
@@ -175,13 +179,13 @@ export default function Page({ params }) {
 
       <div className="data-container flex-col w-full align-center gap-4">
         {(userInfos.access && userInfos.aboutMe) && <AboutUser aboutMe={userInfos.aboutMe} />}
-        <div style={{ zIndex:"1",background:"var(--color-secondary)", alignSelf:"stretch", position: "sticky", top: "0", borderBottom: "solid 1px", paddingBottom: ".5rem", margin: ".5rem" }} >
+        <div style={{ zIndex: "1", background: "var(--color-secondary)", alignSelf: "stretch", position: "sticky", top: "0", borderBottom: "solid 1px", paddingBottom: ".5rem", marginBlock: ".5rem" }} >
           <Button style={{ marginLeft: "auto" }} onClick={() => openModal(<CreatePost postAction={createPostAction} />)}>
             <HiOutlineDocumentPlus size={24} />
             <span className="text-lg font-medium">Add New Post</span>
           </Button>
         </div>
-        {<UserPosts id={userInfos.id} access={userInfos.access} changed={changed} />}
+        {<UserPosts profileId={userInfos.id} access={userInfos.access} changed={changed} />}
       </div>
     </main>
   )

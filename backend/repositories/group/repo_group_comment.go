@@ -114,10 +114,12 @@ func (gRepo *GroupRepository) GetComments(userId, postId, groupId, offset string
 		concat (users.firstName, " ", users.lastName),
 		users.nickname,
 		users.userID,
+		users.avatarPath,
 		group_posts_comments.commentID,
 		group_posts_comments.postID,
 		group_posts_comments.createdAt,
 		group_posts_comments.content,
+		group_posts_comments.imageContent,
 		coalesce(cte_likes.total_likes, 0) as total_likes,
 		coalesce(group_reactions.userID, 0) as liked
 	FROM
@@ -157,10 +159,12 @@ func (gRepo *GroupRepository) GetComments(userId, postId, groupId, offset string
 		if err = rows.Scan(&comment.User.FullName,
 			&comment.User.Nickname,
 			&comment.User.Id,
+			&comment.User.ImagePath,
 			&comment.Id,
 			&comment.PostId,
 			&comment.CreatedAt,
 			&comment.Content,
+			&comment.ImagePath,
 			&comment.TotalLikes,
 			&comment.Liked); err != nil {
 			return comments, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}

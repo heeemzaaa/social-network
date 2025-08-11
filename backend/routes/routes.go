@@ -14,7 +14,7 @@ func SetRoutes(db *sql.DB) *http.ServeMux {
 	SetGroupRoutes(mux, db, authService, profileService, notifService)
 	SetPostRoutes(mux, db, authService)
 
-	SetImageRoutes(mux, db, authService)
+    SetImageRoutes(mux, db, authService)
 
 	return mux
 }

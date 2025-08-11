@@ -2,7 +2,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
 
-
 export async function fetchMessages(targetId, type) {
   try {
     const response = await fetch(`${API_URL}/api/messages?target_id=${targetId}&type=${type}`, {
@@ -17,9 +16,9 @@ export async function fetchMessages(targetId, type) {
     }
 
     const messages = await response.json();
-	if (Array.isArray(messages)) {
-		messages.reverse();
-	}
+    if (Array.isArray(messages)) {
+      messages.reverse();
+    }
     return messages || [];
   } catch (error) {
     console.error("❌ Error fetching messages:", error);

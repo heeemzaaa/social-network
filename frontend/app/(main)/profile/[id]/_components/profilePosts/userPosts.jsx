@@ -1,14 +1,24 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import PostCard from '@/app/(main)/_components/posts/postCard'
 import { useModal } from '@/app/(main)/_context/ModalContext'
+import Error from '@/app/(main)/_components/error'
+import Loader from '@/app/(main)/_components/loader'
 
-export default function UserPosts({ id, access, changed }) {
+export default function UserPosts({ profileId, access, changed }) {
     const [posts, setPosts] = useState([])
-    const {setModalData, getModalData} = useModal()
+    const [page, setPage] = useState(0)
+    const [isLoading, setIsLoading] = useState(true)
+    const [hasMore, setHasMore] = useState(true)
+    const [error, setError] = useState(null)
+    const observerRef = useRef(null)
+    const loadMoreRef = useRef(null)
+    const { setModalData, getModalData } = useModal()
 
-     useEffect(() => {
+
+    // add the new created post to posts state
+    useEffect(() => {
         let postData = getModalData()
         if (postData?.type !== 'post') return;
 
@@ -21,20 +31,83 @@ export default function UserPosts({ id, access, changed }) {
         })
         setModalData(null)
     }, [setModalData])
-    useEffect(() => {
-        async function getPosts() {
+
+    // post fetch function
+    const fetchData = useCallback(
+        async (id) => {
+            if ((isLoading || !hasMore) && posts.length !== 0) return
             try {
-                const res = await fetch(`http://localhost:8080/api/profile/${id}/data/posts`, { credentials: 'include' })
-                if (res.ok) {
-                    const data = await res.json()
-                    if (data) setPosts(data)
+                const response = await fetch(`http://localhost:8080/api/profile/${profileId}/data/posts${id != 0 ? "?last=" + id : ""}`, {
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                const result = await response.json()
+                if (!response.ok) {
+                    setError(result.error || `Failed to fetch posts`)
                 }
+                if (result.length === 0) {
+                    setHasMore(false)
+                } else {
+                    if (result.length < 10) setHasMore(false)
+                    setPosts((prevData) => [...prevData, ...result])
+            }
+            setIsLoading(false)
             } catch (err) {
-                console.error("Error fetching posts:", err)
+                setError(err.message)
+                setIsLoading(false)
+            }
+        },
+        [profileId]
+    )
+
+    // first fetch
+    useEffect(() => {
+        setPosts([])
+        setPage(0)
+        setHasMore(true)
+        setError(null)
+        setIsLoading(true)
+        fetchData(0)
+    }, [profileId, changed])
+
+
+    // increment page count when the intersection observer is triggered
+    useEffect(() => {
+        if (!hasMore || isLoading || posts.length === 0) return;
+        observerRef.current = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    setPage((prevPage) => prevPage + 1)
+                }
+            },
+            { threshold: 0.1 }
+        )
+
+        if (loadMoreRef.current) {
+            observerRef.current.observe(loadMoreRef.current)
+        }
+
+        return () => {
+            if (observerRef.current) {
+                observerRef.current.disconnect()
             }
         }
-        getPosts()
-    }, [id, changed])
+    }, [hasMore, isLoading])
+
+    // fetch new posts on page change
+    useEffect(() => {
+        if (page > 0) {
+            let id = posts[posts.length - 1]?.id
+            setIsLoading(true)
+            fetchData(id)
+        }
+    }, [page])
+
+
+    if (error) return <Error error={error} />
+    if (isLoading && posts.length === 0) return <Loader />
 
     if (access === false) {
         return (
@@ -53,6 +126,10 @@ export default function UserPosts({ id, access, changed }) {
                 posts.map((post) => {
                     return <PostCard {...post} key={post.id} />
                 })
+            )}
+            {isLoading && hasMore && <div className="w-full"> <Loader /></div>}
+            {hasMore && !isLoading && (
+                <div ref={loadMoreRef} className="w-full" style={{ height: "20px" }}></div>
             )}
         </section>
     )

@@ -3,7 +3,6 @@ import React from 'react'
 import Avatar from "../avatar"
 
 export default function UserList({ users, onUserClick }) {
-  console.log("usssssssssssssers: ", users)
   return (
     <div className="pi3">
       {users.length > 0

@@ -3,19 +3,6 @@ import { cookies } from "next/headers"
 
 const API_URL = process.env.BACKEND_URL || 'http://localhost:8080'
 
-
-
-/*
-    state = {
-        error : "for single message error"
-        errors : "for form fields errors"
-        message : "for success message"
-        data : "for returning data (exp grp component) "
-    }
-*/
-
-
-
 // Creates a new group by validating form data and sending it to the group creation API Endpoint.
 export async function createGroupAction(prevState, formData) {
     const state = {
@@ -54,7 +41,9 @@ export async function createGroupAction(prevState, formData) {
     if (Object.keys(state.errors).length > 0) {
         return {
             ...prevState,
-            errors: state.errors
+            errors: state.errors,
+            error:"Group creation failed",
+
         }
     }
 
@@ -84,7 +73,7 @@ export async function createGroupAction(prevState, formData) {
 
         return {
             ...state,
-            message: `${title} Group has been created successfuly.`,
+            message: `${title} Group created successfuly.`,
             data
         }
     } catch (error) {
@@ -105,8 +94,7 @@ export async function createGroupPostAction(prevState, formData) {
     const content = formData.get("content")?.trim();
     const groupId = formData.get("groupId")?.trim();
     const img = formData.get("image");
-
-    if (!content) {
+    if (!content && img.size == 0) {
         state.errors.content = "Content is required";
     }
 
@@ -123,7 +111,8 @@ export async function createGroupPostAction(prevState, formData) {
     if (Object.keys(state.errors).length > 0) {
         return {
             ...prevState,
-            errors: state.errors
+            errors: state.errors,
+            error: "Post creation failed"
         };
     }
 
@@ -147,20 +136,17 @@ export async function createGroupPostAction(prevState, formData) {
         if (!res.ok) {
             return {
                 ...prevState,
-                error: data.error || "Group creation failed",
+                error: data.error || "Post creation failed",
                 errors: data.errors || null
             };
         }
         return {
             ...state,
-            message: `Post has been created successfuly.`,
+            message: `Post created successfuly`,
             data
         }
     } catch (error) {
-        return {
-            ...prevState,
-            error: "An unexpected error occurred",
-        };
+        console.error("Error while trying to create group post: ", post)
     }
 }
 
@@ -199,10 +185,10 @@ export async function createGroupEventAction(prevState, formData) {
     if (Object.keys(state.errors).length > 0) {
         return {
             ...prevState,
-            errors: state.errors
+            errors: state.errors,
+            error: "Event creation failed"
         };
     }
-
     event_date = formatDate(event_date)
 
     try {
@@ -222,11 +208,10 @@ export async function createGroupEventAction(prevState, formData) {
             console.error(data)
             return {
                 ...prevState,
-                error: data.error || "Event creation failed",
+                error: "Event creation failed",
                 errors: data.errors || null
             };
         }
-        console.log("dataaaa ", data);
         return {
             ...state,
             data,
@@ -234,40 +219,13 @@ export async function createGroupEventAction(prevState, formData) {
         };
     } catch (error) {
         console.error(error);
-        return {
-            ...prevState,
-            error: "An unexpected error occurred",
-        };
     }
 }
 
-export async function JoinGroupAction(groupId) {
-
-    try {
-        const cookieStore = await cookies();
-        const sessionCookie = cookieStore.get("session")?.value;
-        const res = await fetch(`${API_URL}/api/groups/${groupId}/join-request`, {
-            method: "POST",
-            credentials: 'include',
-            headers: {
-                "Content-Type": "application/json",
-                ...(sessionCookie ? { Cookie: `session=${sessionCookie}` } : {})
-            }
-        });
-        const data = await res.json();
-        if (!res.ok) {
-            console.error("!ok" + data)
-        }
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-//  todo : handle the invite friend form.
+//  todo : to remove
 export async function inviteUserAction(prevState, formData) {
     let id = formData.get("user_id")
     let groupId = formData.get("groupId")
-    console.log(id)
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
@@ -283,11 +241,10 @@ export async function inviteUserAction(prevState, formData) {
 
         if (res.ok) {
             const result = await res.json();
-            console.log("invite response ==> " + result )
-            return { message: "done" };
+            return { message: "user invitation send" };
         } else {
             const errorText = await res.text();
-            return { message: "error", error: errorText || "Failed to invite." };
+            return { message: "error", error: "Failed to invite user" };
         }
     } catch (err) {
         console.error("Failed to fetch invitations", err)
@@ -311,20 +268,15 @@ export async function CancelInvitationAction(prevState, formData) {
             }
         });
 
+        const result = await res.text();
+
         if (!res.ok) {
-            const errorText = await res.text();
-            console.log("cancel response error ===>   " + errorText)
-            return { message: "error", error: errorText || "Failed to cancel." };
+            return { error: "Failed to cancel invitation." };
         }
-        const result = await res.json();
-        console.log("cancel response ===>   " + result)
         return { message: "done" };
-
     } catch (err) {
-        console.error("Failed to fetch invitations", err)
+        console.error("Failed to cancel invitations", err)
     }
-
-
 }
 
 

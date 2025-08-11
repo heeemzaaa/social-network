@@ -32,9 +32,6 @@ func (Rhanlder *GroupReactionHanlder) LikeEntity(w http.ResponseWriter, r *http.
 		return
 	}
 
-
-	
-
 	liked := models.GroupReaction{}
 	if err := json.NewDecoder(r.Body).Decode(&liked); err != nil {
 		if err == io.EOF {
@@ -47,7 +44,7 @@ func (Rhanlder *GroupReactionHanlder) LikeEntity(w http.ResponseWriter, r *http.
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: " Bad Request!"})
 		return
 	}
-	liked.UserId, liked.GroupId= userID.String(), groupID.String()
+	liked.UserId, liked.GroupId = userID.String(), groupID.String()
 	reaction, errJson := Rhanlder.gService.HanldeReaction(&liked, 1)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, *errJson)
