@@ -16,7 +16,6 @@ export async function commentGroupPostAction(prevState, formData) {
     const groupID = formData.get("groupId")
     const commentImg = formData.get("commentImg");
     const maxSize = 3 * 1024 * 1024;
-    console.log(commentImg)
     if (!commentContent && commentImg.size === 0) {
         state.errors.commentContent = "Can't send an empty comment";
         return state;
@@ -42,9 +41,6 @@ export async function commentGroupPostAction(prevState, formData) {
         content: commentContent,
     });
 
-    console.log("---------------> ", jsonData);
-    
-
     const newFormData = new FormData();
     newFormData.append("data", jsonData);
 
@@ -65,16 +61,15 @@ export async function commentGroupPostAction(prevState, formData) {
 
         const response = await resp.json();
         if (!resp.ok) {
-            console.log("error fetching request", response);
-            return { ...state, message: "Failed to post comment." };
+            return { ...state, error: "Failed to post comment." };
         }
         
-        console.log('response', response)        
         const now = new Date();
+
         const formatted = now.toISOString().slice(0, 16).replace('T', ' ');
         return {
             ...state,
-            message: "Commented successfully",
+            message: "Comment added successfully",
             content: response.content,
             nickname: response.user.nickname,
             fullName: response.user.fullname,

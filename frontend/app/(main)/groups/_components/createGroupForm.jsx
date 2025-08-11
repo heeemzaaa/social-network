@@ -29,7 +29,6 @@ export default function CreateGroupForm() {
             closeModal()
             showNotification({ Content: `Group created successfully`, Status: "success"});
         } else if (state.errors || state.error) {
-            console.log(state)
             showNotification({ Content: state.error, Status: "error"});
         }
     }, [state])

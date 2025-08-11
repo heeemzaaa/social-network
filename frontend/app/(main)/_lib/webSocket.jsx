@@ -13,7 +13,6 @@ export default function UserProvider({ children }) {
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
-        console.log("data user", `http://localhost:8080/api/loggedin`);
         const res = await fetch(`http://localhost:8080/api/loggedin`, {
           credentials: "include",
         });
@@ -27,7 +26,6 @@ export default function UserProvider({ children }) {
         } else {
           setAuthenticatedUser(null);
         }
-        console.log("Authenticated user set:", data.id);
       } catch (err) {
         console.error(" Error fetching user:", err);
       }
@@ -50,7 +48,6 @@ export default function UserProvider({ children }) {
         const data = JSON.parse(event.data);
 
         if (data.type === "notification") { // type notification
-          console.log("New notification received:", data.content);
 
           if (data.seen === "true") setHasNewNotification(true);
           else if (data.seen === "false") setHasNewNotification(false);

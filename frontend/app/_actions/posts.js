@@ -104,8 +104,6 @@ export async function createPostAction(prevState, formData) {
 
 
 export async function likePostAction(prevState, formData) {
-    console.log(prevState)
-
     let url
     let body
     const postId = formData.get("postId");
@@ -125,7 +123,6 @@ export async function likePostAction(prevState, formData) {
         url = `${API_URL}/api/posts/like/${postId}`
     }
 
-    console.log()
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("session")?.value;
@@ -142,7 +139,6 @@ export async function likePostAction(prevState, formData) {
                 likes: data.total_likes || 0,
             }
             if (data.reaction) {
-                console.log(data.reaction)
                 data.reaction === 1 ? state.likes++ : state.likes--
             }
             return state
@@ -157,8 +153,6 @@ export async function likePostAction(prevState, formData) {
 
 
 export async function commentPostAction(prevState, formData) {
-    console.log("======> inside the comm")
-
     let state = {
         error: null,
         errors: {},
@@ -217,7 +211,6 @@ export async function commentPostAction(prevState, formData) {
         }
 
         const response = await resp.json();
-        console.log("post comment: ", response)
         const now = new Date();
         const formatted = now.toISOString().slice(0, 16).replace('T', ' ');
         return {

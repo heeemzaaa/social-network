@@ -21,16 +21,12 @@ export default function Header() {
       }
       
       try {
-        console.log("heere inside the notifications", `${API_URL}/api/notifications/`);
         let res = await fetch(`${API_URL}/api/notifications/`, getRequest)
-        console.log("response of the notifications", res);
         let response = await res.json()
-        console.log("response of notifications", response);
         if (response?.Status === true) {
           setHasNewNotification(true)
         }
       } catch (err) {
-        console.log("inside the error", err);
         console.error("Failed to fetch notifications", err)
       }
     }

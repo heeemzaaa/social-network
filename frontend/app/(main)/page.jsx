@@ -1,11 +1,11 @@
 "use client"
 
-import { HiOutlineDocumentPlus } from "react-icons/hi2";
 import Button from "../_components/button";
+import CreatePost from "./_components/posts/createPost";
 import PostCardList from "./_components/posts/postCardList";
 import { useModal } from "./_context/ModalContext";
-import CreatePost from "./_components/posts/createPost";
 import { createPostAction } from "../_actions/posts";
+import { HiOutlineDocumentPlus } from "react-icons/hi2";
 export default function Home() {
   const { openModal } = useModal()
   return (

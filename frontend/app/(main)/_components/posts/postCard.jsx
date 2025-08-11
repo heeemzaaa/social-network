@@ -45,7 +45,6 @@ export default function PostCard({
     }
 
     const [state, formAction] = useActionState(likePostAction, initialState)
-    console.log(post, groupID)
     return (
         <div className="post-card">
             <div className="post-card-body">

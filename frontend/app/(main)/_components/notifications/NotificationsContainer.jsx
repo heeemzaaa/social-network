@@ -6,17 +6,13 @@ import { imageConfigDefault } from "next/dist/shared/lib/image-config";
 
 export default function NotificationsPopover() {
   const containerRef = useRef();
-  
   const [notifications, setNotifications] = useState([]);
   const [notifId, setNotifId] = useState("0");
-  
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-
   const { showNotification } = useNotification();
 
   const notificationContent = (notification) => {
-    console.log('notification.SenderFullName', notification.SenderFullName)
     if (notification.Status == "later") {
       switch (notification.Type) {
         case "follow-private":
@@ -76,7 +72,6 @@ export default function NotificationsPopover() {
       if (!response.ok) throw new Error("faild to update notification");
 
       let data = await response.json();
-      console.log(`update notification response: Status: ${data.Status}, Data: ${data.Message}`);
 
       showNotification({ Content: `Notification ${status}ed successfully`, Status: "success"});
 
@@ -128,8 +123,6 @@ export default function NotificationsPopover() {
 
     if (scrollTop + clientHeight >= scrollHeight - 10) {
       const lastNotificationId = notifications?.[notifications.length - 1]?.Id || "0";
-
-      console.log("Triggering next page load with ID:", lastNotificationId);
 
       setNotifId(lastNotificationId);
     }
