@@ -142,14 +142,11 @@ export async function createGroupPostAction(prevState, formData) {
         }
         return {
             ...state,
-            message: `Post created successfuly.`,
+            message: `Post created successfuly`,
             data
         }
     } catch (error) {
-        return {
-            ...prevState,
-            error: "An unexpected error occurred",
-        };
+        console.error("Error while trying to create group post: ", post)
     }
 }
 

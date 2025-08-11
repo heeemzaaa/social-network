@@ -1,9 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-
 const API_URL = process.env.BACKEND_URL || 'http://localhost:8080'
-
 
 export async function createPostAction(prevState, formData) {
     let state = {
@@ -55,7 +53,7 @@ export async function createPostAction(prevState, formData) {
         return {
             ...prevState,
             ...state,
-            error: "Please fix the highlighted fields.",
+            error: "Post creation failed",
         };
     }
 
@@ -79,7 +77,7 @@ export async function createPostAction(prevState, formData) {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("session")?.value;
 
-    const response = await fetch(`${API_URL}/api/posts/`, {
+    const response = await fetch(`${API_URL}/api/posts`, {
         method: "POST",
         body: newFormData,
         headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
@@ -110,7 +108,7 @@ export async function likePostAction(prevState, formData) {
     const groupId = formData.get("groupId");
 
     if (!postId) {
-        return { ...prevState, message: "Post ID is required." };
+        return { ...prevState, error: `Failed to ${prevState.liked ? "unlike" : "like"} post` };
     }
 
     if (groupId && postId) {
@@ -134,7 +132,7 @@ export async function likePostAction(prevState, formData) {
         const data = await res.json();
         if (res.ok) {
             let state = {
-                message: "Liked successfully!",
+                message: `You ${prevState.liked ? "unliked" : "liked"} a post`,
                 liked: data.liked || data.reaction,
                 likes: data.total_likes || 0,
             }
@@ -143,16 +141,18 @@ export async function likePostAction(prevState, formData) {
             }
             return state
         } else {
-            return { ...prevState, message: data.message || "Failed to like post." };
+            return { ...prevState, error: data.error || `Failed to ${prevState.liked ? "unlike" : "like"} post` };
         }
     } catch (err) {
         console.error("Error liking post:", err);
-        return { ...prevState, message: "Server error." };
+        return { ...prevState, error: "Unexpected error while trying liking the post" };
     }
 }
 
 
 export async function commentPostAction(prevState, formData) {
+
+    console.log("====> inside the coomment post action")
     let state = {
         error: null,
         errors: {},
@@ -165,8 +165,8 @@ export async function commentPostAction(prevState, formData) {
     const maxSize = 3 * 1024 * 1024;
 
     if (!commentContent && commentImg.size === 0) {
-        state.errors.commentContent = "Input comment is required";
-        return state;
+        state.error = "Can't send an empty comment"
+        return state
     }
     if (!postID) {
         state.errors.postID = "Post ID is required";
@@ -188,6 +188,8 @@ export async function commentPostAction(prevState, formData) {
         content: commentContent,
     });
 
+    console.log(jsonData)
+
     const newFormData = new FormData();
     newFormData.append("data", jsonData);
 
@@ -195,7 +197,7 @@ export async function commentPostAction(prevState, formData) {
         newFormData.append("img", commentImg);
     }
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("session")?.value;
 
     try {
@@ -207,7 +209,7 @@ export async function commentPostAction(prevState, formData) {
         });
 
         if (!resp.ok) {
-            return { ...state, message: "Failed to post comment." };
+            return { ...state, error: "Failed to comment on post" };
         }
 
         const response = await resp.json();
@@ -215,7 +217,7 @@ export async function commentPostAction(prevState, formData) {
         const formatted = now.toISOString().slice(0, 16).replace('T', ' ');
         return {
             ...state,
-            message: "Commented successfully",
+            message: "You commented on a post",
             content: response.content,
             nickname: response.user.nickname,
             fullName: response.user.fullname,
@@ -225,6 +227,7 @@ export async function commentPostAction(prevState, formData) {
             success: true,
         };
     } catch (err) {
-        return { ...prevState, message: "Server error." };
+        console.error("Unxpected error while trying to comment a post: ", err)
+        return { ...prevState, error: "Unexpected Server error." };
     }
 }

@@ -14,6 +14,7 @@ import {
     FaRegComment
 } from "react-icons/fa"
 import { createParamsFromClient } from "next/dist/server/request/params"
+import { useNotification } from "../../_context/NotificationContext"
 
 export default function PostCard({
     post,
@@ -29,22 +30,32 @@ export default function PostCard({
     groupID
 }) {
     const [totalComments, setTotalComments] = useState(total_comments)
-    const handleCommentMessage = (msg) => {
-        setTotalComments(prev => prev + 1)
-    }
     const { openModal } = useModal()
+    const { showNotification } = useNotification()
     const initialState = {
-        liked: liked != 0,
+        liked: liked && liked != 0,
         likes: total_likes,
         message: null,
     }
+    const [state, formAction] = useActionState(likePostAction, initialState)
+
+    const handleCommentMessage = (msg) => {
+        setTotalComments(prev => prev + 1)
+    }
+
+    useEffect(() => {
+        if (state.message) {
+            showNotification({ Content: state.message, Status: "success" })
+        } else if (state.error) {
+            showNotification({ Content: state.error, Status: "error" })
+        }
+    }, [state])
 
     const router = useRouter()
     const navigateToProfile = (profileId) => {
         router.push(`/profile/${profileId}`);
     }
 
-    const [state, formAction] = useActionState(likePostAction, initialState)
     return (
         <div className="post-card">
             <div className="post-card-body">

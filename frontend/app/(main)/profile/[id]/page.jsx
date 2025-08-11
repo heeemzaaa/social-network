@@ -181,7 +181,7 @@ export default function Page({ params }) {
             <span>Add New Post</span>
           </Button>
         </div>
-        {<UserPosts id={userInfos.id} access={userInfos.access} changed={changed} />}
+        {<UserPosts  profileId={userInfos.id} access={userInfos.access} changed={changed} />}
       </div>
     </main>
   )

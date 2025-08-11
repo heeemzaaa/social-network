@@ -17,7 +17,8 @@ export async function commentGroupPostAction(prevState, formData) {
     const commentImg = formData.get("commentImg");
     const maxSize = 3 * 1024 * 1024;
     if (!commentContent && commentImg.size === 0) {
-        state.errors.commentContent = "Can't send an empty comment";
+        state.error = "Can't send an empty comment"
+        console.log(state)
         return state;
     }
     if (!postID) {
@@ -69,7 +70,7 @@ export async function commentGroupPostAction(prevState, formData) {
         const formatted = now.toISOString().slice(0, 16).replace('T', ' ');
         return {
             ...state,
-            message: "Comment added successfully",
+            message: "You commented on a post",
             content: response.content,
             nickname: response.user.nickname,
             fullName: response.user.fullname,

@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useState, useRef } from "react"
 import GroupCard from "./groupCard"
 import { useModal } from "../../_context/ModalContext"
+import Loader from "../../_components/loader"
+import Error from "../../_components/error"
 
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
@@ -9,7 +11,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 export default function GroupCardList({ filter }) {
     const [data, setData] = useState([])
     const [page, setPage] = useState(0)
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [hasMore, setHasMore] = useState(true)
     const [error, setError] = useState(null)
     const observerRef = useRef(null)
@@ -27,8 +29,7 @@ export default function GroupCardList({ filter }) {
 
     const fetchData = useCallback(
         async (id) => {
-            if (isLoading || !hasMore) return
-            setIsLoading(true)
+            if ((isLoading || !hasMore) && data.length !== 0) return
             try {
                 const response = await fetch(`http://localhost:8080/api/groups/?filter=${filter}&offset=${id}`, {
                     credentials: 'include',
@@ -36,20 +37,19 @@ export default function GroupCardList({ filter }) {
                         'Content-Type': 'application/json'
                     }
                 })
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`)
-                }
                 const result = await response.json()
+                if (!response.ok) {
+                    setError(result.error || `Failed to fetch groups`)
+                }
                 if (result.length === 0) {
                     setHasMore(false)
                 } else {
                     if (result.length < 3) setHasMore(false)
                     setData((prevData) => [...prevData, ...result])
                 }
+                setIsLoading(false)
             } catch (err) {
-                if (err.name === "AbortError") return
                 setError(err.message)
-            } finally {
                 setIsLoading(false)
             }
         },
@@ -61,6 +61,7 @@ export default function GroupCardList({ filter }) {
         setPage(0)
         setHasMore(true)
         setError(null)
+        setIsLoading(true)
         fetchData(0)
     }, [filter])
 
@@ -88,24 +89,28 @@ export default function GroupCardList({ filter }) {
 
     useEffect(() => {
         if (page > 0) {
-            let id = data[data.length - 1]?.group_id 
+            let id = data[data.length - 1]?.group_id
+            setIsLoading(true)
             fetchData(id)
         }
     }, [page])
 
+
+    if (error) return <Error error={error} />
+    if (isLoading && data.length === 0) return <Loader />
+
     return (
         <div className="list-container flex flex-wrap gap-4 justify-center items-start overflow-y-auto">
-            {data.map((item, index) => (
-                <GroupCard key={item.group_id} type={filter} {...item} />
-            ))}
-            {data.length === 0 && (
-                <img
+            {data.length === 0
+                ? <img
                     className="w-half mx-auto"
                     src="/no-data-animate.svg"
                     alt="No data"
                 />
-            )}
-            {isLoading && <p className="text-center w-full">Loading...</p>}
+                : data.map((item, index) => (
+                    <GroupCard key={item.group_id} type={filter} {...item} />
+                ))}
+            {isLoading && hasMore && <div className="w-full"> <Loader /></div>}
             {hasMore && !isLoading && (
                 <div ref={loadMoreRef} className="w-full" style={{ height: "20px" }}></div>
             )}
