@@ -33,7 +33,7 @@ func NewLogin() *Login {
 
 type Session struct {
 	Id       int    `json:"id,omitempty"`
-	Token    string `json:"token"`
+	Token    string `json:"token,omitempty"`
 	UserId   string `json:"user_id"`
 	Username string `json:"username,omitempty"`
 	FullName string `json:"fullName,omitempty"`
@@ -48,7 +48,7 @@ type UserData struct {
 	Id         string `json:"id,omitempty"`
 	Nickname   string `json:"nickname,omitempty"`
 	FullName   string `json:"fullname,omitempty"`
-	Token      string  `json:"token"`
+	Token      string  `json:"token,omitempty"`
 }
 
 type ContextKey struct {
