@@ -30,7 +30,6 @@ func NewGroupHandler(gservice *gservice.GroupService) *GroupHanlder {
 
 // we only need the userId and filter based on owned, availabe and created
 func (Ghandler *GroupHanlder) GetGroups(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("inside the get groups handler ")
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
