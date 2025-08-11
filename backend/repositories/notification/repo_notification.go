@@ -38,6 +38,12 @@ func (repo *NotifRepository) SelectNotificationById(notifId string) (models.Noti
 		&notification.EventId,
 		&notification.CreatedAt,
 	); err != nil {
+		if err == sql.ErrNoRows {
+            return models.Notification{}, &models.ErrorJson{
+                Status:  404,
+                Message: "Notification not found",
+            }
+        }
 		return notification, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	return notification, nil

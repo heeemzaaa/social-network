@@ -59,7 +59,7 @@ func (gRepo *GroupRepository) RequestToCancel(userId, groupId string) *models.Er
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	if count, _ := res.RowsAffected(); count == 0 {
-		return &models.ErrorJson{Status: 404, Error: "Invitation not found"}
+		return &models.ErrorJson{Status: 404, Error: "404 - Invitation not found", Message: "ERROR!! Invitation not found"}
 	}
 
 	return nil

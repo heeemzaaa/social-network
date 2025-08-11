@@ -75,7 +75,7 @@ export default function NotificationsPopover() {
       console.log("update notification response:", data.Status);
       console.log("update notification response:", data.Message);
 
-      if (data.Status == false && data.Message === "notification not found") {
+      if (data.Status == false && data.Message === "Notification not found") {
         console.warn("Notif not found, removing from notifications list")
         setNotifications(prev => prev.filter(notif => notif.Id !== notification.Id))
         showNotification({ Content: "Notification not found, removed from list", Status: "error" })

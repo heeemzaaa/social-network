@@ -26,20 +26,21 @@ export default function UserCard({ user, groupId }) {
 
             if (!res.ok) console.error("Failed to send the request")
             const data = await res.json();
+
             console.log(" ==>> ", data);
-            if (data.Message === 'ERROR!! You are already a member!') {
-                showNotification({ Content: `already a member!`, Status: "error" });
+            if (data.Message === 'ERROR!! already a member!' || data.Message === 'ERROR!! it is not from your followers!' || data.Message === 'ERROR!! Invitation not found') {
+                console.warn(data.Message.split("!!")[1])
+                showNotification({ Content: data.Message.split("!!")[1], Status: "error" });
 
                 // should access to the followers list and remove the user from the list
 
-                console.warn(`already a member!`)
-                return
-            } else if (data.Message === 'Invitation not found') {
-                console.warn(`Invitation not found !!`)
-                showNotification({ Content: `Invitation not found`, Status: "error" });
+                if (data.Message !== 'ERROR!! Invitation not found') return
             }
 
-            inviteState === 0 ? setInviteState(1) : setInviteState(0)
+            setInviteState(inviteState === 0 ? 1: 0)
+
+            // // should all this part be in the server side? Actions
+
         } catch (err) {
             console.log(err);
         }

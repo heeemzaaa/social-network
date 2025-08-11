@@ -46,7 +46,7 @@ func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId, invitedUserId
 	}
 	// it must be here :)
 	if count, _ := res.RowsAffected(); count == 0 {
-		return &models.ErrorJson{Status: 404, Error: "Invitation not found"}
+		return &models.ErrorJson{Status: 404, Error: "404 - Invitation not found", Message: "ERROR!! Invitation not found"}
 	}
 
 	return nil

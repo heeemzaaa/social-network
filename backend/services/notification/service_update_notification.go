@@ -9,10 +9,7 @@ import (
 func (NS *NotificationService) UpdateService(data models.Unotif, userId string) *models.ErrorJson {
 	notification, errJson := NS.notifRepo.SelectNotificationById(data.NotifId)
 	if errJson != nil {
-		if errJson.Status == 500 {
-			return &models.ErrorJson{Status: 500, Message: "notification not found", Error: "500 - Internal Server Error"}
-		}
-		return &models.ErrorJson{Status: 400, Error: "ERROR 400 - Bad Request", Message: errJson.Message}
+		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
 
 	if userId != notification.RecieverId {
@@ -70,10 +67,9 @@ func (NS *NotificationService) UpdateGroupJoinRequest(data models.Unotif, notifi
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 
-		// should check if request exists before canceling //////////////////
-
+		// check if request exists 
 		if err := NS.groupService.CancelTheInvitation(notification.RecieverId, notification.GroupId, notification.SenderId); err != nil {
-			if err.Status == 404 && err.Error == "Invitation not found" {
+			if err.Status == 404 && err.Message == "ERROR!! Invitation not found" {
 				if err := NS.DeleteService(notification.SenderId, notification.RecieverId, "group-invitation", notification.GroupId); err != nil {
 					return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
 				}
@@ -105,18 +101,12 @@ func (NS *NotificationService) UpdateGroupInvitationRequest(data models.Unotif, 
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 
-		// should check if request exists before canceling //////////////////
+		// check if request exists
 		_, err := NS.groupService.RequestToCancel(notification.RecieverId, notification.GroupId);
 		if err != nil {
-			if err.Status == 404 && err.Error == "Invitation not found" {
-				fmt.Println("Invitation not found, deleting notification")
-				if err := NS.DeleteService(notification.SenderId, notification.RecieverId, "group-join", notification.GroupId); err != nil {
-					return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
-				}
-				return nil
-			}
-			if err.Status == 403 && err.Message == "ERROR!! You are already a member!" {
-				fmt.Println("You are already a member, deleting notification")
+
+			// if the error is because the user has not requested to join or is already a member case when has notification 
+			if (err.Status == 404 && err.Message == "ERROR!! Invitation not found") || (err.Status == 403 && err.Message == "ERROR!! already a member!") {
 				if err := NS.DeleteService(notification.SenderId, notification.RecieverId, "group-join", notification.GroupId); err != nil {
 					return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
 				}
@@ -124,8 +114,6 @@ func (NS *NotificationService) UpdateGroupInvitationRequest(data models.Unotif, 
 			}
 			return models.NewErrorJson(500, "500 - cannot cancel join request after accept join request", err)
 		}
-
-		// if the type is cancel then we do not need to delete the notification
 
 		if err := NS.DeleteService(notification.SenderId, notification.RecieverId, "group-join", notification.GroupId); err != nil {
 			return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)

@@ -51,10 +51,11 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 
 	newNotif, errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String(), userToInvite)
 	if errJson != nil {
-		if errJson.Status == 403 && errJson.Message ==  "ERROR!! You are already a member!" {
+		// check if the user is already a member of the group case want invite someone who is already a member
+		if errJson.Status == 403 && (errJson.Message ==  "ERROR!! already a member!" || errJson.Message == "ERROR!! it is not from your followers!") {
 			utils.WriteDataBack(w, models.ResponseMsg{
 				Status:  false,
-				Message:  "ERROR!! You are already a member!",
+				Message:  fmt.Sprintf("%v",errJson.Message),
 			})
 			return
 		}
@@ -96,28 +97,28 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 	}
 
 	if errJson := invHanlder.gService.CancelTheInvitation(userID.String(), groupID.String(), invitedUser.Id); errJson != nil {
-		if errJson.Status == 404 && errJson.Error == "Invitation not found" {
+		if (errJson.Status == 404 && errJson.Message == "ERROR!! Invitation not found") || (errJson.Status == 403 && errJson.Message == "ERROR!! already a member!") {
 			utils.WriteDataBack(w, models.ResponseMsg{
 				Status:  false,
-				Message: "Invitation not found",
+				Message: fmt.Sprintf("%s", errJson.Message),
 			})
 			return
 		}
-		if errJson.Status == 403 && errJson.Message == "ERROR!! Acces Forbidden!" {
-			utils.WriteDataBack(w, models.ResponseMsg{
-				Status:  false,
-				Message: "request not found",
-			})
-			return
-		}
+		// if errJson.Status == 403 && errJson.Message == "ERROR!! Acces Forbidden!" {
+		// 	utils.WriteDataBack(w, models.ResponseMsg{
+		// 		Status:  false,
+		// 		Message: "request not found !!!!!!!!!!!",
+		// 	})
+		// 	return
+		// }
 
-		if errJson.Status == 403 && errJson.Message == "ERROR!! You are already a member!" {
-			utils.WriteDataBack(w, models.ResponseMsg{
-				Status:  false,
-				Message: "ERROR!! You are already a member!",
-			})
-			return
-		}
+		// if errJson.Status == 403 && errJson.Message == "ERROR!! already a member!" {
+		// 	utils.WriteDataBack(w, models.ResponseMsg{
+		// 		Status:  false,
+		// 		Message: "ERROR!! already a member!",
+		// 	})
+		// 	return
+		// }
 	
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return

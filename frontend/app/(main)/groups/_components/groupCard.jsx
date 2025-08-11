@@ -44,17 +44,12 @@ export default function GroupCard({
 
             const data = await res.json();
             console.log(" ==>> ", data);
-            // alert(data || "successfully request");
 
-            if (data.Message === 'ERROR!! You are already a member!') {
-                showNotification({ Content: `You are already a member!`, Status: "error" });
-                console.warn(`You are already a member!`)
-                router.push(`/groups/${group_id}`)
-                return
-
-            } else if (data.Message === 'Invitation not found') {
-                console.warn(`Invitation not found !!`)
-                showNotification({ Content: `Invitation not found`, Status: "error" });
+            if (data.Message === 'ERROR!! already a member!' || data.Message === 'ERROR!! Invitation not found') {
+                console.warn(data.Message.split("!!")[1])
+                showNotification({ Content: data.Message.split("!!")[1], Status: "error" });
+                
+                if (data.Message === 'ERROR!! already a member!') return router.push(`/groups/${group_id}`)
             }
 
             setRequestState(requestState === 0 ? 1 : 0)

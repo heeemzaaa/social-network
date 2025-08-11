@@ -28,7 +28,7 @@ func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite 
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	if !isFollower {
-		return nil, &models.ErrorJson{Status: 403, Error: "ERROR!! it is not from your followers!"}
+		return nil, &models.ErrorJson{Status: 403, Error: "403 - Acces Forbidden", Message: "ERROR!! it is not from your followers!"}
 	}
 
 	if errMembership := gService.CheckNotMember(groupId, userToInvite.Id); errMembership != nil {
@@ -42,7 +42,6 @@ func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite 
 	// i hope it works
 
 	// add the notification service method to be able to add a user
-	// {sneder_id, receiver_id , "group-invitation"}
 	return &models.Notif{
 		SenderId:   userId,
 		RecieverId: userToInvite.Id,

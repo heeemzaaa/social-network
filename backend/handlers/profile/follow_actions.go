@@ -108,13 +108,13 @@ func (fa *FollowActionHandler) CancelFollow(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// fmt.Println("Profile:", profile)
-
+	// if the profile is not a follower and has requested to follow, we delete the notification
 	if !profile.IsFollower && profile.IsRequested {
 		if errJson := fa.NS.DeleteService(request.ProfileID, authUserID.String(), "follow-private", ""); errJson != nil {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 			return
 		}
+		// set IsRequested to false
 		profile.IsRequested = false
 	}
 

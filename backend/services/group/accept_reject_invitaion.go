@@ -29,10 +29,7 @@ func (gService *GroupService) Accept(userId, groupId string, userToBeAddedId str
 		return &models.ErrorJson{Status: 400, Message: models.UserErr{
 			UserId: "ERROR!! user not found",
 		}}
-	}
-
-	///////// check is member of the group
-	
+	}	
 	// validate if wheter exists or not !!
 
 	if errJson := gService.gRepo.Accept(userId, groupId, userToBeAddedId); errJson != nil {
