@@ -13,7 +13,6 @@ import {
     FaHeart,
     FaRegComment
 } from "react-icons/fa"
-import { createParamsFromClient } from "next/dist/server/request/params"
 import { useNotification } from "../../_context/NotificationContext"
 
 export default function PostCard({

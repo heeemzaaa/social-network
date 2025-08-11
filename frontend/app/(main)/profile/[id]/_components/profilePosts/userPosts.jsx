@@ -43,7 +43,7 @@ export default function UserPosts({ profileId, access, changed }) {
                         'Content-Type': 'application/json'
                     }
                 })
-                const result = await response.json()
+                const result = await response.json() || []
                 if (!response.ok) {
                     setError(result.error || `Failed to fetch posts`)
                 }
