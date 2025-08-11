@@ -37,13 +37,14 @@ export default function GroupCardList({ filter }) {
                         'Content-Type': 'application/json'
                     }
                 })
-                const result = await response.json()
+                const result = await response.json() || []
                 if (!response.ok) {
                     setError(result.error || `Failed to fetch groups`)
                 }
                 if (result.length === 0) {
                     setHasMore(false)
                 } else {
+                    console.log(result)
                     if (result.length < 3) setHasMore(false)
                     setData((prevData) => [...prevData, ...result])
                 }

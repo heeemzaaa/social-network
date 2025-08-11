@@ -94,8 +94,8 @@ func (repo *GroupRepository) GetJoinedGroups(offset string, userID string) ([]mo
 	if offset == "0" {
 		where = "groups.groupCreatorID != ? AND  group_membership.userID = ?"
 	} else {
-		where = `groups.groupCreatorID != ? AND  group_membership.userID = ? AND createdAt < (
-			select createdAt from groups WHERE groupID = ? 
+		where = `groups.groupCreatorID != ? AND  group_membership.userID = ? AND groups.createdAt < (
+			select groups.createdAt from groups WHERE groupID = ? 
 		)`
 	}
 	query := fmt.Sprintf(`

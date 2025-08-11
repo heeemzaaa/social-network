@@ -14,7 +14,7 @@ export default function UserCard({ user, groupId }) {
         let endpoint = `http://localhost:8080/api/groups/${groupId}/invitations/`
         let method = inviteState === 0 ? 'POST' : 'DELETE'
         try {
-            const response = await fetch(endpoint, {
+            const res = await fetch(endpoint, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -26,7 +26,6 @@ export default function UserCard({ user, groupId }) {
             console.log(" ==>> ", data);
             if (data.Message === 'ERROR!! You are already a member!') {
                 showNotification({ Content: `already a member!`, Status: "error" });
-
                 // should access to the followers list and remove the user from the list
 
                 console.warn(`already a member!`)
@@ -35,7 +34,7 @@ export default function UserCard({ user, groupId }) {
                 console.warn(`Invitation not found !!`)
                 showNotification({ Content: `Invitation not found`, Status: "error" });
             }
-
+            inviteState === 0 ? setInviteState(1) : setInviteState(0)
         } catch (err) {
             console.log(err);
         }
