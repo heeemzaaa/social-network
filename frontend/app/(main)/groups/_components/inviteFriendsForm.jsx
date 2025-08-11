@@ -54,7 +54,6 @@ const InviteFriendForm = ({ groupId }) => {
                             key={user.id}
                             user={user}
                             groupId={groupId}
-
                         />
                 ))}
             </div>

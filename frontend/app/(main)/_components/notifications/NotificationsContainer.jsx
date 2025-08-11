@@ -2,7 +2,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNotification } from "../../_context/NotificationContext";
 import "./styles.css";
-import { imageConfigDefault } from "next/dist/shared/lib/image-config";
 
 export default function NotificationsPopover() {
   const containerRef = useRef();

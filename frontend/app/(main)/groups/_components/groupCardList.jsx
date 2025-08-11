@@ -37,7 +37,7 @@ export default function GroupCardList({ filter }) {
                         'Content-Type': 'application/json'
                     }
                 })
-                const result = await response.json()
+                const result = await response.json() || []
                 if (!response.ok) {
                     setError(result.error || `Failed to fetch groups`)
                 }
