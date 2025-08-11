@@ -36,7 +36,7 @@ func (service *GroupService) CheckNotMember(groupID, userID string) *models.Erro
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
 	}
 	if isMember {
-		return &models.ErrorJson{Status: 403, Message: "ERROR!! Acces Forbidden!"}
+		return &models.ErrorJson{Status: 403, Message: "ERROR!! You are already a member!"}
 	}
 	return nil
 }

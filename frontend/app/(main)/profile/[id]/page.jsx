@@ -66,7 +66,7 @@ export default function Page({ params }) {
     let endpoint = ""
 
     if (userInfos.isRequested) {
-      endpoint = `http://localhost:8080/api/profile/${id}/actions/cancel`
+      endpoint = `http://localhost:8080/api/profile/${id}/actions/cancel`  
     } else if (userInfos.isFollower) {
       endpoint = `http://localhost:8080/api/profile/${id}/actions/unfollow`
     } else {

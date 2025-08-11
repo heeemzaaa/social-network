@@ -68,18 +68,24 @@ export default function NotificationsPopover() {
       };
 
       let response = await fetch("http://localhost:8080/api/notifications/update/", postRequest);
-
       if (!response.ok) throw new Error("faild to update notification");
-
       let data = await response.json();
+      console.log("update notification response:", data.Status);
+      console.log("update notification response:", data.Message);
 
+      if (data.Status == false && data.Message === "notification not found") {
+        console.warn("Notif not found, removing from notifications list")
+        setNotifications(prev => prev.filter(notif => notif.Id !== notification.Id))
+        showNotification({ Content: "Notification not found, removed from list", Status: "error" })
+        return
+      }
+
+      console.log(`update notification response: Status: ${data.Status}, Data: ${data.Message}`);
       showNotification({ Content: `Notification ${status}ed successfully`, Status: "success"});
-
-      setNotifications(prev => prev.map(notif => notif.Id === notification.Id ? { ...notif, Status: status } : notif));
+      setNotifications(prev => prev.map(notif => notif.Id === notification.Id ? { ...notif, Status: status } : notif))
 
     } catch (error) {
       console.error(`Error ${status}ing notification:`, error);
-
       showNotification({ Content: `Failed to ${status} notification: ${error.message}`, Status: "error" });
     }
   };

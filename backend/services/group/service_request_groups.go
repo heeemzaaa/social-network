@@ -9,14 +9,20 @@ func (gService *GroupService) RequestToCancel(userId, groupId string) (*models.N
 	if errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
-	// always check the membership and also the the group is a valid one
-	if errMembership := gService.CheckNotMember(groupId, userId); errMembership != nil {
-		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
-	}
 
 	if errJson := gService.gRepo.RequestToCancel(userId, groupId); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
+	
+	// always check the membership and also the the group is a valid one
+	if errMembership := gService.CheckNotMember(groupId, userId); errMembership != nil {
+		// if errMembership.Status == 403 && errMembership.Message == "ERROR!! You are already a member!" {
+		// 	return nil, errMembership
+		// }
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+	}
+
+	
 
 	return &models.Notif{
 		SenderId:         userId,

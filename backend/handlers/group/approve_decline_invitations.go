@@ -44,7 +44,7 @@ func (AcceptRejectInvHandler *AcceptRejectInvHandler) Accept(w http.ResponseWrit
 		return
 	}
 
-	if errJson := AcceptRejectInvHandler.gService.Accept(userID.String(), groupID.String(), userToBeAdded); errJson != nil {
+	if errJson := AcceptRejectInvHandler.gService.Accept(userID.String(), groupID.String(), userToBeAdded.Id); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
@@ -74,7 +74,7 @@ func (AcceptRejectInvHandler *AcceptRejectInvHandler) Reject(w http.ResponseWrit
 		return
 	}
 
-	if errJson := AcceptRejectInvHandler.gService.Reject(userID.String(), groupID.String(), userToBeRejected); errJson != nil {
+	if errJson := AcceptRejectInvHandler.gService.Reject(userID.String(), groupID.String(), userToBeRejected.Id); errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}

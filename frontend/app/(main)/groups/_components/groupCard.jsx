@@ -5,6 +5,10 @@ import { HiMiniUsers } from "react-icons/hi2";
 import "./style.css"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { JoinGroupAction } from "@/app/_actions/group";
+
+import { useNotification } from "../../_context/NotificationContext";
+
 export default function GroupCard({
     type,
     group_id,
@@ -18,8 +22,11 @@ export default function GroupCard({
 
     const [requestState, setRequestState] = useState(requested)
 
+    const { showNotification } = useNotification();
+
+
     // let's create here the function that toggles the state of the button with the same
-    // way as hamza 
+    // way as hamza  
     async function handleJoingGrp() {
         let endpoint = `http://localhost:8080/api/groups/${group_id}/join-request`
         let method = requestState === 0 ? 'POST' : 'DELETE'
@@ -29,12 +36,30 @@ export default function GroupCard({
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
             })
+            
+            
+            if (!res.ok) {
+                console.error("Failed to send the request")
+            }
 
-            if (!res.ok) console.error("Failed to send the request")
+            const data = await res.json();
+            console.log(" ==>> ", data);
+            // alert(data || "successfully request");
 
-            requestState === 0 ? setRequestState(1) : setRequestState(0)
-        } catch (err) {
-            console.log(err);
+            if (data.Message === 'ERROR!! You are already a member!') {
+                showNotification({ Content: `You are already a member!`, Status: "error" });
+                console.warn(`You are already a member!`)
+                router.push(`/groups/${group_id}`)
+                return
+
+            } else if (data.Message === 'Invitation not found') {
+                console.warn(`Invitation not found !!`)
+                showNotification({ Content: `Invitation not found`, Status: "error" });
+            }
+
+            setRequestState(requestState === 0 ? 1 : 0)
+        } catch (error) {
+            console.error(error);
         }
     }
 
@@ -71,7 +96,7 @@ export default function GroupCard({
                     type === "available" ?
                         requestState == 0 ?
                             <div onClick={e => e.stopPropagation()}>
-                                <Button className={"text-center"} onClick={(e) => handleJoingGrp()}>
+                                <Button className={"text-center"} onClick={(e) => handleJoingGrp(e)}>
                                     Join
                                 </Button>
                             </div>

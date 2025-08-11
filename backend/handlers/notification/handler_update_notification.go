@@ -48,6 +48,13 @@ func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 
 	errJson := HUN.NS.UpdateService(Data, userId.String());
 	if errJson != nil {
+		if errJson.Status == 500 && errJson.Message == "notification not found" {
+			utils.WriteDataBack(w, models.ResponseMsg{
+				Status:  false,
+				Message: "notification not found",
+			})
+			return
+		}
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
 		return
 	}
