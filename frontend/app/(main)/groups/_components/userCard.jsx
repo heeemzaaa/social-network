@@ -3,10 +3,12 @@ import Avatar from '../../_components/avatar';
 import Button from '@/app/_components/button';
 import { useNotification } from '../../_context/NotificationContext';
 
+import { useNotification } from "../../_context/NotificationContext";
+
 
 export default function UserCard({ user, groupId }) {
     const [inviteState, setInviteState] = useState(user.invited)
-    const { showNotification } = useNotification()
+    const { showNotification } = useNotification()    
 
     // let's create here the function that toggles the state of the button with the same
     // way as hamza 
@@ -21,20 +23,19 @@ export default function UserCard({ user, groupId }) {
                 body: JSON.stringify({ 'id': user.id }),
             })
 
-            let result = await response.json()
+            if (!res.ok) console.error("Failed to send the request")
+            const data = await res.json();
+            console.log(" ==>> ", data);
+            if (data.Message === 'ERROR!! You are already a member!') {
+                showNotification({ Content: `already a member!`, Status: "error" });
 
-            if (!response.ok) {
-                let Content = inviteState === 0 ? "Failed to send invitation" : "Failed to cancel invitaion"
-                showNotification({ Content, Status: "error" });
-                console.log(result)
-            } else {
-                if (inviteState === 0) {
-                    setInviteState(1)
-                    showNotification({ Content: "Invitation has been send", Status: "success" });
-                } else {
-                    setInviteState(0)
-                    showNotification({ Content: "Invitation has been canceled", Status: "success" });
-                }
+                // should access to the followers list and remove the user from the list
+
+                console.warn(`already a member!`)
+                return
+            } else if (data.Message === 'Invitation not found') {
+                console.warn(`Invitation not found !!`)
+                showNotification({ Content: `Invitation not found`, Status: "error" });
             }
 
         } catch (err) {

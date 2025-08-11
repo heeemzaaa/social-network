@@ -131,14 +131,15 @@ func (s *ProfileService) CancelFollow(userID string, authUserID string) (*models
 		return nil, &models.ErrorJson{Status: 400, Error: "User Id doesn't exists !"}
 	}
 
-	err = s.repo.CancelFollow(userID, authUserID)
+	profile.IsRequested, err = s.repo.IsRequested(userID, authUserID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 
-	// if errJson := NS.DeleteService(userID, authUserID, "follow-private", ""); errJson != nil {
-	// 	return nil, errJson
-	// }
+	err = s.repo.CancelFollow(userID, authUserID)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
+	}
 
 	profile.Access, err = s.CheckProfileAccess(userID, authUserID)
 	if err != nil {
@@ -151,11 +152,6 @@ func (s *ProfileService) CancelFollow(userID string, authUserID string) (*models
 	}
 
 	profile.IsFollower, err = s.repo.IsFollower(userID, authUserID)
-	if err != nil {
-		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
-	}
-
-	profile.IsRequested, err = s.repo.IsRequested(userID, authUserID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}

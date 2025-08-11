@@ -47,6 +47,13 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 
 	data, errJson := GrpReqHandler.gService.RequestToJoin(userID.String(), groupID.String())
 	if errJson != nil {
+		if errJson.Status == 403 && errJson.Message == "ERROR!! You are already a member!" {
+			utils.WriteDataBack(w, models.ResponseMsg{
+				Status:  false,
+				Message: "ERROR!! You are already a member!",
+			})
+			return 
+		}
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
@@ -78,6 +85,21 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter
 
 	data, errJson := GrpReqHandler.gService.RequestToCancel(userID.String(), groupID.String());
 	if errJson != nil {
+		if errJson.Status == 404 && errJson.Error == "Invitation not found" {
+			utils.WriteDataBack(w, models.ResponseMsg{
+				Status:  false,
+				Message: "Invitation not found",
+			})
+			return
+		}
+
+		if errJson.Status == 403 && errJson.Message == "ERROR!! You are already a member!" {
+			utils.WriteDataBack(w, models.ResponseMsg{
+				Status:  false,
+				Message: "ERROR!! You are already a member!",
+			})
+			return
+		}
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
@@ -86,6 +108,7 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
+
 	utils.WriteDataBack(w, "done")
 }
 
@@ -124,6 +147,5 @@ func (GrpReqHandler *GroupRequestsHandler) ServeHTTP(w http.ResponseWriter, r *h
 	default:
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "ERROR!! Method Not Allowed!"})
 		return
-
 	}
 }
