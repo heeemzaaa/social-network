@@ -591,7 +591,6 @@ main.register {
     background-color: var(--color-secondary) !important;
     align-items: center;
     box-shadow: 5px 5px var(--color-white);
-    /* border: solid  1px; */
   }
 
   input {
@@ -606,12 +605,24 @@ main.register {
   }
 
   span {
+    margin-top: .8rem;
     font-size: var(--font-size-md);
+  }
+
+  svg {
+    margin-top: .8rem;
   }
 
   .logo {
     position: fixed;
-    top: 30px;
+    top: 60px;
+  }
+
+  button, .submitting {
+    width: 120px;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    padding: .5rem;
   }
 }
 
