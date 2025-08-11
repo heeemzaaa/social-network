@@ -1,17 +1,18 @@
 
 button {
     all: unset;
-    padding: 8px 24px;
-    font-weight: var(--font-weight-semibold);
-    border-radius:  var(--border-radius-md);
+    padding: 12px 24px;
+    font-weight: var(--font-weight-medium);
+    border-radius:  var(--border-radius-lg);
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    /* width: max-content; */
 }
 
 .btn-primary {
+    display: flex;
+    gap: 8px;
     background-color: var(--color-primary);
     color: var(--color-dark);
 }

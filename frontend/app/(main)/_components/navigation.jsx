@@ -72,7 +72,7 @@ export default function Navigation() {
         }
       </nav>
       <form action={logout}>
-        <Button className={"logout-btn"} style={{ gap: "6px" }} variant='btn-danger' type="submit">
+        <Button className={"logout-btn"} style={{ gap: "8px" }} variant='btn-danger' type="submit">
           <span>
             Log-out
           </span>

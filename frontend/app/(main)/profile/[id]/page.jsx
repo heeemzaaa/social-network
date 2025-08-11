@@ -178,7 +178,7 @@ export default function Page({ params }) {
         <div style={{ zIndex:"1",background:"var(--color-secondary)", alignSelf:"stretch", position: "sticky", top: "0", borderBottom: "solid 1px", paddingBottom: ".5rem", margin: ".5rem" }} >
           <Button style={{ marginLeft: "auto" }} onClick={() => openModal(<CreatePost postAction={createPostAction} />)}>
             <HiOutlineDocumentPlus size={24} />
-            <span>Add New Post</span>
+            <span className="text-lg font-medium">Add New Post</span>
           </Button>
         </div>
         {<UserPosts  profileId={userInfos.id} access={userInfos.access} changed={changed} />}

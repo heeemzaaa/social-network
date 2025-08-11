@@ -3,7 +3,7 @@ import RegisterForm from './registerForm';
 
 export default function Register() {
   return (
-    <main className='register flex-col justify-center align-center' style={{borderRadius : "unset", margin: "unset"}}>
+    <main className='register flex-col justify-center align-center' style={{ borderRadius: "unset", margin: "unset" }}>
       <Logo />
       <RegisterForm />
     </main>

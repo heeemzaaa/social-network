@@ -5,7 +5,7 @@ import { loginUser } from '@/app/_actions/user';
 import { useActionState, useState } from "react";
 import SubmitButton from "@/app/_components/subimtButton";
 import Link from "next/link";
-
+import Logo from "@/app/_components/logo";
 
 export default function LoginForm() {
     const [state, action] = useActionState(loginUser, {});
@@ -52,11 +52,11 @@ export default function LoginForm() {
             </div>
             {state.error && <span className='field-error'> {state.error} </span>}
             {state.message && <span className='field-success'> {state.message} </span>}
-            <SubmitButton className='btn-primary' />
+            <SubmitButton normalText={"Login"} pendingText={"Logging in..."}/>
 
             <div className="text-sm font-medium ">
-                <span>Don't have an account ? </span>
-                <Link href={"/register"} style={{ color: "var(--color-primary)", textDecoration: "underline"}}
+                <span >Don't have an account ? </span>
+                <Link href={"/register"} style={{ color: "var(--color-dark-gray)", textDecoration: "underline", fontSize: 'var(--font-size-sm)' }}
                 > Register Now </Link>
             </div>
 
