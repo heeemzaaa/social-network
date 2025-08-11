@@ -131,14 +131,14 @@ export async function registerUser(prevState, formData) {
 
 export async function logout() {
     try {
-        const sessionCookie = cookies().get("session")?.value;
+        const cookieStore = await cookies()
+        const sessionCookie = cookieStore.get("session")?.value;
         const res = await fetch(`${API_URL}/api/auth/logout`, {
             method: "POST",
             credentials: 'include',
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {}
         });
         if (res.ok) {
-            let cookieStore = await cookies()
             cookieStore.delete("session")
         }
     } catch (error) {
