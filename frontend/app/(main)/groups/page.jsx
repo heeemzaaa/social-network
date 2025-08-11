@@ -19,7 +19,7 @@ export default function Groups() {
     <main className='flex-col flex-start border-red align-end'>
       <Button className={'justify-start'} onClick={() => { openModal(<CreateGroupForm />) }}>
         <HiMiniUserGroup size={"24px"} />
-        <span>Create New Group</span>
+        <span className="text-lg font-medium">Create New Group</span>
       </Button>
       <Tabs className={''}>
         <Tab label="Your Groups" />

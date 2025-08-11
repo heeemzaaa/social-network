@@ -581,10 +581,12 @@ main {
   overflow-y: auto;
 }
 
-main.login,
-main.register {
+main.login {
   grid-row: 1/4;
   grid-column: 1/4;
+  background: linear-gradient(to right,
+      var(--color-dark),
+      var(--color-gray));
 
   form {
     max-width: 450px;
@@ -595,6 +597,7 @@ main.register {
 
   input {
     padding: .8rem;
+    border-radius: 16px;
     width: 450px;
     box-shadow: 4px 4px var(--color-white);
     border: 2px solid;
@@ -618,7 +621,73 @@ main.register {
     top: 60px;
   }
 
-  button, .submitting {
+  button {
+    width: 120px;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    padding: .5rem;
+  }
+}
+
+main.register {
+  grid-row: 1/4;
+  grid-column: 1/4;
+  background: linear-gradient(to right,
+      var(--color-dark),
+      var(--color-gray));
+
+  form {
+    margin-top: 8rem;
+    max-width: 850px;
+    background-color: var(--color-secondary) !important;
+    border-radius: 50px;
+    align-items: center;
+    box-shadow: 5px 5px 3px var(--color-white);
+  }
+
+  .logo {
+    position: fixed;
+    top: 60px;
+  }
+
+  span {
+    margin-top: .8rem;
+    font-size: var(--font-size-md);
+  }
+
+  input {
+    border-radius: 16px;
+    padding: .8rem;
+    width: 450px;
+    box-shadow: 4px 4px var(--color-white);
+    border: 2px solid;
+  }
+
+  textarea {
+    border-radius: 16px;
+    padding: .8rem;
+    box-shadow: 4px 4px var(--color-white);
+    border: 2px solid;
+    width: 450px;
+  }
+
+  ::-webkit-file-upload-button {
+    padding: .2rem;
+    margin-right: 8px;
+    width: 104px;
+    border-radius: 16px;
+    background-color: var(--color-primary);
+    border: 1px solid var(--color-dark);
+    color: var(--color-dark);
+    box-shadow: 1px 1px 2px var(--color-gray);
+  }
+
+  input:focus,
+  textarea {
+    outline: none !important;
+  }
+
+  button {
     width: 120px;
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-medium);

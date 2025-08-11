@@ -194,7 +194,7 @@ export default function CreatePost({ postAction }) {
             />
 
             {/* Submit */}
-            <button type="submit" className="btn-primary submitting" disabled={state.pending}>
+            <button type="submit" className="btn-primary" disabled={state.pending}>
                 {state.pending ? 'Submitting...' : 'Submit'}
             </button>
 
