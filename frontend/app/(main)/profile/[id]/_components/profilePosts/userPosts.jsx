@@ -5,6 +5,7 @@ import PostCard from '@/app/(main)/_components/posts/postCard'
 import { useModal } from '@/app/(main)/_context/ModalContext'
 import Error from '@/app/(main)/_components/error'
 import Loader from '@/app/(main)/_components/loader'
+import { useRouter } from 'next/navigation'
 
 export default function UserPosts({ profileId, access, changed }) {
     const [posts, setPosts] = useState([])
@@ -15,6 +16,7 @@ export default function UserPosts({ profileId, access, changed }) {
     const observerRef = useRef(null)
     const loadMoreRef = useRef(null)
     const { setModalData, getModalData } = useModal()
+    const router = useRouter()
 
 
     // add the new created post to posts state
@@ -45,15 +47,22 @@ export default function UserPosts({ profileId, access, changed }) {
                 })
                 const result = await response.json() || []
                 if (!response.ok) {
-                    setError(result.error || `Failed to fetch posts`)
+                    if (result.status === 401) {
+                        router.push("/login")
+                        return
+                    }
+                    if (result.status === 400 || result.status === 404 || result.status === 500) {
+                        setError(result.error)
+                        return
+                    }
                 }
                 if (result.length === 0) {
                     setHasMore(false)
                 } else {
                     if (result.length < 10) setHasMore(false)
                     setPosts((prevData) => [...prevData, ...result])
-            }
-            setIsLoading(false)
+                }
+                setIsLoading(false)
             } catch (err) {
                 setError(err.message)
                 setIsLoading(false)

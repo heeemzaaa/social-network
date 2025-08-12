@@ -1,6 +1,5 @@
 import React from "react"
-import Avatar from "./avatar"
-
+import Avatar from "../../_components/avatar";
 
 export default function GroupList({ groups, onGroupClick }) {
   return (

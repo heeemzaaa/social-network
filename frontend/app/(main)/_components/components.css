@@ -332,7 +332,7 @@ nav {
 
   .link-active {
     color: var(--color-primary);
-    position: relative;
+    position: fixed;
     overflow: hidden;
     border-radius: var(--border-radius-full);
     background-color: var(--color-dark);

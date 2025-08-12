@@ -4,6 +4,7 @@ import GroupCard from "./groupCard"
 import { useModal } from "../../_context/ModalContext"
 import Loader from "../../_components/loader"
 import Error from "../../_components/error"
+import { redirect, useRouter } from "next/navigation"
 
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
@@ -16,7 +17,7 @@ export default function GroupCardList({ filter }) {
     const [error, setError] = useState(null)
     const observerRef = useRef(null)
     const loadMoreRef = useRef(null)
-
+    const router = useRouter()
     const { getModalData, setModalData } = useModal()
 
     useEffect(() => {
@@ -37,9 +38,15 @@ export default function GroupCardList({ filter }) {
                         'Content-Type': 'application/json'
                     }
                 })
+
                 const result = await response.json() || []
                 if (!response.ok) {
+                    if (result.status === 401) {
+                        router.push("/login")
+                    }
+
                     setError(result.error || `Failed to fetch groups`)
+                    return
                 }
                 if (result.length === 0) {
                     setHasMore(false)

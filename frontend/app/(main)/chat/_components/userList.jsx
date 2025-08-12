@@ -1,6 +1,6 @@
-import "./chat.css";
+import "./chat_components.css"
 import React from 'react'
-import Avatar from "../avatar"
+import Avatar from "../../_components/avatar";
 
 export default function UserList({ users, onUserClick }) {
   return (

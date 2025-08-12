@@ -40,6 +40,7 @@ export default function GroupCard({
             
             if (!res.ok) {
                 console.error("Failed to send the request")
+                return
             }
 
             const data = await res.json();

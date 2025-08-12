@@ -11,17 +11,19 @@ export async function fetchMessages(targetId, type) {
       },
       credentials: "include",
     });
+   
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
+     throw new Error(`HTTP error! Status: ${response.status}`);
+   }
 
-    const messages = await response.json();
+    const messages = await response.json()
+
     if (Array.isArray(messages)) {
       messages.reverse();
     }
     return messages || [];
   } catch (error) {
-    console.error("❌ Error fetching messages:", error);
+    console.error("Error fetching messages:", error);
     return [];
   }
 }

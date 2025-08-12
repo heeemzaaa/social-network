@@ -25,6 +25,7 @@ import {
 } from "react-icons/hi2"
 import Loader from "../../_components/loader"
 import Error from "../../_components/error"
+import { useRouter } from "next/navigation"
 
 export default function GroupPage({ params }) {
   const [data, setData] = useState({})
@@ -33,6 +34,8 @@ export default function GroupPage({ params }) {
   const resolvedParams = React.use(params)
   const groupId = resolvedParams.id
   const [isAccessible, setIsAccessible] = useState(null)
+  const router = useRouter()
+
 
   const { openModal } = useModal()
   const actionButtons = [
@@ -60,10 +63,22 @@ export default function GroupPage({ params }) {
         const response = await fetch(`http://localhost:8080/api/groups/${id}`, {
           credentials: "include",
         })
-        if (!response.ok) {
-          setData("Failed to fetch group data")
-        }
+
         const result = await response.json()
+
+        if (!response.ok) {
+          if (result.status === 401) {
+            router.push("/login")
+            return
+          }
+
+          if (result.status === 400 || result.status === 404 || result.status === 500) {
+            setIsLoading(false)
+            setError(result.status)
+            return
+          }
+        }
+
         setData(result)
         setIsLoading(false)
 
@@ -76,8 +91,15 @@ export default function GroupPage({ params }) {
     getGroupData(groupId)
   }, [])
 
-  if (isLoading) return <Loader/> 
-  if (error) return <Error error={error}/>
+  if (isLoading) return <Loader />
+  if (error) {
+    return (
+      <main className="group-page-section flex gap-1">
+        <img src="/error.svg" style={{ width: '60%', height: '80%' }} />
+      </main>
+
+    )
+  }
 
   return (
     <main className="group-page-section flex gap-1">
