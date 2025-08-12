@@ -3,6 +3,7 @@ import { useModal } from '../../_context/ModalContext';
 import { useUserContext } from '../../_context/userContext';
 import { useActionState, useState, useEffect } from 'react';
 import { useNotification } from "../../_context/NotificationContext";
+import { useRouter } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
@@ -20,17 +21,21 @@ export default function CreatePost({ postAction }) {
     const [followers, setFollowers] = useState([]);
     const [loadingFollowers, setLoadingFollowers] = useState(true);
     const { authenticatedUser } = useUserContext()
-    const {showNotification} = useNotification()
+    const { showNotification } = useNotification()
     const { setModalData, closeModal } = useModal()
+    const router = useRouter()
 
     useEffect(() => {
-        console.log(state)
         if (state.message) {
             state.data.type = 'post';
             setModalData(state.data)
             closeModal()
-            showNotification({ Content: state.message , Status: "success" });
+            showNotification({ Content: state.message, Status: "success" });
         } else if (state.errors || state.error) {
+            if (state.status === 401) {
+                router.push("/login")
+                return
+            }
             showNotification({ Content: state.error, Status: "error" });
         }
     }, [state])
@@ -43,7 +48,13 @@ export default function CreatePost({ postAction }) {
                     method: 'GET',
                     credentials: 'include',
                 });
-                const data = await res.json();
+                const data = await res.json()
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        router.push("/login")
+                        return
+                    }
+                }
                 setFollowers(data);
             } catch (err) {
                 console.error("Error loading followers:", err);

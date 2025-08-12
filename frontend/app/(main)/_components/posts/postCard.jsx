@@ -28,16 +28,15 @@ export default function PostCard({
     privacy,
     groupID
 }) {
-    console.log(post)
     const [totalComments, setTotalComments] = useState(total_comments)
     const { openModal } = useModal()
     const { showNotification } = useNotification()
+    const router = useRouter()
     const initialState = {
         liked: liked && liked != 0,
         likes: total_likes,
         message: null,
     }
-    console.log(initialState)
     const [state, formAction] = useActionState(likePostAction, initialState)
 
     const handleCommentMessage = (msg) => {
@@ -48,11 +47,15 @@ export default function PostCard({
         if (state.message) {
             showNotification({ Content: state.message, Status: "success" })
         } else if (state.error) {
+            if (state.status === 401) {
+                router.push("/login")
+                return
+            }
+            
             showNotification({ Content: state.error, Status: "error" })
         }
     }, [state])
 
-    const router = useRouter()
     const navigateToProfile = (profileId) => {
         router.push(`/profile/${profileId}`);
     }

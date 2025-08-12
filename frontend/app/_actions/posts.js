@@ -5,6 +5,7 @@ const API_URL = process.env.BACKEND_URL || 'http://localhost:8080'
 
 export async function createPostAction(prevState, formData) {
     let state = {
+        status: null,
         error: null,
         errors: {},
         message: null,
@@ -83,17 +84,21 @@ export async function createPostAction(prevState, formData) {
         headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
     });
 
+
     if (!response.ok) {
         const errorJson = await response.json().catch(() => null);
         console.error("Backend error:", errorJson);
         return {
             ...state,
+            status: response.status,
             errors: errorJson.errors,
             error: errorJson?.message || "Failed to create post?????",
         };
     }
 
     const createdPost = await response.json();
+
+
     return {
         message: "Post created successfully",
         data: createdPost,
@@ -128,9 +133,18 @@ export async function likePostAction(prevState, formData) {
             method: "POST",
             body: JSON.stringify(body || {}),
             headers: sessionCookie ? { Cookie: `session=${sessionCookie}` } : {},
-        });
+        })
+
+        if (!res.ok) {
+            let state = {
+                ...prevState,
+                error: "Error liking this post !",
+                status: res.status
+            }
+            return
+        }
+
         const data = await res.json();
-        console.log("daaaata: ", data)
         if (res.ok) {
             let state = {
                 ...prevState,
@@ -142,7 +156,7 @@ export async function likePostAction(prevState, formData) {
                 state.likes = prevState.likes + 1
             } else if (data.reaction == 0) {
                 console.log("you disliked post ")
-                state.likes = prevState.likes - 1 
+                state.likes = prevState.likes - 1
             } else if (data.total_likes) {
                 state.likes = data.total_likes
             }
@@ -159,8 +173,8 @@ export async function likePostAction(prevState, formData) {
 
 export async function commentPostAction(prevState, formData) {
 
-    console.log("====> inside the coomment post action")
     let state = {
+        status: null,
         error: null,
         errors: {},
         message: null,
@@ -216,11 +230,11 @@ export async function commentPostAction(prevState, formData) {
         });
 
         if (!resp.ok) {
-            return { ...state, error: "Failed to comment on post" };
+            return { ...state, status: resp.status, error: "Failed to comment on post" };
         }
 
-        const response = await resp.json();
-        const now = new Date();
+        const response = await resp.json()
+        const now = new Date()
         const formatted = now.toISOString().slice(0, 16).replace('T', ' ');
         return {
             ...state,

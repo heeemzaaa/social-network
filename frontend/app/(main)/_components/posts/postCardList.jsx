@@ -4,6 +4,7 @@ import { useModal } from "../../_context/ModalContext"
 import { useEffect, useState } from "react"
 import Loader from "../loader"
 import Error from "../error"
+import { useRouter } from "next/navigation"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
@@ -12,6 +13,7 @@ export default function PostCardList() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const { getModalData, setModalData } = useModal()
+    const router = useRouter()
 
     useEffect(() => {
         let postData = getModalData()
@@ -38,6 +40,11 @@ export default function PostCardList() {
                 })
                 const data = await resp.json()
                 if (!resp.ok) {
+                    if (resp.status === 401) {
+                        router.push("/login")
+                        return
+                    } 
+                    
                     setError(data?.error || "Failed to load posts")
                 } else {
                     setPosts(data)
