@@ -25,10 +25,10 @@ export default function GroupEventCard({
     going,
 }) {
     const [goingState, setGoingState] = useState(going)
+    const [error, setError] = useState(null)
+    const router = useRouter() 
     const endpoint = `http://localhost:8080/api/groups/${group.group_id}/events/${event_id}/`
     async function handleGoingState(actionValue) {
-        const [error, setError] = useState(null)
-        const router = useRouter() 
 
         try {
             const res = await fetch(endpoint, {
@@ -44,7 +44,6 @@ export default function GroupEventCard({
                     router.push("/login")
                     return
                 }
-
                 setError(error)
                 return
             }
@@ -65,11 +64,9 @@ export default function GroupEventCard({
         <div style={style} className="flex-col gap-1  bg-white p2 pi3 rounded-xl shadow-md" key={event_id}>
             <div className='flex align-center gap-2'>
                 <Avatar img={event_creator.avatar} size={42} />
-                {/* <img src='/no-profile.png'/> */}
                 <div>
                     <p className='font-semibold'>{event_creator.fullname}</p>
                     <span className=''>@{event_creator.nickname}</span>
-                    {/* <p className=''>{created_at}</p> */}
                 </div>
             </div>
             <hr />

@@ -135,7 +135,7 @@ export default function GroupPostCardList({ groupId, setIsAccessible, isAccessib
     }
 
     return (
-        <div className="list-container flex align-start flex-wrap gap-4 justify-center overflow-y-auto">
+        <div className="list-container flex align-start flex-col gap-4 justify-center overflow-y-auto">
             {data.map((item) => (
                 <PostCard {...item} post={item} key={item.id} groupID={groupId} />
             ))}

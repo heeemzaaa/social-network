@@ -191,17 +191,17 @@ export default function Page({ params }) {
               {userInfos.isRequested ? (
                 <>
                   <MdPending size="24px" color="white" />
-                  <span style={{ color: 'white' }}>Pending</span>
+                  <span style={{ color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-medium)' }}>Pending</span>
                 </>
               ) : userInfos.isFollower ? (
                 <>
                   <RiUserUnfollowFill size="24px" color="white" />
-                  <span style={{ color: 'white' }}>Unfollow</span>
+                  <span style={{ color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-medium)' }}>Unfollow</span>
                 </>
               ) : (
                 <>
                   <RiUserFollowFill size="24px" color="white" />
-                  <span style={{ color: 'white' }}>Follow</span>
+                  <span style={{ color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-medium)'}}>Follow</span>
                 </>
               )}
             </Button>

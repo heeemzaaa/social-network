@@ -78,7 +78,7 @@ export default function GroupCard({
         }}>
             <div className="grp-card-img-holder glass-bg">
                 <div className="grp-card-img"
-                    style={{ backgroundImage: image_path ? `url(http://localhost:8080/static/${image_path})` : `url('/no-profile.png')` }}
+                    style={{ backgroundImage: image_path ? `url(http://localhost:8080/static/${image_path})` : `url('/no-group.svg')` }}
 
                 ></div>
             </div>

@@ -23,8 +23,8 @@ export default function UserCard({ user, groupId }) {
                 body: JSON.stringify({ 'id': user.id }),
             })
 
-            const data = await response.json()
-            if (!response.ok) {
+            const data = await res.json()
+            if (!res.ok) {
                 if (data.status === 401) {
                     router.push("/login")
                     return
