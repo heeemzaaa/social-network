@@ -12,24 +12,29 @@
   animation: slideIn 0.3s ease-out;
   border-left: 4px solid;
 }
+
 .toast-popup.success {
   border-left-color: #10b981;
 }
+
 .toast-popup.error {
   border-left-color: #ef4444;
 }
+
 .toast-content {
   display: flex;
   align-items: center;
   padding: 16px;
   gap: 12px;
 }
+
 .toast-message {
   flex: 1;
   color: #374151;
   font-size: 14px;
   line-height: 1.4;
 }
+
 .toast-close {
   background: none;
   border: none;
@@ -44,27 +49,33 @@
   justify-content: center;
   flex-shrink: 0;
 }
+
 .toast-close:hover {
   color: #6b7280;
 }
+
 @keyframes slideIn {
   from {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
   }
 }
+
 .toast-popup.slide-out {
   animation: slideOut 0.3s ease-in forwards;
 }
+
 @keyframes slideOut {
   from {
     transform: translateX(0);
     opacity: 1;
   }
+
   to {
     transform: translateX(100%);
     opacity: 0;
@@ -332,10 +343,15 @@ nav {
 
   .link-active {
     color: var(--color-primary);
-    position: fixed;
+    position: relative;
     overflow: hidden;
     border-radius: var(--border-radius-full);
     background-color: var(--color-dark);
+    padding-left: 0;
+  }
+  .link-active > :first-child {
+    transform: translateX(4px);
+
   }
 
   .link-active::after {
