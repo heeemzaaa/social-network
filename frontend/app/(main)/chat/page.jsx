@@ -117,6 +117,7 @@ export default function Chat() {
     setChatTarget({
       ID: group.group_id,
       type: "group",
+      
     });
     if (window.innerWidth <= 500) {
       chatBlockRef.current.style.display = "flex";
@@ -136,7 +137,7 @@ export default function Chat() {
       type: chatTarget.type,
     };
 
-    socket.send(JSON.stringify(messagePayload));
+    socket.send(JSON.stringify(messagePayload)); ///////////
     setNewMessage("");
   };
 

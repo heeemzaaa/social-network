@@ -23,6 +23,7 @@ export default function Header() {
       try {
         let res = await fetch(`${API_URL}/api/notifications/`, getRequest)
         let response = await res.json()
+        console.log("response ==>", response)
         if (response?.Status === true) {
           setHasNewNotification(true)
         }

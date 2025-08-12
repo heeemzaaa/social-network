@@ -4,7 +4,7 @@ import "time"
 
 // database notification structure
 type Notification struct {
-	Id             string 
+	Id             string
 	SenderId       string
 	RecieverId     string
 	GroupId        string
@@ -14,6 +14,8 @@ type Notification struct {
 	GroupName      string
 	Status         string
 	Seen           bool
+	Content        string
+	HasSeen        string
 	CreatedAt      time.Time
 }
 
@@ -21,6 +23,8 @@ type Notification struct {
 func NewNotification() *Notification {
 	return &Notification{}
 }
+
+
 
 // structue of new notification
 type Notif struct {

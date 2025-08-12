@@ -34,7 +34,6 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")
 	if err != nil {
-		fmt.Println("1111111111111111111111111111111111111111:", err)
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: ""})
 		return
 	}
@@ -56,9 +55,9 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 		// which status code to return
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
 		return
-		
+
 	}
-	
+
 	// handle the image encoding in the phase that comes before the adding process
 	path, errUploadImg := utils.HanldeUploadImage(r, "comment", filepath.Join("groups", "comments"))
 	if errUploadImg != nil {
@@ -73,7 +72,6 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 		utils.WriteJsonErrors(w, *err_)
 		return
 	}
-	fmt.Println("commentCreated:   ", commentCreated)
 	utils.WriteDataBack(w, commentCreated)
 }
 
@@ -85,9 +83,9 @@ func (gCommentHandler *GroupCommentHandler) GetGroupComments(w http.ResponseWrit
 	}
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: ""})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 	}
-	
+
 	postID, err := utils.GetUUIDFromPath(r, "post_id")
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "ERROR!! Incorrect UUID Format!"})

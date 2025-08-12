@@ -109,14 +109,12 @@ func (NS *NotificationService) UpdateGroupInvitationRequest(data models.Unotif, 
 		_, err := NS.groupService.RequestToCancel(notification.RecieverId, notification.GroupId);
 		if err != nil {
 			if err.Status == 404 && err.Error == "Invitation not found" {
-				fmt.Println("Invitation not found, deleting notification")
 				if err := NS.DeleteService(notification.SenderId, notification.RecieverId, "group-join", notification.GroupId); err != nil {
 					return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
 				}
 				return nil
 			}
 			if err.Status == 403 && err.Message == "ERROR!! You are already a member!" {
-				fmt.Println("You are already a member, deleting notification")
 				if err := NS.DeleteService(notification.SenderId, notification.RecieverId, "group-join", notification.GroupId); err != nil {
 					return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
 				}

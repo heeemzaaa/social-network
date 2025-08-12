@@ -3,6 +3,7 @@ package chat
 import (
 	"io"
 	"slices"
+	"sync"
 
 	"social-network/backend/models"
 	"social-network/backend/services/chat"
@@ -27,6 +28,7 @@ type Client struct {
 	Message    chan *models.Message
 	ErrorJson  chan *models.ErrorJson
 	Online     chan *OnlineUsers
+	sync.RWMutex
 }
 
 func NewClient(conn *websocket.Conn, server *ChatServer, session *models.Session) *Client {
@@ -122,7 +124,7 @@ func (client *Client) WriteMessages() {
 			}
 		case message := <-client.Message:
 			err := client.connection.WriteJSON(message)
-			if err != nil {
+			if err != nil { 
 				return
 			}
 		case online_users := <-client.Online:
@@ -172,9 +174,8 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 				conn.Message <- message
 			}
 		}
-	case  "notification": 
-	
-	   
+	case "notification":
+
 	}
 }
 
@@ -214,21 +215,23 @@ func (server *ChatServer) BroadCastOnlineStatus() {
 }
 
 func (server *ChatServer) SendNotificationToUser(userID, notifContent string, hasSeen string) *models.ErrorJson { // boolean
-	server.RLock()
-	defer server.RUnlock()
+	server.Lock()
+	defer server.Unlock()
 
 	notification := map[string]string{ // struct not map
 		"type":    "notification",
 		"content": notifContent,
-		"seen": hasSeen,
+		"seen":    hasSeen,
 	}
 
 	var errs []error
 	if clients, ok := server.client[userID]; ok {
 		for _, conn := range clients {
+			conn.Lock()
 			if err := conn.connection.WriteJSON(notification); err != nil {
 				errs = append(errs, err)
 			}
+			conn.Unlock()
 		}
 	}
 

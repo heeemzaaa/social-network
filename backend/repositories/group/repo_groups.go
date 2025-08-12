@@ -299,7 +299,6 @@ func (repo *GroupRepository) GetAvailableGroups(offset string, userID string) ([
 // here we won't be needing to get the name
 
 func (repo *GroupRepository) GetCreatedGroups(offset string, userID string) ([]models.Group, *models.ErrorJson) {
-	fmt.Println("hnaaa")
 	var where string
 	if offset == "0" {
 		where = " groupCreatorID = ?"

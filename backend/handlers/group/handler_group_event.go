@@ -38,7 +38,7 @@ func (gEventIDHandler *GroupEventIDHandler) AddInterestIntoEvent(w http.Response
 
 	eventID, err := utils.GetUUIDFromPath(r, "event_id")
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "ERROR!! Incorrect UUID Format!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "ERROR!! Incorrect UUID Format!"})
 		return
 	}
 	actionChosen := &models.UserEventAction{}

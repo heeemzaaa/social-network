@@ -28,6 +28,9 @@ export default function Navigation() {
   useEffect(() => {
     async function GetUserInfo() {
       let res = await fetch(`${API_URL}/api/loggedin`, { credentials: 'include' })
+      if (!res.ok) {
+        console.log(res);
+      }
       let data = await res.json()
       setId(data.id)
     }

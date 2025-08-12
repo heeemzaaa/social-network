@@ -9,7 +9,6 @@ import (
 )
 
 func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string) *models.ErrorJson {
-	fmt.Println(userId, groupId, userToInvite)
 	invitationID := utils.NewUUID()
 	query := `
 	INSERT INTO group_requests (requestID, senderID, receiverID, groupID, typeRequest)

@@ -61,7 +61,6 @@ func CreateDirectoryForUploads(subDirectoryName, mimeType string, data []byte) (
 
 func GetUUIDFromPath(r *http.Request, key string) (uuid.UUID, error) {
 	val := r.PathValue(key)
-	fmt.Println(uuid.Parse(val))
 	return uuid.Parse(val)
 }
 
