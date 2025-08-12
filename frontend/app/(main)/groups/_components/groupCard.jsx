@@ -18,10 +18,9 @@ export default function GroupCard({
     total_members,
     requested
 }) {
-    const router = useRouter()   ///////////
-
+    const router = useRouter()
     const [requestState, setRequestState] = useState(requested)
-
+    const [error, setError] = useState(null)
     const { showNotification } = useNotification();
 
 
@@ -36,21 +35,19 @@ export default function GroupCard({
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
             })
-            
-            
-            if (!res.ok) {
-                console.error("Failed to send the request")
-                return
-            }
 
-            const data = await res.json();
-            console.log(" ==>> ", data);
-            // alert(data || "successfully request");
+            const data = await res.json()
+            if (!res.ok) {
+                if (data.status === 401) {
+                    router.push("/login")
+                    return
+                }
+            }
 
             if (data.Message === 'ERROR!! You are already a member!') {
                 showNotification({ Content: `You are already a member!`, Status: "error" });
-                console.warn(`You are already a member!`)
                 router.push(`/groups/${group_id}`)
+                console.warn(`You are already a member!`)
                 return
 
             } else if (data.Message === 'Invitation not found') {
@@ -60,6 +57,7 @@ export default function GroupCard({
 
             setRequestState(requestState === 0 ? 1 : 0)
         } catch (error) {
+            setError(error)
             console.error(error);
         }
     }
@@ -68,7 +66,12 @@ export default function GroupCard({
         router.push(`/groups/${groupId}`);
     }
 
-
+    if (error) {
+        return (
+            <Error error={error} />
+        )
+    }
+    
     return (
         <div className="grp-card w-quarter" onClick={() => {
             navigateToGroup(group_id)
@@ -103,7 +106,7 @@ export default function GroupCard({
                             </div>
                             :
                             <div onClick={e => e.stopPropagation()}>
-                                <Button  variant = 'btn-danger' className={"text-center"} onClick={(e) => handleJoingGrp(e)}>
+                                <Button variant='btn-danger' className={"text-center"} onClick={(e) => handleJoingGrp(e)}>
                                     Cancel
                                 </Button>
                             </div>

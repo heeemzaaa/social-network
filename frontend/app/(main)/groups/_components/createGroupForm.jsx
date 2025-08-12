@@ -15,7 +15,7 @@ export default function CreateGroupForm() {
         description: "",
         img: null
     });
-    const {showNotification} = useNotification()
+    const { showNotification } = useNotification()
     const { setModalData, closeModal } = useModal()
 
     const handleFileChange = (e) => {
@@ -27,9 +27,13 @@ export default function CreateGroupForm() {
             state.data.type = "groupCard"
             setModalData(state.data)
             closeModal()
-            showNotification({ Content: `Group created successfully`, Status: "success"});
+            showNotification({ Content: `Group created successfully`, Status: "success" });
         } else if (state.errors || state.error) {
-            showNotification({ Content: state.error, Status: "error"});
+            if (state.status === 401) {
+                router.push("/login")
+                return
+            }
+            showNotification({ Content: state.error, Status: "error" });
         }
     }, [state])
 

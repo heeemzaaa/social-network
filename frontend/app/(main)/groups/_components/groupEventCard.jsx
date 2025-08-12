@@ -6,6 +6,7 @@ import Tag from '../../_components/tag'
 import { timeAgo } from "@/app/_utils/time"
 
 import { HiOutlineClock } from "react-icons/hi2"
+import { useRouter } from 'next/navigation'
 
 let style = {
     width: "100%",
@@ -26,6 +27,9 @@ export default function GroupEventCard({
     const [goingState, setGoingState] = useState(going)
     const endpoint = `http://localhost:8080/api/groups/${group.group_id}/events/${event_id}/`
     async function handleGoingState(actionValue) {
+        const [error, setError] = useState(null)
+        const router = useRouter() 
+
         try {
             const res = await fetch(endpoint, {
                 method: "POST",
@@ -34,13 +38,29 @@ export default function GroupEventCard({
                 body: JSON.stringify({ 'action': actionValue }),
             })
 
-            if (!res.ok) return console.error("Failed to send the request")
             let newGoingState = await res.json()
+            if (!res.ok) {
+                if (newGoingState.status === 401) {
+                    router.push("/login")
+                    return
+                }
+
+                setError(error)
+                return
+            }
             setGoingState(newGoingState.action)
         } catch (err) {
+            setError(err)
             console.log(err);
         }
     }
+
+    if (error) {
+        return (
+            <Error error={error} />
+        )
+    }
+
     return (
         <div style={style} className="flex-col gap-1  bg-white p2 pi3 rounded-xl shadow-md" key={event_id}>
             <div className='flex align-center gap-2'>

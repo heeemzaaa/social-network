@@ -5,13 +5,15 @@ import { useState, useEffect, use } from 'react';
 
 import UserCard from './userCard';
 import { useModal } from '../../_context/ModalContext';
+import { useRouter } from 'next/navigation';
+import Loader from '../../_components/loader';
 
 // InviteFriendForm component
 const InviteFriendForm = ({ groupId }) => {
     const [followers, setFollowers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    const router = useRouter()
     useEffect(() => {
 
         async function handleGetFollowers() {
@@ -24,7 +26,12 @@ const InviteFriendForm = ({ groupId }) => {
                 if (res.ok) {
                         setFollowers(result)
                 } else {
+                    if (result.status === 401) {
+                        router.push("/login")
+                        return
+                    }
                         setError(result.error || "unexpected error while fetching followers")
+                        return
                 } 
 
             } catch (err) {
@@ -40,8 +47,8 @@ const InviteFriendForm = ({ groupId }) => {
 
 
     
-    if (loading) return <p style={{ color: '#374151', fontSize: '16px' }}>Loading followers...</p>
-    if (error) return  <p style={{ color: '#dc2626', fontSize: '16px', padding:"1rem" }}>{error}</p>
+    if (loading) return <Loader />
+    if (error) return  <Error error={error}/>
 
     return (
         <>

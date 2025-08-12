@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react'
 import Avatar from '../../_components/avatar';
 import Button from '@/app/_components/button';
 import { useNotification } from '../../_context/NotificationContext';
+import { useRouter } from 'next/navigation';
 
 
 export default function UserCard({ user, groupId }) {
     const [inviteState, setInviteState] = useState(user.invited)
-    const { showNotification } = useNotification()    
-
+    const { showNotification } = useNotification()
+    const [error, setError] = useState(null)
+    const router = useRouter()
     // let's create here the function that toggles the state of the button with the same
     // way as hamza 
     async function handleInviteCancelButtons() {
@@ -21,9 +23,15 @@ export default function UserCard({ user, groupId }) {
                 body: JSON.stringify({ 'id': user.id }),
             })
 
-            if (!response.ok) console.error("Failed to send the request")
-            const data = await response.json();
-            console.log(" ==>> ", data);
+            const data = await response.json()
+            if (!response.ok) {
+                if (data.status === 401) {
+                    router.push("/login")
+                    return
+                }
+                setError(data.error)
+                return
+            }
             if (data.Message === 'ERROR!! You are already a member!') {
                 showNotification({ Content: `already a member!`, Status: "error" });
                 // should access to the followers list and remove the user from the list
@@ -36,10 +44,16 @@ export default function UserCard({ user, groupId }) {
             }
             inviteState === 0 ? setInviteState(1) : setInviteState(0)
         } catch (err) {
+            setError(err)
             console.log(err);
         }
     }
 
+    if (error) {
+        return (
+            <Error error={error} />
+        )
+    }
     return (
         <section className='user_card p2 flex justify-start rounded-lg shadow-md m1' >
             <div

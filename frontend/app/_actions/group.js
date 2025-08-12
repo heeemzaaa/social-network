@@ -6,6 +6,7 @@ const API_URL = process.env.BACKEND_URL || 'http://localhost:8080'
 // Creates a new group by validating form data and sending it to the group creation API Endpoint.
 export async function createGroupAction(prevState, formData) {
     const state = {
+        status: null,
         errors: {},
         error: null,
         data: null,
@@ -42,7 +43,7 @@ export async function createGroupAction(prevState, formData) {
         return {
             ...prevState,
             errors: state.errors,
-            error:"Group creation failed",
+            error: "Group creation failed",
 
         }
     }
@@ -67,7 +68,8 @@ export async function createGroupAction(prevState, formData) {
             return {
                 ...prevState,
                 error: data.error || "Group creation failed",
-                errors: data.errors || null
+                errors: data.errors || null,
+                status: data.status
             }
         }
 
@@ -86,6 +88,7 @@ export async function createGroupAction(prevState, formData) {
 
 export async function createGroupPostAction(prevState, formData) {
     const state = {
+        status: null,
         errors: {},
         error: null,
         message: null
@@ -137,7 +140,8 @@ export async function createGroupPostAction(prevState, formData) {
             return {
                 ...prevState,
                 error: data.error || "Post creation failed",
-                errors: data.errors || null
+                errors: data.errors || null,
+                status: state.status
             };
         }
         return {
@@ -153,6 +157,7 @@ export async function createGroupPostAction(prevState, formData) {
 // Creates a new group event by validating form data and sending it to the event creation API endpoint.
 export async function createGroupEventAction(prevState, formData) {
     const state = {
+        status: null,
         errors: {},
         error: null,
         data: null,
@@ -205,11 +210,11 @@ export async function createGroupEventAction(prevState, formData) {
         });
         const data = await res.json();
         if (!res.ok) {
-            console.error(data)
             return {
                 ...prevState,
                 error: "Event creation failed",
-                errors: data.errors || null
+                errors: data.errors || null,
+                status: state.status
             };
         }
         return {
@@ -244,7 +249,7 @@ export async function inviteUserAction(prevState, formData) {
             return { message: "user invitation send" };
         } else {
             const errorText = await res.text();
-            return { message: "error", error: "Failed to invite user" };
+            return { error: "Failed to invite user" };
         }
     } catch (err) {
         console.error("Failed to fetch invitations", err)
@@ -271,7 +276,7 @@ export async function CancelInvitationAction(prevState, formData) {
         const result = await res.text();
 
         if (!res.ok) {
-            return { error: "Failed to cancel invitation." };
+            return { status: result.status, error: "Failed to cancel invitation." };
         }
         return { message: "done" };
     } catch (err) {

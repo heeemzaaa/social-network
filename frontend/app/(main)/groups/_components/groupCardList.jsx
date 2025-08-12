@@ -43,6 +43,7 @@ export default function GroupCardList({ filter }) {
                 if (!response.ok) {
                     if (result.status === 401) {
                         router.push("/login")
+                        return
                     }
 
                     setError(result.error || `Failed to fetch groups`)
@@ -51,7 +52,6 @@ export default function GroupCardList({ filter }) {
                 if (result.length === 0) {
                     setHasMore(false)
                 } else {
-                    console.log(result)
                     if (result.length < 3) setHasMore(false)
                     setData((prevData) => [...prevData, ...result])
                 }

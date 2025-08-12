@@ -26,6 +26,10 @@ export default function CreatePostForm({ groupId }) {
             closeModal()
             showNotification({ Content: "Post created successfully", Status: "success" });
         } else if (state.errors || state.error) {
+             if (state.status === 401) {
+                router.push("/login")
+                return
+            }
             showNotification({ Content: state.error, Status: "error" });
         }
     }, [state])
