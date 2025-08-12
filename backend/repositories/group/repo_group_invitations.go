@@ -8,24 +8,47 @@ import (
 	"social-network/backend/utils"
 )
 
-func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string) *models.ErrorJson {
+func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string) (*models.Notification, *models.ErrorJson) {
 	invitationID := utils.NewUUID()
 	query := `
 	INSERT INTO group_requests (requestID, senderID, receiverID, groupID, typeRequest)
 	VALUES (?,?,?,?,?)
+	RETURNING senderID, receiverID ,  groupID,
+    (
+        SELECT
+            concat (firstName, ' ', lastName)
+        FROM
+            users
+        WHERE
+            users.userID = ?
+    ) AS senderFullName, 
+	(
+	SELECT  title 
+	FROM 
+	groups 
+	WHERE groupID = ? 
+	) AS Title
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-
-	_, err = stmt.Exec(invitationID, userId, userToInvite, groupId, "invitation-request")
+	notification := models.Notification{}
+	err = stmt.QueryRow(invitationID, userId, userToInvite, groupId, "invitation-request", userId, groupId).Scan(
+		&notification.Sender.Id,
+		&notification.Target.(*models.User).Id,
+		&notification.Data.(*models.Group).GroupId,
+		&notification.Sender.FullName,
+		&notification.Data.(*models.Group).Title,
+	)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
-	return nil
+	notification.Type = "invitation"
+
+	return &notification, nil
 }
 
 func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId, invitedUserId string) *models.ErrorJson {

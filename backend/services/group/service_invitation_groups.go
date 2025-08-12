@@ -4,17 +4,13 @@ import (
 	"social-network/backend/models"
 )
 
-func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite models.User) (*models.Notif, *models.ErrorJson) {
+func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite models.User) (*models.Notification, *models.ErrorJson) {
 	// check the group if a valid one
 	// check the user is member before he can invite
 	// check if the invited one is one of the followers of the user
 	// add the invitation to the table of the requests
 
-	// if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
-	// 	return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
-	// }
-	group, errJson := gService.gRepo.GetGroupDetails(groupId)
-	if errJson != nil {
+	if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 
@@ -35,21 +31,17 @@ func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite 
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 
-	if err := gService.gRepo.InviteToJoin(userId, groupId, userToInvite.Id); err != nil {
-		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
+	notification, errJson := gService.gRepo.InviteToJoin(userId, groupId, userToInvite.Id)
+
+	if errJson != nil {
+		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
 	// this was a slight edit for the user to see only :)
 	// i hope it works
 
 	// add the notification service method to be able to add a user
 	// {sneder_id, receiver_id , "group-invitation"}
-	return &models.Notif{
-		SenderId:   userId,
-		RecieverId: userToInvite.Id,
-		GroupId:    groupId,
-		GroupName:  group.Title,
-		Type:       "group-invitation",
-	}, nil
+	return notification, nil
 }
 
 func (gService *GroupService) CancelTheInvitation(userId, groupId, invitedUserId string) *models.ErrorJson {
@@ -81,12 +73,11 @@ func (gService *GroupService) GetUsersToInvite(userID, groupID string) ([]models
 	// check if thye group is valid
 	//  we need to check if the user is a member of the group before he proceeds to invite them
 	//  we need to check if
+	if errJson := gService.gRepo.GetGroupById(groupID); errJson != nil {
+		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+	}
 
-	// if errJson := gService.gRepo.GetGroupById(groupID); errJson != nil {
-	// 	return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
-	// }
-
-	membership, errJson := gService.gRepo.GetGroupMembers(groupID)
+	members, errJson := gService.gRepo.GetGroupMembers(groupID)
 	if errJson != nil {
 		return nil, errJson
 	}
@@ -102,15 +93,15 @@ func (gService *GroupService) GetUsersToInvite(userID, groupID string) ([]models
 	}
 
 	memberships := make(map[string]bool)
-	for _, member := range membership {
+	for _, member := range members {
 		memberships[member.Id] = true
 	}
-	res := []models.User{}
+	NotMembers := []models.User{}
 	for _, user := range users {
 		if !memberships[user.Id] {
-			res = append(res, user)
+			NotMembers = append(NotMembers, user)
 		}
 	}
 
-	return res, nil
+	return NotMembers, nil
 }

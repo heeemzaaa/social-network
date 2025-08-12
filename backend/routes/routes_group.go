@@ -3,13 +3,13 @@ package routes
 import (
 	"database/sql"
 	"net/http"
+	"social-network/backend/middleware"
 
 	group "social-network/backend/handlers/group"
-	"social-network/backend/middleware"
+
 	gRepo "social-network/backend/repositories/group"
 	authService "social-network/backend/services/auth"
 	gService "social-network/backend/services/group"
-	notificationService "social-network/backend/services/notification"
 	profileService "social-network/backend/services/profile"
 )
 
@@ -58,15 +58,13 @@ import (
 // POST /groups/{group_id}/accept
 // DELETE  /groups/{group_id}/decline
 
-
-
-//  for approving or declining a request (we need to have the id of the request or the inviatation where )
-//  it makes some sense because (having the group id and the user id is tooo much )
-// for the delete especially 
+//	for approving or declining a request (we need to have the id of the request or the inviatation where )
+//	it makes some sense because (having the group id and the user id is tooo much )
+//
+// for the delete especially
 func SetGroupRoutes(mux *http.ServeMux, db *sql.DB,
 	authService *authService.AuthService,
-	profileService *profileService.ProfileService,
-	notifService *notificationService.NotificationService,
+	profileService *profileService.ProfileService, 
 ) {
 	//  auth service
 	// authRepo := ra.NewAuthRepository(db)
@@ -76,15 +74,15 @@ func SetGroupRoutes(mux *http.ServeMux, db *sql.DB,
 	groupService := gService.NewGroupService(groupRepo, profileService)
 	GroupHandler := group.NewGroupHandler(groupService)
 	GroupIDHandler := group.NewGroupIDHandler(groupService)
-	GroupEventHandler := group.NewGroupEventHandler(groupService, notifService)
+	GroupEventHandler := group.NewGroupEventHandler(groupService)
 	GroupPostHandler := group.NewGroupPostHandler(groupService)
 	GroupCommentHandler := group.NewGroupCommentHandler(groupService)
 	GroupEventIDHandler := group.NewGroupEventIDHandler(groupService)
 	GroupReactionHandler := group.NewReactionHandler(groupService)
 	MembersHandler := group.NewMembersHanlder(groupService)
-	RequestHandler := group.NewGroupRequestsHandler(groupService, notifService)
+	RequestHandler := group.NewGroupRequestsHandler(groupService)
 	DeclineApproveHandler := group.NewApproveDeclineReqHandler(groupService)
-	InvitationsHandler := group.NewGroupInvitationHandler(groupService, notifService)
+	InvitationsHandler := group.NewGroupInvitationHandler(groupService)
 	AcceptRejectHanlder := group.NewAcceptRejectInvHandler(groupService)
 	mux.Handle("/api/groups/{group_id}/events/{event_id}/", middleware.NewMiddleWare(GroupEventIDHandler, authService))
 	mux.Handle("/api/groups/{group_id}/posts/{post_id}/comments/", middleware.NewMiddleWare(GroupCommentHandler, authService))

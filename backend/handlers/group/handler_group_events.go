@@ -8,9 +8,9 @@ import (
 
 	"social-network/backend/middleware"
 	"social-network/backend/models"
-	gservice "social-network/backend/services/group"
-	nService "social-network/backend/services/notification"
 	"social-network/backend/utils"
+
+	gservice "social-network/backend/services/group"
 )
 
 /***   /api/groups/{group_id}/events/    ***/
@@ -19,11 +19,10 @@ import (
 // not
 type GroupEventHandler struct {
 	gService *gservice.GroupService
-	nService *nService.NotificationService
 }
 
-func NewGroupEventHandler(service *gservice.GroupService, nService *nService.NotificationService) *GroupEventHandler {
-	return &GroupEventHandler{gService: service, nService: nService}
+func NewGroupEventHandler(service *gservice.GroupService) *GroupEventHandler {
+	return &GroupEventHandler{gService: service}
 }
 
 func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *http.Request) {
@@ -56,31 +55,13 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 		return
 	}
 	event.EventCreator.Id, event.Group.GroupId = userID.String(), groupID.String()
-	members, event, errJson := gEventHandler.gService.AddGroupEvent(event)
+	notification, errJson := gEventHandler.gService.AddGroupEvent(event)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
 		return
 	}
 
-	for _, user := range members {
-		if user.Id == event.EventCreator.Id {
-			continue
-		}
-
-		if errJson := gEventHandler.nService.PostService(&models.Notif{
-			SenderId:   event.EventCreator.Id,
-			RecieverId: user.Id,
-			Type:       "group-event",
-			GroupId:    event.Group.GroupId,
-			EventId:    event.EventId,
-			GroupName:  event.Group.Title,
-
-		}); errJson != nil {
-			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
-			return
-		}
-	}
-	utils.WriteDataBack(w, event)
+	utils.WriteDataBack(w, notification)
 }
 
 // we'll be working with exists to check if a user is member before proceeding in any action!!

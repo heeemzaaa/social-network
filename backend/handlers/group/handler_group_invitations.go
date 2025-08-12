@@ -9,19 +9,17 @@ import (
 	"social-network/backend/middleware"
 	"social-network/backend/models"
 	gservice "social-network/backend/services/group"
-	nService "social-network/backend/services/notification"
+
 	"social-network/backend/utils"
 )
 
 type GroupInvitationHandler struct {
 	gService *gservice.GroupService
-	nService *nService.NotificationService
 }
 
-func NewGroupInvitationHandler(service *gservice.GroupService, nService *nService.NotificationService) *GroupInvitationHandler {
+func NewGroupInvitationHandler(service *gservice.GroupService) *GroupInvitationHandler {
 	return &GroupInvitationHandler{
 		gService: service,
-		nService: nService,
 	}
 }
 
@@ -48,24 +46,19 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 		return
 	}
 
-	newNotif, errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String(), userToInvite)
+	notification, errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String(), userToInvite)
 	if errJson != nil {
-		if errJson.Status == 403 && errJson.Message == "ERROR!! You are already a member!" {
-			utils.WriteDataBack(w, models.ResponseMsg{
-				Status:  false,
-				Message: "ERROR!! You are already a member!",
+		if errJson.Status == 403 {
+			utils.WriteDataBack(w, models.ErrorJson{
+				Status: 200,
+				Error:  "You are already a member!",
 			})
 			return
 		}
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
-
-	if errJson := invHanlder.nService.PostService(newNotif); errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
-		return
-	}
-	utils.WriteDataBack(w, "done")
+	utils.WriteDataBack(w, notification)
 }
 
 func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWriter, r *http.Request) {
@@ -103,10 +96,6 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 		return
 	}
 
-	if errJson := invHanlder.nService.DeleteService(invitedUser.Id, userID.String(), "group-invitation", groupID.String()); errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
-		return
-	}
 
 	utils.WriteDataBack(w, "done")
 }

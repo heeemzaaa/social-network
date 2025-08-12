@@ -3,22 +3,21 @@ package routes
 import (
 	"database/sql"
 	"net/http"
-
 	"social-network/backend/middleware"
 
 	hc "social-network/backend/handlers/chat"
-	
-	sa "social-network/backend/services/auth"
-	
-	hn "social-network/backend/handlers/notification"
-	sn "social-network/backend/services/notification"
-	rn "social-network/backend/repositories/notification"
 
-	sg "social-network/backend/services/group"
+	sa "social-network/backend/services/auth"
+
+	hn "social-network/backend/handlers/notification"
+	rn "social-network/backend/repositories/notification"
+	sn "social-network/backend/services/notification"
+
 	rg "social-network/backend/repositories/group"
-	
-	sp "social-network/backend/services/profile"
+	sg "social-network/backend/services/group"
+
 	rp "social-network/backend/repositories/profile"
+	sp "social-network/backend/services/profile"
 )
 
 // SetNotificationsRoutes sets up the routes for notifications and returns the updated mux and notification service.

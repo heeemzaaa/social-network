@@ -6,7 +6,7 @@ import (
 )
 
 // here we will handle the logic of following a user
-func (s *ProfileService) Follow(userID string, authUserID string) (*models.Notif, *models.Profile, *models.ErrorJson) {
+func (s *ProfileService) Follow(userID string, authUserID string) (*models.Notification, *models.Profile, *models.ErrorJson) {
 	var profile models.Profile
 
 	exists, err := s.repo.UserExists(userID)
@@ -32,9 +32,9 @@ func (s *ProfileService) Follow(userID string, authUserID string) (*models.Notif
 		return nil, nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 
-	data := models.Notif{
-		SenderId:   authUserID,
-		RecieverId: userID,
+	data := models.Notification{
+		Sender: models.User{Id: authUserID},
+		Target: models.User{Id: userID},
 	}
 
 	switch profile.User.Visibility {

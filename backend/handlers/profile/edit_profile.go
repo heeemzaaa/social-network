@@ -4,23 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
 	"social-network/backend/middleware"
 	"social-network/backend/models"
-	ns "social-network/backend/services/notification"
-	ps "social-network/backend/services/profile"
 	"social-network/backend/utils"
+	ps "social-network/backend/services/profile"
 )
 
 type EditProfileHandler struct {
 	service *ps.ProfileService
-	NS      *ns.NotificationService
 }
 
-func NewEditProfileHandler(service *ps.ProfileService, NS *ns.NotificationService) *EditProfileHandler {
+func NewEditProfileHandler(service *ps.ProfileService) *EditProfileHandler {
 	return &EditProfileHandler{
 		service: service,
-		NS:      NS,
 	}
 }
 
@@ -47,20 +43,6 @@ func (ep *EditProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Reque
 	if errUpdate != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errUpdate.Status, Error: errUpdate.Error})
 		return
-	}
-
-	if profile.User.Visibility == "public" {
-		all, errJson := ep.NS.GetAllNotificationByType(authUserID.String(), "follow-private")
-		if errJson != nil {
-			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
-			return
-		}
-
-		errJson = ep.NS.ToggleAllStaus(all, "accept", "follow-private")
-		if errJson != nil {
-			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
-			return
-		}
 	}
 
 	utils.WriteDataBack(w, profile)

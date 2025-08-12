@@ -1,18 +1,10 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS notifications (
-    notifId TEXT NOT NULL UNIQUE,
-    recieverId TEXT NOT NULL,
-    senderId TEXT NOT NULL,
-    senderFullName TEXT NOT NULL,
-	seen TEXT NOT NULL,
-	notifType TEXT NOT NULL,
-	notifStatus TEXT NOT NULL,     
-    groupId TEXT,
-    groupName TEXT,
-    eventId TEXT,
+    notificationID TEXT NOT NULL UNIQUE,
+    senderID  TEXT NOT NULL,
+    targetID   TEXT  NOT NULL, 
+	seenStatus INTEGER NOT NULL DEFAULT 0 CHECK(seenStatus IN(0 , 1)),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (recieverId) REFERENCES users(userID),
-    FOREIGN KEY (senderId) REFERENCES users(userID)
+    FOREIGN KEY (senderID) REFERENCES users(userID)
 );
