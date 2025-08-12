@@ -132,22 +132,20 @@ export async function likePostAction(prevState, formData) {
         const data = await res.json();
         console.log("daaaata: ", data)
         if (res.ok) {
-            // if (!groupId) state.likes=  data.total_likes
             let state = {
                 ...prevState,
                 message: `You ${prevState.liked ? "unliked" : "liked"} a post`,
-                liked: data.liked ,
+                liked: data.liked || data.reaction === 1
             }
-            console.log("previous stte:", prevState)
-            console.log("=>>>>",state.liked)
-            if (state.liked) {
+            if (data.reaction == 1) {
                 console.log("you liked post ")
                 state.likes = prevState.likes + 1
-            } else {
+            } else if (data.reaction == 0) {
                 console.log("you disliked post ")
                 state.likes = prevState.likes - 1 
+            } else if (data.total_likes) {
+                state.likes = data.total_likes
             }
-            console.log(state)
             return state
         } else {
             return { ...prevState, error: data.error || `Failed to ${prevState.liked ? "unlike" : "like"} post` };
