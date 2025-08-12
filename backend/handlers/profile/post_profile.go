@@ -43,13 +43,13 @@ func (p *ProfilePostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodGet {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method not allowed !"})
 		return
 	}
 
 	profileID, path, err := GetPath(r)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
@@ -57,6 +57,6 @@ func (p *ProfilePostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "posts":
 		p.GetPostsOfTheProfile(w, r, profileID)
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found !"})
 	}
 }

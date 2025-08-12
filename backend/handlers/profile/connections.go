@@ -28,7 +28,7 @@ func (uc *UserConnectionHandler) GetFollowers(w http.ResponseWriter, r *http.Req
 
 	users, errService := uc.service.GetFollowers(profileID, authUserID.String())
 	if errService != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errService.Status, Message: errService.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errService.Status, Error: errService.Error})
 		return
 	}
 
@@ -45,7 +45,7 @@ func (uc *UserConnectionHandler) GetFollowing(w http.ResponseWriter, r *http.Req
 
 	users, errService := uc.service.GetFollowing(profileID, authSessionID.String())
 	if errService != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errService.Status, Message: errService.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errService.Status, Error: errService.Error})
 		return
 	}
 
@@ -56,13 +56,13 @@ func (uc *UserConnectionHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-type", "application/json")
 
 	if r.Method != http.MethodGet {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method not allowed !"})
 		return
 	}
 
 	profileID, path, err := GetPath(r)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid path"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid path"})
 	}
 
 	switch path {
@@ -71,6 +71,6 @@ func (uc *UserConnectionHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	case "following":
 		uc.GetFollowing(w, r, profileID)
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found !"})
 	}
 }

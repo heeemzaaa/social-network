@@ -26,13 +26,13 @@ func (rh *ResponseHandler) AcceptedRequest(w http.ResponseWriter, r *http.Reques
 	var request RequestBody
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid data !"})
 		return
 	}
 
 	errRequest := rh.service.AcceptedRequest(profileID, request.Requestor)
 	if errRequest != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errRequest.Status, Message: errRequest.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errRequest.Status, Error: errRequest.Error})
 		return
 	}
 	utils.WriteDataBack(w, "done !")
@@ -47,13 +47,13 @@ func (rh *ResponseHandler) RejectedRequest(w http.ResponseWriter, r *http.Reques
 	var request RequestBody
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid data !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid data !"})
 		return
 	}
 
 	errRequest := rh.service.RejectedRequest(profileID, request.Requestor)
 	if errRequest != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errRequest.Status, Message: errRequest.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errRequest.Status, Error: errRequest.Error})
 		return
 	}
 	utils.WriteDataBack(w, "done !")
@@ -63,13 +63,13 @@ func (rh *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodPost {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method not allowed !"})
 		return
 	}
 
 	profileID, path, err := GetPath(r)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: "Invalid path"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "Invalid path"})
 	}
 
 	switch path {
@@ -78,6 +78,6 @@ func (rh *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "rejected":
 		rh.RejectedRequest(w, r, profileID)
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found !"})
 	}
 }
