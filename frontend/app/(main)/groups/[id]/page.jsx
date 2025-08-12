@@ -74,7 +74,7 @@ export default function GroupPage({ params }) {
 
           if (result.status === 400 || result.status === 404 || result.status === 500) {
             setIsLoading(false)
-            setError(result.status)
+            setError(result.error)
             return
           }
         }
@@ -94,8 +94,8 @@ export default function GroupPage({ params }) {
   if (isLoading) return <Loader />
   if (error) {
     return (
-      <main className="group-page-section flex gap-1">
-        <img src="/error.svg" style={{ width: '60%', height: '80%' }} />
+      <main className="group-page-section flex justify-center align-center gap-1">
+        <Error error={error} />
       </main>
 
     )
