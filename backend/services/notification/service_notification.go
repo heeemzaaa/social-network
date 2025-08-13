@@ -70,9 +70,6 @@ func (NS *NotificationService) DeleteService(recieverId, senderId, notifType, gr
 		}
 	}
 
-	if errJson := NS.broadcast(recieverId); errJson != nil {
-		return errJson
-	}
 	return nil
 }
 

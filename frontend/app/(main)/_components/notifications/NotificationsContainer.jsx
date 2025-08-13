@@ -18,6 +18,7 @@ export default function NotificationsPopover() {
   const { setHasNewNotification } = useUserContext();
 
   const notificationContent = (notification) => {
+    console.log("eeeeeeeeeeeeeeee", notification)
     if (notification.Status == "later") {
       switch (notification.Type) {
         case "follow-private":

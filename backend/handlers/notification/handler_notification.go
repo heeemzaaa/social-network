@@ -3,6 +3,7 @@ package notification
 import (
 	"fmt"
 	"net/http"
+
 	"social-network/backend/middleware"
 	"social-network/backend/models"
 	"social-network/backend/services/notification"
@@ -39,15 +40,15 @@ func (HN *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 	queryParam := r.URL.Query().Get("Id")
 
 	if queryParam == "" {
-		hasSeen, errJson := HN.NS.IsHasSeen(userId.String())
+		seen, errJson := HN.NS.IsHasSeen(userId.String())
 		if errJson != nil {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
 			return
 		}
 
 		data := models.ResponseMsg{
-			Status:  hasSeen,
-			Message: fmt.Sprintf("has notification to see: %v", hasSeen),
+			Status:  seen,
+			Message: fmt.Sprintf("has notification to see: %v", seen),
 		}
 		utils.WriteDataBack(w, data)
 		return
@@ -64,18 +65,17 @@ func (HN *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	seen, errJson := HN.NS.IsHasSeen(userId.String());
+	seen, errJson := HN.NS.IsHasSeen(userId.String())
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
 		return
 	}
 
 	data := models.ResponseData{
-		Status:  seen,
-		Message: fmt.Sprintf("has notification to see: %v", seen),
-		Notifications:    notifications,
+		Status:        seen,
+		Message:       fmt.Sprintf("has notification to see: %v", seen),
+		Notifications: notifications,
 	}
 
-	
 	utils.WriteDataBack(w, data)
 }

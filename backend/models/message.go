@@ -9,6 +9,7 @@ type Message struct {
 	TargetID     string `json:"target_id"`
 	Content      string `json:"content"`
 	CreatedAt    string `json:"created_at,omitempty"`
+	Notification Notif  `json:"notif"`
 }
 
 type MessageErr struct {

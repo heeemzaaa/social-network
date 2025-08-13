@@ -52,21 +52,14 @@ export default function UserCard({ user, groupId }) {
             if (method === 'POST') {
                 sendSocketMessage({
                     type: "notification",
-                    notif: {
-                        type: "group_invitation",
-                        group_id: groupId,
-                        user_id: user.id,
-                        sender_id: authenticatedUser?.id,
-                        action: "invite",
-                        Notification: data,
-                    }
+                    notif: data,
                 });
             }
 
             setInviteState(inviteState === 0 ? 1 : 0);
-
+            console.log("inviteState: ",inviteState)
             showNotification({ 
-                Content: method === 'POST' ? "Invitation sent!" : "Invitation cancelled", 
+                Content: inviteState === 0 ? "Invitation sent!" : "Invitation cancelled)", 
                 Status: "success" 
             });
 

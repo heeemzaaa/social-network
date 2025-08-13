@@ -21,13 +21,14 @@ type OnlineUsers struct {
 }
 
 type Client struct {
-	session    *models.Session
-	service    *chat.ChatService
-	connection *websocket.Conn
-	chatServer *ChatServer
-	Message    chan *models.Message
-	ErrorJson  chan *models.ErrorJson
-	Online     chan *OnlineUsers
+	session      *models.Session
+	service      *chat.ChatService
+	connection   *websocket.Conn
+	chatServer   *ChatServer
+	Message      chan *models.Message
+	ErrorJson    chan *models.ErrorJson
+	Online       chan *OnlineUsers
+	Notification chan string
 }
 
 func NewClient(conn *websocket.Conn, server *ChatServer, session *models.Session) *Client {
@@ -131,6 +132,11 @@ func (client *Client) WriteMessages() {
 			if err != nil {
 				return
 			}
+			// case notification := <-client.Notification:
+			// 	err := client.connection.WriteJSON(notification)
+			// 	if err != nil {
+			// 		return
+			// 	}
 		}
 	}
 }
@@ -174,7 +180,16 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 			}
 		}
 	case "notification":
-		fmt.Println("notification sent in chat server")
+		notification := message.Notification
+		fmt.Printf("notification:  inside the broadcast %v\n", notification)
+
+		connections := user.chatServer.client[notification.RecieverId]
+		for _, conn := range connections {
+			conn.Message <- &models.Message{
+				Type:    "notification",
+				Content: notification.Content,
+			}
+		}
 
 	}
 }
@@ -215,8 +230,8 @@ func (server *ChatServer) BroadCastOnlineStatus() {
 }
 
 func (server *ChatServer) SendNotificationToUser(userID, notifContent string, hasSeen string) *models.ErrorJson { // boolean
-	server.RLock()
-	defer server.RUnlock()
+	server.Lock()
+	defer server.Unlock()
 
 	notification := map[string]string{ // struct not map
 		"type":    "notification",

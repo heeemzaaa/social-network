@@ -8,17 +8,19 @@ import (
 )
 
 func (service *ChatService) ValidateMessage(message *models.Message) (*models.Message, *models.ErrorJson) {
+	fmt.Println("message eeeeeeeeeeeeeeeeeeeeeeee", message.Notification)
 	errMessage := models.NewMessageErr()
 	trimmedMsg := strings.TrimSpace(message.Content)
 	type_message := strings.ToLower(strings.TrimSpace(message.Type))
-	fmt.Println("type_message:", message)
+	// fmt.Println("type_message:", message)
 
 	if type_message == "notification" {
-		fmt.Println("notification received in chat server")
 		// should handle notification logic separate
+		service.PostService(&message.Notification)
+		return message, nil
 	}
 
-	if type_message != "private" && type_message != "group" {
+	if type_message != "private" && type_message != "group" && type_message != "notification" {
 		errMessage.Type = "wrong type of message"
 	}
 

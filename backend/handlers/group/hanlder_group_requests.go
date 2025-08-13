@@ -45,7 +45,7 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 		return
 	}
 
-	data, errJson := GrpReqHandler.gService.RequestToJoin(userID.String(), groupID.String())
+	_, errJson := GrpReqHandler.gService.RequestToJoin(userID.String(), groupID.String())
 	if errJson != nil {
 		// check if the user is already a member of the group
 		if errJson.Status == 403 && errJson.Message == "ERROR!! already a member!" {
@@ -59,10 +59,10 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 		return
 	}
 
-	if errJson := GrpReqHandler.nService.PostService(data); errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
-		return
-	}
+	// if errJson := GrpReqHandler.nService.PostService(data); errJson != nil {
+	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+	// 	return
+	// }
 
 	utils.WriteDataBack(w, models.ResponseMsg{Status: true, Message: "Pending"})
 }

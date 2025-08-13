@@ -3,23 +3,29 @@
 import { useState, useEffect, useRef } from "react";
 import { UserContext } from "../_context/userContext";
 
+import { useNotification } from "../_context/NotificationContext";
+
+
 export default function UserProvider({ children }) {
   const [messages, setMessages] = useState({});
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
   const socketRef = useRef(null);
 
-  const [hasNewNotification, setHasNewNotification] = useState(false); //
+  const { showNotification } = useNotification();
+  
+  const [hasNewNotification, setHasNewNotification] = useState(false);
 
   const handleNotificationSeen = (data) => {
     console.log("Notification seen data:", data);
-    setHasNewNotification(data.seen === "true"? true: false);
+    // setHasNewNotification(data.seen === "true" ? true : false);
+    if (data.content !== "" ) showNotification({Content: data.content, Status: "info"})
   }
 
   const sendSocketMessage = (data) => {
     if (!socketRef.current) return console.warn("⚠️ Socket not available");
-    
+
     if (socketRef.current.readyState !== WebSocket.OPEN) return console.warn("⚠️ Socket not connected");
-    
+
     try {
       socketRef.current.send(JSON.stringify(data));
       console.log("✅ Socket message sent:", data);
@@ -67,13 +73,12 @@ export default function UserProvider({ children }) {
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-
+        console.log("testing hhhhhh", data)
         if (data.type === "notification") return handleNotificationSeen(data);
 
         if (typeof data.content === "string" && data.content !== "" && (data.type === "private" || data.type === "group")) {
 
           const isMe = data.sender_id === authenticatedUser.id;
-
           const chatKey = data.type === "group" ? data.target_id : isMe ? data.target_id : data.sender_id;
 
           const newMsg = {
@@ -83,7 +88,7 @@ export default function UserProvider({ children }) {
             username: data.sender_name || data.receiver_name,
           };
 
-          setMessages((prev) => ({...prev, [chatKey]: [...(prev[chatKey] || []), newMsg], }));
+          setMessages((prev) => ({ ...prev, [chatKey]: [...(prev[chatKey] || []), newMsg], }));
         }
       } catch (err) {
         console.error("❌ Failed to parse WebSocket message:", err);
@@ -107,7 +112,7 @@ export default function UserProvider({ children }) {
     <UserContext.Provider
       value={{
         socket: socketRef.current,
-        sendSocketMessage,  // <- zid hadi
+        sendSocketMessage,
         messages,
         setMessages,
         authenticatedUser,

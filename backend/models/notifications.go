@@ -31,6 +31,7 @@ type Notif struct {
 	Type           string
 	SenderFullName string
 	GroupName      string
+	Content        string 
 }
 
 // NewNotif creates a new instance of Notif.

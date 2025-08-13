@@ -42,17 +42,17 @@ func (fa *FollowActionHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, profile, errFollow := fa.service.Follow(request.ProfileID, authUserID.String())
+	_, profile, errFollow := fa.service.Follow(request.ProfileID, authUserID.String())
 	if errFollow != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errFollow.Status, Error: errFollow.Error})
 		return
 	}
 
-	errJson := fa.NS.PostService(data)
-	if errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
-		return
-	}
+	// errJson := fa.NS.PostService(data)
+	// if errJson != nil {
+	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
+	// 	return
+	// }
 
 	utils.WriteDataBack(w, profile)
 }

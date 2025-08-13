@@ -8,14 +8,14 @@ import { NotificationProvider } from './_context/NotificationContext';
 
 export default function MainLayout({ children }) {
   return (
-    <UserProvider>
       <NotificationProvider>
+    <UserProvider>
         <ModalProvider>
           <Header />
           <Navigation />
           {children}
         </ModalProvider>
-      </NotificationProvider>
     </UserProvider>
+      </NotificationProvider>
   )
 }
