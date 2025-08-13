@@ -4,64 +4,91 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./chat.css";
 import Button from "@/app/_components/button";
 import { HiMiniFaceSmile, HiPaperAirplane } from "react-icons/hi2";
-import UserList from "../_components/chat/userList";
-import GroupList from "../_components/group_list";
+import UserList from "./_components/userList";
+import GroupList from "./_components/group_list";
+import { fetchMessages } from "./_components/fetchMessages";
 import { useUserContext } from "../_context/userContext";
-import { fetchMessages } from "../_components/fetchMessages";
 import { SlActionUndo } from "react-icons/sl";
+import Avatar from "../_components/avatar"
+import { useRouter } from "next/navigation";
+
 
 const emojis = ["😀", "😂", "😍", "🔥", "🥺", "👍", "❤️", "🎉"];
 
 export default function Chat() {
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [error, setError] = useState(null)
   const usersBlockRef = useRef(null);
   const chatBlockRef = useRef(null);
-  const [chatBodyName, setChatBodyName] = useState("");
+  const [chatHeaderName, setChatHeaderName] = useState("")
+  const [chatHeaderImg, setChatHeaderImg] = useState("")
   const [chatTarget, setChatTarget] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const { socket, messages, setMessages, authenticatedUser } = useUserContext();
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const bottomRef = useRef(null);
-  const [view, setView] = useState("Users");
+  const bottomRef = useRef(null)
+  const [view, setView] = useState("Users")
+  const router = useRouter()
 
   // fetch users
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/get-users/", {
+      const res = await fetch(`http://localhost:8080/api/get-users/`, {
         credentials: "include",
-      });
-      const usersList = await res.json();
+      })
+      const usersList = await res.json()
+
+      if (!res.ok) {
+        if (usersList.status === 401) {
+          router.push("/login")
+          return
+        }
+
+        setError(usersList.error)
+        return
+      }
 
       const mapped = usersList.map((user) => ({
         userID: user.id,
         username: user.fullname,
-        img: user.img || "/no-profile.png",
+        img: user.avatar,
       }));
       setUsers(mapped);
     } catch (err) {
+      setError(err)
       console.error("❌ Error fetching users:", err);
     }
-  }, []);
+  }, [])
 
   // fetch groups
   const fetchGroup = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/get-groups/", {
+      const res = await fetch(`http://localhost:8080/api/get-groups/`, {
         credentials: "include",
       });
-      const groupList = await res.json();
+      const groupList = await res.json()
+
+      if (!res.ok) {
+        if (groupList.status === 401) {
+          router.push("/login")
+          return
+        }
+        setError(groupList.error)
+        return
+      }
 
       const mappedG = groupList.map((group) => ({
         group_id: group.group_id,
         title: group.title,
-        image_path: group.image_path || "/no-profile.png",
+        image_path: group.image_path,
       }));
 
       setGroups(mappedG);
     } catch (err) {
-      console.error("❌ Error fetching groups:", err);
+      setError(err)
+      console.error("Error fetching groups:", err);
     }
   }, []);
 
@@ -105,7 +132,8 @@ export default function Chat() {
       usersBlockRef.current.style.display = "none";
     }
 
-    setChatBodyName(user.username);
+    setChatHeaderName(user.username)
+    setChatHeaderImg(user.img)
   };
 
   // handle group click selection
@@ -118,7 +146,8 @@ export default function Chat() {
       chatBlockRef.current.style.display = "flex";
       usersBlockRef.current.style.display = "none";
     }
-    setChatBodyName(group.title);
+    setChatHeaderName(group.title)
+    setChatHeaderImg(group.image_path)
   };
 
   const sendMessage = () => {
@@ -172,8 +201,14 @@ export default function Chat() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  if (error) return (
+    <main className="chat_main_container p4 flex-row" style={{ overflow: "hidden" }}>
+        <Error error={error} />
+    </main>
+  )
+
   return (
-    <main className="chat_main_container p4 flex-row" style={{overflow:"hidden"}}>
+    <main className="chat_main_container p4 flex-row" style={{ overflow: "hidden" }}>
       <section
         className="user_groups_place h-full flex-col"
         ref={usersBlockRef}
@@ -195,7 +230,7 @@ export default function Chat() {
           </Button>
         </div>
 
-        <div className="chosing_param">
+        <div className="overflow-y-auto" >
           {view === "Users" ? (
             <UserList users={users} onUserClick={handleUserClick} />
           ) : (
@@ -205,7 +240,7 @@ export default function Chat() {
       </section>
 
       <section className="chat_place flex-col" ref={chatBlockRef}>
-        {chatBodyName ? (
+        {chatHeaderName ? (
           <div className="chat_header p2">
             <div
               className="goBack cursor-pointer w-8 h-8"
@@ -214,8 +249,8 @@ export default function Chat() {
             >
               <SlActionUndo />
             </div>
-            <img src="/no-profile.png" alt="Profile" />
-            <p className="text-lg font-semibold">{chatBodyName}</p>
+            <Avatar img={chatHeaderImg} size="42" />
+            <p className="text-lg font-semibold">{chatHeaderName}</p>
           </div>
         ) : (
           <div className="chat_header p2 text-gray-500 italic">
@@ -223,14 +258,13 @@ export default function Chat() {
           </div>
         )}
 
-        {chatBodyName ? (
+        {chatHeaderName ? (
           <div className="chat_body">
             {(messages[chatTarget?.ID] || []).map((msg, i) => (
               <div
                 key={i}
-                className={`message ${
-                  msg.sender === "me" ? "sent" : "received"
-                }`}
+                className={`message ${msg.sender === "me" ? "sent" : "received"
+                  }`}
               >
                 {msg.username && (
                   <span className="username">{msg.username}</span>
@@ -247,8 +281,8 @@ export default function Chat() {
             <div ref={bottomRef} />
           </div>
         ) : (
-          <div style={{margin:"auto"}}>
-            <img src="/mobile-animate.svg"/>
+          <div style={{ margin: "auto" }}>
+            <img src="/mobile-animate.svg" />
             <p className="text-gray-500">
               Select a user or group to start chatting!
             </p>

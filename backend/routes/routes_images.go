@@ -16,12 +16,7 @@ import (
 	profileService "social-network/backend/services/profile"
 )
 
-func SetImageRoutes(
-	mux *http.ServeMux,
-	db *sql.DB,
-	authService *auth.AuthService,
-) {
-	// ✅ Repositories
+func SetImageRoutes(mux *http.ServeMux, db *sql.DB, authService *auth.AuthService) {
 	repoGroups := group.NewGroupRepository(db)
 	repoProfiles := profile.NewProfileRepository(db)
 	repoPosts := post.NewPostRepository(db)
@@ -31,13 +26,10 @@ func SetImageRoutes(
 	profileSvc := profileService.NewProfileService(repoProfiles)
 	postSvc := postService.NewPostService(repoPosts)
 
-	// ✅ ServiceImages
 	serviceImages := s.NewServiceImages(groupSvc, profileSvc, postSvc)
 
-	// ✅ Middleware
-	imgMiddleware := middleware.NewImagesMiddleware(nil, serviceImages)
+	imgMiddleware := middleware.NewImagesMiddleware(serviceImages)
 
-	// ✅ Static file server
 	fs := http.FileServer(http.Dir("./static"))
 	mux.Handle(
 		"/static/",

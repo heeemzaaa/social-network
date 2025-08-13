@@ -12,24 +12,29 @@
   animation: slideIn 0.3s ease-out;
   border-left: 4px solid;
 }
+
 .toast-popup.success {
   border-left-color: #10b981;
 }
+
 .toast-popup.error {
   border-left-color: #ef4444;
 }
+
 .toast-content {
   display: flex;
   align-items: center;
   padding: 16px;
   gap: 12px;
 }
+
 .toast-message {
   flex: 1;
   color: #374151;
   font-size: 14px;
   line-height: 1.4;
 }
+
 .toast-close {
   background: none;
   border: none;
@@ -44,27 +49,33 @@
   justify-content: center;
   flex-shrink: 0;
 }
+
 .toast-close:hover {
   color: #6b7280;
 }
+
 @keyframes slideIn {
   from {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
   }
 }
+
 .toast-popup.slide-out {
   animation: slideOut 0.3s ease-in forwards;
 }
+
 @keyframes slideOut {
   from {
     transform: translateX(0);
     opacity: 1;
   }
+
   to {
     transform: translateX(100%);
     opacity: 0;
@@ -92,11 +103,12 @@ nav {
 
 .link {
   padding: 1rem .5rem;
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-lg);
   letter-spacing: 1px;
   display: flex;
   align-items: end;
-  gap: 8px;
+  gap: 16px;
   transition: all ease-in .2s;
 }
 
@@ -106,7 +118,7 @@ nav {
 
 
 .link-active {
-  padding-left: calc(.5rem + 5px);
+  padding-left: calc(.5rem + 16px);
   color: var(--color-primary);
   position: relative;
   overflow: hidden;
@@ -335,6 +347,11 @@ nav {
     overflow: hidden;
     border-radius: var(--border-radius-full);
     background-color: var(--color-dark);
+    padding-left: 0;
+  }
+  .link-active > :first-child {
+    transform: translateX(4px);
+
   }
 
   .link-active::after {
@@ -349,4 +366,8 @@ nav {
     box-shadow: 2px 0px 20px 3px var(--color-primary);
     /* filter: drop-shadow(10px 10px 200px $tod-tri) drop-shadow(-10px -10px 50px $tod-tri) */
   }
+}
+
+.ErrorImg {
+    width: 100%;
 }

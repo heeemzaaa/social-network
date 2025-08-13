@@ -4,13 +4,16 @@ import Button from '@/app/_components/button';
 
 import { useNotification } from "../../_context/NotificationContext";
 import { useUserContext } from "../../_context/userContext";
+import { useRouter } from 'next/navigation';
 
 export default function UserCard({ user, groupId }) {
-    const [inviteState, setInviteState] = useState(user.invited)
-
-    const { showNotification } = useNotification();
     const { sendSocketMessage, authenticatedUser } = useUserContext();
-
+    const [inviteState, setInviteState] = useState(user.invited)
+    const { showNotification } = useNotification()
+    const [error, setError] = useState(null)
+    const router = useRouter()
+    // let's create here the function that toggles the state of the button with the same
+    // way as hamza 
     async function handleInviteCancelButtons() {
         let endpoint = `http://localhost:8080/api/groups/${groupId}/invitations/`
         let method = inviteState === 0 ? 'POST' : 'DELETE'
@@ -22,27 +25,31 @@ export default function UserCard({ user, groupId }) {
                 body: JSON.stringify({ 'id': user.id }),
             })
 
-            if (!res.ok) {
-                console.error("Failed to send the request");
-                showNotification({ 
-                    Content: "Failed to send request", 
-                    Status: "error" 
-                });
-                return;
-            }
 
             const data = await res.json();
+            if (!res.ok) {
+                if (data.status === 401) {
+                    router.push("/login")
+                    return
+                }
+                showNotification({
+                    Content: "Failed to send request",
+                    Status: "error"
+                });
+                setError(data.error)
+                return
+            }
             console.log(" ==>> ", data);
 
             // Handle error messages
-            if (data.Message === 'ERROR!! already a member!' || 
-                data.Message === 'ERROR!! it is not from your followers!' || 
+            if (data.Message === 'ERROR!! already a member!' ||
+                data.Message === 'ERROR!! it is not from your followers!' ||
                 data.Message === 'ERROR!! Invitation not found') {
-                
+
                 console.warn(data.Message.split("!!")[1])
-                showNotification({ 
-                    Content: data.Message.split("!!")[1], 
-                    Status: "error" 
+                showNotification({
+                    Content: data.Message.split("!!")[1],
+                    Status: "error"
                 });
 
                 if (data.Message !== 'ERROR!! Invitation not found') return
@@ -57,21 +64,26 @@ export default function UserCard({ user, groupId }) {
             }
 
             setInviteState(inviteState === 0 ? 1 : 0);
-            console.log("inviteState: ",inviteState)
-            showNotification({ 
-                Content: inviteState === 0 ? "Invitation sent!" : "Invitation cancelled)", 
-                Status: "success" 
+            console.log("inviteState: ", inviteState)
+            showNotification({
+                Content: inviteState === 0 ? "Invitation sent!" : "Invitation cancelled)",
+                Status: "success"
             });
 
         } catch (err) {
             console.error("Request error:", err);
-            showNotification({ 
-                Content: "Something went wrong. Please try again.", 
-                Status: "error" 
+            showNotification({
+                Content: "Something went wrong. Please try again.",
+                Status: "error"
             });
         }
     }
 
+    if (error) {
+        return (
+            <Error error={error} />
+        )
+    }
     return (
         <section className='user_card p2 flex justify-start rounded-lg shadow-md m1' >
             <div
@@ -96,9 +108,9 @@ export default function UserCard({ user, groupId }) {
                         }
 
                     }>
-                        <div>
+                        <div className='flex-col justify-center' >
                             <p style={{ color: '#1f2937', fontWeight: '500', fontSize: '16px', marginLeft: "5px" }}>{user.fullname}</p>
-                            <p className='text-sm '>@{user.nickname}</p>
+                            {user.nickname && <p className='text-sm '>@{user.nickname}</p>}
                         </div>
                     </div>
                 </div>

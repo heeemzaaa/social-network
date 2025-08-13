@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import GroupEventCard from "./groupEventCard";
 import { useModal } from "../../_context/ModalContext";
+import { useRouter } from "next/navigation";
 
 export default function GroupEventCardList({ groupId, setIsAccessible, isAccessible }) {
     const [data, setData] = useState([]);
@@ -11,6 +12,7 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
     const abortControllerRef = useRef(null);
     const observerRef = useRef(null);
     const loadMoreRef = useRef(null);
+    const router = useRouter()
 
     const { getModalData, setModalData } = useModal();
 
@@ -37,10 +39,17 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
                 );
                 const result = await response.json();
                 if (!response.ok) {
+                    if (result.status === 401) {
+                        router.push("/login")
+                        return
+                    }
                     if (response.status === 403) {
                         setIsAccessible({ status: 403 });
+                        return
                     }
-                    throw new Error(`HTTP error! status: ${response.status}`);
+
+                    setError(result.error)
+                    return
                 }
                 if (result.length === 0) {
                     setHasMore(false);
@@ -102,6 +111,8 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
         }
     }, [page, fetchData]);
 
+
+
     // Handle forbidden access
     if (isAccessible?.status === 403) {
         return (
@@ -110,6 +121,12 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
                 <p className="text-xl font-semibold">You must become a member to see the events</p>
             </section>
         );
+    }
+
+    if (error) {
+        return (
+            <Error error={error} />
+        )
     }
 
     // Handle no data

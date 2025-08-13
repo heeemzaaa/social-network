@@ -12,7 +12,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func isValidName(name string) error {
+func isValidName(name, typeName string) error {
+	switch typeName {
+	case "firstname":
+		if name == "" {
+			return errors.New("First name is required")
+		}
+	case "lastname":
+		if name == "" {
+			return errors.New("Last name is required")
+		}
+	}
 	if len(name) > 50 {
 		return errors.New("name must be 50 characters or less")
 	}
@@ -36,17 +46,16 @@ func (s *AuthService) isValidEmail(email string) error {
 
 	_, has_email, _ := s.repo.GetItem("users", "email", email)
 	if has_email {
-		return errors.New("email already in use")
+		return errors.New("invalid email! please try with another one")
 	}
 
 	return nil
 }
 
 func (s *AuthService) isValidNickname(nickname string) error {
-	if strings.TrimSpace(nickname) == "" {
+	if nickname == "" {
 		return nil
 	}
-
 	if len(nickname) < 3 {
 		return errors.New("nickname must be 3 characters or higher")
 	}
@@ -67,9 +76,6 @@ func (s *AuthService) isValidNickname(nickname string) error {
 }
 
 func isValidAboutme(aboutme string) error {
-	if strings.TrimSpace(aboutme) == "" {
-		return nil
-	}
 	if len(aboutme) > 500 {
 		return errors.New("about me must be 500 characters or less")
 	}

@@ -35,7 +35,7 @@ func NewGroupRequestsHandler(service *gservice.GroupService, nService *nService.
 func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 
@@ -70,7 +70,7 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 
@@ -114,7 +114,7 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter
 func (GrpReqHandler *GroupRequestsHandler) GetRequests(w http.ResponseWriter, r *http.Request) {
 	userID, errParse := middleware.GetUserIDFromContext(r.Context())
 	if errParse != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: "Incorrect type of userID value!"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: errParse.Error()})
 		return
 	}
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")

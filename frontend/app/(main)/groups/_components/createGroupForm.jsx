@@ -6,6 +6,7 @@ import { createGroupAction } from "@/app/_actions/group";
 import Button from "@/app/_components/button";
 import styles from "@/app/page.module.css"
 import { useModal } from "../../_context/ModalContext";
+import { useNotification } from "../../_context/NotificationContext";
 
 export default function CreateGroupForm() {
     const [state, action] = useActionState(createGroupAction, {});
@@ -14,18 +15,25 @@ export default function CreateGroupForm() {
         description: "",
         img: null
     });
+    const { showNotification } = useNotification()
+    const { setModalData, closeModal } = useModal()
 
     const handleFileChange = (e) => {
         setData(prev => ({ ...prev, img: e.target.files[0] }));
     };
-
-    const { setModalData, closeModal } = useModal()
 
     useEffect(() => {
         if (state.message) {
             state.data.type = "groupCard"
             setModalData(state.data)
             closeModal()
+            showNotification({ Content: `Group created successfully`, Status: "success" });
+        } else if (state.errors || state.error) {
+            if (state.status === 401) {
+                router.push("/login")
+                return
+            }
+            showNotification({ Content: state.error, Status: "error" });
         }
     }, [state])
 
@@ -78,8 +86,6 @@ export default function CreateGroupForm() {
                 {state.errors?.img && <span className='field-error'>{state.errors.img}</span>}
             </div>
             <Button type={"submit"}>Create</Button>
-            {state.error && <span className='field-error'>{state.error}</span>}
-            {state.message && <span className='field-success'>{state.message}</span>}
         </form>
     )
 }

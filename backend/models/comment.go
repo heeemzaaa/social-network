@@ -8,7 +8,7 @@ type Comment struct {
 	User       User      `json:"user"`
 	CreatedAt  time.Time `json:"created_at,omitempty"`
 	Content    string    `json:"content"`
-	Img        string    `json:"img,omitempty"`
+	Img        string    `json:"image_path,omitempty"`
 	TotalLikes int       `json:"total_likes,omitempty"`
 	Liked      int       `json:"liked,omitempty"`
 }

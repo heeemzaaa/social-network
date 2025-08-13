@@ -12,59 +12,48 @@ import (
 
 func (s *AuthService) Register(user *models.User) *models.ErrorJson {
 	// data validation
-	jsonError := s.validateUserData(user)
+	UserData, jsonError := s.validateUserData(user)
 	if jsonError != nil {
 		return jsonError
 	}
 
-	user.Id = utils.NewUUID()
-	hash, err := HashPassword(user.Password)
+	UserData.Id = utils.NewUUID()
+	hash, err := HashPassword(UserData.Password)
 
 	if err != nil {
 		return models.NewErrorJson(500, err.Error(), nil)
 	} else {
-		user.Password = hash
+		UserData.Password = hash
 	}
 
-	errJson := s.repo.CreateUser(user)
+	errJson := s.repo.CreateUser(UserData)
 	if errJson != nil {
-		// needs another checking 
-		os.Remove(user.ImagePath)
+		// needs another checking
+		os.Remove(UserData.ImagePath)
 		return errJson
 	}
 
 	return nil
 }
 
-
-
-
-func (s *AuthService) validateUserData(user *models.User) *models.ErrorJson {
+func (s *AuthService) validateUserData(user *models.User) (*models.User, *models.ErrorJson) {
+	trimmedFirstName := strings.TrimSpace(user.FirstName)
+	trimmedLastName := strings.TrimSpace(user.LastName)
+	trimmedUsername := strings.TrimSpace(user.Nickname)
+	trimmedAboutMe := strings.TrimSpace(user.AboutMe)
 	userErrorJson := models.User{}
-	if err := isValidName(user.FirstName); err != nil {
+
+	if err := isValidName(trimmedFirstName, "firstname"); err != nil {
 		userErrorJson.FirstName = err.Error()
 	}
-	if strings.TrimSpace(user.FirstName) == "" {
-		userErrorJson.FirstName = "First name is required"
-	}
 
-	if err := isValidName(user.LastName); err != nil {
-		userErrorJson.LastName = err.Error()
-	}
-
-	if strings.TrimSpace(user.LastName) == "" {
-		userErrorJson.LastName = "Last name is required"
-	}
-
-
-	if err := isValidName(user.LastName); err != nil {
+	if err := isValidName(trimmedLastName, "lastname"); err != nil {
 		userErrorJson.LastName = err.Error()
 	}
 
 	if err := ValidateDateRegister(user.BirthDate); err != nil {
 		userErrorJson.BirthDate = err.Error()
 	}
-
 
 	if err := s.isValidEmail(user.Email); err != nil {
 		userErrorJson.Email = err.Error()
@@ -75,7 +64,7 @@ func (s *AuthService) validateUserData(user *models.User) *models.ErrorJson {
 	}
 
 	// optianal user data
-	if err := s.isValidNickname(user.Nickname); err != nil {
+	if err := s.isValidNickname(trimmedUsername); err != nil {
 		userErrorJson.Nickname = err.Error()
 	}
 
@@ -84,10 +73,14 @@ func (s *AuthService) validateUserData(user *models.User) *models.ErrorJson {
 	}
 
 	if userErrorJson != (models.User{}) {
-		return &models.ErrorJson{Status: 400, Message: userErrorJson}
+		return nil, &models.ErrorJson{Status: 400, Message: userErrorJson}
 	}
+	// WE need to trim the data before insert it in the database
 
-	return nil
+	UserData := user
+	UserData.FirstName, UserData.LastName, UserData.Nickname, UserData.AboutMe = trimmedFirstName, trimmedLastName, trimmedUsername, trimmedAboutMe
+
+	return UserData, nil
 }
 
 func (s *AuthService) IsValidNickname(nickname string) error {
@@ -104,21 +97,6 @@ func (s *AuthService) IsValidNickname(nickname string) error {
 	_, has_nickname, _ := s.repo.GetItem("users", "nickname", nickname)
 	if has_nickname {
 		return fmt.Errorf("username already exists")
-	}
-	return nil
-}
-
-func (s *AuthService) EmailVerification(email string) error {
-	if len(email) > 255 {
-		return fmt.Errorf("email too long")
-	}
-	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,20}$`
-	if match, _ := regexp.MatchString(emailRegex, email); !match {
-		return fmt.Errorf("invalid email format")
-	}
-	_, has_email, _ := s.repo.GetItem("users", "email", email)
-	if has_email {
-		return fmt.Errorf("email already in use")
 	}
 	return nil
 }

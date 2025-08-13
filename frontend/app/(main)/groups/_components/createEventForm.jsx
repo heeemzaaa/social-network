@@ -3,24 +3,36 @@ import { useActionState, useEffect, useState } from 'react'
 import styles from "@/app/page.module.css"
 import Button from '@/app/_components/button';
 import { useModal } from '../../_context/ModalContext';
-
+import { useNotification } from '../../_context/NotificationContext';
+import { useRouter } from 'next/navigation';
 
 const event = {
-    title : "",
-    description : "",
+    title: "",
+    description: "",
     event_date: ""
 }
 
-export default function CreateEventForm({groupId}) {
+export default function CreateEventForm({ groupId }) {
     const [state, action] = useActionState(createGroupEventAction, {});
     const [eventData, setEventData] = useState(event)
     const { setModalData, closeModal } = useModal()
+    const { showNotification } = useNotification()
+    const router = useRouter()
 
     useEffect(() => {
         if (state.message) {
             state.data.type = "groupEvent"
             setModalData(state.data)
             closeModal()
+            showNotification({ Content: state.message, Status: "success" });
+        } else if (state.errors || state.error) {
+            if (state.status === 401) {
+                router.push("/login")
+                return
+            }
+            showNotification({ Content: state.error || state.errors , Status: "error" });
+            return
+
         }
     }, [state])
 
@@ -69,11 +81,8 @@ export default function CreateEventForm({groupId}) {
                 <Button type={"submit"}>
                     Submit
                 </Button >
-                {state.error && <span className="field-error">{state.error}</span>}
-                {state.message && <span className="field-success">{state.message}</span>}
             </div>
         </form>
     )
 }
 
-const initialPostData = {}

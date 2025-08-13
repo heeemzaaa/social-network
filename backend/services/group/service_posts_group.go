@@ -16,7 +16,7 @@ func (s *GroupService) AddPost(post *models.PostGroup) (*models.PostGroup, *mode
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
 	}
 	errPostGroup := models.PostGroupErr{}
-	if strings.TrimSpace(post.Content) == "" {
+	if strings.TrimSpace(post.Content) == "" && strings.TrimSpace(post.ImagePath) == "" {
 		errPostGroup.Content = "empty Content field!"
 	}
 
@@ -32,6 +32,7 @@ func (s *GroupService) AddPost(post *models.PostGroup) (*models.PostGroup, *mode
 	post_created, err := s.gRepo.CreatePost(post)
 	if err != nil {
 		if post.ImagePath != "" {
+			errPostGroup.Content = "empty Content field!"
 			if errRemoveImg := utils.RemoveImage(post.ImagePath); errRemoveImg != nil {
 				return nil, &models.ErrorJson{Status: 500, Error: errRemoveImg.Error()}
 			}

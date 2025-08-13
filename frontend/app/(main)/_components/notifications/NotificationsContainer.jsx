@@ -2,17 +2,15 @@
 import { useEffect, useState, useRef } from "react";
 import { useNotification } from "../../_context/NotificationContext";
 import "./styles.css";
+import { imageConfigDefault } from "next/dist/shared/lib/image-config";
 import { useUserContext } from "../../_context/userContext";
 
 export default function NotificationsPopover() {
   const containerRef = useRef();
-  
   const [notifications, setNotifications] = useState([]);
   const [notifId, setNotifId] = useState("0");
-  
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-
   const { showNotification } = useNotification();
 
   const { setHasNewNotification } = useUserContext();
@@ -74,7 +72,7 @@ export default function NotificationsPopover() {
       };
 
       let response = await fetch("http://localhost:8080/api/notifications/update/", postRequest);
-      if (!response.ok) throw new Error("faild to update notification");
+      if (!response.ok) showNotification({Content:"failed to update notification", Status:"error"})
       let data = await response.json();
       console.log("update notification response:", data.Status);
       console.log("update notification response:", data.Message);
@@ -107,7 +105,7 @@ export default function NotificationsPopover() {
     try {
       const res = await fetch(`http://localhost:8080/api/notifications?Id=${value}`, { method: "GET", credentials: "include" });
 
-      if (!res.ok) throw new Error("faild to update notification");
+      if (!res.ok) showNotification({Content:"failed to update notification", Status:"error"})
 
       const data = await res.json();
       console.log("Notifications data:", data);
@@ -139,8 +137,6 @@ export default function NotificationsPopover() {
     if (scrollTop + clientHeight >= scrollHeight - 10) {
       const lastNotificationId = notifications?.[notifications.length - 1]?.Id || "0";
 
-      console.log("Triggering next page load with ID:", lastNotificationId);
-
       setNotifId(lastNotificationId);
     }
   };
@@ -152,7 +148,7 @@ export default function NotificationsPopover() {
       style={{ maxHeight: "350px", overflowY: "auto", width: "300px" }}
       className="bg-white shadow p-2 rounded"
     >
-      {notifications.length === 0 && !isLoading && <p>No notifications</p>}
+      {notifications.length === 0 && !isLoading && <img src="/no-notifications.svg" style={{width: '100%', height: '100%'}}/>}
 
       {notifications.map((notif) => (
         <div key={notif.Id} className={`notification-card ${notif.Seen ? "seen" : "unseen"}`}>
@@ -168,9 +164,9 @@ export default function NotificationsPopover() {
       ))}
 
       {isLoading && <p className="text-center text-gray-400 text-xs">Loading...</p>}
-      {!hasMore && notifications.length > 0 && (
+      {/* {!hasMore && notifications.length > 0 && (
         <p className="text-center text-gray-400 text-xs">No more notifications</p>
-      )}
+      )} */}
     </div>
   );
 }

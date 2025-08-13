@@ -32,10 +32,6 @@ func (repo *ProfileRepository) GetFollowers(profileID string) ([]models.User, *m
 
 	rows, err := stmt.Query(profileID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return users, nil
-		}
-
 		log.Println("Error getting the followers: ", err)
 		return users, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 

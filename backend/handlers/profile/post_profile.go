@@ -20,14 +20,14 @@ func NewProfilePostsHandler(service *ps.ProfileService) *ProfilePostHandler {
 
 // GET /api/profile/id/data/posts
 func (p *ProfilePostHandler) GetPostsOfTheProfile(w http.ResponseWriter, r *http.Request, profileID string) {
-	lastPostTime := r.URL.Query().Get("last")
+	lastPostID := r.URL.Query().Get("last")
 	authUserID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
-	posts, access, errPosts := p.service.GetPosts(profileID, authUserID.String(), lastPostTime)
+	posts, access, errPosts := p.service.GetPosts(profileID, authUserID.String(), lastPostID)
 	if errPosts != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errPosts.Status, Error: errPosts.Error})
 		return
@@ -43,13 +43,13 @@ func (p *ProfilePostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodGet {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method not allowed !"})
 		return
 	}
 
 	profileID, path, err := GetPath(r)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
@@ -57,6 +57,6 @@ func (p *ProfilePostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "posts":
 		p.GetPostsOfTheProfile(w, r, profileID)
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found !"})
 	}
 }

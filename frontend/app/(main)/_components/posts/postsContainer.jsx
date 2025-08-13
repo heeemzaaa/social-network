@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation";
 import PostCard from "./postCard";
 import {
     memo,
@@ -7,20 +8,26 @@ import {
     useState
 } from "react";
 
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+
 export function PostsContainer({ post }) {
     const [posts, setPosts] = useState([])
-    
+    const router = useRouter()
+
     useEffect(() => {
         async function fetchPosts() {
             try {
-                const resp = await fetch("http://localhost:8080/api/posts", {
+                const resp = await fetch(`${API_URL}/api/posts`, {
                     method: "GET",
                     credentials: "include",
                 });
-                
+
                 if (!resp.ok) {
-                    console.log("error fetching posts 1");
-                    return;
+                    if (resp.status === 401) {
+                        router.push("/login")
+                        return
+                    }
                 }
                 const data = await resp.json();
                 setPosts(data);
@@ -28,15 +35,15 @@ export function PostsContainer({ post }) {
                 console.log("error fetching posts", error);
             }
         }
-        
-        fetchPosts(); 
+
+        fetchPosts();
     }, []);
-    
+
     useEffect(() => {
         if (!post) return;
         setPosts(prev => [post, ...prev])
     }, [post])
-    
+
     return (
         <div className="posts-container">
             {posts?.map((post) => (

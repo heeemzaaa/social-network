@@ -19,7 +19,7 @@ func (repo *ChatRepository) AddMessage(message *models.Message) (*models.Message
 		INSERT INTO messages (id, sender_id, target_id, type, content)
 		VALUES (?, ?, ?, ?, ?)
 		RETURNING sender_id, target_id, content, created_at, type , 
-		(SELECT users.firstName || ' ' || users.lastName AS sender_name  
+		(SELECT CONCAT(users.firstName , ' ' , users.lastName) AS sender_name  
 		FROM users WHERE users.userID =  ?)
 	`
 
@@ -59,8 +59,8 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, type_ string) ([]m
 			m.id,                                
 			m.sender_id,                         
 			m.target_id,                 
-			s.firstName || ' ' || s.lastName AS sender_name,
-			r.firstName || ' ' || r.lastName AS receiver_name,
+			CONCAT(s.firstName , ' ' , s.lastName) AS sender_name,
+			CONCAT(r.firstName, ' ', r.lastName) AS receiver_name,
 			m.content,
 			m.created_at
 		FROM messages m
@@ -79,7 +79,7 @@ func (repo *ChatRepository) GetMessages(sender_id, target_id, type_ string) ([]m
 			m.id,                     
 			m.sender_id,                   
 			m.target_id,                 
-			s.firstName || ' ' || s.lastName AS sender_name,
+			CONCAT(s.firstName, ' ', s.lastName) AS sender_name,
 			m.content,
 			m.created_at
 		FROM messages m

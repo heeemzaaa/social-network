@@ -6,6 +6,7 @@ import styles from "@/app/page.module.css"
 import Button from "@/app/_components/button";
 import { createGroupPostAction } from "@/app/_actions/group";
 import { useModal } from "../../_context/ModalContext";
+import { useNotification } from "../../_context/NotificationContext";
 
 const initialData = {
     title: "",
@@ -16,12 +17,20 @@ export default function CreatePostForm({ groupId }) {
     const [state, action] = useActionState(createGroupPostAction, {});
     const [data, setData] = useState(initialData);
     const { setModalData, closeModal } = useModal()
+    const {showNotification} = useNotification()
 
     useEffect(() => {
         if (state.message) {
             state.data.type = "groupPost"
             setModalData(state.data)
             closeModal()
+            showNotification({ Content: "Post created successfully", Status: "success" });
+        } else if (state.errors || state.error) {
+             if (state.status === 401) {
+                router.push("/login")
+                return
+            }
+            showNotification({ Content: state.error, Status: "error" });
         }
     }, [state])
 
@@ -57,9 +66,7 @@ export default function CreatePostForm({ groupId }) {
                 <input type="text" name="groupId" id="groupId" defaultValue={groupId} hidden />
                 <Button>
                     Submit
-                </Button>
-                {state.error && <span className="field-error">{state.error}</span>}
-                {state.message && <span className="field-success">{state.message}</span>}
+                </Button> 
             </div>
         </form>
     );

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import PostCard from "../../_components/posts/postCard";
 import { useModal } from "../../_context/ModalContext";
+import { useRouter } from "next/navigation";
 
 export default function GroupPostCardList({ groupId, setIsAccessible, isAccessible }) {
     const [data, setData] = useState([]);
@@ -10,6 +11,7 @@ export default function GroupPostCardList({ groupId, setIsAccessible, isAccessib
     const [error, setError] = useState(null);
     const observerRef = useRef(null);
     const loadMoreRef = useRef(null);
+    const router = useRouter()
 
     const { getModalData, setModalData } = useModal();
 
@@ -34,10 +36,16 @@ export default function GroupPostCardList({ groupId, setIsAccessible, isAccessib
                 );
                 const result = await response.json();
                 if (!response.ok) {
+                    if (result.status === 401) {
+                        router.push("/login")
+                        return
+                    }
                     if (response.status === 403) {
                         setIsAccessible({ status: 403 });
+                        return
                     }
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    setError(error)
+                    return
                 }
                 if (result.length === 0) {
                     setHasMore(false);
@@ -46,6 +54,7 @@ export default function GroupPostCardList({ groupId, setIsAccessible, isAccessib
                     setData((prevData) => [...prevData, ...result]);
                 }
             } catch (err) {
+                setError(err)
                 if (err.name === "AbortError") return;
                 setError(err.message);
             } finally {
@@ -106,6 +115,12 @@ export default function GroupPostCardList({ groupId, setIsAccessible, isAccessib
         );
     }
 
+    if (error) {
+        return (
+            <Error error={error} />
+        )
+    }
+
     // Handle no data
     if (data.length === 0 && !isLoading) {
         return (
@@ -120,9 +135,9 @@ export default function GroupPostCardList({ groupId, setIsAccessible, isAccessib
     }
 
     return (
-        <div className="list-container flex align-start flex-wrap gap-4 justify-center overflow-y-auto">
+        <div className="list-container flex align-start flex-col gap-4 justify-center overflow-y-auto">
             {data.map((item) => (
-                <PostCard {...item} key={item.id} groupID={groupId || ""} />
+                <PostCard {...item} post={item} key={item.id} groupID={groupId} />
             ))}
             {isLoading && <p className="text-center w-full">Loading...</p>}
             {hasMore && !isLoading && (

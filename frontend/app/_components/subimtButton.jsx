@@ -1,7 +1,7 @@
 import './components.css'
 import { useFormStatus } from "react-dom";
 
-export default function SubmitButton() {
+export default function SubmitButton({normalText , pendingText}) {
     const { pending } = useFormStatus();
 
     return (
@@ -11,11 +11,9 @@ export default function SubmitButton() {
             className="btn-primary"
         >
             {pending ? (
-                <span>
-                    Submitting...
-                </span>
+                pendingText
             ) : (
-                "Submit"
+                normalText
             )}
         </button>
     );

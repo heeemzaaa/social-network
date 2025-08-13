@@ -13,13 +13,18 @@ import { HiOutlineDocumentPlus } from "react-icons/hi2"
 import { useModal } from "../../_context/ModalContext"
 import CreatePost from "../../_components/posts/createPost"
 import { createPostAction } from "@/app/_actions/posts"
+import Loader from "../../_components/loader"
+import { useRouter } from "next/navigation"
+import Error from "../../_components/error"
 
 export default function Page({ params }) {
   const [userInfos, setUserInfos] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [isFollower, setIsFollower] = useState(null)
   const [changed, setChanged] = useState(false)
-  const {openModal} = useModal()
+  const { openModal } = useModal()
+  const router = useRouter()
 
   const resolvedParams = React.use(params);
   const id = resolvedParams.id;
@@ -28,8 +33,23 @@ export default function Page({ params }) {
     async function fetchUserInfo() {
       try {
         const res = await fetch(`http://localhost:8080/api/profile/${id}/info`, { credentials: 'include' })
+        
         const profile = await res.json()
+        
+        if (!res.ok) {
+          if (profile.status === 401) {
+            router.push("/login")
+            return
+          }
+
+          if (profile.status === 400 || profile.status === 404 || profile.status === 500) {
+            setError(profile.error)
+            return
+          }
+        }
+        
         const user = profile.user
+
 
         setUserInfos({
           id: user.id,
@@ -52,6 +72,7 @@ export default function Page({ params }) {
         })
         setIsFollower(profile.is_follower)
       } catch (err) {
+        setError(err)
         console.error("Error fetching user profile:", err)
       } finally {
         setLoading(false)
@@ -64,7 +85,7 @@ export default function Page({ params }) {
     let endpoint = ""
 
     if (userInfos.isRequested) {
-      endpoint = `http://localhost:8080/api/profile/${id}/actions/cancel`  
+      endpoint = `http://localhost:8080/api/profile/${id}/actions/cancel`
     } else if (userInfos.isFollower) {
       endpoint = `http://localhost:8080/api/profile/${id}/actions/unfollow`
     } else {
@@ -79,9 +100,19 @@ export default function Page({ params }) {
         body: JSON.stringify({ profile_id: id }),
       })
 
-      if (!res.ok) return console.error("Follow/unfollow/cancel failed")
-
       const updated = await res.json()
+
+      if (!res.ok) {
+        if (updated.status === 401) {
+          router.push("/login")
+          return
+        }
+        if (updated.status === 400 || updated.status === 404 || updated.status === 500) {
+          setError(updated.error)
+          return
+        }
+      }
+
       setChanged(!changed)
       setUserInfos(prev => ({
         ...prev,
@@ -97,6 +128,7 @@ export default function Page({ params }) {
 
       if (updated.is_follower) setIsFollower(updated.is_follower)
     } catch (err) {
+      setError(err)
       console.error("Error:", err)
     }
   }
@@ -110,25 +142,46 @@ export default function Page({ params }) {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          profile_id: id,
           wanted_status: newPrivacy,
         }),
       })
 
-      if (!res.ok) return console.error("Failed to update privacy")
+
       const profile = await res.json()
+
+      if (!res.ok) {
+        if (profile.status === 401) {
+          router.push("/login")
+          return
+        }
+        if (profile.status === 400 || profile.status === 404 || profile.status === 500) {
+          setError(profile.error)
+          return
+        }
+      }
       setUserInfos(prev => ({
         ...prev,
         visibility: newPrivacy,
         followers: profile.followers_count || prev.followers
       }))
     } catch (err) {
+      setError(err)
       console.error("Error:", err)
     }
   }
 
-  if (loading) return <p>Loading user info...</p>
-  if (!userInfos) return <p>Failed to load user info.</p>
+  if (loading) return (
+    <main className='profile_page_section flex h-full p4 gap-4'>
+      <Loader />
+    </main>
+  )
+
+  if (!userInfos || error) return (
+    <main className='profile_page_section  h-full p4 gap-4'>
+      <Error error={error} />
+    </main>
+  )
+
   return (
     <main className='profile_page_section flex h-full p4 gap-4'>
       <InfosDiv userInfos={userInfos}>
@@ -138,17 +191,17 @@ export default function Page({ params }) {
               {userInfos.isRequested ? (
                 <>
                   <MdPending size="24px" color="white" />
-                  <span style={{ color: 'white' }}>Pending</span>
+                  <span style={{ color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-medium)' }}>Pending</span>
                 </>
               ) : userInfos.isFollower ? (
                 <>
                   <RiUserUnfollowFill size="24px" color="white" />
-                  <span style={{ color: 'white' }}>Unfollow</span>
+                  <span style={{ color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-medium)' }}>Unfollow</span>
                 </>
               ) : (
                 <>
                   <RiUserFollowFill size="24px" color="white" />
-                  <span style={{ color: 'white' }}>Follow</span>
+                  <span style={{ color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-medium)'}}>Follow</span>
                 </>
               )}
             </Button>
@@ -175,13 +228,13 @@ export default function Page({ params }) {
 
       <div className="data-container flex-col w-full align-center gap-4">
         {(userInfos.access && userInfos.aboutMe) && <AboutUser aboutMe={userInfos.aboutMe} />}
-        <div style={{ zIndex:"1",background:"var(--color-secondary)", alignSelf:"stretch", position: "sticky", top: "0", borderBottom: "solid 1px", paddingBottom: ".5rem", margin: ".5rem" }} >
+        <div style={{ zIndex: "1", background: "var(--color-secondary)", alignSelf: "stretch", position: "sticky", top: "0", borderBottom: "solid 1px", paddingBottom: ".5rem", marginBlock: ".5rem" }} >
           <Button style={{ marginLeft: "auto" }} onClick={() => openModal(<CreatePost postAction={createPostAction} />)}>
             <HiOutlineDocumentPlus size={24} />
-            <span>Add New Post</span>
+            <span className="text-lg font-medium">Add New Post</span>
           </Button>
         </div>
-        {<UserPosts id={userInfos.id} access={userInfos.access} changed={changed} />}
+        {<UserPosts profileId={userInfos.id} access={userInfos.access} changed={changed} />}
       </div>
     </main>
   )

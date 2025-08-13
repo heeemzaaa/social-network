@@ -6,6 +6,7 @@ import Tag from '../../_components/tag'
 import { timeAgo } from "@/app/_utils/time"
 
 import { HiOutlineClock } from "react-icons/hi2"
+import { useRouter } from 'next/navigation'
 
 let style = {
     width: "100%",
@@ -24,8 +25,11 @@ export default function GroupEventCard({
     going,
 }) {
     const [goingState, setGoingState] = useState(going)
+    const [error, setError] = useState(null)
+    const router = useRouter() 
     const endpoint = `http://localhost:8080/api/groups/${group.group_id}/events/${event_id}/`
     async function handleGoingState(actionValue) {
+
         try {
             const res = await fetch(endpoint, {
                 method: "POST",
@@ -34,22 +38,35 @@ export default function GroupEventCard({
                 body: JSON.stringify({ 'action': actionValue }),
             })
 
-            if (!res.ok) return console.error("Failed to send the request")
             let newGoingState = await res.json()
+            if (!res.ok) {
+                if (newGoingState.status === 401) {
+                    router.push("/login")
+                    return
+                }
+                setError(error)
+                return
+            }
             setGoingState(newGoingState.action)
         } catch (err) {
+            setError(err)
             console.log(err);
         }
     }
+
+    if (error) {
+        return (
+            <Error error={error} />
+        )
+    }
+
     return (
         <div style={style} className="flex-col gap-1  bg-white p2 pi3 rounded-xl shadow-md" key={event_id}>
             <div className='flex align-center gap-2'>
                 <Avatar img={event_creator.avatar} size={42} />
-                {/* <img src='/no-profile.png'/> */}
                 <div>
                     <p className='font-semibold'>{event_creator.fullname}</p>
                     <span className=''>@{event_creator.nickname}</span>
-                    {/* <p className=''>{created_at}</p> */}
                 </div>
             </div>
             <hr />

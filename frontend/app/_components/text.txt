@@ -1,1 +1,0 @@
-Here goes all the global components that can be used in the entier app 

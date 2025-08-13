@@ -1,36 +1,41 @@
-"use client"; // Required for client-side rendering in Next.js
+"use client" // Required for client-side rendering in Next.js
 
 import "./style.css"
-import Tag from "../../_components/tag";
-import Tab from "../../_components/tab/tab";
-import Tabs from "../../_components/tab/tabs";
-import Avatar from "../../_components/avatar";
-import Button from "@/app/_components/button";
-import TabContent from "../../_components/tab/tabContent";
-import { useModal } from "../../_context/ModalContext";
-import CreatePostForm from "../_components/createPostForm";
-import CreateEventForm from "../_components/createEventForm";
-import InviteFriendForm from "../_components/inviteFriendsForm";
-import GroupPostCardList from "../_components/groupPostCardList";
-import GroupEventCardList from "../_components/groupEventCardList";
-import { LuCalendarPlus } from "react-icons/lu";
+import Tag from "../../_components/tag"
+import Tab from "../../_components/tab/tab"
+import Tabs from "../../_components/tab/tabs"
+import Avatar from "../../_components/avatar"
+import Button from "@/app/_components/button"
+import TabContent from "../../_components/tab/tabContent"
+import { useModal } from "../../_context/ModalContext"
+import CreatePostForm from "../_components/createPostForm"
+import CreateEventForm from "../_components/createEventForm"
+import InviteFriendForm from "../_components/inviteFriendsForm"
+import GroupPostCardList from "../_components/groupPostCardList"
+import GroupEventCardList from "../_components/groupEventCardList"
+import { LuCalendarPlus } from "react-icons/lu"
 import React, {
   useEffect,
   useState
-} from "react";
+} from "react"
 import {
   HiMiniUsers,
   HiOutlineDocumentPlus,
   HiOutlineUserPlus
-} from "react-icons/hi2";
+} from "react-icons/hi2"
+import Loader from "../../_components/loader"
+import Error from "../../_components/error"
+import { useRouter } from "next/navigation"
 
 export default function GroupPage({ params }) {
-  const [data, setData] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const resolvedParams = React.use(params);
-  const groupId = resolvedParams.id;
+  const [data, setData] = useState({})
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const resolvedParams = React.use(params)
+  const groupId = resolvedParams.id
   const [isAccessible, setIsAccessible] = useState(null)
+  const router = useRouter()
+
 
   const { openModal } = useModal()
   const actionButtons = [
@@ -57,24 +62,44 @@ export default function GroupPage({ params }) {
       try {
         const response = await fetch(`http://localhost:8080/api/groups/${id}`, {
           credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to fetch group data: ${response.status}`);
-        }
-        const result = await response.json();
-        setData(result); // Set fetched data (e.g., { title, description, followers_number })
-      } catch (error) {
-        console.error("Error fetching group:", error);
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    getGroupData(groupId)
-  }, []);
+        })
 
-  if (isLoading) return <main className="text-center">Loading...</main>;
-  if (error) return <p className="text-danger text-center">Error: {error}</p>;
+        const result = await response.json()
+
+        if (!response.ok) {
+          if (result.status === 401) {
+            router.push("/login")
+            return
+          }
+
+          if (result.status === 400 || result.status === 404 || result.status === 500) {
+            setIsLoading(false)
+            setError(result.error)
+            return
+          }
+        }
+
+        setData(result)
+        setIsLoading(false)
+
+      } catch (error) {
+        console.error("Error fetching group:", error)
+        setError(error.message)
+        setIsLoading(false)
+      }
+    }
+    getGroupData(groupId)
+  }, [])
+
+  if (isLoading) return <Loader />
+  if (error) {
+    return (
+      <main className="group-page-section flex justify-center align-center gap-1">
+        <Error error={error} />
+      </main>
+
+    )
+  }
 
   return (
     <main className="group-page-section flex gap-1">
@@ -121,5 +146,5 @@ export default function GroupPage({ params }) {
         </Tabs>
       </div>
     </main>
-  );
+  )
 }

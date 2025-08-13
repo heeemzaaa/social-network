@@ -15,7 +15,7 @@ type User struct {
 	LastMessage     string `json:"last_message,omitempty"`
 	LastInteraction string `json:"last_interaction,omitempty"`
 	Notifications   int    `json:"notifications,omitempty"`
-	Invited         int    `json:"invited"` // must not omitempty 
+	Invited         int    `json:"invited"` // must not omitempty
 }
 
 func NewUser() *User {
@@ -27,13 +27,11 @@ type Login struct {
 	Password   string `json:"password"`
 }
 
-func NewLogin() *Login {
-	return &Login{}
-}
+
 
 type Session struct {
 	Id       int    `json:"id,omitempty"`
-	Token    string `json:"token"`
+	Token    string `json:"token,omitempty"`
 	UserId   string `json:"user_id"`
 	Username string `json:"username,omitempty"`
 	FullName string `json:"fullName,omitempty"`
@@ -48,14 +46,7 @@ type UserData struct {
 	Id         string `json:"id,omitempty"`
 	Nickname   string `json:"nickname,omitempty"`
 	FullName   string `json:"fullname,omitempty"`
+	Token      string  `json:"token,omitempty"`
 }
 
-type ContextKey struct {
-	Key string
-}
 
-// there is a  problem when doing this with contexts
-
-func NewContextKey(key string) *ContextKey {
-	return &ContextKey{Key: key}
-}

@@ -28,7 +28,7 @@ func (PrHandler *ProfileHandler) GetProfileData(w http.ResponseWriter, r *http.R
 
 	profile, errService := PrHandler.service.GetProfileData(profileID, authSessionID.String())
 	if errService != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errService.Status, Message: errService.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errService.Status, Error: errService.Error})
 		return
 	}
 	utils.WriteDataBack(w, profile)
@@ -37,13 +37,13 @@ func (PrHandler *ProfileHandler) GetProfileData(w http.ResponseWriter, r *http.R
 func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodGet {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "Method not allowed !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method not allowed !"})
 		return
 	}
 
 	profileID, path, err := GetPath(r)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
@@ -51,6 +51,6 @@ func (PrHandler *ProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	case "":
 		PrHandler.GetProfileData(w, r, profileID)
 	default:
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Page not found !"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "Page not found !"})
 	}
 }

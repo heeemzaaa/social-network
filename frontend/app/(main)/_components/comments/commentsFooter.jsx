@@ -5,9 +5,9 @@ import { FaPaperPlane } from "react-icons/fa";
 import { useActionState } from 'react'
 import { commentPostAction } from '@/app/_actions/posts'
 import { commentGroupPostAction } from '@/app/_actions/groupPosts'
+import { useNotification } from "../../_context/NotificationContext";
 
-export default function CommentsFooter({ id, groupID = null,  setComments, onCommentMessage }) {
-    console.log("+=====> group id: ", groupID)
+export default function CommentsFooter({ id, groupID = null, setComments, onCommentMessage }) {
     const initialState = {
         group: groupID ? true : false,
         groupID: groupID,
@@ -23,9 +23,12 @@ export default function CommentsFooter({ id, groupID = null,  setComments, onCom
 
     const [postActionState, postAction] = useActionState(commentPostAction, initialState)
     const [groupActionState, groupAction] = useActionState(commentGroupPostAction, initialState)
+    const {showNotification } = useNotification()
+
     useEffect(() => {
-        let state = postActionState.success ?  postActionState :  groupActionState.success ? groupActionState : null
-        if (state?.success) {
+        let state = groupID ? groupActionState : postActionState
+        console.log("comment state: ", state)
+        if (state?.message) {
             const newComment = {
                 content: state.content,
                 nickName: state.nickname,
@@ -34,11 +37,16 @@ export default function CommentsFooter({ id, groupID = null,  setComments, onCom
                 createdAt: new Date(),
                 imagePath: state.imagePath,
             };
+            console.log("new comment: ", state)
             setComments(prev => [newComment, ...prev]);
+            showNotification({Content:state.message, Status:"success"})
 
             if (onCommentMessage) {
                 onCommentMessage("A new comment was added");
             }
+        } else if (state?.errors || state?.error) {
+            console.log("gggggggggggggg", state.error)
+            showNotification({Content:state.error, Status:"error"})
         }
     }, [postActionState, groupActionState])
     return (

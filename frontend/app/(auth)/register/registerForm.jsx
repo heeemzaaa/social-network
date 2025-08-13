@@ -7,6 +7,7 @@ import {
     useActionState,
     useState
 } from "react";
+import Logo from '@/app/_components/logo';
 
 const initialData = {
     email: "",
@@ -25,6 +26,7 @@ export default function RegisterForm() {
 
     return (
         <form noValidate action={action} className={`${styles.form}`}>
+            <Logo />
             <div className="flex gap-3">
                 <div className="flex-col gap-1">
                     {/* first name */}
@@ -35,6 +37,7 @@ export default function RegisterForm() {
                             type="text"
                             name="firstname"
                             id="firstname"
+                            placeholder='First Name'
                             value={data.firstname}
                             onChange={(e) => setData(prev => ({ ...prev, firstname: e.target.value }))}
                         />
@@ -49,6 +52,7 @@ export default function RegisterForm() {
                             type="text"
                             name="lastname"
                             id="lastname"
+                            placeholder='Last Name'
                             value={data.lastname}
                             onChange={(e) => setData(prev => ({ ...prev, lastname: e.target.value }))}
                         />
@@ -79,6 +83,7 @@ export default function RegisterForm() {
                             type="email"
                             name="email"
                             id="email"
+                            placeholder='Email'
                             value={data.email}
                             onChange={(e) => setData(prev => ({ ...prev, email: e.target.value }))}
                         />
@@ -93,6 +98,7 @@ export default function RegisterForm() {
                             type="password"
                             name="password"
                             id="password"
+                            placeholder='Password'
                             value={data.password}
                             onChange={(e) => setData(prev => ({ ...prev, password: e.target.value }))}
                         />
@@ -123,6 +129,7 @@ export default function RegisterForm() {
                             type="text"
                             name="nickname"
                             id="nickname"
+                            placeholder='Nickname'
                             value={data.nickname}
                             onChange={(e) => setData(prev => ({ ...prev, nickname: e.target.value }))}
                         />
@@ -136,6 +143,7 @@ export default function RegisterForm() {
                             className={styles.input}
                             name="about_me"
                             id="about_me"
+                            placeholder='About Me'
                             rows={4}
                             value={data.about_me}
                             onChange={(e) => setData(prev => ({ ...prev, about_me: e.target.value }))}
@@ -145,12 +153,12 @@ export default function RegisterForm() {
                 </div>
 
             </div>
-            <SubmitButton />
+            <SubmitButton normalText={"Register"} pendingText={"Registering..."} />
             {state.error && <span className="field-error">{state.error}</span>}
             {state.message && <span className="field-success">{state.message}</span>}
             <div className="text-sm font-medium ">
                 <span>Already have an account ? </span>
-                <Link href={"/login"} style={{ color: "var(--color-primary)", textDecoration: "underline" }}
+                <Link href={"/login"} style={{ color: "var(--color-dark-gray)", textDecoration: "underline", fontSize: 'var(--font-size-sm)' }}
                 > Login </Link>
             </div>
         </form>

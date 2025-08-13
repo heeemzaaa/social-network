@@ -59,7 +59,7 @@ SELECT
 FROM cte_ordered_users u
 LEFT JOIN cte_notifications n ON u.userID = n.sender_id
 ORDER BY 
-    CASE WHEN u.lastInteraction IS NULL THEN 1 ELSE 0 END,
+    CASE WHEN u.lastInteraction IS NULL OR u.lastInteraction = ''  THEN 1 ELSE 0 END,
     u.lastInteraction DESC,
     fullName;
 
@@ -99,7 +99,7 @@ ORDER BY
 		log.Println("Error in the whole process of scan => in get users: ", err)
 		return []models.User{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-	
+
 	return users, nil
 }
 
@@ -128,10 +128,9 @@ SELECT
 FROM cte_my_groups g
 LEFT JOIN cte_latest_group_messages lgm ON lgm.groupID = g.groupID
 ORDER BY 
-    CASE WHEN lgm.lastInteraction IS NULL THEN 1 ELSE 0 END,
+    CASE WHEN lgm.lastInteraction IS NULL OR lgm.lastInteraction = '' THEN 1 ELSE 0 END,
     lgm.lastInteraction DESC,
     g.title ASC;
-
 	`
 
 	stmt, err := repo.db.Prepare(query)

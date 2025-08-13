@@ -2,6 +2,7 @@ package auth
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -18,11 +19,11 @@ func (authHandler *AuthHandler) Register(w http.ResponseWriter, r *http.Request)
 			utils.WriteJsonErrors(w, models.ErrorJson{
 				Status: 400,
 				Message: models.User{
-					FirstName: "login field can't be empty",
-					LastName:  "password field can't be empty",
-					BirthDate: "login field can't be empty",
-					Email:     "password field can't be empty",
-					Password:  "password field can't be empty",
+					FirstName: "First Name is required",
+					LastName:  "Last Name is required",
+					BirthDate: "Birthdate is required",
+					Email:     "email is required",
+					Password:  "password is required",
 				},
 			})
 			return
@@ -47,7 +48,8 @@ func (authHandler *AuthHandler) Register(w http.ResponseWriter, r *http.Request)
 	}
 
 	// before setting the session we need the actual id of the user
-	userData, errJson := authHandler.service.GetUser(&models.Login{LoginField: user.Nickname})
+	userData, errJson := authHandler.service.GetUser(&models.Login{LoginField: user.Email})
+	fmt.Printf("userData: %v\n", userData)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, *errJson)
 		return

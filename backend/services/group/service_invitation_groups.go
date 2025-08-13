@@ -45,7 +45,7 @@ func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite 
 	return newNotif, nil
 }
 
-func (gService *GroupService) CancelTheInvitation(userId, groupId string, invitedUserId string) *models.ErrorJson {
+func (gService *GroupService) CancelTheInvitation(userId, groupId, invitedUserId string) *models.ErrorJson {
 	// check the group if a valid one
 	// check the user is member before he can invite
 	// we need to check if the request of invitation is there before canceling it
@@ -62,7 +62,6 @@ func (gService *GroupService) CancelTheInvitation(userId, groupId string, invite
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	return nil
-	// {sneder_id, receiver_id , "group-invitation"}
 }
 
 /*

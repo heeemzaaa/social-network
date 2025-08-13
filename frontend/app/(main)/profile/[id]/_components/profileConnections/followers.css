@@ -10,6 +10,11 @@
 
 .user_card {
     width: 400px;
-    max-width: max-content;
     border: 1px solid var(--color-light-gray);
+}
+
+@media (max-width: 550px) {
+    .user_card {
+        width: max-content;
+    }
 }
