@@ -203,6 +203,7 @@ func (server *ChatServer) BroadCastOnlineStatus() {
 		}
 	}
 
+	// send the online user to each of your connections
 	for _, connections := range server.client {
 		for _, conn := range connections {
 			conn.Online <- &OnlineUsers{
