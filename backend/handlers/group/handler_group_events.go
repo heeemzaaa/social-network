@@ -56,7 +56,7 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 		return
 	}
 	event.EventCreator.Id, event.Group.GroupId = userID.String(), groupID.String()
-	_, event, errJson := gEventHandler.gService.AddGroupEvent(event)
+	event, notification, errJson := gEventHandler.gService.AddGroupEvent(event)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
 		return
@@ -80,7 +80,13 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 	// 		return
 	// 	}
 	// }
-	utils.WriteDataBack(w, event)
+
+	//  here we need to catch the event and at the same time the notification
+	data := &models.Data{
+		Notification: notification,
+		Data:         event,
+	}
+	utils.WriteDataBack(w, data)
 }
 
 // we'll be working with exists to check if a user is member before proceeding in any action!!

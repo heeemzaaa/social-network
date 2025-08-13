@@ -1,14 +1,12 @@
 package chat
 
 import (
-	"fmt"
 	"strings"
 
 	"social-network/backend/models"
 )
 
 func (service *ChatService) ValidateMessage(message *models.Message) (*models.Message, *models.ErrorJson) {
-	fmt.Println("message eeeeeeeeeeeeeeeeeeeeeeee", message.Notification)
 	errMessage := models.NewMessageErr()
 	trimmedMsg := strings.TrimSpace(message.Content)
 	type_message := strings.ToLower(strings.TrimSpace(message.Type))

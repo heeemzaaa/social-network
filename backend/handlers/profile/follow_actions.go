@@ -49,14 +49,17 @@ func (fa *FollowActionHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
-
 	// fa.NS.PostService(data)
 
 	// should return newNotif
 	fmt.Println(newNotif)
 
-	utils.WriteDataBack(w, profile)
+	data := models.Data{
+		Notification: newNotif,
+		Data:         profile,
+	}
+
+	utils.WriteDataBack(w, data)
 }
 
 // POST api/profile/id/actions/unfollow

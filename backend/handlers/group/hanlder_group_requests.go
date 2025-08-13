@@ -14,13 +14,13 @@ import (
 
 type GroupRequestsHandler struct {
 	gService *gservice.GroupService
-	nService   *nService.NotificationService
+	nService *nService.NotificationService
 }
 
 func NewGroupRequestsHandler(service *gservice.GroupService, nService *nService.NotificationService) *GroupRequestsHandler {
 	return &GroupRequestsHandler{
 		gService: service,
-		nService:   nService,
+		nService: nService,
 	}
 }
 
@@ -45,26 +45,14 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 		return
 	}
 
-	_, errJson := GrpReqHandler.gService.RequestToJoin(userID.String(), groupID.String())
+	// The custom errors are for the after check
+	notification, errJson := GrpReqHandler.gService.RequestToJoin(userID.String(), groupID.String())
 	if errJson != nil {
 		// check if the user is already a member of the group
-		if errJson.Status == 403 && errJson.Message == "ERROR!! already a member!" {
-			utils.WriteDataBack(w, models.ResponseMsg{
-				Status:  false,
-				Message: fmt.Sprintf("%v", errJson.Message),
-			})
-			return 
-		}
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
-
-	// if errJson := GrpReqHandler.nService.PostService(data); errJson != nil {
-	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
-	// 	return
-	// }
-
-	utils.WriteDataBack(w, models.ResponseMsg{Status: true, Message: "Pending"})
+	utils.WriteDataBack(w, notification)
 }
 
 func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter, r *http.Request) {
@@ -80,9 +68,9 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter
 		return
 	}
 
-	data, errJson := GrpReqHandler.gService.RequestToCancel(userID.String(), groupID.String());
+	data, errJson := GrpReqHandler.gService.RequestToCancel(userID.String(), groupID.String())
 	if errJson != nil {
-		// check if the error is because has not requested to join   
+		// check if the error is because has not requested to join
 		if errJson.Status == 404 && errJson.Message == "ERROR!! Invitation not found" {
 			utils.WriteDataBack(w, models.ResponseMsg{
 				Status:  false,

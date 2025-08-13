@@ -132,11 +132,11 @@ func (client *Client) WriteMessages() {
 			if err != nil {
 				return
 			}
-			// case notification := <-client.Notification:
-			// 	err := client.connection.WriteJSON(notification)
-			// 	if err != nil {
-			// 		return
-			// 	}
+		case notification := <-client.Notification:
+			err := client.connection.WriteJSON(notification)
+			if err != nil {
+				return
+			}
 		}
 	}
 }

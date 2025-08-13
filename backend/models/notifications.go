@@ -4,19 +4,19 @@ import "time"
 
 // database notification structure
 type Notification struct {
-	Id             string    `json:"id,omitempty"`
-	SenderID       string    `json:"sender_id,omitempty"`
-	TargetID       string    `json:"target_id,omitempty"`
-	Seen           bool      `json:"seen,omitempty"`
-	Type           string    `json:"type_notification,omitempty"`
-	Status         string    `json:"status,omitempty"`
-	Content        string    `json:"content,omitempty"`
-	CreatedAt      time.Time `json:"craeted_at"`
+	Id        string    `json:"id,omitempty"`
+	SenderID  string    `json:"sender_id,omitempty"`
+	TargetID  string    `json:"target_id,omitempty"`
+	Seen      bool      `json:"seen,omitempty"`
+	Type      string    `json:"type_notification,omitempty"`
+	Status    string    `json:"status,omitempty"`
+	Content   string    `json:"content,omitempty"`
+	CreatedAt time.Time `json:"craeted_at"`
 
-	SenderFullName string    `json:"sender_fullname,omitempty"`
-	GroupName      string    `json:"group_name,omitempty"`
-	EventID        string    `json:"event_id,omitempty"`
-	EventName      string    `json:"event_name,omitempty"`
+	SenderFullName string `json:"sender_fullname,omitempty"`
+	GroupName      string `json:"group_name,omitempty"`
+	EventID        string `json:"event_id,omitempty"`
+	EventName      string `json:"event_name,omitempty"`
 }
 
 // NewNotification creates a new instance of Notification.
@@ -74,4 +74,9 @@ type ResponseData struct {
 // NewResponseData creates a new instance of ResponseData.
 func NewResponseData() *ResponseData {
 	return &ResponseData{}
+}
+
+type Data struct {
+	Data         any           `json:"data"`
+	Notification *Notification `json:"notification"`
 }

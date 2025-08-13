@@ -32,6 +32,8 @@ func (repo *ProfileRepository) FollowDone(userID string, authUserID string) (*mo
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
+	newNotif.Content = fmt.Sprintf("%v starts following you! :)", newNotif.SenderFullName)
+    newNotif.Status  ="none"
 	return newNotif, nil
 }
 
@@ -43,7 +45,6 @@ func (repo *ProfileRepository) FollowPrivate(userID string, authUserID string) (
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		log.Println("Error preparing the query to do the follow private action: ", err)
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
@@ -56,9 +57,10 @@ func (repo *ProfileRepository) FollowPrivate(userID string, authUserID string) (
 
 	err = stmt.QueryRow(userID, authUserID, authUserID).Scan(&newNotif.SenderFullName)
 	if err != nil {
-		log.Println("Error adding the request follow to the table: ", err)
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	newNotif.Content = fmt.Sprintf("%v sent you a follow request", newNotif.SenderFullName)
+	newNotif.Status ="later"
 	return newNotif, nil
 }
 

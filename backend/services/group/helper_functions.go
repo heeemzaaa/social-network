@@ -25,7 +25,7 @@ func (service *GroupService) CheckMembership(groupID, userID string) *models.Err
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
 	}
 	if !isMember {
-		return &models.ErrorJson{Status: 403, Message: "ERROR!! Acces Forbidden!"}
+		return &models.ErrorJson{Status: 403, Error: "ERROR!! Acces Forbidden!"}
 	}
 	return nil
 }
@@ -36,7 +36,7 @@ func (service *GroupService) CheckNotMember(groupID, userID string) *models.Erro
 		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
 	}
 	if isMember {
-		return &models.ErrorJson{Status: 403, Error: "403 - Acces Forbidden", Message: "ERROR!! already a member!"}
+		return &models.ErrorJson{Status: 403, Error: "ERROR!! already a member!"}
 	}
 	return nil
 }

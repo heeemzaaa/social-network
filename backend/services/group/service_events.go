@@ -30,11 +30,10 @@ func (gService *GroupService) GetGroupEvents(groupID, userID, offset string) ([]
 //  check if the values entered by the user are correct ( waaa tleee3  liya hadshii frassii mumiil)
 // as always we need to check if the user is part of the group before adding an event
 
-func (gService *GroupService) AddGroupEvent(event *models.Event) ([]models.User, *models.Event, *models.ErrorJson) {
+func (gService *GroupService) AddGroupEvent(event *models.Event) (*models.Event, *models.Notification, *models.ErrorJson) {
 	if errJson := gService.gRepo.GetGroupById(event.Group.GroupId); errJson != nil {
 		return nil, nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
-	// // rani bedelt GetGroupById by GetGroupInfo // //
 	// if errJson := gService.gRepo.GetGroupById(event.GroupId); errJson != nil {
 	// 	return nil, nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	// }
@@ -60,14 +59,11 @@ func (gService *GroupService) AddGroupEvent(event *models.Event) ([]models.User,
 	if errValidation != (models.ErrEventGroup{}) {
 		return nil, nil, &models.ErrorJson{Status: 400, Message: errValidation}
 	}
-	event, errJson := gService.gRepo.AddGroupEvent(event)
+
+	event, notification, errJson := gService.gRepo.AddGroupEvent(event)
 	if errJson != nil {
 		return nil, nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 
-	members, errJson := gService.gRepo.GetGroupMembers(event.Group.GroupId)
-	if errJson != nil {
-		return nil, nil, errJson
-	}
-	return members, event, nil
+	return event, notification, nil
 }

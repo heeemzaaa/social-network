@@ -66,7 +66,6 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 	// 	return
 	// }
-	fmt.Println("notiifcation", newNotif)
 	utils.WriteDataBack(w, newNotif)
 }
 
