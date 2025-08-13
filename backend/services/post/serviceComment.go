@@ -4,6 +4,7 @@ import (
 	"social-network/backend/models"
 )
 
+
 func (s *PostService) CreateComment(userID string, postID string, content string, image_url string) (*models.Comment, *models.ErrorJson) {
 	
 	exists, err := s.repo.PostExist(postID)
