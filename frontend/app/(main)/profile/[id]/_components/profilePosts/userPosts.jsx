@@ -121,7 +121,7 @@ export default function UserPosts({ profileId, access, changed }) {
 
     if (access === false) {
         return (
-            <section className='posts_container w-full h-full flex-col justify-center align-center'>
+            <section className='forbidden w-full h-full flex-col justify-center align-center'>
                 <img src="/forbidden-posts.svg" className='w-half mx-auto' />
                 <p className='text-xl font-semibold'>You must follow to see the posts</p>
             </section>
@@ -138,7 +138,7 @@ export default function UserPosts({ profileId, access, changed }) {
     }
 
     return (
-        <section className='posts_container scrollable-section w-full h-full'>
+        <section className='scrollable-section w-full h-full'>
             {posts.map((post) => {
                 return <PostCard {...post} key={post.id} />
             })
