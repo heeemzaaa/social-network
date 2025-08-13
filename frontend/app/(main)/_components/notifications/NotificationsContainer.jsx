@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNotification } from "../../_context/NotificationContext";
 import "./styles.css";
+import { useUserContext } from "../../_context/userContext";
 
 export default function NotificationsPopover() {
   const containerRef = useRef();
@@ -13,6 +14,8 @@ export default function NotificationsPopover() {
   const [isLoading, setIsLoading] = useState(false);
 
   const { showNotification } = useNotification();
+
+  const { setHasNewNotification } = useUserContext();
 
   const notificationContent = (notification) => {
     if (notification.Status == "later") {
@@ -106,14 +109,17 @@ export default function NotificationsPopover() {
       if (!res.ok) throw new Error("faild to update notification");
 
       const data = await res.json();
+      console.log("Notifications data:", data);
+
+      setHasNewNotification(data.Status === false ? false : true);
 
       const existingIds = new Set(notifications.map(notif => notif.Id));
 
-      const newNotifications = data.filter(notif => !existingIds.has(notif.Id));
+      const newNotifications = data?.Notifications.filter(notif => !existingIds.has(notif.Id));
 
       setNotifications((prev) => [...prev, ...newNotifications]);
 
-      if (data.length < 10) setHasMore(false);
+      if (data?.Notifications.length < 10) setHasMore(false);
 
     } catch (error) {
       console.error("Error fetching notifications:", error);

@@ -223,7 +223,7 @@ export async function createGroupEventAction(prevState, formData) {
                 errors: data.errors || null
             };
         }
-        console.log("dataaaa ", data);
+        console.log("dataaaa aaaaa ", data);
         return {
             ...state,
             data,
@@ -282,10 +282,11 @@ export async function inviteUserAction(prevState, formData) {
             const result = await res.json();
             console.log("invite response ==> " + result )
             return { message: "done" };
-        } else {
-            const errorText = await res.text();
-            return { message: "error", error: errorText || "Failed to invite." };
         }
+
+        const errorText = await res.text();
+        return { message: "error", error: errorText || "Failed to invite." };
+
     } catch (err) {
         console.error("Failed to fetch invitations", err)
     }

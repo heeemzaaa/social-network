@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -10,6 +11,12 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 	errMessage := models.NewMessageErr()
 	trimmedMsg := strings.TrimSpace(message.Content)
 	type_message := strings.ToLower(strings.TrimSpace(message.Type))
+	fmt.Println("type_message:", message)
+
+	if type_message == "notification" {
+		fmt.Println("notification received in chat server")
+		// should handle notification logic separate
+	}
 
 	if type_message != "private" && type_message != "group" {
 		errMessage.Type = "wrong type of message"

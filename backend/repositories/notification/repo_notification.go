@@ -173,7 +173,7 @@ func (repo *NotifRepository) UpdateSeen(notifId string) *models.ErrorJson {
 }
 
 // function check if user has notification containe false seen
-func (repo *NotifRepository) IsHasSeenFalse(userId string) (bool, *models.ErrorJson) {
+func (repo *NotifRepository) IsHasSeen(userId string) (bool, *models.ErrorJson) {
 	var exists bool
 	query := `SELECT EXISTS (SELECT 1 FROM notifications WHERE recieverId = ? AND seen = 0 LIMIT 1)`
 

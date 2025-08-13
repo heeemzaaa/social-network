@@ -36,10 +36,6 @@ func (NS *NotificationService) ToggleAllSeenFalse(notifications []models.Notific
 			return errJson
 		}
 	}
-
-	if errJson := NS.broadcast(notifications[0].RecieverId); errJson != nil {
-		return errJson
-	}
 	return nil
 }
 
@@ -80,9 +76,9 @@ func (NS *NotificationService) DeleteService(recieverId, senderId, notifType, gr
 	return nil
 }
 
-// IsHasSeenFalse checks if the user has any notifications that are not seen.
-func (NS *NotificationService) IsHasSeenFalse(userId string) (bool, *models.ErrorJson) {
-	seen, errJson := NS.notifRepo.IsHasSeenFalse(userId)
+// IsHasSeen checks if the user has any notifications that are not seen.
+func (NS *NotificationService) IsHasSeen(userId string) (bool, *models.ErrorJson) {
+	seen, errJson := NS.notifRepo.IsHasSeen(userId)
 	if errJson != nil {
 		return false, errJson
 	}
@@ -91,7 +87,7 @@ func (NS *NotificationService) IsHasSeenFalse(userId string) (bool, *models.Erro
 
 // broadcast sends a notification to the user about new notifications or no new notifications.
 func (NS *NotificationService) broadcast(recieverId string) *models.ErrorJson {
-	hasSeen, errJson := NS.IsHasSeenFalse(recieverId)
+	hasSeen, errJson := NS.IsHasSeen(recieverId)
 	if errJson != nil {
 		return errJson
 	}

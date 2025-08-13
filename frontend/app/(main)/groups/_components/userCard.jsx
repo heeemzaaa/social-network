@@ -3,16 +3,14 @@ import Avatar from '../../_components/avatar';
 import Button from '@/app/_components/button';
 
 import { useNotification } from "../../_context/NotificationContext";
-
+import { useUserContext } from "../../_context/userContext";
 
 export default function UserCard({ user, groupId }) {
     const [inviteState, setInviteState] = useState(user.invited)
 
     const { showNotification } = useNotification();
-    
+    const { sendSocketMessage, authenticatedUser } = useUserContext();
 
-    // let's create here the function that toggles the state of the button with the same
-    // way as hamza 
     async function handleInviteCancelButtons() {
         let endpoint = `http://localhost:8080/api/groups/${groupId}/invitations/`
         let method = inviteState === 0 ? 'POST' : 'DELETE'
@@ -24,25 +22,60 @@ export default function UserCard({ user, groupId }) {
                 body: JSON.stringify({ 'id': user.id }),
             })
 
-            if (!res.ok) console.error("Failed to send the request")
-            const data = await res.json();
-
-            console.log(" ==>> ", data);
-            if (data.Message === 'ERROR!! already a member!' || data.Message === 'ERROR!! it is not from your followers!' || data.Message === 'ERROR!! Invitation not found') {
-                console.warn(data.Message.split("!!")[1])
-                showNotification({ Content: data.Message.split("!!")[1], Status: "error" });
-
-                // should access to the followers list and remove the user from the list
-
-                if (data.Message !== 'ERROR!! Invitation not found') return
+            if (!res.ok) {
+                console.error("Failed to send the request");
+                showNotification({ 
+                    Content: "Failed to send request", 
+                    Status: "error" 
+                });
+                return;
             }
 
-            setInviteState(inviteState === 0 ? 1: 0)
+            const data = await res.json();
+            console.log(" ==>> ", data);
 
-            // // should all this part be in the server side? Actions
+            // Handle error messages
+            if (data.Message === 'ERROR!! already a member!' || 
+                data.Message === 'ERROR!! it is not from your followers!' || 
+                data.Message === 'ERROR!! Invitation not found') {
+                
+                console.warn(data.Message.split("!!")[1])
+                showNotification({ 
+                    Content: data.Message.split("!!")[1], 
+                    Status: "error" 
+                });
+
+                if (data.Message !== 'ERROR!! Invitation not found') return
+                // should remove the user from the list
+            }
+
+            if (method === 'POST') {
+                sendSocketMessage({
+                    type: "notification",
+                    notif: {
+                        type: "group_invitation",
+                        group_id: groupId,
+                        user_id: user.id,
+                        sender_id: authenticatedUser?.id,
+                        action: "invite",
+                        Notification: data,
+                    }
+                });
+            }
+
+            setInviteState(inviteState === 0 ? 1 : 0);
+
+            showNotification({ 
+                Content: method === 'POST' ? "Invitation sent!" : "Invitation cancelled", 
+                Status: "success" 
+            });
 
         } catch (err) {
-            console.log(err);
+            console.error("Request error:", err);
+            showNotification({ 
+                Content: "Something went wrong. Please try again.", 
+                Status: "error" 
+            });
         }
     }
 
@@ -77,15 +110,12 @@ export default function UserCard({ user, groupId }) {
                     </div>
                 </div>
                 {
-                    inviteState === 0 ? <Button onClick={() => handleInviteCancelButtons()} >
+                    inviteState === 0 ? <Button onClick={handleInviteCancelButtons} >
                         Invite
-                    </Button> : <Button variant={"btn-danger"} onClick={() => handleInviteCancelButtons()} >
+                    </Button> : <Button variant={"btn-danger"} onClick={handleInviteCancelButtons} >
                         Cancel
                     </Button>
                 }
-
-
-
             </div>
         </section>
     );

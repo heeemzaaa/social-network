@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"fmt"
 	"io"
 	"slices"
 
@@ -172,9 +173,9 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 				conn.Message <- message
 			}
 		}
-	case  "notification": 
-	
-	   
+	case "notification":
+		fmt.Println("notification sent in chat server")
+
 	}
 }
 
@@ -220,7 +221,7 @@ func (server *ChatServer) SendNotificationToUser(userID, notifContent string, ha
 	notification := map[string]string{ // struct not map
 		"type":    "notification",
 		"content": notifContent,
-		"seen": hasSeen,
+		"seen":    hasSeen,
 	}
 
 	var errs []error

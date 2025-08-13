@@ -10,6 +10,25 @@ export default function UserProvider({ children }) {
 
   const [hasNewNotification, setHasNewNotification] = useState(false); //
 
+  const handleNotificationSeen = (data) => {
+    console.log("Notification seen data:", data);
+    setHasNewNotification(data.seen === "true"? true: false);
+  }
+
+  const sendSocketMessage = (data) => {
+    if (!socketRef.current) return console.warn("⚠️ Socket not available");
+    
+    if (socketRef.current.readyState !== WebSocket.OPEN) return console.warn("⚠️ Socket not connected");
+    
+    try {
+      socketRef.current.send(JSON.stringify(data));
+      console.log("✅ Socket message sent:", data);
+
+    } catch (err) {
+      console.error("❌ Socket send error:", err);
+    }
+  };
+
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
@@ -43,36 +62,19 @@ export default function UserProvider({ children }) {
     const socket = new WebSocket("ws://localhost:8080/ws/chat/");
     socketRef.current = socket;
 
-    socket.onopen = () => {
-      console.log("🟢 WebSocket connected");
-    };
+    socket.onopen = () => console.log("🟢 WebSocket connected");
 
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
 
-        if (data.type === "notification") { // type notification
-          console.log("New notification received:", data.content);
+        if (data.type === "notification") return handleNotificationSeen(data);
 
-          if (data.seen === "true") setHasNewNotification(true);
-          else if (data.seen === "false") setHasNewNotification(false);
-          
-          return;
-        }
+        if (typeof data.content === "string" && data.content !== "" && (data.type === "private" || data.type === "group")) {
 
-        if (
-          typeof data.content === "string" &&
-          data.content !== "" &&
-          (data.type === "private" || data.type === "group")
-        ) {
           const isMe = data.sender_id === authenticatedUser.id;
 
-          const chatKey =
-            data.type === "group"
-              ? data.target_id
-              : isMe
-              ? data.target_id
-              : data.sender_id;
+          const chatKey = data.type === "group" ? data.target_id : isMe ? data.target_id : data.sender_id;
 
           const newMsg = {
             content: data.content,
@@ -81,10 +83,7 @@ export default function UserProvider({ children }) {
             username: data.sender_name || data.receiver_name,
           };
 
-          setMessages((prev) => ({
-            ...prev,
-            [chatKey]: [...(prev[chatKey] || []), newMsg],
-          }));
+          setMessages((prev) => ({...prev, [chatKey]: [...(prev[chatKey] || []), newMsg], }));
         }
       } catch (err) {
         console.error("❌ Failed to parse WebSocket message:", err);
@@ -108,11 +107,12 @@ export default function UserProvider({ children }) {
     <UserContext.Provider
       value={{
         socket: socketRef.current,
+        sendSocketMessage,  // <- zid hadi
         messages,
         setMessages,
         authenticatedUser,
-        hasNewNotification,       // add this
-        setHasNewNotification     // add this
+        hasNewNotification,
+        setHasNewNotification,
       }}
     >
       {children}

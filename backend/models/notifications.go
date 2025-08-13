@@ -4,7 +4,7 @@ import "time"
 
 // database notification structure
 type Notification struct {
-	Id             string 
+	Id             string
 	SenderId       string
 	RecieverId     string
 	GroupId        string
@@ -59,4 +59,16 @@ type ResponseMsg struct {
 // NewResponseMsg creates a new instance of ResponseMsg.
 func NewResponseMsg() *ResponseMsg {
 	return &ResponseMsg{}
+}
+
+// structure of response message after notification action
+type ResponseData struct {
+	Status        bool
+	Message       string
+	Notifications []Notification
+}
+
+// NewResponseData creates a new instance of ResponseData.
+func NewResponseData() *ResponseData {
+	return &ResponseData{}
 }
