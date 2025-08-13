@@ -20,7 +20,7 @@ func (s *ProfileService) AcceptedRequest(userID string, authUserID string) *mode
 		return &models.ErrorJson{Status: 403, Error: "The user is already following you !"}
 	}
 
-	err := s.repo.AcceptedRequest(userID, authUserID)
+	_, err := s.repo.AcceptedRequest(userID, authUserID)
 	if err != nil {
 		return &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}

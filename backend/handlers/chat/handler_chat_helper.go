@@ -183,7 +183,7 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 		notification := message.Notification
 		fmt.Printf("notification:  inside the broadcast %v\n", notification)
 
-		connections := user.chatServer.client[notification.RecieverId]
+		connections := user.chatServer.client[notification.TargetID]
 		for _, conn := range connections {
 			conn.Message <- &models.Message{
 				Type:    "notification",

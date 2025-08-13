@@ -15,7 +15,7 @@ func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string)
 	INSERT INTO group_requests (requestID, senderID, receiverID, groupID, typeRequest)
 	VALUES (?,?,?,?,?)
 	RETURNING (SELECT concat(firstName , ' ', lastName) FROM users WHERE userID = ?  ) ,  
-	 (SELECT  title FROM groups WHERE groupID = ?  )
+	 (SELECT  title FROM groups WHERE groupID = ? )
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
@@ -29,6 +29,7 @@ func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	
 	notification.SenderId = userId
 	notification.RecieverId = userToInvite
 	notification.GroupId = groupId

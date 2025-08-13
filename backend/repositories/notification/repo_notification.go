@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"social-network/backend/models"
+	"social-network/backend/utils"
 )
 
 type NotifRepository struct {
@@ -27,23 +28,20 @@ func (repo *NotifRepository) SelectNotificationById(notifId string) (models.Noti
 	var notification models.Notification
 	if err = stmt.QueryRow(notifId).Scan(
 		&notification.Id,
-		&notification.RecieverId,
-		&notification.SenderId,
-		&notification.SenderFullName,
+		&notification.SenderID,
+		&notification.TargetID,
 		&notification.Seen,
 		&notification.Type,
 		&notification.Status,
-		&notification.GroupId,
-		&notification.GroupName,
-		&notification.EventId,
+		&notification.Content,
 		&notification.CreatedAt,
 	); err != nil {
 		if err == sql.ErrNoRows {
-            return models.Notification{}, &models.ErrorJson{
-                Status:  404,
-                Message: "Notification not found",
-            }
-        }
+			return models.Notification{}, &models.ErrorJson{
+				Status:  404,
+				Message: "Notification not found",
+			}
+		}
 		return notification, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	return notification, nil
@@ -52,7 +50,7 @@ func (repo *NotifRepository) SelectNotificationById(notifId string) (models.Noti
 // select all notifications for reciever by sort first status [later-first], second sort by time
 func (repo *NotifRepository) SelectAllNotification(userId string) ([]models.Notification, *models.ErrorJson) {
 	all := []models.Notification{}
-	query := `SELECT * FROM notifications WHERE recieverId = ?`
+	query := `SELECT * FROM notifications WHERE targetId = ?`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -68,7 +66,7 @@ func (repo *NotifRepository) SelectAllNotification(userId string) ([]models.Noti
 
 	for rows.Next() {
 		var notification models.Notification
-		err = rows.Scan(&notification.Id, &notification.RecieverId, &notification.SenderId, &notification.SenderFullName, &notification.Seen, &notification.Type, &notification.Status, &notification.GroupId, &notification.GroupName, &notification.EventId, &notification.CreatedAt)
+		err = rows.Scan(&notification.Id, &notification.SenderID, &notification.TargetID, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.CreatedAt)
 		if err != nil {
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}
@@ -81,7 +79,7 @@ func (repo *NotifRepository) SelectAllNotification(userId string) ([]models.Noti
 // select all notifications by recieverId and notifType
 func (repo *NotifRepository) SelectAllNotificationByType(userId, notifType string) ([]models.Notification, *models.ErrorJson) {
 	all := []models.Notification{}
-	query := `SELECT * FROM notifications WHERE recieverId = ? AND notifType = ?`
+	query := `SELECT * FROM notifications WHERE targetId = ? AND notifType = ?`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -99,15 +97,12 @@ func (repo *NotifRepository) SelectAllNotificationByType(userId, notifType strin
 		var notification models.Notification
 		if err = rows.Scan(
 			&notification.Id,
-			&notification.RecieverId,
-			&notification.SenderId,
-			&notification.SenderFullName,
+			&notification.SenderID,
+			&notification.TargetID,
 			&notification.Seen,
 			&notification.Type,
 			&notification.Status,
-			&notification.GroupId,
-			&notification.GroupName,
-			&notification.EventId,
+			&notification.Content,
 			&notification.CreatedAt,
 		); err != nil {
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
@@ -119,10 +114,11 @@ func (repo *NotifRepository) SelectAllNotificationByType(userId, notifType strin
 
 // delete duplicate notification before insert notification with the same state
 func (repo *NotifRepository) InsertNewNotification(data models.Notification) *models.ErrorJson {
+	notificationId := utils.NewUUID()
 	query := `
 		INSERT INTO notifications (
-			notifId, recieverId, senderId, senderFullName, seen, notifType, notifStatus, groupId, groupName, eventId, createdAt
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			notifId, senderId, targetId, notifType, notifStatus, content
+		) VALUES (?, ?, ?, ?, ?, ?)
 	`
 
 	stmt, err := repo.db.Prepare(query)
@@ -131,7 +127,8 @@ func (repo *NotifRepository) InsertNewNotification(data models.Notification) *mo
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(data.Id, data.RecieverId, data.SenderId, data.SenderFullName, data.Seen, data.Type, data.Status, data.GroupId, data.GroupName, data.EventId, data.CreatedAt)
+	_, err = stmt.Exec(notificationId, data.SenderID,
+		data.TargetID, data.Type, data.Status, data.Content)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}

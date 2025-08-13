@@ -4,17 +4,19 @@ import "time"
 
 // database notification structure
 type Notification struct {
-	Id             string
-	SenderId       string
-	RecieverId     string
-	GroupId        string
-	EventId        string
-	Type           string
-	SenderFullName string
-	GroupName      string
-	Status         string
-	Seen           bool
-	CreatedAt      time.Time
+	Id             string    `json:"id,omitempty"`
+	SenderID       string    `json:"sender_id,omitempty"`
+	TargetID       string    `json:"target_id,omitempty"`
+	Seen           bool      `json:"seen,omitempty"`
+	Type           string    `json:"type_notification,omitempty"`
+	Status         string    `json:"status,omitempty"`
+	Content        string    `json:"content,omitempty"`
+	CreatedAt      time.Time `json:"craeted_at"`
+
+	SenderFullName string    `json:"sender_fullname,omitempty"`
+	GroupName      string    `json:"group_name,omitempty"`
+	EventID        string    `json:"event_id,omitempty"`
+	EventName      string    `json:"event_name,omitempty"`
 }
 
 // NewNotification creates a new instance of Notification.
@@ -31,7 +33,7 @@ type Notif struct {
 	Type           string
 	SenderFullName string
 	GroupName      string
-	Content        string 
+	Content        string
 }
 
 // NewNotif creates a new instance of Notif.

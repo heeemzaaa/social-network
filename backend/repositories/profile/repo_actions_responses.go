@@ -29,18 +29,18 @@ func (repo *ProfileRepository) DeleteRequest(userID string, authUserID string) *
 
 // if the user accepted the follow request
 // I will delete it from the table and add him to the following list
-func (repo *ProfileRepository) AcceptedRequest(userID string, authUserID string) *models.ErrorJson {
+func (repo *ProfileRepository) AcceptedRequest(userID string, authUserID string) (*models.Notification, *models.ErrorJson) {
 	err := repo.DeleteRequest(userID, authUserID)
 	if err != nil {
-		return &models.ErrorJson{Status: err.Status, Error: err.Error}
+		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 
-	err = repo.FollowDone(userID, authUserID)
+	newNotif, err := repo.FollowDone(userID, authUserID)
 	if err != nil {
-		return &models.ErrorJson{Status: err.Status, Error: err.Error}
+		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 
-	return nil
+	return newNotif, nil
 }
 
 // here I will just delete it from the table of the follow requests

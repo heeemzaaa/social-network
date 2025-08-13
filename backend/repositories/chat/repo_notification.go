@@ -4,14 +4,16 @@ import (
 	"fmt"
 
 	"social-network/backend/models"
+	"social-network/backend/utils"
 )
 
 // delete duplicate notification before insert notification with the same state
 func (repo *ChatRepository) InsertNewNotification(data models.Notification) *models.ErrorJson {
+	notificationId := utils.NewUUID()
 	query := `
 		INSERT INTO notifications (
-			notifId, recieverId, senderId, senderFullName, seen, notifType, notifStatus, groupId, groupName, eventId, createdAt
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			notifId, senderId, targetId, notifType, notifStatus, content
+		) VALUES (?, ?, ?, ?, ?, ?)
 	`
 
 	stmt, err := repo.db.Prepare(query)
@@ -20,7 +22,8 @@ func (repo *ChatRepository) InsertNewNotification(data models.Notification) *mod
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(data.Id, data.RecieverId, data.SenderId, data.SenderFullName, data.Seen, data.Type, data.Status, data.GroupId, data.GroupName, data.EventId, data.CreatedAt)
+	_, err = stmt.Exec(notificationId, data.SenderID,
+		data.TargetID, data.Type, data.Status, data.Content)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
@@ -28,7 +31,7 @@ func (repo *ChatRepository) InsertNewNotification(data models.Notification) *mod
 }
 
 // delete duplicated follow notification
-func  (repo *ChatRepository) DeleteFollowNotification(userId, authUserId, notifType string) *models.ErrorJson {
+func (repo *ChatRepository) DeleteFollowNotification(userId, authUserId, notifType string) *models.ErrorJson {
 	query := `DELETE FROM notifications WHERE senderId = ? AND recieverId = ? AND (notifType = "follow-private" OR notifType = "follow-public")`
 
 	stmt, err := repo.db.Prepare(query)
@@ -45,7 +48,7 @@ func  (repo *ChatRepository) DeleteFollowNotification(userId, authUserId, notifT
 }
 
 // delete duplicated group notification
-func  (repo *ChatRepository) DeleteGroupNotification(userId, authUserId, notifType, groupId string) *models.ErrorJson {
+func (repo *ChatRepository) DeleteGroupNotification(userId, authUserId, notifType, groupId string) *models.ErrorJson {
 	query := `DELETE FROM notifications WHERE senderId = ? AND recieverId = ? AND notifType = ? AND groupId = ?`
 
 	stmt, err := repo.db.Prepare(query)

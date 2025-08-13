@@ -1,7 +1,6 @@
 package notification
 
 import (
-	"fmt"
 	"social-network/backend/models"
 )
 
@@ -12,7 +11,7 @@ func (NS *NotificationService) UpdateService(data models.Unotif, userId string) 
 		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
 
-	if userId != notification.RecieverId {
+	if userId != notification.TargetID {
 		return &models.ErrorJson{Status: 403, Error: "ERROR 403 Acces Forbidden", Message: "Invalid Operation"}
 	}
 
@@ -24,9 +23,9 @@ func (NS *NotificationService) UpdateService(data models.Unotif, userId string) 
 	case "follow-private":
 		errJson = NS.UpdateFollowPrivateProfile(data, notification)
 	case "group-invitation":
-		errJson = NS.UpdateGroupInvitationRequest(data, notification)
+		// errJson = NS.UpdateGroupInvitationRequest(data, notification)
 	case "group-join":
-		errJson = NS.UpdateGroupJoinRequest(data, notification)
+		// errJson = NS.UpdateGroupJoinRequest(data, notification)
 	default:
 		return models.NewErrorJson(400, "400 - Bad Request", "invalid type")
 	}
@@ -44,12 +43,12 @@ func (NS *NotificationService) UpdateService(data models.Unotif, userId string) 
 func (NS *NotificationService) UpdateFollowPrivateProfile(data models.Unotif, notification models.Notification) *models.ErrorJson {
 	switch data.Status {
 	case "accept":
-		if err := NS.profileService.AcceptedRequest(notification.RecieverId, notification.SenderId); err != nil {
+		if err := NS.profileService.AcceptedRequest(notification.TargetID, notification.SenderID); err != nil {
 			return models.NewErrorJson(500, "500 - cannot accept request", err)
 		}
 
 	case "reject":
-		if err := NS.profileService.RejectedRequest(notification.RecieverId, notification.SenderId); err != nil {
+		if err := NS.profileService.RejectedRequest(notification.TargetID, notification.SenderID); err != nil {
 			return models.NewErrorJson(500, "500 - cannot reject request", err)
 		}
 
@@ -59,73 +58,73 @@ func (NS *NotificationService) UpdateFollowPrivateProfile(data models.Unotif, no
 	return nil
 }
 
-// UpdateGroupJoinRequest updates the group join request based on the provided data.
-func (NS *NotificationService) UpdateGroupJoinRequest(data models.Unotif, notification models.Notification) *models.ErrorJson {
-	switch data.Status {
-	case "accept":
-		if err := NS.groupService.Approve(notification.RecieverId, notification.GroupId, notification.SenderId); err != nil {
-			return models.NewErrorJson(500, "500 - cannot accept request", err)
-		}
+// // UpdateGroupJoinRequest updates the group join request based on the provided data.
+// func (NS *NotificationService) UpdateGroupJoinRequest(data models.Unotif, notification models.Notification) *models.ErrorJson {
+// 	switch data.Status {
+// 	case "accept":
+// 		if err := NS.groupService.Approve(notification.TargetID, notification.GroupId, notification.SenderID); err != nil {
+// 			return models.NewErrorJson(500, "500 - cannot accept request", err)
+// 		}
 
-		// check if request exists 
-		if err := NS.groupService.CancelTheInvitation(notification.RecieverId, notification.GroupId, notification.SenderId); err != nil {
-			if err.Status == 404 && err.Message == "ERROR!! Invitation not found" {
-				if err := NS.DeleteService(notification.SenderId, notification.RecieverId, "group-invitation", notification.GroupId); err != nil {
-					return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
-				}
-				return nil
-			}
-			return models.NewErrorJson(500, fmt.Sprintf("500 - %v", err), "cannot cancel invitation request after accept join request")
-		}
+// 		// check if request exists
+// 		if err := NS.groupService.CancelTheInvitation(notification.TargetID, notification.GroupId, notification.SenderID); err != nil {
+// 			if err.Status == 404 && err.Message == "ERROR!! Invitation not found" {
+// 				if err := NS.DeleteService(notification.SenderID, notification.TargetID, "group-invitation", notification.GroupId); err != nil {
+// 					return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
+// 				}
+// 				return nil
+// 			}
+// 			return models.NewErrorJson(500, fmt.Sprintf("500 - %v", err), "cannot cancel invitation request after accept join request")
+// 		}
 
-		if err := NS.DeleteService(notification.SenderId, notification.RecieverId, "group-invitation", notification.GroupId); err != nil {
-			return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
-		}
+// 		if err := NS.DeleteService(notification.SenderID, notification.TargetID, "group-invitation", notification.GroupId); err != nil {
+// 			return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
+// 		}
 
-	case "reject":
-		if err := NS.groupService.Decline(notification.RecieverId, notification.GroupId, notification.SenderId); err != nil {
-			return models.NewErrorJson(500, "500 - cannot decline request", err)
-		}
+// 	case "reject":
+// 		if err := NS.groupService.Decline(notification.TargetID, notification.GroupId, notification.SenderID); err != nil {
+// 			return models.NewErrorJson(500, "500 - cannot decline request", err)
+// 		}
 
-	default:
-		return models.NewErrorJson(400, "Bad-Request 400", "Invalid Status")
-	}
-	return nil
-}
+// 	default:
+// 		return models.NewErrorJson(400, "Bad-Request 400", "Invalid Status")
+// 	}
+// 	return nil
+// }
 
-// UpdateGroupInvitationRequest updates the group invitation request based on the provided data.
-func (NS *NotificationService) UpdateGroupInvitationRequest(data models.Unotif, notification models.Notification) *models.ErrorJson {
-	switch data.Status {
-	case "accept":
-		if err := NS.groupService.Accept(notification.SenderId, notification.GroupId, notification.RecieverId); err != nil {
-			return models.NewErrorJson(500, "500 - cannot accept request", err)
-		}
+// // UpdateGroupInvitationRequest updates the group invitation request based on the provided data.
+// func (NS *NotificationService) UpdateGroupInvitationRequest(data models.Unotif, notification models.Notification) *models.ErrorJson {
+// 	switch data.Status {
+// 	case "accept":
+// 		if err := NS.groupService.Accept(notification.SenderID, notification.GroupId, notification.TargetID); err != nil {
+// 			return models.NewErrorJson(500, "500 - cannot accept request", err)
+// 		}
 
-		// check if request exists
-		_, err := NS.groupService.RequestToCancel(notification.RecieverId, notification.GroupId);
-		if err != nil {
+// 		// check if request exists
+// 		_, err := NS.groupService.RequestToCancel(notification.TargetID, notification.GroupId);
+// 		if err != nil {
 
-			// if the error is because the user has not requested to join or is already a member case when has notification 
-			if (err.Status == 404 && err.Message == "ERROR!! Invitation not found") || (err.Status == 403 && err.Message == "ERROR!! already a member!") {
-				if err := NS.DeleteService(notification.SenderId, notification.RecieverId, "group-join", notification.GroupId); err != nil {
-					return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
-				}
-				return nil
-			}
-			return models.NewErrorJson(500, "500 - cannot cancel join request after accept join request", err)
-		}
+// 			// if the error is because the user has not requested to join or is already a member case when has notification
+// 			if (err.Status == 404 && err.Message == "ERROR!! Invitation not found") || (err.Status == 403 && err.Message == "ERROR!! already a member!") {
+// 				if err := NS.DeleteService(notification.SenderID, notification.TargetID, "group-join", notification.GroupId); err != nil {
+// 					return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
+// 				}
+// 				return nil
+// 			}
+// 			return models.NewErrorJson(500, "500 - cannot cancel join request after accept join request", err)
+// 		}
 
-		if err := NS.DeleteService(notification.SenderId, notification.RecieverId, "group-join", notification.GroupId); err != nil {
-			return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
-		}
+// 		if err := NS.DeleteService(notification.SenderID, notification.TargetID, "group-join", notification.GroupId); err != nil {
+// 			return models.NewErrorJson(500, "500 - cannot delete notification join after accept join request", err)
+// 		}
 
-	case "reject":
-		if err := NS.groupService.Reject(notification.SenderId, notification.GroupId, notification.RecieverId); err != nil {
-			return models.NewErrorJson(500, "500 - cannot accept request", err)
-		}
+// 	case "reject":
+// 		if err := NS.groupService.Reject(notification.SenderID, notification.GroupId, notification.TargetID); err != nil {
+// 			return models.NewErrorJson(500, "500 - cannot accept request", err)
+// 		}
 
-	default:
-		return models.NewErrorJson(400, "Bad-Request", "Invalid Status")
-	}
-	return nil
-}
+// 	default:
+// 		return models.NewErrorJson(400, "Bad-Request", "Invalid Status")
+// 	}
+// 	return nil
+// }
