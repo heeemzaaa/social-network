@@ -72,7 +72,7 @@ export default function PostCardList() {
             ) : (
                 <div style={{ width: "100%", maxWidth: "500px", margin: "auto", textAlign: "center" }}>
                     <img src="/noFeed.svg" alt="No posts available" />
-                    <p className="font-semibold">No posts available for you!</p>
+                    <p className="font-semibold text-xl">No posts available for you!</p>
                 </div>
             )}
         </div>

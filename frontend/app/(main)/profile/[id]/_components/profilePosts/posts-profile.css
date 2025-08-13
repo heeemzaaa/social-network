@@ -1,0 +1,18 @@
+.posts_container {
+    display: flex;
+    align-items: start;
+}
+
+.image-no-posts {
+    width: 55%;
+}
+
+@media (max-width: 1440px) {
+    .posts_container {
+        align-items: center;
+    }
+
+    .image-no-posts {
+        width: 100%;
+    }
+}

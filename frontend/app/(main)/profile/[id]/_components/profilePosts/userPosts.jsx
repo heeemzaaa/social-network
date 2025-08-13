@@ -6,6 +6,7 @@ import { useModal } from '@/app/(main)/_context/ModalContext'
 import Error from '@/app/(main)/_components/error'
 import Loader from '@/app/(main)/_components/loader'
 import { useRouter } from 'next/navigation'
+import './posts-profile.css'
 
 export default function UserPosts({ profileId, access, changed }) {
     const [posts, setPosts] = useState([])
@@ -121,21 +122,27 @@ export default function UserPosts({ profileId, access, changed }) {
     if (access === false) {
         return (
             <section className='posts_container w-full h-full flex-col justify-center align-center'>
-                <img src="/forbidden-posts.svg" style={{ height: '100%' }} />
-                <p className='text-2xl'>You must follow to see the posts</p>
+                <img src="/forbidden-posts.svg" className='w-half mx-auto' />
+                <p className='text-xl font-semibold'>You must follow to see the posts</p>
             </section>
+        )
+    }
+
+    if (posts.length === 0) {
+        return (
+            <section className='posts_container scrollable-section h-full w-full flex justify-center align-center'>
+                <img src="/no-data-animate.svg" className='image-no-posts'/>
+            </section>
+
         )
     }
 
     return (
         <section className='posts_container scrollable-section w-full h-full'>
-            {posts.length === 0 ? (
-                <img src="/no-posts.svg" className='w-full h-full' />
-            ) : (
-                posts.map((post) => {
-                    return <PostCard {...post} key={post.id} />
-                })
-            )}
+            {posts.map((post) => {
+                return <PostCard {...post} key={post.id} />
+            })
+            }
             {isLoading && hasMore && <div className="w-full"> <Loader /></div>}
             {hasMore && !isLoading && (
                 <div ref={loadMoreRef} className="w-full" style={{ height: "20px" }}></div>
