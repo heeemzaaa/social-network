@@ -4,8 +4,9 @@ import (
 	"social-network/backend/models"
 )
 
+// create the comment service .... 
 func (s *PostService) CreateComment(userID string, postID string, content string, image_url string) (*models.Comment, *models.ErrorJson) {
-	
+	// only if the post exist 
 	exists, err := s.repo.PostExist(postID)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}

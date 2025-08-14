@@ -10,7 +10,7 @@ import (
 	"social-network/backend/models"
 	"social-network/backend/utils"
 )
-
+// comment post
 func (h *PostHandler) CommentPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "Method not allowed !"})

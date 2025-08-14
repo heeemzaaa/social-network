@@ -3,7 +3,7 @@ package services
 import (
 	"social-network/backend/models"
 )
-
+// hanlde lke ont if the post exist ,,
 func (s *PostService) HandleLike(postID string, userID string) (bool, int, *models.ErrorJson) {
 	exists, err := s.repo.PostExist(postID)
 	if err != nil {

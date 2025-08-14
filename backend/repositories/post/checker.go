@@ -6,7 +6,7 @@ import (
 
 	"social-network/backend/models"
 )
-
+// chcker for post if it exist 
 func (r *PostsRepository) PostExist(postID string) (bool, *models.ErrorJson) {
 	var exists bool
 	

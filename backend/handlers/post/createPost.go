@@ -10,6 +10,7 @@ import (
 	"social-network/backend/utils"
 )
 
+// create post
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	usID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {

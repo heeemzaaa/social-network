@@ -6,7 +6,7 @@ import (
 	"social-network/backend/models"
 	"social-network/backend/utils"
 )
-
+// get comment 
 func (h *PostHandler) GetComments(w http.ResponseWriter, r *http.Request) {
 	postID, err := utils.GetUUIDFromPath(r, "id")
 	if err != nil {

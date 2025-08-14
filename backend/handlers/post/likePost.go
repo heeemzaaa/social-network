@@ -8,7 +8,7 @@ import (
 	"social-network/backend/models"
 	"social-network/backend/utils"
 )
-
+// like post 
 func (h *PostHandler) LikePost(w http.ResponseWriter, r *http.Request) {
 	postID, err := utils.GetUUIDFromPath(r, "id")
 	if err != nil {
@@ -28,7 +28,7 @@ func (h *PostHandler) LikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
+	// return the response 
 	utils.WriteDataBack(w, map[string]any{
 		"success":     true,
 		"message":     "Post like updated successfully",

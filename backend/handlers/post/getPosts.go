@@ -9,6 +9,7 @@ import (
 	"social-network/backend/utils"
 )
 
+// get posts
 func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	usID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {

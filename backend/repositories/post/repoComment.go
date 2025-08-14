@@ -7,7 +7,7 @@ import (
 	"social-network/backend/models"
 	"social-network/backend/utils"
 )
-
+// creae comment method
 func (r *PostsRepository) CreateComment(userID string, postID string, content string, image_url string) (*models.Comment, *models.ErrorJson) {
 	commentID := utils.NewUUID()
 	var comment models.Comment
@@ -62,5 +62,6 @@ func (r *PostsRepository) CreateComment(userID string, postID string, content st
 		log.Println("Error getting the data of the comment: ", err)
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
+	// return the comment 
 	return &comment, nil
 }

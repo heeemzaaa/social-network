@@ -6,10 +6,10 @@ import (
 
 	"social-network/backend/models"
 )
-
+// get comment method ...
 func (repo *PostsRepository) GetComments(postID string) ([]models.Comment, *models.ErrorJson) {
 	comments := []models.Comment{}
-
+	// get all commets (by post id ) order by create at 
 	query := `
 	SELECT 
 	u.userID, CONCAT(u.firstName, ' ', u.lastName) AS fullName, u.nickname, u.avatarPath,
@@ -55,6 +55,6 @@ func (repo *PostsRepository) GetComments(postID string) ([]models.Comment, *mode
 		log.Println("Error scanning all comments of the post: ", err)
 		return []models.Comment{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-
+	// return the comments
 	return comments, nil
 }

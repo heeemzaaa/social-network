@@ -8,15 +8,16 @@ import (
 	ps "social-network/backend/services/post"
 	"social-network/backend/utils"
 )
-
+// post handler struct with serive struct to acces to its function
 type PostHandler struct {
 	service *ps.PostService
 }
 
+// new post hanlder with the given service
 func NewPostHandler(service *ps.PostService) *PostHandler {
 	return &PostHandler{service: service}
 }
-
+// the serving method 
 func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
@@ -25,7 +26,7 @@ func (h *PostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Message: "Not found"})
 		return
 	}
-
+	// cases of method
 	switch r.Method {
 	case http.MethodGet:
 		if len(pathParts) == 2 {
