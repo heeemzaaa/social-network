@@ -74,8 +74,8 @@ func UpdateNotif() *Unotif {
 
 // structure of response message after notification action
 type ResponseMsg struct {
-	Status  bool
-	Message string
+	Status  bool `json:"status,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 // NewResponseMsg creates a new instance of ResponseMsg.

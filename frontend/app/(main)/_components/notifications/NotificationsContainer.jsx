@@ -71,25 +71,35 @@ export default function NotificationsPopover() {
       };
 
       let response = await fetch("http://localhost:8080/api/notifications/update/", postRequest);
-      if (!response.ok) showNotification({Content:"failed to update notification", Status:"error"})
       let data = await response.json();
-      console.log("update notification response:", data.Status);
-      console.log("update notification response:", data.Message);
+      if (!response.ok) {
 
-      if (data.Status == false && data.Message === "Notification not found") {
-        console.warn("Notif not found, removing from notifications list")
-        setNotifications(prev => prev.filter(notif => notif.id !== notification.id))
-        showNotification({ Content: "Notification not found, removed from list", Status: "warn" })
-        return
+        if (data.error === "Notification not found") {
+          console.warn("Notif not found, removing from notifications list")
+          setNotifications(prev => prev.filter(notif => notif.id !== notification.id))
+          showNotification({ Content: "Notification not found, removed from list", Status: "warn" })
+          return
+        }
+        showNotification({Content:"failed to update notification", Status:"error"})
       }
+      console.log(" data response:   =========>>>  ", data);
+      console.log(" notification response:   =========>>>  ", notification);
+      console.log(" status response:   =========>>>  ", status);
 
-      console.log(`update notification response: Status: ${data.Status}, Data: ${data.Message}`);
-      setNotifications(prev => prev.map(notif => notif.id === notification.id ? { ...notif, Status: status } : notif)) // if notification updated seccessfly hide button
-      showNotification({ Content: `Notification ${status}ed successfully`, Status: "success"});
+      if (data.status === true ) {
+        console.log(`update notification response: Status: ${data.status}, Data: ${data.message}`);
+
+        setNotifications(prev => prev.map(notif => {
+          console.log(notif.status)
+          return notif.id === notification.id ? { ...notif, Status: status } : notif
+        })) // if notification updated seccessfly hide button
+
+        showNotification({ Content: `Notification ${status}ed successfully`, Status: "success"});
+      }
 
     } catch (error) {
       console.error(`Error ${status}ing notification:`, error);
-      showNotification({ Content: `Failed to ${status} notification: ${error.Message}`, Status: "error" });
+      showNotification({ Content: `Failed to ${status} notification: ${error.error}`, Status: "error" });
     }
   };
 
@@ -155,7 +165,7 @@ export default function NotificationsPopover() {
           {/* <p>{notificationContent(notif)}</p> */}
           <p>{notif.content || "content information not found !!"}</p>
 
-          {notif.status === "later" && notif.type_notification !== "follow-public" && (
+          {notif.status === "later" && (
             <div className="action-buttons">
               <button className="accept-btn" onClick={() => handleNotificationAction(notif, "accept")}>✔</button>
               <button className="reject-btn" onClick={() => handleNotificationAction(notif, "reject")}>✘</button>
