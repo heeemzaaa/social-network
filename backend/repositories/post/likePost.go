@@ -13,7 +13,8 @@ func (r *PostsRepository) HandleLike(postID string, userID string) (bool, int, *
 	entityType := "post"
 	reactionValue := 1
 
-	// Check if reaction already exists
+	// Check if reaction already exists 
+	// exist will have 0 or 1 => true or false 
 	checkQuery := `
 		SELECT EXISTS (
 			SELECT 1 FROM reactions 
@@ -21,14 +22,14 @@ func (r *PostsRepository) HandleLike(postID string, userID string) (bool, int, *
 			LIMIT 1
 		)
 	`
-
+	// prepare the query 
 	stmt, err := r.db.Prepare(checkQuery)
 	if err != nil {
 		log.Println("Error preparing the query to handle like: ", err)
 		return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-
+	// execute the query --> scan it 
 	err = stmt.QueryRow(userID, entityType, postID).Scan(&exists)
 	if err != nil {
 		log.Println("Error checking existing reaction:", err)
@@ -48,7 +49,6 @@ func (r *PostsRepository) HandleLike(postID string, userID string) (bool, int, *
 			return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 		}
 		defer stmt.Close()
-
 		_, err = stmt.Exec(
 			utils.NewUUID(),
 			entityType,
@@ -83,6 +83,7 @@ func (r *PostsRepository) HandleLike(postID string, userID string) (bool, int, *
 	}
 
 	var liked bool
+	// check if the post liked by person or not ....
 	likeCheckQuery := `
 		SELECT reaction = 1 FROM reactions
 		WHERE userID = ? AND entityType = ? AND entityID = ?
@@ -102,6 +103,7 @@ func (r *PostsRepository) HandleLike(postID string, userID string) (bool, int, *
 	}
 
 	var totalLikes int
+	// select the total likes 
 	countQuery := `
 		SELECT COUNT(*) FROM reactions
 		WHERE entityType = ? AND entityID = ? AND reaction = 1
@@ -119,6 +121,6 @@ func (r *PostsRepository) HandleLike(postID string, userID string) (bool, int, *
 		log.Println("Error fetching total likes:", err)
 		return false, 0, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-
+	// return the liked + total like to service
 	return liked, totalLikes, nil
 }
