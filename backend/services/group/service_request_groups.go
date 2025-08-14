@@ -34,7 +34,7 @@ func (gService *GroupService) RequestToJoin(userId, groupId string) (*models.Not
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 
-	// return ERROR!! already a member! if the user is already a member
+	// return ERROR!! Already a member! if the user is already a member
 	// always check the membership and also the the group is a valid one
 	if errMembership := gService.CheckNotMember(groupId, userId); errMembership != nil {
 		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
