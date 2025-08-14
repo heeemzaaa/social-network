@@ -7,7 +7,6 @@ import (
 
 func (gService *GroupService) Accept(userId, groupId string, userToBeAddedId string) *models.ErrorJson {
 	// to approve wheter it we need
-	// awalan userId ykun dyal l admin
 	// tanyan l user_id lakhur ykun valid (format , and aslo kayn f db)
 	// talitan add the user_id to the the members of the group
 	// rabi3an delete the request from the table of the requets-join
@@ -20,14 +19,14 @@ func (gService *GroupService) Accept(userId, groupId string, userToBeAddedId str
 	// validate the format of the user to be added
 	if err := utils.IsValidUUID(userToBeAddedId); err != nil {
 		return &models.ErrorJson{Status: 400, Message: models.UserErr{
-			UserId: "ERROR!! Incorrect UUID Format!",
+			UserId: "Incorrect UUID Format!",
 		}}
 	}
 
 	_, exists, _ := gService.gRepo.GetItem("users", "userID", userToBeAddedId)
 	if !exists {
 		return &models.ErrorJson{Status: 400, Message: models.UserErr{
-			UserId: "ERROR!! user not found",
+			UserId: "user not found",
 		}}
 	}	
 	// validate if wheter exists or not !!

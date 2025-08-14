@@ -71,23 +71,6 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToCancel(w http.ResponseWriter
 
 	data, errJson := GrpReqHandler.gService.RequestToCancel(userID.String(), groupID.String())
 	if errJson != nil {
-		// check if the error is because has not requested to join
-		if errJson.Status == 404 && errJson.Message == "ERROR!! Invitation not found" {
-			utils.WriteDataBack(w, models.ResponseMsg{
-				Status:  false,
-				Message: fmt.Sprintf("%v", errJson.Message),
-			})
-			return
-		}
-		// (or the user is not a member of the group)
-		// if errJson.Status == 403 && errJson.Message == "ERROR!! You are already a member!" {
-		// 	utils.WriteDataBack(w, models.ResponseMsg{
-		// 		Status:  false,
-		// 		Message: "ERROR!! You are already a member!",
-		// 	})
-		// 	return
-		// }
-
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}

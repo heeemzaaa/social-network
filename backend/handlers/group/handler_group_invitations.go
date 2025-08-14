@@ -51,13 +51,6 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 	newNotif, errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String(), userToInvite)
 	if errJson != nil {
 		// check if the user is already a member of the group case want invite someone who is already a member
-		if errJson.Status == 403 && (errJson.Message == "ERROR!! already a member!" || errJson.Message == "ERROR!! it is not from your followers!") {
-			utils.WriteDataBack(w, models.ResponseMsg{
-				Status:  false,
-				Message: fmt.Sprintf("%v", errJson.Message),
-			})
-			return
-		}
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
@@ -104,21 +97,7 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 			return
 		}
 		// if errJson.Status == 403 && errJson.Message == "ERROR!! Acces Forbidden!" {
-		// 	utils.WriteDataBack(w, models.ResponseMsg{
-		// 		Status:  false,
-		// 		Message: "request not found !!!!!!!!!!!",
-		// 	})
-		// 	return
-		// }
-
-		// if errJson.Status == 403 && errJson.Message == "ERROR!! already a member!" {
-		// 	utils.WriteDataBack(w, models.ResponseMsg{
-		// 		Status:  false,
-		// 		Message: "ERROR!! already a member!",
-		// 	})
-		// 	return
-		// }
-
+	
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
