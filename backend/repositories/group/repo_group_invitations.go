@@ -8,31 +8,30 @@ import (
 	"social-network/backend/utils"
 )
 
-func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string) (*models.Notif, *models.ErrorJson) {
-	fmt.Println(userId, groupId, userToInvite)
+func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string) (*models.Notification, *models.ErrorJson) {
 	invitationID := utils.NewUUID()
 	query := `
 	INSERT INTO group_requests (requestID, senderID, receiverID, groupID, typeRequest)
 	VALUES (?,?,?,?,?)
 	RETURNING (SELECT concat(firstName , ' ', lastName) FROM users WHERE userID = ?  ) ,  
-	 (SELECT  title FROM groups WHERE groupID = ? )
+	(SELECT  title FROM groups WHERE groupID = ? )
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	notification := models.NewNotif()
+	notification := &models.Notification{}
 	err = stmt.QueryRow(invitationID, userId, userToInvite, groupId, "invitation-request", userId, groupId).Scan(
 		&notification.SenderFullName, &notification.GroupName,
 	)
 	if err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-	
-	notification.SenderId = userId
-	notification.RecieverId = userToInvite
-	notification.GroupId = groupId
+
+	notification.SenderID = userId
+	notification.TargetID = userToInvite
+	notification.GroupID = groupId
 	notification.Type = "group-invitation"
 	notification.Content = fmt.Sprintf("%v sent you an invitation to join the group %v", notification.SenderFullName, notification.GroupName)
 	return notification, nil

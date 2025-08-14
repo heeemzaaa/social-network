@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -25,11 +24,9 @@ func (service *ChatService) DeleteService(targetId, senderId, notifType, groupId
 func (service *ChatService) PostService(notification models.Notification) *models.ErrorJson {
 	if errJson := service.DeleteService(notification.TargetID, notification.SenderID, notification.Type, notification.GroupID); errJson != nil {
 		return errJson
-	}						// for delete duplicate notification if exist /////
+	} // for delete duplicate notification if exist /////
 
 	var errJson *models.ErrorJson
-
-	fmt.Println("PostService - notification:", notification)
 
 	switch notification.Type {
 	case "follow-private":

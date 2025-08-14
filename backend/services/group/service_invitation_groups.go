@@ -4,7 +4,7 @@ import (
 	"social-network/backend/models"
 )
 
-func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite models.User) (*models.Notif, *models.ErrorJson) {
+func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite models.User) (*models.Notification, *models.ErrorJson) {
 	// check the group if a valid one
 	// check the user is member before he can invite
 	// check if the invited one is one of the followers of the user
