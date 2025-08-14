@@ -17,7 +17,7 @@ func (NS *NotificationService) UpdateService(data models.Unotif, userId string) 
 	}
 
 	if notification.Status != "later" {
-		return &models.ErrorJson{Status: 400, Error: "400 - Bad Request"}
+		return &models.ErrorJson{Status: 400, Error: "Bad Request"}
 	}
 
 	switch data.Type {

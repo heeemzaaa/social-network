@@ -43,20 +43,15 @@ func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 
 	err = json.NewDecoder(r.Body).Decode(&Data)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "400 - Bad request", Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "400 - Bad request"})
 		return
 	}
 
 	errJson := HUN.NS.UpdateService(Data, userId.String())
+	fmt.Println("hnaaaaaa !!!!!!")
+	fmt.Printf("%#v", errJson)
 	if errJson != nil {
-		if errJson.Status == 404 && errJson.Error == "Notification not found" {
-			utils.WriteDataBack(w, models.ErrorJson{
-				Status: 404,
-				Error:  "Notification not found",
-			})
-			return
-		}
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 
