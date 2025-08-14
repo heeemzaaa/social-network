@@ -112,7 +112,6 @@ export default function NotificationsPopover() {
       // setHasNewNotification(data.status === false ? false : true);
       // data.status === false ? null : showNotification({ Content: "you have new notifications", Status: "success" });
 
-
       const existingIds = new Set(notifications.map(notif => notif.id));
 
       const newNotifications = data?.Notifications.filter(notif => !existingIds.has(notif.id));

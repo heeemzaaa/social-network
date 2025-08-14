@@ -9,6 +9,7 @@ import (
 // UpdateService updates a notification based on the provided data and user ID.
 func (NS *NotificationService) UpdateService(data models.Unotif, userId string) *models.ErrorJson {
 	notification, errJson := NS.notifRepo.SelectNotificationById(data.NotifId)
+	fmt.Println("hnaaaa", notification)
 	if errJson != nil {
 		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
 	}
@@ -27,6 +28,8 @@ func (NS *NotificationService) UpdateService(data models.Unotif, userId string) 
 	case "group-invitation":
 		// errJson = NS.UpdateGroupInvitationRequest(data, notification)
 	case "group-join":
+		fmt.Println("lhiiih")
+
 		errJson = NS.UpdateGroupJoinRequest(data, notification)
 	default:
 		return models.NewErrorJson(400, "400 - Bad Request", "invalid type")
