@@ -41,7 +41,6 @@ func (gRepo *GroupRepository) RequestToJoin(userId, groupId string) (*models.Not
 	// the groupNAME IS important if the admin has multiple groups ( and he is the admin)
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		fmt.Println("hhhhhhhhhhhhhhhhhhh")
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()

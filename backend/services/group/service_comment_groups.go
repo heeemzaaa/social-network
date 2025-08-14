@@ -1,7 +1,6 @@
 package group
 
 import (
-	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -40,8 +39,7 @@ func (gService *GroupService) AddComment(comment *models.CommentGroup) (*models.
 	}
 
 	message := models.CommentGroupErr{}
-	fmt.Printf("comment.Content: %v\n", comment.Content)
-	fmt.Printf("comment.ImagePath: %v\n", comment.ImagePath)
+
 	if strings.TrimSpace(comment.Content) == "" && strings.TrimSpace(comment.ImagePath) == "" {
 		message.Content = "empty body comment!"
 	}

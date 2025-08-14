@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"fmt"
 	"io"
 	"slices"
 
@@ -181,14 +180,32 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 		}
 	case "notification":
 		notification := message.Notification
-		fmt.Printf("notification:  inside the broadcast %v\n", notification)
-
-		connections := user.chatServer.client[notification.TargetID]
-		for _, conn := range connections {
-			conn.Message <- &models.Message{
-				Type:    "notification",
-				Content: notification.Content,
+		switch notification.Type {
+		case "follow-private", "follow-public", "group-invitation", "group-join":
+			connections := user.chatServer.client[notification.TargetID]
+			for _, conn := range connections {
+				conn.Message <- &models.Message{
+					Type:    "notification",
+					Content: notification.Content,
+				}
 			}
+		case "group-event":
+			members, err := user.service.GetMembersOfGroup(message.TargetID)
+			if err != nil {
+				return
+			}
+			for _, member := range members {
+				if member == message.SenderID {
+					continue
+				}
+				for _, conn := range user.chatServer.client[member] {
+					conn.Message <- &models.Message{
+						Type:    "notification",
+						Content: notification.Content,
+					}
+				}
+			}
+
 		}
 
 	}

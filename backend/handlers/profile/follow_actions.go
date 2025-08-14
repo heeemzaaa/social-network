@@ -2,7 +2,6 @@ package profile
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"social-network/backend/middleware"
@@ -48,9 +47,6 @@ func (fa *FollowActionHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errFollow.Status, Error: errFollow.Error})
 		return
 	}
-
-	// fa.NS.PostService(data)
-	fmt.Println("NEW-FOLLOW-NOTIFICATION-DATA:", newNotif)
 
 	data := models.Data{
 		Notification: newNotif.PointerToSimple(),
