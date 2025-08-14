@@ -86,16 +86,3 @@ func (NS *NotificationService) IsHasSeen(userId string) (bool, *models.ErrorJson
 	return seen, nil
 }
 
-// broadcast sends a notification to the user about new notifications or no new notifications.
-// func (NS *NotificationService) broadcast(recieverId string) *models.ErrorJson {
-// 	hasSeen, errJson := NS.IsHasSeen(recieverId)
-// 	if errJson != nil {
-// 		return errJson
-// 	}
-// 	if hasSeen {
-// 		errJson = NS.chatServer.SendNotificationToUser(recieverId, "has new notification", "true")
-// 	} else {
-// 		errJson = NS.chatServer.SendNotificationToUser(recieverId, "dont have new notification", "false")
-// 	}
-// 	return errJson
-// }

@@ -28,7 +28,7 @@ func (gService *GroupService) InviteToJoin(userId, groupId string, userToInvite 
 		return nil, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
 	}
 	if !isFollower {
-		return nil, &models.ErrorJson{Status: 403, Error: "403 - Acces Forbidden", Message: "ERROR!! It is not from your followers!"}
+		return nil, &models.ErrorJson{Status: 403, Error: "It is not from your followers!"}
 	}
 
 	if errMembership := gService.CheckNotMember(groupId, userToInvite.Id); errMembership != nil {

@@ -45,8 +45,8 @@ export default function GroupCard({
                     return
                 }
             }
-            console.log("=====>>>",data)
-            if (data.error === 'ERROR!! Already a member!') {
+
+            if (data.error === 'Already a member!') {
                 showNotification({ Content: `You are already a member!`, Status: "warn" });
                 console.warn(`You are already a member!`)
                 router.push(`/groups/${group_id}`)

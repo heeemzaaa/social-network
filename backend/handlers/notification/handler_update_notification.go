@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
 	"social-network/backend/middleware"
 	"social-network/backend/models"
 
-	"social-network/backend/utils"
 	ns "social-network/backend/services/notification"
+	"social-network/backend/utils"
 )
 
 type UpdateHandler struct {
@@ -46,12 +47,12 @@ func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	errJson := HUN.NS.UpdateService(Data, userId.String());
+	errJson := HUN.NS.UpdateService(Data, userId.String())
 	if errJson != nil {
-		if errJson.Status == 404 && errJson.Message == "Notification not found" {
-			utils.WriteDataBack(w, models.ResponseMsg{
-				Status:  false,
-				Message: "Notification not found",
+		if errJson.Status == 404 && errJson.Error == "Notification not found" {
+			utils.WriteDataBack(w, models.ErrorJson{
+				Status: 404,
+				Error:  "Notification not found",
 			})
 			return
 		}
@@ -60,7 +61,7 @@ func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 	}
 
 	data := models.ResponseMsg{
-		Status: true,
+		Status:  true,
 		Message: "Your action was successful",
 	}
 	utils.WriteDataBack(w, data)
