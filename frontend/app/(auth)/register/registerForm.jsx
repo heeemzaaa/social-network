@@ -26,8 +26,7 @@ export default function RegisterForm() {
 
     return (
         <form noValidate action={action} className={`${styles.form}`}>
-            <Logo />
-            <div className="flex gap-3">
+                <div className="register-data flex gap-3">
                 <div className="flex-col gap-1">
                     {/* first name */}
                     <div className={styles.formGrp}>
