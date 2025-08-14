@@ -50,11 +50,11 @@ func (fa *FollowActionHandler) Follow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// fa.NS.PostService(data)
-	fmt.Println("NEW-FOLLOW-NOTIFICATION :", newNotif)
+	fmt.Println("NEW-FOLLOW-NOTIFICATION-DATA:", newNotif)
 
 	data := models.Data{
 		Notification: newNotif.PointerToSimple(),
-		Data:         profile, // here
+		Data:         profile,
 	}
 
 	utils.WriteDataBack(w, data)

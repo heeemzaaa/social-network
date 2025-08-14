@@ -23,9 +23,9 @@ func (service *ChatService) DeleteService(targetId, senderId, notifType, groupId
 
 // PostService handles the creation of a new notification based on the provided data.
 func (service *ChatService) PostService(notification models.Notification) *models.ErrorJson {
-	// if errJson := service.DeleteService(data.TargetID, data.SenderID, data.Type, data.GroupId); errJson != nil {
-	// 	return errJson
-	// }						for delete duplicate notification if exist /////
+	if errJson := service.DeleteService(notification.TargetID, notification.SenderID, notification.Type, notification.GroupID); errJson != nil {
+		return errJson
+	}						// for delete duplicate notification if exist /////
 
 	var errJson *models.ErrorJson
 

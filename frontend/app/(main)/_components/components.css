@@ -20,6 +20,12 @@
 .toast-popup.error {
   border-left-color: #ef4444;
 }
+.toast-popup.info {
+  border-left-color: #1345ce;
+}
+.toast-popup.warn {
+  border-left-color: #f1d42d;
+}
 
 .toast-content {
   display: flex;

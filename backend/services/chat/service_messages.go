@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -14,6 +15,8 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 
 	if type_message == "notification" {
 		// should handle notification logic separate
+
+		fmt.Println("data recieved from web socket" , message.Notification)
 		if errJson := service.PostService(message.Notification); errJson != nil {
 			return nil, &models.ErrorJson{Status: 400, Message: errJson.Message}
 		}

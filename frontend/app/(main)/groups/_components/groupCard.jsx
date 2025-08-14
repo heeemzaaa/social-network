@@ -8,6 +8,7 @@ import { useState } from "react";
 import { JoinGroupAction } from "@/app/_actions/group";
 
 import { useNotification } from "../../_context/NotificationContext";
+import { useUserContext } from "../../_context/userContext";
 
 export default function GroupCard({
     type,
@@ -22,6 +23,7 @@ export default function GroupCard({
     const [requestState, setRequestState] = useState(requested)
     const [error, setError] = useState(null)
     const { showNotification } = useNotification();
+    const { sendSocketMessage } = useUserContext()
 
 
     // let's create here the function that toggles the state of the button with the same
@@ -45,16 +47,23 @@ export default function GroupCard({
             }
 
             if (data.Message === 'ERROR!! You are already a member!') {
-                showNotification({ Content: `You are already a member!`, Status: "error" });
-                router.push(`/groups/${group_id}`)
+                showNotification({ Content: `You are already a member!`, Status: "warn" });
                 console.warn(`You are already a member!`)
+                router.push(`/groups/${group_id}`)
                 return
 
-            } else if (data.Message === 'Invitation not found') {
+            } else if (data.Message === 'ERROR!! Invitation not found') {
                 console.warn(`Invitation not found !!`)
-                showNotification({ Content: `Invitation not found`, Status: "error" });
+                showNotification({ Content: `Invitation not found`, Status: "warn" });
             }
 
+            if (requestState === 0) {
+                console.log("response data after join request", data)
+                sendSocketMessage({
+                    type: "notification",
+                    Notification: data,
+                })
+            }
             setRequestState(requestState === 0 ? 1 : 0)
         } catch (error) {
             setError(error)

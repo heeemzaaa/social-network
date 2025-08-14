@@ -29,7 +29,7 @@ export default function Header() {
         let response = await res.json()
         if (response?.Status === true) {
           // setHasNewNotification(true)
-          showNotification({ Content: "you have new notifications", Status: "success" })
+          showNotification({ Content: "You have new notifications", Status: "info" })
         }
       } catch (err) {
         console.error("Failed to fetch notifications", err)

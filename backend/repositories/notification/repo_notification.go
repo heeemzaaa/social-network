@@ -16,12 +16,12 @@ func NewNotifRepository(db *sql.DB) *NotifRepository {
 	return &NotifRepository{db: db}
 }
 
-func (repo *NotifRepository) SelectNotificationById(notifId string) (models.Notification, *models.ErrorJson) {
+func (repo *NotifRepository) SelectNotificationById(notifId string) (*models.Notification, *models.ErrorJson) {
 	query := `SELECT * FROM notifications WHERE notifId = ?`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return models.Notification{}, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
@@ -35,16 +35,17 @@ func (repo *NotifRepository) SelectNotificationById(notifId string) (models.Noti
 		&notification.Status,
 		&notification.Content,
 		&notification.CreatedAt,
+		&notification.GroupID,
 	); err != nil {
 		if err == sql.ErrNoRows {
-			return models.Notification{}, &models.ErrorJson{
+			return nil, &models.ErrorJson{
 				Status:  404,
 				Message: "Notification not found",
 			}
 		}
-		return notification, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return &notification, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
-	return notification, nil
+	return &notification, nil
 }
 
 // select all notifications for reciever by sort first status [later-first], second sort by time
@@ -66,7 +67,7 @@ func (repo *NotifRepository) SelectAllNotification(userId string) ([]models.Noti
 
 	for rows.Next() {
 		var notification models.Notification
-		err = rows.Scan(&notification.Id, &notification.SenderID, &notification.TargetID, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.CreatedAt)
+		err = rows.Scan(&notification.Id, &notification.SenderID, &notification.TargetID, &notification.Seen, &notification.Type, &notification.Status, &notification.Content, &notification.CreatedAt, &notification.GroupID)
 		if err != nil {
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}
@@ -104,6 +105,7 @@ func (repo *NotifRepository) SelectAllNotificationByType(userId, notifType strin
 			&notification.Status,
 			&notification.Content,
 			&notification.CreatedAt,
+			&notification.GroupID,
 		); err != nil {
 			return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 		}
@@ -206,7 +208,7 @@ func (repo *NotifRepository) DeleteFollowNotification(userId, authUserId, notifT
 
 // delete duplicated group notification
 func (repo *NotifRepository) DeleteGroupNotification(userId, authUserId, notifType, groupId string) *models.ErrorJson {
-	query := `DELETE FROM notifications WHERE senderId = ? AND targetId = ? AND notifType = ? AND groupId = ?`
+	query := `DELETE FROM notifications WHERE senderId = ? AND targetId = ? AND notifType = ? AND groupId = ?` // groupId not found ((no columne))
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {

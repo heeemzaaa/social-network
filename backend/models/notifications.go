@@ -12,6 +12,7 @@ type Notification struct {
 	Status    string    `json:"status,omitempty"`
 	Content   string    `json:"content,omitempty"`
 	CreatedAt time.Time `json:"craeted_at"`
+	GroupID   string    `json:"group_id,omitempty"`
 
 	SenderFullName string `json:"sender_fullname,omitempty"`
 	GroupName      string `json:"group_name,omitempty"`

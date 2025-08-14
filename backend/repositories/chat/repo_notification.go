@@ -12,8 +12,8 @@ func (repo *ChatRepository) InsertNewNotification(data models.Notification) *mod
 	notificationId := utils.NewUUID()
 	query := `
 		INSERT INTO notifications (
-			notifId, senderId, targetId, notifType, notifStatus, content
-		) VALUES (?, ?, ?, ?, ?, ?)
+			notifId, senderId, targetId, notifType, notifStatus, content, groupId
+		) VALUES (?, ?, ?, ?, ?, ?, ?)
 	`
 
 	stmt, err := repo.db.Prepare(query)
@@ -23,7 +23,7 @@ func (repo *ChatRepository) InsertNewNotification(data models.Notification) *mod
 	defer stmt.Close()
 
 	_, err = stmt.Exec(notificationId, data.SenderID,
-		data.TargetID, data.Type, data.Status, data.Content)
+		data.TargetID, data.Type, data.Status, data.Content, data.GroupID)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}

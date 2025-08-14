@@ -79,13 +79,13 @@ export default function NotificationsPopover() {
       if (data.Status == false && data.Message === "Notification not found") {
         console.warn("Notif not found, removing from notifications list")
         setNotifications(prev => prev.filter(notif => notif.id !== notification.id))
-        showNotification({ Content: "Notification not found, removed from list", Status: "error" })
+        showNotification({ Content: "Notification not found, removed from list", Status: "warn" })
         return
       }
 
       console.log(`update notification response: Status: ${data.Status}, Data: ${data.Message}`);
+      setNotifications(prev => prev.map(notif => notif.id === notification.id ? { ...notif, Status: status } : notif)) // if notification updated seccessfly hide button
       showNotification({ Content: `Notification ${status}ed successfully`, Status: "success"});
-      setNotifications(prev => prev.map(notif => notif.id === notification.id ? { ...notif, Status: status } : notif))
 
     } catch (error) {
       console.error(`Error ${status}ing notification:`, error);

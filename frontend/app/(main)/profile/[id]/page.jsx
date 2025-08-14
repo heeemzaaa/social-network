@@ -106,12 +106,19 @@ export default function Page({ params }) {
         body: JSON.stringify({ profile_id: id }),
       })
 
+
+
       const payload = await res.json();
-      const notification = payload.notification || null;
-      console.log("notification:", notification);
-      const updated = payload.data || null;
-      console.log("updated:", updated);
-      console.log("Toggle follow response:", payload);
+      let updated = payload
+      if (endpoint.split('/').pop() === 'follow' && payload.notification) {
+        const notification = payload.notification || null;
+        // console.log("notification: ==> ", notification);
+        sendSocketMessage({
+          Type: "notification",
+          Notification: notification,
+        })
+        updated = payload.data || null;
+      }
 
       if (!res.ok) {
         if (updated.status === 401) {
@@ -122,13 +129,7 @@ export default function Page({ params }) {
           setError(updated.error)
           return
         }
-      }
-      if (notification) {
-        sendSocketMessage({
-          Type: "notification",
-          Notification: notification,
-        })
-      }
+      }      
 
       setChanged(!changed)
       setUserInfos(prev => ({
@@ -149,7 +150,6 @@ export default function Page({ params }) {
       console.error("Error:", err)
     }
   }
-
 
   async function handleTogglePrivacy() {
     const newPrivacy = userInfos.visibility === 'private' ? 'public' : 'private'

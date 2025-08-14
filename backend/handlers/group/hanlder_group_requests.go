@@ -52,6 +52,8 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
+	fmt.Println("NEW-join-NOTIFICATION-DATA:", notification)
+
 	utils.WriteDataBack(w, notification)
 }
 

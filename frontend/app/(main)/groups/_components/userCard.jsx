@@ -59,7 +59,7 @@ export default function UserCard({ user, groupId }) {
             if (method === 'POST') {
                 sendSocketMessage({
                     type: "notification",
-                    notif: data,
+                    Notification: data,
                 });
             }
 

@@ -24,31 +24,41 @@ func (gRepo *GroupRepository) RequestToJoin(userId, groupId string) (*models.Not
         groupID,
         typeRequest
     )
-	VALUES
-    (?, ?, (SELECT groups.groupCreatorID FROM groups WHERE groups.groupID = ?), ?, ?)
-	RETURNING (senderID, receiverID, 
-	(SELECT concat(firstName , ' ' , lastName) FROM users WHERE userID = ? ) AS fullNameSender,
-    (SELECT title FROM groups WHERE groupID = ? )  AS groupName
+	VALUES (
+		?, 
+		?, 
+		(SELECT groups.groupCreatorID FROM groups WHERE groups.groupID = ?), 
+		?, 
+		?
 	)
-	;
+	RETURNING
+		senderID, 
+		receiverID, 
+		(SELECT concat(firstName , ' ' , lastName) FROM users WHERE userID = ? ) AS fullNameSender,
+    	(SELECT title FROM groups WHERE groupID = ? )  AS groupName;
 	`
 
 	// the groupNAME IS important if the admin has multiple groups ( and he is the admin)
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
+		fmt.Println("hhhhhhhhhhhhhhhhhhh")
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()
-	notification := &models.Notification{}
-	err = stmt.QueryRow(requestId, userId, groupId, groupId, "join-request", userId).Scan(
+
+	notification := models.Notification{
+		Type: "group-join",
+		Status: "later",
+	}
+	if err = stmt.QueryRow(requestId, userId, groupId, groupId, "join-request", userId, groupId).Scan(
 		&notification.SenderID, &notification.TargetID, &notification.SenderFullName, &notification.GroupName,
-	)
-	if err != nil {
+
+	); err != nil {
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
-	notification.Type = "group-join"
+
 	notification.Content = fmt.Sprintf("%v requests to join the group %v", notification.SenderFullName, notification.GroupName)
-	return notification, nil
+	return &notification, nil
 }
 
 func (gRepo *GroupRepository) RequestToCancel(userId, groupId string) *models.ErrorJson {
