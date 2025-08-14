@@ -21,6 +21,7 @@ export default function CreateEventForm({ groupId }) {
 
     useEffect(() => {
         if (state.message) {
+            console.log("data =========================", state.data)
             state.data.type = "groupEvent"
             setModalData(state.data)
             closeModal()
