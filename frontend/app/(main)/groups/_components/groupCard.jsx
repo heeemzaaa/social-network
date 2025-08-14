@@ -40,22 +40,24 @@ export default function GroupCard({
 
             const data = await res.json()
             if (!res.ok) {
+                if (data.error === 'Already a member!') {
+                    showNotification({ Content: `You are already a member!`, Status: "warn" });
+                    console.warn(`You are already a member!`)
+                    router.push(`/groups/${group_id}`)
+                    return
+
+                } else if (data.error === 'Invitation not found') { // should .error
+                    console.warn(`Invitation not found !!`)
+                    showNotification({ Content: `Invitation not found`, Status: "warn" });
+                }
                 if (data.status === 401) {
                     router.push("/login")
                     return
                 }
             }
-            console.log("=====>>>",data)
-            if (data.error === 'ERROR!! Already a member!') {
-                showNotification({ Content: `You are already a member!`, Status: "warn" });
-                console.warn(`You are already a member!`)
-                router.push(`/groups/${group_id}`)
-                return
 
-            } else if (data.Message === 'ERROR!! Invitation not found') { // should .error
-                console.warn(`Invitation not found !!`)
-                showNotification({ Content: `Invitation not found`, Status: "warn" });
-            }
+            console.log("=====>>>",data)
+            
 
             if (requestState === 0) {
                 console.log("response data after join request", data)
@@ -64,6 +66,7 @@ export default function GroupCard({
                     notification: data,
                 })
             }
+
             setRequestState(requestState === 0 ? 1 : 0)
         } catch (error) {
             setError(error)

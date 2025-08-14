@@ -18,14 +18,14 @@ func (repo *ChatRepository) InsertNewNotification(data models.Notification) *mod
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(notificationId, data.SenderID,
 		data.TargetID, data.Type, data.Status, data.Content, data.GroupID)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	return nil
 }
@@ -36,13 +36,13 @@ func (repo *ChatRepository) DeleteFollowNotification(userId, authUserId, notifTy
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(userId, authUserId)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err), Error: "500 - faild to delete follow notification"}
+		return &models.ErrorJson{Status: 500, Error: "faild to delete follow notification"}
 	}
 	return nil
 }
@@ -53,13 +53,13 @@ func (repo *ChatRepository) DeleteGroupNotification(userId, authUserId, notifTyp
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(userId, authUserId, notifType, groupId)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err), Error: "500 - faild to delete group notification"}
+		return &models.ErrorJson{Status: 500, Error: "faild to delete group notification"}
 	}
 	return nil
 }

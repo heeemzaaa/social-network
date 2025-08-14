@@ -30,17 +30,20 @@ func (service *ChatService) PostService(notification models.Notification) *model
 
 	switch notification.Type {
 	case "follow-private":
-		errJson = service.FollowPrivateProfile(notification)
+		errJson = service.InsertNotification(notification, "later")
 	case "follow-public":
-		errJson = service.FollowPublicProfile(notification)
+		errJson = service.InsertNotification(notification, "accept")
 	case "group-invitation":
-		errJson = service.GroupInvitationRequest(notification)
+		errJson = service.InsertNotification(notification, "later")
 	case "group-join":
-		errJson = service.GroupJoinRequest(notification)
+		errJson = service.InsertNotification(notification, "later")
 	case "group-event":
-		errJson = service.GroupEventRequest(notification)
+		errJson = service.InsertNotification(notification, "none")
 	default:
-		return models.NewErrorJson(400, "400 - Bad Request", "invalid notification type")
+		return &models.ErrorJson{
+			Status: 400,
+			Error:  "invalid notification type",
+		}
 	}
 
 	if errJson != nil {
@@ -50,65 +53,8 @@ func (service *ChatService) PostService(notification models.Notification) *model
 	return nil
 }
 
-// - follow private profile request
-func (service *ChatService) FollowPrivateProfile(notification models.Notification) *models.ErrorJson {
-	// notification.GroupId = "none"
-	// notification.EventID = "none"
-	// notification.GroupName = "none"
-	// notification.Status = "later"
-
-	if errJson := service.repo.InsertNewNotification(notification); errJson != nil {
-		return errJson
-	}
-	return nil
-}
-
-// - follow public profile request
-func (service *ChatService) FollowPublicProfile(notification models.Notification) *models.ErrorJson {
-	// notification.GroupId = "none"
-	// notification.EventID = "none"
-	// notification.GroupName = "none"
-	notification.Status = "accept"
-
-	if errJson := service.repo.InsertNewNotification(notification); errJson != nil {
-		return errJson
-	}
-	return nil
-}
-
-// - group invitation request
-func (service *ChatService) GroupInvitationRequest(notification models.Notification) *models.ErrorJson {
-	// notification.GroupId = data.GroupId
-	// notification.EventID = "none"
-	// notification.GroupName = data.GroupName
-	notification.Status = "later"
-
-	if errJson := service.repo.InsertNewNotification(notification); errJson != nil {
-		return errJson
-	}
-	return nil
-}
-
-// - group join request [admin]
-func (service *ChatService) GroupJoinRequest(notification models.Notification) *models.ErrorJson {
-	// notification.GroupId = data.GroupId
-	// notification.EventID = "none"
-	// notification.GroupName = data.GroupName
-	notification.Status = "later"
-
-	if errJson := service.repo.InsertNewNotification(notification); errJson != nil {
-		return errJson
-	}
-	return nil
-}
-
-// - group event created [group-members]
-func (service *ChatService) GroupEventRequest(notification models.Notification) *models.ErrorJson {
-	// notification.GroupId = data.GroupId
-	// notification.EventID = data.EventId
-	// notification.GroupName = data.GroupName
-	notification.Status = "none"
-
+func (service *ChatService) InsertNotification(notification models.Notification, status string) *models.ErrorJson {
+	notification.Status = status
 	if errJson := service.repo.InsertNewNotification(notification); errJson != nil {
 		return errJson
 	}
