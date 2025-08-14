@@ -2,7 +2,6 @@ package auth
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -49,7 +48,6 @@ func (authHandler *AuthHandler) Register(w http.ResponseWriter, r *http.Request)
 
 	// before setting the session we need the actual id of the user
 	userData, errJson := authHandler.service.GetUser(&models.Login{LoginField: user.Email})
-	fmt.Printf("userData: %v\n", userData)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, *errJson)
 		return

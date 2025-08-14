@@ -72,7 +72,6 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 		utils.WriteJsonErrors(w, *err_)
 		return
 	}
-	fmt.Println("commentCreated:   ", commentCreated)
 	utils.WriteDataBack(w, commentCreated)
 }
 
