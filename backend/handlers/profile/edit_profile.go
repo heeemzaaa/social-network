@@ -56,8 +56,7 @@ func (ep *EditProfileHandler) UpdatePrivacy(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		errJson = ep.NS.ToggleAllStaus(all, "accept", "follow-private")
-		if errJson != nil {
+		if errJson = ep.NS.ToggleAllStaus(all, "accept", "follow-private"); errJson != nil {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 			return
 		}

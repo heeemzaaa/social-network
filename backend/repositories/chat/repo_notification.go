@@ -32,7 +32,7 @@ func (repo *ChatRepository) InsertNewNotification(data models.Notification) *mod
 
 // delete duplicated follow notification
 func (repo *ChatRepository) DeleteFollowNotification(userId, authUserId, notifType string) *models.ErrorJson {
-	query := `DELETE FROM notifications WHERE senderId = ? AND recieverId = ? AND (notifType = "follow-private" OR notifType = "follow-public")`
+	query := `DELETE FROM notifications WHERE senderId = ? AND targetId = ? AND (notifType = "follow-private" OR notifType = "follow-public")`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -42,14 +42,14 @@ func (repo *ChatRepository) DeleteFollowNotification(userId, authUserId, notifTy
 
 	_, err = stmt.Exec(userId, authUserId)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err), Message: "faild to delete notification"}
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err), Error: "500 - faild to delete follow notification"}
 	}
 	return nil
 }
 
 // delete duplicated group notification
 func (repo *ChatRepository) DeleteGroupNotification(userId, authUserId, notifType, groupId string) *models.ErrorJson {
-	query := `DELETE FROM notifications WHERE senderId = ? AND recieverId = ? AND notifType = ? AND groupId = ?`
+	query := `DELETE FROM notifications WHERE senderId = ? AND targetId = ? AND notifType = ? AND groupId = ?`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -59,7 +59,7 @@ func (repo *ChatRepository) DeleteGroupNotification(userId, authUserId, notifTyp
 
 	_, err = stmt.Exec(userId, authUserId, notifType, groupId)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err), Message: "faild to delete group notification"}
+		return &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err), Error: "500 - faild to delete group notification"}
 	}
 	return nil
 }

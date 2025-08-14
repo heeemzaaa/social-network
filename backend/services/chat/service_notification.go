@@ -1,19 +1,20 @@
 package chat
 
 import (
+	"fmt"
 	"strings"
 
 	"social-network/backend/models"
 )
 
 // DeleteService deletes a notification based on the provided parameters.
-func (service *ChatService) DeleteService(recieverId, senderId, notifType, groupId string) *models.ErrorJson {
+func (service *ChatService) DeleteService(targetId, senderId, notifType, groupId string) *models.ErrorJson {
 	if strings.HasPrefix(notifType, "follow") {
-		if errJson := service.repo.DeleteFollowNotification(senderId, recieverId, notifType); errJson != nil {
+		if errJson := service.repo.DeleteFollowNotification(senderId, targetId, notifType); errJson != nil {
 			return errJson
 		}
 	} else if notifType != "group-event" {
-		if errJson := service.repo.DeleteGroupNotification(senderId, recieverId, notifType, groupId); errJson != nil {
+		if errJson := service.repo.DeleteGroupNotification(senderId, targetId, notifType, groupId); errJson != nil {
 			return errJson
 		}
 	}
@@ -26,18 +27,10 @@ func (service *ChatService) PostService(notification models.Notification) *model
 	// 	return errJson
 	// }						for delete duplicate notification if exist /////
 
-	// notification := models.Notification{}
-	// 	Id: utils.NewUUID(),
-
-	// 	SenderID:   data.SenderID,
-	// 	TargetID: data.TargetID,
-
-	// 	Type: data.Type,
-	// 	Seen: false,
-
-	// 	CreatedAt: time.Now(),
-	// }
 	var errJson *models.ErrorJson
+
+	fmt.Println("PostService - notification:", notification)
+
 	switch notification.Type {
 	case "follow-private":
 		errJson = service.FollowPrivateProfile(notification)
@@ -65,7 +58,7 @@ func (service *ChatService) FollowPrivateProfile(notification models.Notificatio
 	// notification.GroupId = "none"
 	// notification.EventID = "none"
 	// notification.GroupName = "none"
-	notification.Status = "later"
+	// notification.Status = "later"
 
 	if errJson := service.repo.InsertNewNotification(notification); errJson != nil {
 		return errJson

@@ -8,9 +8,13 @@ import { useModal } from '../_context/ModalContext';
 import { useUserContext } from '../_context/userContext';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
+import { useNotification } from '../_context/NotificationContext';
+
 export default function Header() {
   const { openModal } = useModal()
   const { authenticatedUser, hasNewNotification, setHasNewNotification } = useUserContext()
+  const { showNotification } = useNotification()
+
 
   // Fetch notification seen status
   useEffect(() => {
@@ -24,7 +28,8 @@ export default function Header() {
         let res = await fetch(`${API_URL}/api/notifications/`, getRequest)
         let response = await res.json()
         if (response?.Status === true) {
-          setHasNewNotification(true)
+          // setHasNewNotification(true)
+          showNotification({ Content: "you have new notifications", Status: "success" })
         }
       } catch (err) {
         console.error("Failed to fetch notifications", err)
@@ -45,9 +50,9 @@ export default function Header() {
       <Button variant='btn-icon' className='flex gap-2 ' onClick={()=> openModal(<NotificationsPopover />)}>
         <div className='relative' style={{height:"24px"}} >
               <HiBell size={24} />
-              {hasNewNotification && (
+              {/* {hasNewNotification && (
                 <span className="notification-badge"></span>
-              )}
+              )} */}
         </div>
       </Button>
     </header>

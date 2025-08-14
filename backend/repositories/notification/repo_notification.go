@@ -172,7 +172,7 @@ func (repo *NotifRepository) UpdateSeen(notifId string) *models.ErrorJson {
 // function check if user has notification containe false seen
 func (repo *NotifRepository) IsHasSeen(userId string) (bool, *models.ErrorJson) {
 	var exists bool
-	query := `SELECT EXISTS (SELECT 1 FROM notifications WHERE recieverId = ? AND seen = 0 LIMIT 1)`
+	query := `SELECT EXISTS (SELECT 1 FROM notifications WHERE targetId = ? AND seen = 0 LIMIT 1)`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -182,14 +182,14 @@ func (repo *NotifRepository) IsHasSeen(userId string) (bool, *models.ErrorJson) 
 
 	err = stmt.QueryRow(userId).Scan(&exists)
 	if err != nil {
-		return false, &models.ErrorJson{Status: 500, Error: "", Message: fmt.Sprintf("%v", err)}
+		return false, &models.ErrorJson{Status: 500, Error: "500 - check if has seen faild !!", Message: fmt.Sprintf("%v", err)}
 	}
 	return exists, nil
 }
 
 // delete duplicated follow notification
 func (repo *NotifRepository) DeleteFollowNotification(userId, authUserId, notifType string) *models.ErrorJson {
-	query := `DELETE FROM notifications WHERE senderId = ? AND recieverId = ? AND (notifType = "follow-private" OR notifType = "follow-public")`
+	query := `DELETE FROM notifications WHERE senderId = ? AND targetId = ? AND (notifType = "follow-private" OR notifType = "follow-public")`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -206,7 +206,7 @@ func (repo *NotifRepository) DeleteFollowNotification(userId, authUserId, notifT
 
 // delete duplicated group notification
 func (repo *NotifRepository) DeleteGroupNotification(userId, authUserId, notifType, groupId string) *models.ErrorJson {
-	query := `DELETE FROM notifications WHERE senderId = ? AND recieverId = ? AND notifType = ? AND groupId = ?`
+	query := `DELETE FROM notifications WHERE senderId = ? AND targetId = ? AND notifType = ? AND groupId = ?`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {

@@ -45,23 +45,24 @@ func (repo *ProfileRepository) FollowPrivate(userID string, authUserID string) (
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
-	newNotif := &models.Notification{
+	notification := &models.Notification{
 		SenderID: authUserID,
 		TargetID: userID,
 		Type:     "follow-private",
+		Status:   "later",
 	}
 
-	err = stmt.QueryRow(userID, authUserID, authUserID).Scan(&newNotif.SenderFullName)
+	err = stmt.QueryRow(userID, authUserID, authUserID).Scan(&notification.SenderFullName)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
-	newNotif.Content = fmt.Sprintf("%v sent you a follow request", newNotif.SenderFullName)
-	newNotif.Status ="later"
-	return newNotif, nil
+
+	notification.Content = fmt.Sprintf("%v sent you a follow request", notification.SenderFullName)
+	return notification, nil
 }
 
 // here we unfollow the user chosen , we delete it from the table of followers

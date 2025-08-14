@@ -17,6 +17,9 @@ import Loader from "../../_components/loader"
 import { useRouter } from "next/navigation"
 import Error from "../../_components/error"
 
+import { useUserContext } from "../../_context/userContext"
+// import { useNotification } from "../../_context/NotificationContext"
+
 export default function Page({ params }) {
   const [userInfos, setUserInfos] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -25,6 +28,9 @@ export default function Page({ params }) {
   const [changed, setChanged] = useState(false)
   const { openModal } = useModal()
   const router = useRouter()
+
+  const { sendSocketMessage } = useUserContext()
+  // const { showNotification } = useNotification()
 
   const resolvedParams = React.use(params);
   const id = resolvedParams.id;
@@ -100,7 +106,12 @@ export default function Page({ params }) {
         body: JSON.stringify({ profile_id: id }),
       })
 
-      const updated = await res.json()
+      const payload = await res.json();
+      const notification = payload.notification || null;
+      console.log("notification:", notification);
+      const updated = payload.data || null;
+      console.log("updated:", updated);
+      console.log("Toggle follow response:", payload);
 
       if (!res.ok) {
         if (updated.status === 401) {
@@ -111,6 +122,12 @@ export default function Page({ params }) {
           setError(updated.error)
           return
         }
+      }
+      if (notification) {
+        sendSocketMessage({
+          Type: "notification",
+          Notification: notification,
+        })
       }
 
       setChanged(!changed)

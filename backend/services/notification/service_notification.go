@@ -63,13 +63,13 @@ func (NS *NotificationService) GetAllNotificationByType(user_id, notifType strin
 }
 
 // DeleteService deletes a notification based on the provided parameters.
-func (NS *NotificationService) DeleteService(recieverId, senderId, notifType, groupId string) *models.ErrorJson {
+func (NS *NotificationService) DeleteService(targetId, senderId, notifType, groupId string) *models.ErrorJson {
 	if strings.HasPrefix(notifType, "follow") {
-		if errJson := NS.notifRepo.DeleteFollowNotification(senderId, recieverId, notifType); errJson != nil {
+		if errJson := NS.notifRepo.DeleteFollowNotification(senderId, targetId, notifType); errJson != nil {
 			return errJson
 		}
 	} else if notifType != "group-event" {
-		if errJson := NS.notifRepo.DeleteGroupNotification(senderId, recieverId, notifType, groupId); errJson != nil {
+		if errJson := NS.notifRepo.DeleteGroupNotification(senderId, targetId, notifType, groupId); errJson != nil {
 			return errJson
 		}
 	}
@@ -87,15 +87,15 @@ func (NS *NotificationService) IsHasSeen(userId string) (bool, *models.ErrorJson
 }
 
 // broadcast sends a notification to the user about new notifications or no new notifications.
-func (NS *NotificationService) broadcast(recieverId string) *models.ErrorJson {
-	hasSeen, errJson := NS.IsHasSeen(recieverId)
-	if errJson != nil {
-		return errJson
-	}
-	if hasSeen {
-		errJson = NS.chatServer.SendNotificationToUser(recieverId, "has new notification", "true")
-	} else {
-		errJson = NS.chatServer.SendNotificationToUser(recieverId, "dont have new notification", "false")
-	}
-	return errJson
-}
+// func (NS *NotificationService) broadcast(recieverId string) *models.ErrorJson {
+// 	hasSeen, errJson := NS.IsHasSeen(recieverId)
+// 	if errJson != nil {
+// 		return errJson
+// 	}
+// 	if hasSeen {
+// 		errJson = NS.chatServer.SendNotificationToUser(recieverId, "has new notification", "true")
+// 	} else {
+// 		errJson = NS.chatServer.SendNotificationToUser(recieverId, "dont have new notification", "false")
+// 	}
+// 	return errJson
+// }
