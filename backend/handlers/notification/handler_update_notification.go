@@ -2,7 +2,6 @@ package notification
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"social-network/backend/middleware"
@@ -25,7 +24,7 @@ func NewUpdateNotificationHandler(NS *ns.NotificationService) *UpdateHandler {
 func (HUN *UpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodPost {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Message: "ERROR!! Method Not Allowed!", Error: "405 - Method Not Allowed"})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 405, Error: "405 - Method Not Allowed"})
 		return
 	}
 	HUN.UpdateNotification(w, r)
@@ -35,7 +34,7 @@ func (HUN *UpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Request) {
 	userId, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: err.Error()})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
 	}
 
@@ -43,20 +42,13 @@ func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 
 	err = json.NewDecoder(r.Body).Decode(&Data)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "400 - Bad request", Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "400 - Bad request"})
 		return
 	}
 
 	errJson := HUN.NS.UpdateService(Data, userId.String())
 	if errJson != nil {
-		if errJson.Status == 404 && errJson.Error == "Notification not found" {
-			utils.WriteDataBack(w, models.ErrorJson{
-				Status: 404,
-				Error:  "Notification not found",
-			})
-			return
-		}
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 

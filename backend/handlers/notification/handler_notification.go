@@ -33,7 +33,7 @@ func (HN *NotificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 func (HN *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.Request) {
 	userId, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Message: err.Error()})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
 		return
 	}
 
