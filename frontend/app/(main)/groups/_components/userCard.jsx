@@ -42,31 +42,31 @@ export default function UserCard({ user, groupId }) {
             console.log(" ==>> ", data);
 
             // Handle error messages
-            if (data.Message === 'ERROR!! already a member!' ||
-                data.Message === 'ERROR!! it is not from your followers!' ||
-                data.Message === 'ERROR!! Invitation not found') {
+            if (data.error === 'Already a member!' ||
+                data.error === 'It is not from your followers!' ||
+                data.error === 'Invitation not found') {
 
-                console.warn(data.Message.split("!!")[1])
+                console.warn(data.error)
                 showNotification({
-                    Content: data.Message.split("!!")[1],
-                    Status: "error"
+                    Content: data.error,
+                    Status: "warn"
                 });
 
-                if (data.Message !== 'ERROR!! Invitation not found') return
+                if (data.error !== 'Invitation not found') return
                 // should remove the user from the list
             }
 
             if (method === 'POST') {
                 sendSocketMessage({
                     type: "notification",
-                    Notification: data,
+                    notification: data,
                 });
             }
 
             setInviteState(inviteState === 0 ? 1 : 0);
-            console.log("inviteState: ", inviteState)
+            // console.log("inviteState: ", inviteState)
             showNotification({
-                Content: inviteState === 0 ? "Invitation sent!" : "Invitation cancelled)",
+                Content: inviteState === 0 ? "Invitation sent" : "Invitation cancelled",
                 Status: "success"
             });
 

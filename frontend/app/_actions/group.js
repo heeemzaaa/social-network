@@ -1,4 +1,5 @@
 "use server"
+import { ClientPageRoot } from "next/dist/client/components/client-page";
 import { cookies } from "next/headers"
 
 const API_URL = process.env.BACKEND_URL || 'http://localhost:8080'
@@ -217,9 +218,11 @@ export async function createGroupEventAction(prevState, formData) {
                 status: state.status
             };
         }
+        console.log(data.data)
+        let dataToBeSent = data.data
         return {
             ...state,
-            data,
+            dataToBeSent,
             message: "New Event created successfully",
         };
     } catch (error) {

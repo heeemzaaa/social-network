@@ -5,7 +5,7 @@ import { HiMiniUsers } from "react-icons/hi2";
 import "./style.css"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { JoinGroupAction } from "@/app/_actions/group";
+import { JoinGroupAction } from "@/app/_actions/group"; // should be used
 
 import { useNotification } from "../../_context/NotificationContext";
 import { useUserContext } from "../../_context/userContext";
@@ -45,14 +45,14 @@ export default function GroupCard({
                     return
                 }
             }
-
-            if (data.Message === 'ERROR!! You are already a member!') {
+            console.log("=====>>>",data)
+            if (data.error === 'ERROR!! Already a member!') {
                 showNotification({ Content: `You are already a member!`, Status: "warn" });
                 console.warn(`You are already a member!`)
                 router.push(`/groups/${group_id}`)
                 return
 
-            } else if (data.Message === 'ERROR!! Invitation not found') {
+            } else if (data.Message === 'ERROR!! Invitation not found') { // should .error
                 console.warn(`Invitation not found !!`)
                 showNotification({ Content: `Invitation not found`, Status: "warn" });
             }
@@ -61,7 +61,7 @@ export default function GroupCard({
                 console.log("response data after join request", data)
                 sendSocketMessage({
                     type: "notification",
-                    Notification: data,
+                    notification: data,
                 })
             }
             setRequestState(requestState === 0 ? 1 : 0)
