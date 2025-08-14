@@ -6,8 +6,9 @@ import (
 
 	"social-network/backend/models"
 )
-
+// get all posts in db -> based on the userid 
 func (r *PostsRepository) GetAllPosts(userID string) ([]models.Post, *models.ErrorJson) {
+	// select then join with tables then filter then order
 	query := `
 SELECT DISTINCT  p.postID, p.userID, p.content, p.createdAt,  p.privacy,   p.image_url,  CONCAT(u.firstName, ' ', u.lastName) AS fullName, 
     u.nickname, 
@@ -51,6 +52,7 @@ ORDER BY
     p.createdAt DESC;t 
 
 `
+	
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
 		log.Println("Error preparing the query to get posts: ", err)
@@ -58,22 +60,21 @@ ORDER BY
 	}
 	defer stmt.Close()
 
-rows, err := stmt.Query(
-    userID, // r2.userID
-    userID, // p.userID (visibility check)
-    userID, // pa.userID (visibility check)
-    userID, // f.followerID (visibility check)
-    userID, // p.userID (post privacy check)
-    userID, // pa.userID (post privacy check)
-    userID, // f.followerID (post privacy check)
-)
-
+	rows, err := stmt.Query(
+		userID, // r2.userID
+		userID, // p.userID (visibility check)
+		userID, // pa.userID (visibility check)
+		userID, // f.followerID (visibility check)
+		userID, // p.userID (post privacy check)
+		userID, // pa.userID (post privacy check)
+		userID, // f.followerID (post privacy check)
+	)
 	if err != nil {
 		log.Println("error getting the post from database: ", err)
 		return []models.Post{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer rows.Close()
-
+	// create posts => type post and scan the returning daba from query 
 	var posts []models.Post
 	for rows.Next() {
 		var p models.Post
@@ -100,6 +101,6 @@ rows, err := stmt.Query(
 		log.Println("Error scanning all feed's posts: ", err)
 		return []models.Post{}, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-
+	// return the posts to the service
 	return posts, nil
 }

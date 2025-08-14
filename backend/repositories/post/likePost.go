@@ -7,7 +7,7 @@ import (
 	"social-network/backend/models"
 	"social-network/backend/utils"
 )
-
+// hanle lile method to add like or remove like
 func (r *PostsRepository) HandleLike(postID string, userID string) (bool, int, *models.ErrorJson) {
 	var exists bool
 	entityType := "post"

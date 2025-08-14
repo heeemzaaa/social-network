@@ -6,7 +6,9 @@ import (
 
 	"social-network/backend/models"
 )
-
+// r -> is (instance of the repository struct ) that have the db connection .... 
+// post method to create post (insert) .. it have pointer to the post from the handler (the data from inside the struct) and return it as it (pointer)
+// the query insert the post and return it ....
 func (r *PostsRepository) CreatePost(post *models.Post) (*models.Post, *models.ErrorJson) {
 	var post_created models.Post
 
@@ -38,14 +40,14 @@ func (r *PostsRepository) CreatePost(post *models.Post) (*models.Post, *models.E
             users.userID = ?
     )
 	`
-
+	// prepare the query to avoid sql injection ...
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
 		log.Println("Error preparing the query to create post: ", err)
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-
+	// fill the returning data from the query  
 	err = stmt.QueryRow(post.Id, post.User.Id, post.Content, post.Privacy, post.Img, post.User.Id, post.User.Id, post.User.Id).Scan(
 		&post_created.Id,
 		&post_created.User.Id,
@@ -61,7 +63,7 @@ func (r *PostsRepository) CreatePost(post *models.Post) (*models.Post, *models.E
 		log.Println("Error inserting post: ", err)
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-
+	// in case of privacy is privtae insert the selected users into post acces with the post id 
 	if post.Privacy == "private" && len(post.SelectedUsers) > 0 {
 		for _, followerID := range post.SelectedUsers {
 			query := `INSERT INTO post_access (postID, userID)
@@ -73,7 +75,7 @@ func (r *PostsRepository) CreatePost(post *models.Post) (*models.Post, *models.E
 				return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 			}
 			defer stmt.Close()
-
+			// execute the query 
 			_, err = stmt.Exec(post.Id, followerID)
 			if err != nil {
 				log.Println("Error scanning the allowed users: ", err)
@@ -81,5 +83,6 @@ func (r *PostsRepository) CreatePost(post *models.Post) (*models.Post, *models.E
 			}
 		}
 	}
+	// return the post create to service
 	return &post_created, nil
 }
