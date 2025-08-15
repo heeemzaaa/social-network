@@ -5,7 +5,6 @@ import { HiMiniUsers } from "react-icons/hi2";
 import "./style.css"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { JoinGroupAction } from "@/app/_actions/group";
 
 import { useNotification } from "../../_context/NotificationContext";
 

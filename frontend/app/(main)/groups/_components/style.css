@@ -69,11 +69,20 @@
         transform: translateX(-50%);
     }
 
-    .grp-card-body, .grp-description {
-        
+    .grp-card-body{
+
         display: flex;
-        text-align: center;
-        justify-content: center;
-        align-items: center; 
+        /* text-align: center; */
+        /* justify-content: center; */
+        /* align-items: center; */
+
+    }
+
+    .grp-description {
+        text-align: justify !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important ;
+        overflow: scroll;
     }
 }

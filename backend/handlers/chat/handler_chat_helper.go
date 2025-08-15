@@ -214,7 +214,7 @@ func (server *ChatServer) BroadCastOnlineStatus() {
 	}
 }
 
-func (server *ChatServer) SendNotificationToUser(userID, notifContent string, hasSeen string) *models.ErrorJson { // boolean
+func (server *ChatServer) SendNotificationToUser(userID, notifContent string, hasSeen string) *models.ErrorJson { 
 	server.RLock()
 	defer server.RUnlock()
 

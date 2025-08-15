@@ -16,6 +16,7 @@ import { createPostAction } from "@/app/_actions/posts"
 import Loader from "../../_components/loader"
 import { useRouter } from "next/navigation"
 import Error from "../../_components/error"
+import { useNotification } from "../../_context/NotificationContext"
 
 export default function Page({ params }) {
   const [userInfos, setUserInfos] = useState(null)
@@ -24,6 +25,7 @@ export default function Page({ params }) {
   const [isFollower, setIsFollower] = useState(null)
   const [changed, setChanged] = useState(false)
   const { openModal } = useModal()
+  const { showNotification } = useNotification()
   const router = useRouter()
 
   const resolvedParams = React.use(params);
@@ -33,9 +35,9 @@ export default function Page({ params }) {
     async function fetchUserInfo() {
       try {
         const res = await fetch(`http://localhost:8080/api/profile/${id}/info`, { credentials: 'include' })
-        
+
         const profile = await res.json()
-        
+
         if (!res.ok) {
           if (profile.status === 401) {
             router.push("/login")
@@ -47,7 +49,7 @@ export default function Page({ params }) {
             return
           }
         }
-        
+
         const user = profile.user
 
 
@@ -125,8 +127,9 @@ export default function Page({ params }) {
             ? prev.followers + 1
             : prev.followers,
       }))
-
-      if (updated.is_follower) setIsFollower(updated.is_follower)
+      
+      if (!updated.is_follower && !updated.is_requested && isFollower) showNotification({ Content: 'You Unfollowed this profile successfully !', Status: 'success' })
+      setIsFollower(updated.is_follower)
     } catch (err) {
       setError(err)
       console.error("Error:", err)
@@ -159,11 +162,14 @@ export default function Page({ params }) {
           return
         }
       }
+      
       setUserInfos(prev => ({
         ...prev,
         visibility: newPrivacy,
         followers: profile.followers_count || prev.followers
       }))
+
+      showNotification({Content: `Your profile is now ${newPrivacy}`, Status: 'success'})
     } catch (err) {
       setError(err)
       console.error("Error:", err)
@@ -201,7 +207,7 @@ export default function Page({ params }) {
               ) : (
                 <>
                   <RiUserFollowFill size="24px" color="white" />
-                  <span style={{ color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-medium)'}}>Follow</span>
+                  <span style={{ color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-medium)' }}>Follow</span>
                 </>
               )}
             </Button>
