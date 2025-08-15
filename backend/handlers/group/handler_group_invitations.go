@@ -89,21 +89,12 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 	}
 
 	if errJson := invHanlder.gService.CancelTheInvitation(userID.String(), groupID.String(), invitedUser.Id); errJson != nil {
-		if (errJson.Status == 404 && errJson.Error == "Invitation not found") || (errJson.Status == 403 && errJson.Error == "Already a member!") {
-			utils.WriteDataBack(w, models.ErrorJson{
-				Status:  200,
-				Message: errJson.Error,
-			})
-			return
-		}
-		// if errJson.Status == 403 && errJson.Message == "ERROR!! Acces Forbidden!" {
-	
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 
 	if errJson := invHanlder.nService.DeleteService(invitedUser.Id, userID.String(), "group-invitation", groupID.String()); errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 

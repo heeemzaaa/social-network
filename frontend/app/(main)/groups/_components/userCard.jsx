@@ -32,29 +32,20 @@ export default function UserCard({ user, groupId }) {
                     router.push("/login")
                     return
                 }
-                showNotification({
-                    Content: "Failed to send request",
-                    Status: "error"
-                });
-                setError(data.error)
-                return
-            }
-            // console.log(" ==>> ", data);
 
-            // Handle error messages
-            if (data.error === 'Already a member!' ||
-                data.error === 'It is not from your followers!' ||
-                data.error === 'Invitation not found') {
+                if (data.error === 'Already a member!' ||
+                    data.error === 'It is not from your followers!' ||
+                    data.error === 'Invitation not found') {
+                    console.log('***********************************************************')
+                    // console.warn(data.error)
+                    showNotification({
+                        Content: data.error,
+                        Status: "warn"
+                    });
 
-                // console.warn(data.error)
-                showNotification({
-                    Content: data.error,
-                    Status: "warn"
-                });
-
-                // if (data.error !== 'It is not from your followers!' || data.error !== 'Invitation not found') return
-                // should remove the user from the list
-                return
+                    // should remove the user from the list
+                    if (data.error === 'It is not from your followers!' || data.error === 'Already a member!') return
+                }
             }
 
             if (method === 'POST') {
@@ -65,10 +56,13 @@ export default function UserCard({ user, groupId }) {
             }
 
             setInviteState(inviteState === 0 ? 1 : 0);
-            showNotification({
-                Content: inviteState === 0 ? "Invitation sent" : "Invitation cancelled",
-                Status: "success"
-            });
+            
+            if (data.error !== 'Invitation not found') {
+                showNotification({
+                    Content: inviteState === 0 ? "Invitation sent" : "Invitation cancelled",
+                    Status: "success"
+                });
+            }
 
         } catch (err) {
             console.error("Request error:", err);

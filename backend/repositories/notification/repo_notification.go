@@ -208,7 +208,7 @@ func (repo *NotifRepository) DeleteFollowNotification(userId, authUserId, notifT
 
 // delete duplicated group notification
 func (repo *NotifRepository) DeleteGroupNotification(userId, authUserId, notifType, groupId string) *models.ErrorJson {
-	query := `DELETE FROM notifications WHERE senderId = ? AND targetId = ? AND notifType = ? AND groupId = ?` // groupId not found ((no columne))
+	query := `DELETE FROM notifications WHERE senderId = ? AND targetId = ? AND notifType = ? AND groupId = ?`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {

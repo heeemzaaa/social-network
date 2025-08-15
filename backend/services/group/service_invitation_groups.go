@@ -51,15 +51,15 @@ func (gService *GroupService) CancelTheInvitation(userId, groupId, invitedUserId
 	// we need to check if the request of invitation is there before canceling it
 	// delete  the invitation from the table of the requests
 	if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}
 	// always check the membership and also the the group is a valid one
 	if errMembership := gService.CheckMembership(groupId, userId); errMembership != nil {
-		return &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+		return &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error}
 	}
 
 	if errJson := gService.gRepo.CancelTheInvitation(userId, groupId, invitedUserId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}
 	return nil
 }
@@ -86,12 +86,12 @@ func (gService *GroupService) GetUsersToInvite(userID, groupID string) ([]models
 
 	// always check the membership and also the the group is a valid one
 	if errMembership := gService.CheckMembership(groupID, userID); errMembership != nil {
-		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error, Message: errMembership.Message}
+		return nil, &models.ErrorJson{Status: errMembership.Status, Error: errMembership.Error}
 	}
 
 	users, errJson := gService.gRepo.GetUsersToInvite(userID, groupID)
 	if errJson != nil {
-		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
+		return nil, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}
 
 	memberships := make(map[string]bool)

@@ -44,18 +44,20 @@ export default function GroupCard({
                     router.push("/login")
                     return
                 }
+
+
+                if (data.error === 'Already a member!') {
+                    showNotification({ Content: `You are already a member!`, Status: "warn" });
+                    console.warn(`You are already a member!`)
+                    router.push(`/groups/${group_id}`)
+                    return
+
+                } else if (data.error === 'Invitation not found') {
+                    console.warn(`Invitation not found !!`)
+                    showNotification({ Content: `Invitation not found`, Status: "warn" });
+                }
             }
 
-            if (data.error === 'Already a member!') {
-                showNotification({ Content: `You are already a member!`, Status: "warn" });
-                console.warn(`You are already a member!`)
-                router.push(`/groups/${group_id}`)
-                return
-
-            } else if (data.Message === 'ERROR!! Invitation not found') { // should .error
-                console.warn(`Invitation not found !!`)
-                showNotification({ Content: `Invitation not found`, Status: "warn" });
-            }
 
             if (requestState === 0) {
                 console.log("response data after join request", data)
@@ -80,7 +82,7 @@ export default function GroupCard({
             <Error error={error} />
         )
     }
-    
+
     return (
         <div className="grp-card w-quarter" onClick={() => {
             navigateToGroup(group_id)
