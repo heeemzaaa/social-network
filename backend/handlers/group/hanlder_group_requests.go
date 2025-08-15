@@ -48,7 +48,6 @@ func (GrpReqHandler *GroupRequestsHandler) RequestToJoin(w http.ResponseWriter, 
 	// The custom errors are for the after check
 	notification, errJson := GrpReqHandler.gService.RequestToJoin(userID.String(), groupID.String())
 	if errJson != nil {
-		// check if the user is already a member of the group
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}

@@ -12,7 +12,7 @@ import { useNotification } from '../_context/NotificationContext';
 
 export default function Header() {
   const { openModal } = useModal()
-  const { authenticatedUser, hasNewNotification, setHasNewNotification } = useUserContext()
+  const { authenticatedUser } = useUserContext()
   const { showNotification } = useNotification()
 
 
@@ -28,7 +28,6 @@ export default function Header() {
         let res = await fetch(`${API_URL}/api/notifications/`, getRequest)
         let response = await res.json()
         if (response?.Status === true) {
-          // setHasNewNotification(true)
           showNotification({ Content: "You have new notifications", Status: "info" })
         }
       } catch (err) {
@@ -50,9 +49,6 @@ export default function Header() {
       <Button variant='btn-icon' className='flex gap-2 ' onClick={()=> openModal(<NotificationsPopover />)}>
         <div className='relative' style={{height:"24px"}} >
               <HiBell size={24} />
-              {/* {hasNewNotification && (
-                <span className="notification-badge"></span>
-              )} */}
         </div>
       </Button>
     </header>

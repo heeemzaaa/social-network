@@ -2,7 +2,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNotification } from "../../_context/NotificationContext";
 import "./styles.css";
-import { useUserContext } from "../../_context/userContext";
 
 export default function NotificationsPopover() {
   const containerRef = useRef();
@@ -11,44 +10,6 @@ export default function NotificationsPopover() {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { showNotification } = useNotification();
-
-  const { setHasNewNotification } = useUserContext();
-
-  // const notificationContent = (notification) => {
-  //   console.log("eeeeeeeeeeeeeeee", notification)
-  //   if (notification.Status == "later") {
-  //     switch (notification.Type) {
-  //       case "follow-private":
-  //         return `${notification.SenderFullName} send a follow request`;
-  //       case "group-join":
-  //         return `${notification.SenderFullName} would like to join ${notification.GroupName} group`;
-  //       case "group-invitation":
-  //         return `${notification.SenderFullName} send a request to join ${notification.GroupName} group`;
-  //     }
-  //   } else if (notification.Status == "accept") {
-  //     switch (notification.Type) {
-  //       case "follow-private":
-  //       case "follow-public":
-  //         return `${notification.SenderFullName} follow you`;
-  //       case "group-join":
-  //         return `${notification.SenderFullName} join your ${notification.GroupName} group`;
-  //       case "group-invitation":
-  //         return `you are now a member of ${notification.GroupName} group`;
-  //     }
-  //   } else if (notification.Status == "reject") {
-  //     switch (notification.Type) {
-  //       case "follow-private":
-  //         return `you rejected ${notification.SenderFullName} follow request`;
-  //       case "group-join":
-  //         return `you refused ${notification.SenderFullName} to join your ${notification.GroupName} group`;
-  //       case "group-invitation":
-  //         return `you rejected ${notification.SenderFullName} request to join ${notification.GroupName} group`;
-  //     }
-  //   } else if (notification.Status == "none" && notification.Type == "group-event") {
-  //     return `${notification.SenderFullName} create event at ${notification.GroupName} group`;
-  //   }
-  //   return "content information not found !!";
-  // };
 
   const handleNotificationAction = async (notification, status) => {
     if (!notification.id) {
@@ -72,28 +33,20 @@ export default function NotificationsPopover() {
 
       let response = await fetch("http://localhost:8080/api/notifications/update/", postRequest);
       let data = await response.json();
-      if (!response.ok) {
+      if (!data.ok) {
 
         if (data.error === "Notification not found") {
-          console.warn("Notif not found, removing from notifications list")
+          console.warn("Notification not found, remove from the list")
           setNotifications(prev => prev.filter(notif => notif.id !== notification.id))
-          showNotification({ Content: "Notification not found, removed from list", Status: "warn" })
+          showNotification({ Content: "Notification not found, remove from the list", Status: "warn" })
           return
         }
         showNotification({Content:"failed to update notification", Status:"error"})
       }
-      console.log(" data response:   =========>>>  ", data);
-      console.log(" notification response:   =========>>>  ", notification);
-      console.log(" status response:   =========>>>  ", status);
 
       if (data.status === true ) {
-        console.log(`update notification response: Status: ${data.status}, Data: ${data.message}`);
-
-        setNotifications(prev => prev.map(notif => {
-          console.log(notif.status)
-          return notif.id === notification.id ? { ...notif, Status: status } : notif
-        })) // if notification updated seccessfly hide button
-
+        console.log(`update notification response: ${data.message}`);
+        setNotifications(prev => prev.map(notif => notif.id === notification.id ? { ...notif, status: status } : notif ))
         showNotification({ Content: `Notification ${status}ed successfully`, Status: "success"});
       }
 
@@ -114,13 +67,13 @@ export default function NotificationsPopover() {
     try {
       const res = await fetch(`http://localhost:8080/api/notifications?Id=${value}`, { method: "GET", credentials: "include" });
 
-      if (!res.ok) showNotification({Content:"failed to update notification", Status:"error"})
+      if (!res.ok) {
+        showNotification({Content:"failed to update notification", Status:"error"})
+        console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",res.error)
+      }
 
       const data = await res.json();
       console.log("Notifications data from GET ===> :", data);
-
-      // setHasNewNotification(data.status === false ? false : true);
-      // data.status === false ? null : showNotification({ Content: "you have new notifications", Status: "success" });
 
       const existingIds = new Set(notifications.map(notif => notif.id));
 
@@ -162,7 +115,6 @@ export default function NotificationsPopover() {
 
       {notifications.map((notif) => (
         <div key={notif.id} className={`notification-card ${notif.seen ? "seen" : "unseen"}`}>
-          {/* <p>{notificationContent(notif)}</p> */}
           <p>{notif.content || "content information not found !!"}</p>
 
           {notif.status === "later" && (
@@ -175,9 +127,6 @@ export default function NotificationsPopover() {
       ))}
 
       {isLoading && <p className="text-center text-gray-400 text-xs">Loading...</p>}
-      {/* {!hasMore && notifications.length > 0 && (
-        <p className="text-center text-gray-400 text-xs">No more notifications</p>
-      )} */}
     </div>
   );
 }

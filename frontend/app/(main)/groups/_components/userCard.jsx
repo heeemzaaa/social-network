@@ -7,7 +7,7 @@ import { useUserContext } from "../../_context/userContext";
 import { useRouter } from 'next/navigation';
 
 export default function UserCard({ user, groupId }) {
-    const { sendSocketMessage, authenticatedUser } = useUserContext();
+    const { sendSocketMessage } = useUserContext();
     const [inviteState, setInviteState] = useState(user.invited)
     const { showNotification } = useNotification()
     const [error, setError] = useState(null)
@@ -39,21 +39,22 @@ export default function UserCard({ user, groupId }) {
                 setError(data.error)
                 return
             }
-            console.log(" ==>> ", data);
+            // console.log(" ==>> ", data);
 
             // Handle error messages
             if (data.error === 'Already a member!' ||
                 data.error === 'It is not from your followers!' ||
                 data.error === 'Invitation not found') {
 
-                console.warn(data.error)
+                // console.warn(data.error)
                 showNotification({
                     Content: data.error,
                     Status: "warn"
                 });
 
-                if (data.error !== 'Invitation not found') return
+                // if (data.error !== 'It is not from your followers!' || data.error !== 'Invitation not found') return
                 // should remove the user from the list
+                return
             }
 
             if (method === 'POST') {
@@ -64,7 +65,6 @@ export default function UserCard({ user, groupId }) {
             }
 
             setInviteState(inviteState === 0 ? 1 : 0);
-            // console.log("inviteState: ", inviteState)
             showNotification({
                 Content: inviteState === 0 ? "Invitation sent" : "Invitation cancelled",
                 Status: "success"

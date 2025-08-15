@@ -209,7 +209,7 @@ export async function createGroupEventAction(prevState, formData) {
                 ...(sessionCookie ? { Cookie: `session=${sessionCookie}` } : {})
             }
         });
-        const data = await res.json();
+        let data = await res.json();
         if (!res.ok) {
             return {
                 ...prevState,
@@ -218,11 +218,14 @@ export async function createGroupEventAction(prevState, formData) {
                 status: state.status
             };
         }
-        console.log(data.data)
-        let dataToBeSent = data.data
+        // console.log(data)
+        let notification = data.notification
+        data = data.data
+
         return {
             ...state,
-            dataToBeSent,
+            data,
+            notification,
             message: "New Event created successfully",
         };
     } catch (error) {

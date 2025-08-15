@@ -62,30 +62,13 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 		return
 	}
 
-	// for _, user := range members {
-	// 	if user.Id == event.EventCreator.Id {
-	// 		continue
-	// 	}
-
-	// 	if errJson := gEventHandler.nService.PostService(&models.Notif{
-	// 		SenderId:   event.EventCreator.Id,
-	// 		RecieverId: user.Id,
-	// 		Type:       "group-event",
-	// 		GroupId:    event.Group.GroupId,
-	// 		EventId:    event.EventId,
-	// 		GroupName:  event.Group.Title,
-
-	// 	}); errJson != nil {
-	// 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
-	// 		return
-	// 	}
-	// }
-
 	//  here we need to catch the event and at the same time the notification
 	data := &models.Data{
-		Notification: notification.PointerToSimple(),
+		Notification: notification,
 		Data:         event,
 	}
+	// fmt.Printf("writeDataBack: %#v", notification)
+
 	utils.WriteDataBack(w, data)
 }
 

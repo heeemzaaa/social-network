@@ -49,7 +49,7 @@ func (fa *FollowActionHandler) Follow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := models.Data{
-		Notification: newNotif.PointerToSimple(),
+		Notification: newNotif,
 		Data:         profile,
 	}
 

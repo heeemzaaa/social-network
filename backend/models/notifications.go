@@ -25,23 +25,23 @@ func NewNotification() *Notification {
 	return &Notification{}
 }
 
-func (n *Notification) PointerToSimple() Notification {
-	return Notification{
-		Id:        n.Id,
-		SenderID:  n.SenderID,
-		TargetID:  n.TargetID,
-		Seen:      n.Seen,
-		Type:      n.Type,
-		Status:    n.Status,
-		Content:   n.Content,
-		CreatedAt: n.CreatedAt,
+// func (n *Notification) PointerToSimple() Notification {
+// 	return Notification{
+// 		Id:        n.Id,
+// 		SenderID:  n.SenderID,
+// 		TargetID:  n.TargetID,
+// 		Seen:      n.Seen,
+// 		Type:      n.Type,
+// 		Status:    n.Status,
+// 		Content:   n.Content,
+// 		CreatedAt: n.CreatedAt,
 
-		SenderFullName: n.SenderFullName,
-		GroupName:      n.GroupName,
-		EventID:        n.EventID,
-		EventName:      n.EventName,
-	}
-}
+// 		SenderFullName: n.SenderFullName,
+// 		GroupName:      n.GroupName,
+// 		EventID:        n.EventID,
+// 		EventName:      n.EventName,
+// 	}
+// }
 
 // structue of new notification
 type Notif struct {
@@ -97,5 +97,5 @@ func NewResponseData() *ResponseData {
 
 type Data struct {
 	Data         any          `json:"data"`
-	Notification Notification `json:"notification"`
+	Notification *Notification `json:"notification"`
 }

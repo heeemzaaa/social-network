@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -24,7 +25,7 @@ func (service *ChatService) DeleteService(targetId, senderId, notifType, groupId
 func (service *ChatService) PostService(notification models.Notification) *models.ErrorJson {
 	if errJson := service.DeleteService(notification.TargetID, notification.SenderID, notification.Type, notification.GroupID); errJson != nil {
 		return errJson
-	} // for delete duplicate notification if exist /////
+	}
 
 	var errJson *models.ErrorJson
 
@@ -38,7 +39,31 @@ func (service *ChatService) PostService(notification models.Notification) *model
 	case "group-join":
 		errJson = service.InsertNotification(notification, "later")
 	case "group-event":
-		errJson = service.InsertNotification(notification, "none")
+		members, errJson := service.GetMembersOfGroup(notification.GroupID)
+		if errJson != nil {
+			return errJson
+		}
+		errorArray := []models.ErrorJson{}
+		for _, userId := range members {
+			if userId == notification.SenderID {
+				continue
+			}
+			// SenderId:   event.EventCreator.Id,
+			notification.TargetID = userId
+			// Type:       "group-event",
+			// GroupId:    event.Group.GroupId,
+			// EventId:    event.EventId,
+			// GroupName:  event.Group.Title,
+			errJson = service.InsertNotification(notification, "none")
+			if errJson != nil {
+				errorArray = append(errorArray, errJson.PointErrorJson())
+			}
+		}
+		fmt.Println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+		if len(errorArray) > 0 {
+			fmt.Println("ERROR EVENT LOOP:", errorArray[0])
+		}
+		
 	default:
 		return &models.ErrorJson{
 			Status: 400,

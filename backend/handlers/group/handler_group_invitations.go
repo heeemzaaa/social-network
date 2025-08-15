@@ -89,10 +89,10 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 	}
 
 	if errJson := invHanlder.gService.CancelTheInvitation(userID.String(), groupID.String(), invitedUser.Id); errJson != nil {
-		if (errJson.Status == 404 && errJson.Message == "ERROR!! Invitation not found") || (errJson.Status == 403 && errJson.Message == "ERROR!! Already a member!") { /////////
+		if (errJson.Status == 404 && errJson.Error == "Invitation not found") || (errJson.Status == 403 && errJson.Error == "Already a member!") {
 			utils.WriteDataBack(w, models.ErrorJson{
 				Status:  200,
-				Message: errJson.Message,
+				Message: errJson.Error,
 			})
 			return
 		}
@@ -128,10 +128,6 @@ func (invHanlder *GroupInvitationHandler) GetUsersToInvite(w http.ResponseWriter
 		return
 	}
 
-	// if err := json.NewEncoder(w).Encode(users); err != nil {
-	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
-	// 	return
-	// }
 	utils.WriteDataBack(w, users)
 }
 

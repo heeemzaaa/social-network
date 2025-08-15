@@ -190,12 +190,12 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 				}
 			}
 		case "group-event":
-			members, err := user.service.GetMembersOfGroup(message.TargetID)
+			members, err := user.service.GetMembersOfGroup(notification.GroupID)
 			if err != nil {
 				return
 			}
 			for _, member := range members {
-				if member == message.SenderID {
+				if member == notification.SenderID {
 					continue
 				}
 				for _, conn := range user.chatServer.client[member] {

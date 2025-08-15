@@ -13,18 +13,12 @@ export default function UserProvider({ children }) {
 
   const { showNotification } = useNotification();
   
-  const [hasNewNotification, setHasNewNotification] = useState(false);
-
-  const handleNotificationSeen = (data) => {
-    console.log("Notification seen data:", data);
-    // setHasNewNotification(data.seen === "true" ? true : false);
-    if (data.content !== "" ) showNotification({Content: data.content, Status: "info"})
-  }
+  const handleNotificationSeen = (data) => data?.content !== "" ? showNotification({Content: data.content, Status: "info"}) : null
 
   const sendSocketMessage = (data) => {
-    if (!socketRef.current) return console.warn("⚠️ Socket not available");
+    if (!socketRef.current) return console.warn("Socket not available");
 
-    if (socketRef.current.readyState !== WebSocket.OPEN) return console.warn("⚠️ Socket not connected");
+    if (socketRef.current.readyState !== WebSocket.OPEN) return console.warn("Socket not connected");
 
     try {
       socketRef.current.send(JSON.stringify(data));
@@ -71,7 +65,7 @@ export default function UserProvider({ children }) {
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log("testing hhhhhh", data)
+
         if (data.type === "notification") return handleNotificationSeen(data);
 
         if (typeof data.content === "string" && data.content !== "" && (data.type === "private" || data.type === "group")) {
@@ -114,8 +108,6 @@ export default function UserProvider({ children }) {
         messages,
         setMessages,
         authenticatedUser,
-        hasNewNotification,
-        setHasNewNotification,
       }}
     >
       {children}

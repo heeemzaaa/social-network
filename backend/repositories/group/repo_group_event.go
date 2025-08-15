@@ -192,9 +192,8 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 	notification := &models.Notification{
 		SenderID: event_created.EventCreator.Id,
 		TargetID: event_created.Group.GroupId,
-		Type:     "event-creation",
-		Content: fmt.Sprintf("%v Created The event %v in the group %v",
-			event_created.EventCreator.FullName, event_created.Title, event_created.Group.Title),
+		Type:     "group-event", 
+		Content: fmt.Sprintf("%v Created The event %v in the group %v", event_created.EventCreator.FullName, event_created.Title, event_created.Group.Title),
 		GroupID: event_created.Group.GroupId,
 	}
 	return &event_created, notification, nil

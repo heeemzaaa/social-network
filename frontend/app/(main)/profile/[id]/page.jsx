@@ -105,21 +105,7 @@ export default function Page({ params }) {
         credentials: 'include',
         body: JSON.stringify({ profile_id: id }),
       })
-
-
-
-      const payload = await res.json();
-      let updated = payload
-      if (endpoint.split('/').pop() === 'follow' && payload.notification) {
-        const notification = payload.notification || null;
-        // console.log("notification: ==> ", notification);
-        sendSocketMessage({
-          Type: "notification",
-          Notification: notification,
-        })
-        updated = payload.data || null;
-      }
-
+      
       if (!res.ok) {
         if (updated.status === 401) {
           router.push("/login")
@@ -129,7 +115,19 @@ export default function Page({ params }) {
           setError(updated.error)
           return
         }
-      }      
+      }
+
+      const payload = await res.json();
+      let updated = payload
+
+      if (endpoint.split('/').pop() === 'follow' && payload.notification) {
+        const notification = payload.notification || null;
+        sendSocketMessage({
+          Type: "notification",
+          Notification: notification,
+        })
+        updated = payload.data || null;
+      }     
 
       setChanged(!changed)
       setUserInfos(prev => ({

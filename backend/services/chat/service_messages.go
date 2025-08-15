@@ -10,12 +10,12 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 	errMessage := models.NewMessageErr()
 	trimmedMsg := strings.TrimSpace(message.Content)
 	type_message := strings.ToLower(strings.TrimSpace(message.Type))
-	// fmt.Println("incoming_message ===>:", message.Notification)
 
 	if type_message == "notification" {
 		// should handle notification logic separate
+		// fmt.Printf("incoming message ==> %#v", message)
 		if errJson := service.PostService(message.Notification); errJson != nil {
-			return nil, &models.ErrorJson{Status: 400, Message: errJson.Message}
+			return nil, &models.ErrorJson{Status: 400, Error: errJson.Error}
 		}
 		return message, nil
 	}
