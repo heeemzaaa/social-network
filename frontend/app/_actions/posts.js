@@ -3,6 +3,7 @@
 
 import { cookies } from "next/headers";
 
+// create the post ...
 export async function createPostAction(prevState, formData) {
     let state = {
         error: null,
@@ -20,7 +21,7 @@ export async function createPostAction(prevState, formData) {
     if (!privacy) {
         state.errors.privacy = "Privacy is required";
     }
-
+    // in case of privacy is private 
     if (privacy === "private") {
         if (!selectedFollowersRaw) {
             state.errors.selectedFollowers = "Please choose friends";
@@ -74,6 +75,7 @@ export async function createPostAction(prevState, formData) {
             state.errors.img = "one filed is required";
         }
     }
+    // bring the cookies to include it.. send it in the hearder 
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("session")?.value;
 
@@ -100,8 +102,9 @@ export async function createPostAction(prevState, formData) {
     };
 }
 
-
+// like the post 
 export async function likePostAction(prevState, formData) {
+    // post id is one  the form -> type hidden
     const postId = formData.get("postId");
     if (!postId) {
         return { ...prevState, message: "Post ID is required." };
@@ -129,7 +132,7 @@ export async function likePostAction(prevState, formData) {
     }
 }
 
-
+// comment a post 
 export async function commentPostAction(prevState, formData) {
     let state = {
         error: null,

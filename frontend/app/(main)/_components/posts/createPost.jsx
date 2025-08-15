@@ -3,13 +3,18 @@ import styles from "@/app/page.module.css"
 import { useModal } from '../../_context/ModalContext';
 import { useUserContext } from '../../_context/userContext';
 
+// the intial post data
 const initialPostData = {
     title: '',
     content: '',
     privacy: 'public',
     selectedFollowers: []
 };
-
+// component for creating posts
+// use action state for form submissiom pecialized for running asynchronous actions (like postAction) and tracking their state
+// use state to track  changed things
+// use state for tracking user update  
+// set data for setting daata whenever the user change somthing
 export default function CreatePost({postAction}) {
     const [state, action] = useActionState(postAction, {});
     const [data, setData] = useState(initialPostData);
@@ -17,6 +22,7 @@ export default function CreatePost({postAction}) {
     const [loadingFollowers, setLoadingFollowers] = useState(true);
     const {authenticatedUser} = useUserContext()
 
+    // stores data that the modal will show when opened.
     const { setModalData, closeModal } = useModal()
 
     useEffect(() => {
@@ -26,7 +32,7 @@ export default function CreatePost({postAction}) {
         closeModal()
     }, [state])
 
-
+    // useEffect -> fetch followes olny when first rendring 
     useEffect(() => {
         const fetchFollowers = async () => {
             try {
@@ -44,14 +50,15 @@ export default function CreatePost({postAction}) {
         };
         fetchFollowers();
     }, []);
-
+    // set data when user change somthing
     const handleChange = (e) => {
         setData(prev => ({
             ...prev,
             [e.target.name]: e.target.value,
         }));
     };
-
+    // If the follower is already selected, remove them (filter removes the id)
+    // If the follower is not selected, add them ([...prev.selectedFollowers, followerId]).
     const handleFollowerToggle = (followerId) => {
         setData(prev => ({
             ...prev,
@@ -60,7 +67,7 @@ export default function CreatePost({postAction}) {
                 : [...prev.selectedFollowers, followerId]
         }));
     };
-
+    // se;ect all deselect all
     const handleSelectAllFollowers = () => {
         if (!Array.isArray(followers)) return;
         setData(prev => ({
@@ -70,7 +77,7 @@ export default function CreatePost({postAction}) {
                 : followers.map(f => f.id)
         }));
     };
-    
+    // return the form 
     return (
         <form noValidate action={action} className={`${styles.form} glass-bg`}>
             <div className="flex gap-3">

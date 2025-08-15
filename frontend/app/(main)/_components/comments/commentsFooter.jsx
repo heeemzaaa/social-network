@@ -5,7 +5,7 @@ import { FaPaperPlane } from "react-icons/fa";
 
 import { useActionState } from 'react'
 import { commentPostAction } from '@/app/_actions/posts'
-
+// comment footer 
 export default function CommentsFooter({ id, setComments, onCommentMessage }) {
     const initialState = {
         message: '',

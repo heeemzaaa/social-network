@@ -6,6 +6,7 @@ import { useModal } from "../../_context/ModalContext";
 export default function PostCardList() {
     const [posts, setPosts] = useState([])
     const { getModalData, setModalData } = useModal()
+    // run every time the modaldata changes
     useEffect(() => {
         let postData = getModalData()
         if (postData?.type !== 'post') return;
@@ -18,9 +19,10 @@ export default function PostCardList() {
                 return [postData, ...prev]
             }
         })
+        // clear modal data 
         setModalData(null)
     }, [setModalData])
-
+    // execute in first rendring
     useEffect(() => {
         async function fetchPosts() {
             console.log("fetch posts here.");
@@ -44,7 +46,7 @@ export default function PostCardList() {
 
         fetchPosts();
     }, []);
-    console.log("***", posts)
+
     return (
         <div className="list-container " style={{ overflowY: "auto" }}>
             {posts?.map((post) => (

@@ -11,6 +11,7 @@ import { timeAgo } from "@/app/_utils/time"
 
 import { HiOutlineClock } from "react-icons/hi2"
 
+// post card reveice the data of the post 
 export default function PostCard({
     id,
     user,
@@ -22,8 +23,8 @@ export default function PostCard({
     liked,
     privacy
 }) {
+    // to  hanldle updated comment count
     const [totalComments, setTotalComments] = useState(total_comments)
-    console.log(user)
     const handleCommentMessage = (msg) => {
         setTotalComments(prev => prev + 1)
     }
