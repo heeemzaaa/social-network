@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -28,9 +27,6 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 	if errMessage.Content != "" || errMessage.Type != "" {
 		return nil, &models.ErrorJson{Status: 400, Message: errMessage}
 	}
-
-
-
 
 	// We can go on and insert the message in the database
 	switch strings.ToLower(message.Type) {
@@ -84,7 +80,6 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 		}
 
 		if strings.HasPrefix(message.Notification.Type, "group") {
-			fmt.Printf("%#v", message.Notification.Type)
 			exists, err := service.repo.GroupExists(message.Notification.GroupID)
 			if err != nil {
 				return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}

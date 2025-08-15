@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -43,7 +42,7 @@ func (service *ChatService) PostService(notification models.Notification) *model
 		if errJson != nil {
 			return errJson
 		}
-		errorArray := []models.ErrorJson{}
+
 		for _, userId := range members {
 			if userId == notification.SenderID {
 				continue
@@ -51,13 +50,10 @@ func (service *ChatService) PostService(notification models.Notification) *model
 			notification.TargetID = userId
 			errJson = service.InsertNotification(notification, "none")
 			if errJson != nil {
-				errorArray = append(errorArray, errJson.PointErrorJson())
+				return errJson
 			}
 		}
-		if len(errorArray) > 0 {
-			fmt.Println("ERROR EVENT LOOP:", errorArray[0])
-		}
-		
+
 	default:
 		return &models.ErrorJson{
 			Status: 400,
@@ -74,7 +70,7 @@ func (service *ChatService) PostService(notification models.Notification) *model
 
 func (service *ChatService) InsertNotification(notification models.Notification, status string) *models.ErrorJson {
 	notification.Status = status
-	
+
 	if errJson := service.repo.InsertNewNotification(notification); errJson != nil {
 		return errJson
 	}

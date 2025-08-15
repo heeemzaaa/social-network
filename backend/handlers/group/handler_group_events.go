@@ -62,12 +62,10 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 		return
 	}
 
-	//  here we need to catch the event and at the same time the notification
 	data := &models.Data{
 		Notification: notification,
 		Data:         event,
 	}
-	// fmt.Printf("writeDataBack: %#v", notification)
 
 	utils.WriteDataBack(w, data)
 }
