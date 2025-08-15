@@ -5,8 +5,8 @@ import { HiMiniUsers } from "react-icons/hi2";
 import "./style.css"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
 import { useNotification } from "../../_context/NotificationContext";
+import { useUserContext } from "../../_context/userContext";
 
 export default function GroupCard({
     type,
@@ -21,6 +21,7 @@ export default function GroupCard({
     const [requestState, setRequestState] = useState(requested)
     const [error, setError] = useState(null)
     const { showNotification } = useNotification();
+    const { sendSocketMessage } = useUserContext()
 
 
     // let's create here the function that toggles the state of the button with the same
@@ -41,19 +42,27 @@ export default function GroupCard({
                     router.push("/login")
                     return
                 }
+
+
+                if (data.error === 'Already a member!') {
+                    showNotification({ Content: `You are already a member!`, Status: "warn" });
+                    console.warn(`You are already a member!`)
+                    router.push(`/groups/${group_id}`)
+                    return
+
+                } else if (data.error === 'Invitation not found') {
+                    console.warn(`Invitation not found !!`)
+                    showNotification({ Content: `Invitation not found`, Status: "warn" });
+                }
             }
 
-            if (data.Message === 'ERROR!! You are already a member!') {
-                showNotification({ Content: `You are already a member!`, Status: "error" });
-                router.push(`/groups/${group_id}`)
-                console.warn(`You are already a member!`)
-                return
 
-            } else if (data.Message === 'Invitation not found') {
-                console.warn(`Invitation not found !!`)
-                showNotification({ Content: `Invitation not found`, Status: "error" });
+            if (requestState === 0) {
+                sendSocketMessage({
+                    type: "notification",
+                    notification: data,
+                })
             }
-
             setRequestState(requestState === 0 ? 1 : 0)
         } catch (error) {
             setError(error)
@@ -70,7 +79,7 @@ export default function GroupCard({
             <Error error={error} />
         )
     }
-    
+
     return (
         <div className="grp-card w-quarter" onClick={() => {
             navigateToGroup(group_id)

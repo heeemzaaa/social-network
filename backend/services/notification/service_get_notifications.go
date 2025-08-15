@@ -39,7 +39,7 @@ func (NS *NotificationService) GetService(userId, notificationId string) ([]mode
 
 	nbr := utils.GetIndexOf(all, notificationId)
 	if nbr == -1 {
-		return []models.Notification{}, &models.ErrorJson{Status: 400, Message: "Invalid Operation", Error: "400 - Bad Request"}
+		return []models.Notification{}, &models.ErrorJson{Status: 400, Error: "Invalid Operation"}
 	}
 	nbr++
 

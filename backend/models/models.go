@@ -20,6 +20,14 @@ func NewErrorJson(status int, err string, message any) *ErrorJson {
 	}
 }
 
+func (s *ErrorJson) PointErrorJson() ErrorJson {
+	return ErrorJson{
+		Status:  s.Status,
+		Error:   s.Error,
+		Message: s.Message,
+	}
+}
+
 // First create a type alias
 type Date struct {
 	Date time.Time

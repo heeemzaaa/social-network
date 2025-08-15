@@ -6,7 +6,7 @@ import (
 )
 
 // here we will handle the logic of following a user
-func (s *ProfileService) Follow(userID string, authUserID string) (*models.Notif, *models.Profile, *models.ErrorJson) {
+func (s *ProfileService) Follow(userID string, authUserID string) (*models.Notification, *models.Profile, *models.ErrorJson) {
 	var profile models.Profile
 
 	exists, err := s.repo.UserExists(userID)
@@ -32,28 +32,22 @@ func (s *ProfileService) Follow(userID string, authUserID string) (*models.Notif
 		return nil, nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 
-	data := models.Notif{
-		SenderId:   authUserID,
-		RecieverId: userID,
-	}
-
+	notification := &models.Notification{}
 	switch profile.User.Visibility {
 	case "private":
-		err := s.repo.FollowPrivate(userID, authUserID)
+		newNotif, err := s.repo.FollowPrivate(userID, authUserID)
 		if err != nil {
 			return nil, nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 		}
-
-		data.Type = "follow-private"
+		notification = newNotif
 
 	case "public":
-		err := s.repo.FollowDone(userID, authUserID)
+		newNotif, err := s.repo.FollowDone(userID, authUserID)
 		if err != nil {
 			return nil, nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 		}
 		profile.IsFollower = !isFollower
-
-		data.Type = "follow-public"
+		notification = newNotif
 
 	default:
 		return nil, nil, &models.ErrorJson{Status: 500, Error: "This is not a valid status of visibility"}
@@ -69,7 +63,7 @@ func (s *ProfileService) Follow(userID string, authUserID string) (*models.Notif
 		return nil, nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 
-	return &data, &profile, nil
+	return notification, &profile, nil
 }
 
 // here the user can unfollow the user that he already follows

@@ -13,7 +13,7 @@ import (
 // so the whole list of members will be able to invite its followers
 // RECEIVER ID is always the admin of the group!!
 
-func (gRepo *GroupRepository) RequestToJoin(userId, groupId string) *models.ErrorJson {
+func (gRepo *GroupRepository) RequestToJoin(userId, groupId string) (*models.Notification, *models.ErrorJson) {
 	requestId := utils.NewUUID()
 	query := `
 	INSERT INTO
@@ -24,22 +24,40 @@ func (gRepo *GroupRepository) RequestToJoin(userId, groupId string) *models.Erro
         groupID,
         typeRequest
     )
-	VALUES
-    (?, ?, (SELECT groups.groupCreatorID FROM groups WHERE groups.groupID = ?), ?, ?)
-	;
+	VALUES (
+		?, 
+		?, 
+		(SELECT groups.groupCreatorID FROM groups WHERE groups.groupID = ?), 
+		?, 
+		?
+	)
+	RETURNING
+		senderID, 
+		receiverID, 
+		(SELECT concat(firstName , ' ' , lastName) FROM users WHERE userID = ? ) AS fullNameSender,
+    	(SELECT title FROM groups WHERE groupID = ? )  AS groupName;
 	`
+
+	// the groupNAME IS important if the admin has multiple groups ( and he is the admin)
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(requestId, userId, groupId, groupId, "join-request")
-	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+	notification := models.Notification{
+		Type:   "group-join",
+		Status: "later",
+		GroupID:  groupId,
+	}
+	if err = stmt.QueryRow(requestId, userId, groupId, groupId, "join-request", userId, groupId).Scan(
+		&notification.SenderID, &notification.TargetID, &notification.SenderFullName, &notification.GroupName,
+	); err != nil {
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
 	}
 
-	return nil
+	notification.Content = fmt.Sprintf("%v requests to join the group %v", notification.SenderFullName, notification.GroupName)
+	return &notification, nil
 }
 
 func (gRepo *GroupRepository) RequestToCancel(userId, groupId string) *models.ErrorJson {
@@ -50,13 +68,13 @@ func (gRepo *GroupRepository) RequestToCancel(userId, groupId string) *models.Er
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
 	res, err := stmt.Exec(userId, groupId, groupId, "join-request")
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 1", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	if count, _ := res.RowsAffected(); count == 0 {
 		return &models.ErrorJson{Status: 404, Error: "Invitation not found"}

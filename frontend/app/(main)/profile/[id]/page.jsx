@@ -18,6 +18,9 @@ import { useRouter } from "next/navigation"
 import Error from "../../_components/error"
 import { useNotification } from "../../_context/NotificationContext"
 
+import { useUserContext } from "../../_context/userContext"
+// import { useNotification } from "../../_context/NotificationContext"
+
 export default function Page({ params }) {
   const [userInfos, setUserInfos] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -27,6 +30,9 @@ export default function Page({ params }) {
   const { openModal } = useModal()
   const { showNotification } = useNotification()
   const router = useRouter()
+
+  const { sendSocketMessage } = useUserContext()
+  // const { showNotification } = useNotification()
 
   const resolvedParams = React.use(params);
   const id = resolvedParams.id;
@@ -101,9 +107,7 @@ export default function Page({ params }) {
         credentials: 'include',
         body: JSON.stringify({ profile_id: id }),
       })
-
-      const updated = await res.json()
-
+      
       if (!res.ok) {
         if (updated.status === 401) {
           router.push("/login")
@@ -114,6 +118,18 @@ export default function Page({ params }) {
           return
         }
       }
+
+      const payload = await res.json();
+      let updated = payload
+
+      if (endpoint.split('/').pop() === 'follow' && payload.notification) {
+        const notification = payload.notification || null;
+        sendSocketMessage({
+          Type: "notification",
+          Notification: notification,
+        })
+        updated = payload.data || null;
+      }     
 
       setChanged(!changed)
       setUserInfos(prev => ({
@@ -135,7 +151,6 @@ export default function Page({ params }) {
       console.error("Error:", err)
     }
   }
-
 
   async function handleTogglePrivacy() {
     const newPrivacy = userInfos.visibility === 'private' ? 'public' : 'private'

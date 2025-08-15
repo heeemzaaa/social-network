@@ -22,10 +22,10 @@ func (service *GroupService) ValidateGroupTitle(title string) error {
 func (service *GroupService) CheckMembership(groupID, userID string) *models.ErrorJson {
 	isMember, errJson := service.IsMemberGroup(groupID, userID)
 	if errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}
 	if !isMember {
-		return &models.ErrorJson{Status: 403, Message: "ERROR!! Acces Forbidden!"}
+		return &models.ErrorJson{Status: 403, Error: "Already a member!"}
 	}
 	return nil
 }
@@ -33,17 +33,17 @@ func (service *GroupService) CheckMembership(groupID, userID string) *models.Err
 func (service *GroupService) CheckNotMember(groupID, userID string) *models.ErrorJson {
 	isMember, errJson := service.IsMemberGroup(groupID, userID)
 	if errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message}
+		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}
 	if isMember {
-		return &models.ErrorJson{Status: 403, Message: "ERROR!! You are already a member!"}
+		return &models.ErrorJson{Status: 403, Error: "Already a member!"}
 	}
 	return nil
 }
 
 func (service *GroupService) GroupExists(groupID string) *models.ErrorJson {
 	if err := service.gRepo.GetGroupById(groupID); err != nil {
-		return &models.ErrorJson{Status: err.Status, Error: err.Error, Message: err.Message}
+		return &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
 	return nil
 }
@@ -55,7 +55,7 @@ func IsValidType(typeEntity string) bool {
 func (service *GroupService) IsAdmin(groupId, userId string) (bool, *models.ErrorJson) {
 	isAdmin, errJson := service.gRepo.IsAdmin(groupId, userId)
 	if errJson != nil {
-		return false, &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return false, &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}
 	return isAdmin, nil
 }

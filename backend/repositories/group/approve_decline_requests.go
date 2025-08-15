@@ -22,14 +22,14 @@ func (gRepo *GroupRepository) Approve(groupId, userIdToBeAdded string) *models.E
 		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	if errJson := gRepo.RequestToCancel(userIdToBeAdded, groupId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
+		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}
 	return nil
 }
 
 func (gRepo *GroupRepository) Decline(groupId, userToBeRejected string) *models.ErrorJson {
 	if errJson := gRepo.RequestToCancel(userToBeRejected, groupId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message}
+		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}
 	return nil
 }

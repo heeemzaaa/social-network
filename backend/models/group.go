@@ -42,6 +42,19 @@ type Event struct {
 	Going        int       `json:"going"`
 }
 
+func (s *Event) PointerToSimple2() Event {
+	return Event{
+		EventId: s.EventId,
+		Group: s.Group,
+		EventCreator: s.EventCreator,
+		Title: s.Title,
+		Description: s.Description,
+		EventDate: s.EventDate,
+		CreatedAt: s.CreatedAt,
+		Going: s.Going,
+	}
+}
+
 type ErrEventGroup struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`

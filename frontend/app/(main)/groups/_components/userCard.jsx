@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import Avatar from '../../_components/avatar';
 import Button from '@/app/_components/button';
-import { useNotification } from '../../_context/NotificationContext';
+
+import { useNotification } from "../../_context/NotificationContext";
+import { useUserContext } from "../../_context/userContext";
 import { useRouter } from 'next/navigation';
 
-
 export default function UserCard({ user, groupId }) {
+    const { sendSocketMessage } = useUserContext();
     const [inviteState, setInviteState] = useState(user.invited)
     const { showNotification } = useNotification()
     const [error, setError] = useState(null)
@@ -23,29 +25,50 @@ export default function UserCard({ user, groupId }) {
                 body: JSON.stringify({ 'id': user.id }),
             })
 
-            const data = await res.json()
+
+            const data = await res.json();
             if (!res.ok) {
                 if (data.status === 401) {
                     router.push("/login")
                     return
                 }
-                setError(data.error)
-                return
-            }
-            if (data.Message === 'ERROR!! You are already a member!') {
-                showNotification({ Content: `already a member!`, Status: "error" });
-                // should access to the followers list and remove the user from the list
 
-                console.warn(`already a member!`)
-                return
-            } else if (data.Message === 'Invitation not found') {
-                console.warn(`Invitation not found !!`)
-                showNotification({ Content: `Invitation not found`, Status: "error" });
+                if (data.error === 'Already a member!' ||
+                    data.error === 'It is not from your followers!' ||
+                    data.error === 'Invitation not found') {
+                    // console.warn(data.error)
+                    showNotification({
+                        Content: data.error,
+                        Status: "warn"
+                    });
+
+                    // should remove the user from the list
+                    if (data.error === 'It is not from your followers!' || data.error === 'Already a member!') return
+                }
             }
-            inviteState === 0 ? setInviteState(1) : setInviteState(0)
+
+            if (method === 'POST') {
+                sendSocketMessage({
+                    type: "notification",
+                    notification: data,
+                });
+            }
+
+            setInviteState(inviteState === 0 ? 1 : 0);
+            
+            if (data.error !== 'Invitation not found') {
+                showNotification({
+                    Content: inviteState === 0 ? "Invitation sent" : "Invitation cancelled",
+                    Status: "success"
+                });
+            }
+
         } catch (err) {
-            setError(err)
-            console.log(err);
+            console.error("Request error:", err);
+            showNotification({
+                Content: "Something went wrong. Please try again.",
+                Status: "error"
+            });
         }
     }
 
@@ -85,15 +108,12 @@ export default function UserCard({ user, groupId }) {
                     </div>
                 </div>
                 {
-                    inviteState === 0 ? <Button onClick={() => handleInviteCancelButtons()} >
+                    inviteState === 0 ? <Button onClick={handleInviteCancelButtons} >
                         Invite
-                    </Button> : <Button variant={"btn-danger"} onClick={() => handleInviteCancelButtons()} >
+                    </Button> : <Button variant={"btn-danger"} onClick={handleInviteCancelButtons} >
                         Cancel
                     </Button>
                 }
-
-
-
             </div>
         </section>
     );

@@ -1,10 +1,12 @@
 import { createGroupEventAction } from '@/app/_actions/group';
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useContext, useEffect, useState } from 'react'
 import styles from "@/app/page.module.css"
 import Button from '@/app/_components/button';
 import { useModal } from '../../_context/ModalContext';
 import { useNotification } from '../../_context/NotificationContext';
 import { useRouter } from 'next/navigation';
+
+import {useUserContext} from '../../_context/userContext'
 
 const event = {
     title: "",
@@ -17,6 +19,7 @@ export default function CreateEventForm({ groupId }) {
     const [eventData, setEventData] = useState(event)
     const { setModalData, closeModal } = useModal()
     const { showNotification } = useNotification()
+    const { sendSocketMessage } = useUserContext()
     const router = useRouter()
 
     useEffect(() => {
@@ -25,6 +28,10 @@ export default function CreateEventForm({ groupId }) {
             setModalData(state.data)
             closeModal()
             showNotification({ Content: state.message, Status: "success" });
+            sendSocketMessage({
+                type: "notification",
+                notification: state.notification,
+            })
         } else if (state.errors || state.error) {
             if (state.status === 401) {
                 router.push("/login")

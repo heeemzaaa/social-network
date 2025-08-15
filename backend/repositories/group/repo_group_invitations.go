@@ -8,25 +8,33 @@ import (
 	"social-network/backend/utils"
 )
 
-func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string) *models.ErrorJson {
-	fmt.Println(userId, groupId, userToInvite)
+func (gRepo *GroupRepository) InviteToJoin(userId, groupId, userToInvite string) (*models.Notification, *models.ErrorJson) {
 	invitationID := utils.NewUUID()
 	query := `
 	INSERT INTO group_requests (requestID, senderID, receiverID, groupID, typeRequest)
 	VALUES (?,?,?,?,?)
+	RETURNING (SELECT concat(firstName , ' ', lastName) FROM users WHERE userID = ?  ) ,  
+	(SELECT  title FROM groups WHERE groupID = ? )
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-
-	_, err = stmt.Exec(invitationID, userId, userToInvite, groupId, "invitation-request")
+	notification := &models.Notification{}
+	err = stmt.QueryRow(invitationID, userId, userToInvite, groupId, "invitation-request", userId, groupId).Scan(
+		&notification.SenderFullName, &notification.GroupName,
+	)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
-	return nil
+	notification.SenderID = userId
+	notification.TargetID = userToInvite
+	notification.GroupID = groupId
+	notification.Type = "group-invitation"
+	notification.Content = fmt.Sprintf("%v sent you an invitation to join the group %v", notification.SenderFullName, notification.GroupName)
+	return notification, nil
 }
 
 func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId, invitedUserId string) *models.ErrorJson {
@@ -46,7 +54,7 @@ func (gRepo *GroupRepository) CancelTheInvitation(userId, groupId, invitedUserId
 	}
 	// it must be here :)
 	if count, _ := res.RowsAffected(); count == 0 {
-		return &models.ErrorJson{Status: 404, Error: "Invitation not found"}
+		return &models.ErrorJson{Status: 404, Error:"Invitation not found"}
 	}
 
 	return nil

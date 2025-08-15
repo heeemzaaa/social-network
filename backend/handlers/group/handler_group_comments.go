@@ -34,7 +34,6 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 
 	groupID, err := utils.GetUUIDFromPath(r, "group_id")
 	if err != nil {
-		fmt.Println("1111111111111111111111111111111111111111:", err)
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: ""})
 		return
 	}
@@ -73,7 +72,6 @@ func (gCommentHandler *GroupCommentHandler) AddGroupComment(w http.ResponseWrite
 		utils.WriteJsonErrors(w, *err_)
 		return
 	}
-	fmt.Println("commentCreated:   ", commentCreated)
 	utils.WriteDataBack(w, commentCreated)
 }
 

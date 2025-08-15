@@ -50,7 +50,7 @@ export default function GroupPostCardList({ groupId, setIsAccessible, isAccessib
                 if (result.length === 0) {
                     setHasMore(false);
                 } else {
-                    if (result.length < 20) setHasMore(false); // Adjust based on API page size
+                    if (result.length < 10) setHasMore(false); // Adjust based on API page size
                     setData((prevData) => [...prevData, ...result]);
                 }
             } catch (err) {

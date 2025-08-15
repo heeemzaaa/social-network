@@ -8,42 +8,61 @@ import (
 )
 
 // here I will insert the follow request if the user has a public account
-func (repo *ProfileRepository) FollowDone(userID string, authUserID string) *models.ErrorJson {
-	query := `INSERT INTO followers (userID, followerID) VALUES(?,?) `
+func (repo *ProfileRepository) FollowDone(userID string, authUserID string) (*models.Notification, *models.ErrorJson) {
+	query := `INSERT INTO followers (userID, followerID) VALUES(?,?) 
+	RETURNING ( SELECT concat ( firstName, " ", lastName ) FROM users WHERE userID = ? )	
+	`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
 		log.Println("Error preparing the query to do the follow action: ", err)
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(userID, authUserID)
-	if err != nil {
-		log.Println("Error completing the follow action: ", err)
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	newNotif := &models.Notification{
+		SenderID: authUserID,
+		TargetID: userID,
+		Type:     "follow-public",
 	}
 
-	return nil
+	err = stmt.QueryRow(userID, authUserID, authUserID).Scan(&newNotif.SenderFullName)
+	if err != nil {
+		log.Println("Error completing the follow action: ", err)
+		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+
+	newNotif.Content = fmt.Sprintf("%v starts following you! :)", newNotif.SenderFullName)
+    newNotif.Status  ="none"
+	return newNotif, nil
 }
 
 // here I will just insert the request into the table of the followrequests
-func (repo *ProfileRepository) FollowPrivate(userID string, authUserID string) *models.ErrorJson {
-	query := `INSERT INTO follow_requests (userID, requestorID) VALUES(?, ?) `
+func (repo *ProfileRepository) FollowPrivate(userID string, authUserID string) (*models.Notification, *models.ErrorJson) {
+	query := `INSERT INTO follow_requests (userID, requestorID) VALUES(?, ?) 
+		RETURNING ( SELECT concat ( firstName, " ", lastName ) FROM users WHERE userID = ? )	
+	`
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		log.Println("Error preparing the query to do the follow private action: ", err)
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(userID, authUserID)
-	if err != nil {
-		log.Println("Error adding the request follow to the table: ", err)
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	notification := &models.Notification{
+		SenderID: authUserID,
+		TargetID: userID,
+		Type:     "follow-private",
+		Status:   "later",
 	}
-	return nil
+
+	err = stmt.QueryRow(userID, authUserID, authUserID).Scan(&notification.SenderFullName)
+	if err != nil {
+		return nil, &models.ErrorJson{Status: 500, Message: fmt.Sprintf("%v", err)}
+	}
+
+	notification.Content = fmt.Sprintf("%v sent you a follow request", notification.SenderFullName)
+	return notification, nil
 }
 
 // here we unfollow the user chosen , we delete it from the table of followers

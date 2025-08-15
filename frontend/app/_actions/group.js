@@ -1,4 +1,5 @@
 "use server"
+import { ClientPageRoot } from "next/dist/client/components/client-page";
 import { cookies } from "next/headers"
 
 const API_URL = process.env.BACKEND_URL || 'http://localhost:8080'
@@ -208,7 +209,7 @@ export async function createGroupEventAction(prevState, formData) {
                 ...(sessionCookie ? { Cookie: `session=${sessionCookie}` } : {})
             }
         });
-        const data = await res.json();
+        let data = await res.json();
         if (!res.ok) {
             return {
                 ...prevState,
@@ -217,9 +218,13 @@ export async function createGroupEventAction(prevState, formData) {
                 status: state.status
             };
         }
+        let notification = data.notification
+        data = data.data
+
         return {
             ...state,
             data,
+            notification,
             message: "New Event created successfully",
         };
     } catch (error) {
@@ -251,6 +256,7 @@ export async function inviteUserAction(prevState, formData) {
             const errorText = await res.text();
             return { error: "Failed to invite user" };
         }
+
     } catch (err) {
         console.error("Failed to fetch invitations", err)
     }

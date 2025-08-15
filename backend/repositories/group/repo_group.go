@@ -1,10 +1,12 @@
 package group
 
 import (
+	"database/sql"
 	"fmt"
 
-	"github.com/mattn/go-sqlite3"
 	"social-network/backend/models"
+
+	"github.com/mattn/go-sqlite3"
 )
 
 // in the group membership table we have a composite key
@@ -72,8 +74,8 @@ func (repo *GroupRepository) GetGroupDetails(groupId string) (*models.Group, *mo
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
-	
-	if err = stmt.QueryRow(groupId).Scan(
+
+	err = stmt.QueryRow(groupId).Scan(
 		&groupDetails.GroupId,
 		&groupDetails.GroupCreatorId,
 		&groupDetails.Title,
@@ -82,9 +84,12 @@ func (repo *GroupRepository) GetGroupDetails(groupId string) (*models.Group, *mo
 		&groupDetails.CreatedAt,
 		&groupDetails.GroupCreator.FullName,
 		&groupDetails.GroupCreator.Nickname,
-		&groupDetails.Total_Members); err != nil {
+		&groupDetails.Total_Members)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, &models.ErrorJson{Status: 404, Error: "ERROR!! Group Not Found!"}
+		}
 		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-
 	return &groupDetails, nil
 }

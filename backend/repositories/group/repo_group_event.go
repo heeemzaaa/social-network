@@ -53,7 +53,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId, offset string) ([]
         LEFT JOIN cte_interested ON cte_interested.ID = group_events.eventID
     %v
     ORDER BY group_events.createdAt DESC
-    LIMIT 5	
+    LIMIT 10	
 	`, where)
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
@@ -94,7 +94,7 @@ func (gRepo *GroupRepository) GetGroupEvents(groupId, userId, offset string) ([]
 }
 
 // add an event in a specific group
-func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event, *models.ErrorJson) {
+func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event, *models.Notification, *models.ErrorJson) {
 	eventId := utils.NewUUID()
 	query := `
 	INSERT INTO
@@ -151,7 +151,7 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 	`
 	stmt, err := gRepo.db.Prepare(query)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v huna", err)}
+		return nil, nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v huna", err)}
 	}
 	defer stmt.Close()
 
@@ -171,7 +171,7 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 		&event_created.EventCreator.ImagePath,
 		&event_created.Group.Title,
 	); err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 
 	// add the user to the user_events_table
@@ -180,15 +180,23 @@ func (gRepo *GroupRepository) AddGroupEvent(event *models.Event) (*models.Event,
 	(ID , eventID , groupID, userID) VALUES (?,?,?,?)`
 	stmt, err = gRepo.db.Prepare(queryAdded)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(eventUserId, eventId, event.Group.GroupId, event.EventCreator.Id)
 	if err != nil {
-		return nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return nil, nil, &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
 	}
-	return &event_created, nil
+
+	notification := &models.Notification{
+		SenderID: event_created.EventCreator.Id,
+		TargetID: event_created.Group.GroupId,
+		Type:     "group-event", 
+		Content: fmt.Sprintf("%v Created The event %v in the group %v", event_created.EventCreator.FullName, event_created.Title, event_created.Group.Title),
+		GroupID: event_created.Group.GroupId,
+	}
+	return &event_created, notification, nil
 }
 
 // Get the details ( the card of a specific event )

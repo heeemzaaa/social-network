@@ -129,8 +129,7 @@ func (repo *GroupRepository) GetJoinedGroups(offset string, userID string) ([]mo
 	WHERE %v
 	
     ORDER BY groups.createdAt DESC
-	LIMIT
-		3
+	LIMIT 10
 	`, where)
 
 	stmt, err := repo.db.Prepare(query)
@@ -254,8 +253,7 @@ func (repo *GroupRepository) GetAvailableGroups(offset string, userID string) ([
 	%v
 	ORDER BY
 		g.createdAt DESC
-	LIMIT
-		3;
+	LIMIT 10;
 	`, where)
 
 	args := []any{userID, userID}
@@ -299,7 +297,6 @@ func (repo *GroupRepository) GetAvailableGroups(offset string, userID string) ([
 // here we won't be needing to get the name
 
 func (repo *GroupRepository) GetCreatedGroups(offset string, userID string) ([]models.Group, *models.ErrorJson) {
-	fmt.Println("hnaaa")
 	var where string
 	if offset == "0" {
 		where = " groupCreatorID = ?"
@@ -335,8 +332,7 @@ func (repo *GroupRepository) GetCreatedGroups(offset string, userID string) ([]m
 		%v  
 	ORDER BY
 		groups.createdAt DESC
-	LIMIT
-		3
+	LIMIT 10;
 
 	`, where)
 	stmt, err := repo.db.Prepare(query)

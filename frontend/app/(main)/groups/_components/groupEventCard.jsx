@@ -50,7 +50,7 @@ export default function GroupEventCard({
             setGoingState(newGoingState.action)
         } catch (err) {
             setError(err)
-            console.log(err);
+            console.error(err);
         }
     }
 

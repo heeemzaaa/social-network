@@ -56,31 +56,20 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 		return
 	}
 	event.EventCreator.Id, event.Group.GroupId = userID.String(), groupID.String()
-	members, event, errJson := gEventHandler.gService.AddGroupEvent(event)
+	event, notification, errJson := gEventHandler.gService.AddGroupEvent(event)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
 		return
 	}
 
-	for _, user := range members {
-		if user.Id == event.EventCreator.Id {
-			continue
-		}
-
-		if errJson := gEventHandler.nService.PostService(&models.Notif{
-			SenderId:   event.EventCreator.Id,
-			RecieverId: user.Id,
-			Type:       "group-event",
-			GroupId:    event.Group.GroupId,
-			EventId:    event.EventId,
-			GroupName:  event.Group.Title,
-
-		}); errJson != nil {
-			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error})
-			return
-		}
+	//  here we need to catch the event and at the same time the notification
+	data := &models.Data{
+		Notification: notification,
+		Data:         event,
 	}
-	utils.WriteDataBack(w, event)
+	// fmt.Printf("writeDataBack: %#v", notification)
+
+	utils.WriteDataBack(w, data)
 }
 
 // we'll be working with exists to check if a user is member before proceeding in any action!!
@@ -96,7 +85,6 @@ func (gEventHandler *GroupEventHandler) GetGroupEvents(w http.ResponseWriter, r 
 		return
 	}
 	offset := r.URL.Query().Get("offset")
-	fmt.Printf("offset: %v\n", offset)
 	if offset != "0" {
 		if errUUID := utils.IsValidUUID(offset); errUUID != nil {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: fmt.Sprintf("%v", errUUID)})

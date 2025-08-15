@@ -42,19 +42,18 @@ func (fa *FollowActionHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, profile, errFollow := fa.service.Follow(request.ProfileID, authUserID.String())
+	newNotif, profile, errFollow := fa.service.Follow(request.ProfileID, authUserID.String())
 	if errFollow != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errFollow.Status, Error: errFollow.Error})
 		return
 	}
 
-	errJson := fa.NS.PostService(data)
-	if errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
-		return
+	data := models.Data{
+		Notification: newNotif,
+		Data:         profile,
 	}
 
-	utils.WriteDataBack(w, profile)
+	utils.WriteDataBack(w, data)
 }
 
 // POST api/profile/id/actions/unfollow
@@ -108,13 +107,13 @@ func (fa *FollowActionHandler) CancelFollow(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// fmt.Println("Profile:", profile)
-
+	// if the profile is not a follower and has requested to follow, we delete the notification
 	if !profile.IsFollower && profile.IsRequested {
 		if errJson := fa.NS.DeleteService(request.ProfileID, authUserID.String(), "follow-private", ""); errJson != nil {
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 			return
 		}
+		// set IsRequested to false
 		profile.IsRequested = false
 	}
 

@@ -20,13 +20,14 @@ type OnlineUsers struct {
 }
 
 type Client struct {
-	session    *models.Session
-	service    *chat.ChatService
-	connection *websocket.Conn
-	chatServer *ChatServer
-	Message    chan *models.Message
-	ErrorJson  chan *models.ErrorJson
-	Online     chan *OnlineUsers
+	session      *models.Session
+	service      *chat.ChatService
+	connection   *websocket.Conn
+	chatServer   *ChatServer
+	Message      chan *models.Message
+	ErrorJson    chan *models.ErrorJson
+	Online       chan *OnlineUsers
+	Notification chan string
 }
 
 func NewClient(conn *websocket.Conn, server *ChatServer, session *models.Session) *Client {
@@ -130,6 +131,11 @@ func (client *Client) WriteMessages() {
 			if err != nil {
 				return
 			}
+		case notification := <-client.Notification:
+			err := client.connection.WriteJSON(notification)
+			if err != nil {
+				return
+			}
 		}
 	}
 }
@@ -172,9 +178,36 @@ func (user *Client) BroadCastTheMessage(message *models.Message) {
 				conn.Message <- message
 			}
 		}
-	case  "notification": 
-	
-	   
+	case "notification":
+		notification := message.Notification
+		switch notification.Type {
+		case "follow-private", "follow-public", "group-invitation", "group-join":
+			connections := user.chatServer.client[notification.TargetID]
+			for _, conn := range connections {
+				conn.Message <- &models.Message{
+					Type:    "notification",
+					Content: notification.Content,
+				}
+			}
+		case "group-event":
+			members, err := user.service.GetMembersOfGroup(notification.GroupID)
+			if err != nil {
+				return
+			}
+			for _, member := range members {
+				if member == notification.SenderID {
+					continue
+				}
+				for _, conn := range user.chatServer.client[member] {
+					conn.Message <- &models.Message{
+						Type:    "notification",
+						Content: notification.Content,
+					}
+				}
+			}
+
+		}
+
 	}
 }
 
@@ -212,29 +245,4 @@ func (server *ChatServer) BroadCastOnlineStatus() {
 			}
 		}
 	}
-}
-
-func (server *ChatServer) SendNotificationToUser(userID, notifContent string, hasSeen string) *models.ErrorJson { 
-	server.RLock()
-	defer server.RUnlock()
-
-	notification := map[string]string{ // struct not map
-		"type":    "notification",
-		"content": notifContent,
-		"seen": hasSeen,
-	}
-
-	var errs []error
-	if clients, ok := server.client[userID]; ok {
-		for _, conn := range clients {
-			if err := conn.connection.WriteJSON(notification); err != nil {
-				errs = append(errs, err)
-			}
-		}
-	}
-
-	if len(errs) > 0 {
-		return &models.ErrorJson{Status: 500, Message: "sendNotificationToUser fail", Error: errs[0].Error()}
-	}
-	return nil
 }

@@ -5,7 +5,7 @@ import (
 	"social-network/backend/utils"
 )
 
-func (gService *GroupService) Approve(userId, groupId string, userToBeAddedId string) *models.ErrorJson { ///////
+func (gService *GroupService) Approve(userId, groupId string, userToBeAddedId string) *models.ErrorJson {
 	// to approve wheter it we need
 	// awalan userId ykun dyal l admin
 	// tanyan l user_id lakhur ykun valid (format , and aslo kayn f db)
@@ -36,21 +36,27 @@ func (gService *GroupService) Approve(userId, groupId string, userToBeAddedId st
 			UserId: "ERROR!! user not found",
 		}}
 	}
-	// validate if wheter exists or not !!
+	isMember, errJson := gService.gRepo.IsMemberGroup(groupId, userToBeAddedId)
+	if errJson != nil {
+		return  &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
+	}
 
+	if isMember {
+		return &models.ErrorJson{Status: 409, Error: "Already a member!"}
+	}
 	if errJson := gService.gRepo.Approve(groupId, userToBeAddedId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return &models.ErrorJson{Status: errJson.Status,  Error: errJson.Error}
 	}
 	return nil
 }
 
 func (gService *GroupService) Decline(userId, groupId string, userToBeRejectedId string) *models.ErrorJson {
 	if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return &models.ErrorJson{Status: errJson.Status,  Error: errJson.Error}
 	}
 	isAdmin, errJson := gService.gRepo.IsAdmin(groupId, userId)
 	if errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return &models.ErrorJson{Status: errJson.Status,  Error: errJson.Error}
 	}
 	if !isAdmin {
 		return &models.ErrorJson{Status: 403, Error: "ERROR!! Access Forbidden"}
@@ -69,7 +75,7 @@ func (gService *GroupService) Decline(userId, groupId string, userToBeRejectedId
 		}}
 	}
 	if errJson := gService.gRepo.Decline(groupId, userToBeRejectedId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}
 	return nil
 }

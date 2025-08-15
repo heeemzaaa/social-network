@@ -50,22 +50,16 @@ func (invHanlder *GroupInvitationHandler) InviteToJoin(w http.ResponseWriter, r 
 
 	newNotif, errJson := invHanlder.gService.InviteToJoin(userID.String(), groupID.String(), userToInvite)
 	if errJson != nil {
-		if errJson.Status == 403 && errJson.Message == "ERROR!! You are already a member!" {
-			utils.WriteDataBack(w, models.ResponseMsg{
-				Status:  false,
-				Message: "ERROR!! You are already a member!",
-			})
-			return
-		}
+		// check if the user is already a member of the group case want invite someone who is already a member
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
 		return
 	}
 
-	if errJson := invHanlder.nService.PostService(newNotif); errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
-		return
-	}
-	utils.WriteDataBack(w, "done")
+	// if errJson := invHanlder.nService.PostService(newNotif); errJson != nil {
+	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+	// 	return
+	// }
+	utils.WriteDataBack(w, newNotif)
 }
 
 func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWriter, r *http.Request) {
@@ -95,16 +89,12 @@ func (invHanlder *GroupInvitationHandler) CancelTheInvitation(w http.ResponseWri
 	}
 
 	if errJson := invHanlder.gService.CancelTheInvitation(userID.String(), groupID.String(), invitedUser.Id); errJson != nil {
-		utils.WriteDataBack(w, models.ErrorJson{
-			Status:  errJson.Status,
-			Error:   errJson.Error,
-			Message: errJson.Message,
-		})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 
 	if errJson := invHanlder.nService.DeleteService(invitedUser.Id, userID.String(), "group-invitation", groupID.String()); errJson != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 
@@ -129,10 +119,6 @@ func (invHanlder *GroupInvitationHandler) GetUsersToInvite(w http.ResponseWriter
 		return
 	}
 
-	// if err := json.NewEncoder(w).Encode(users); err != nil {
-	// 	utils.WriteJsonErrors(w, models.ErrorJson{Status: 500, Error: err.Error()})
-	// 	return
-	// }
 	utils.WriteDataBack(w, users)
 }
 

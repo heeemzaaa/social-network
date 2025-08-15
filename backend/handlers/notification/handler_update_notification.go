@@ -2,13 +2,13 @@ package notification
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+
 	"social-network/backend/middleware"
 	"social-network/backend/models"
 
-	"social-network/backend/utils"
 	ns "social-network/backend/services/notification"
+	"social-network/backend/utils"
 )
 
 type UpdateHandler struct {
@@ -42,25 +42,18 @@ func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 
 	err = json.NewDecoder(r.Body).Decode(&Data)
 	if err != nil {
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "bad request", Message: fmt.Sprintf("%v", err)})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: 400, Error: "400 - Bad request"})
 		return
 	}
 
-	errJson := HUN.NS.UpdateService(Data, userId.String());
+	errJson := HUN.NS.UpdateService(Data, userId.String())
 	if errJson != nil {
-		if errJson.Status == 500 && errJson.Message == "notification not found" {
-			utils.WriteDataBack(w, models.ResponseMsg{
-				Status:  false,
-				Message: "notification not found",
-			})
-			return
-		}
-		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Message: errJson.Message})
+		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return
 	}
 
 	data := models.ResponseMsg{
-		Status: true,
+		Status:  true,
 		Message: "Your action was successful",
 	}
 	utils.WriteDataBack(w, data)

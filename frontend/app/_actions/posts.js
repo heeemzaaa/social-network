@@ -152,10 +152,8 @@ export async function likePostAction(prevState, formData) {
                 liked: data.liked || data.reaction === 1
             }
             if (data.reaction == 1) {
-                console.log("you liked post ")
                 state.likes = prevState.likes + 1
             } else if (data.reaction == 0) {
-                console.log("you disliked post ")
                 state.likes = prevState.likes - 1
             } else if (data.total_likes) {
                 state.likes = data.total_likes
@@ -209,7 +207,6 @@ export async function commentPostAction(prevState, formData) {
         content: commentContent,
     });
 
-    console.log(jsonData)
 
     const newFormData = new FormData();
     newFormData.append("data", jsonData);

@@ -54,8 +54,8 @@ export default function GroupEventCardList({ groupId, setIsAccessible, isAccessi
                 if (result.length === 0) {
                     setHasMore(false);
                 } else {
-                    if (result.length < 5) setHasMore(false);
-                    setData((prevData) => [...prevData, ...result]);
+                    if (result.length < 10) setHasMore(false);
+                    setData((prevData) => [...prevData, ...result]); // here
                 }
             } catch (err) {
                 if (err.name === "AbortError") return;
