@@ -32,6 +32,7 @@ func (img *ImageMiddleware) AuthImageMiddleware(handler http.Handler) http.Handl
 		case strings.HasPrefix(trimmedPath, "posts"),
 			strings.HasPrefix(trimmedPath, "postsComments"):
 			access, err := img.service.AccessToPostImage(userID.String(), creatorID, postID)
+		
 			if err != nil {
 				utils.WriteJsonErrors(w, models.ErrorJson{Status: err.Status, Error: err.Error})
 				return
@@ -58,7 +59,6 @@ func (img *ImageMiddleware) AuthImageMiddleware(handler http.Handler) http.Handl
 			utils.WriteJsonErrors(w, models.ErrorJson{Status: 404, Error: "File not found"})
 			return
 		}
-
 		http.ServeFile(w, r, "static/uploads/"+trimmedPath)
 	})
 }

@@ -6,7 +6,7 @@ import (
 
 func (s *ServiceImages) AccessToPostImage(userID string, creatorID string, postID string) (bool, *models.ErrorJson) {
 	if userID == creatorID {
-		return true , nil
+		return true, nil
 	}
 	isFollower, err := s.profileService.IsFollower(creatorID, userID)
 	if err != nil {
@@ -22,10 +22,10 @@ func (s *ServiceImages) AccessToPostImage(userID string, creatorID string, postI
 	if err != nil {
 		return false, &models.ErrorJson{Status: err.Status, Error: err.Error}
 	}
-
 	switch isFollower {
 	case true:
 		// here I should check the privacy of the post to give the image access
+
 		switch postPrivacy {
 		case "private":
 			access, err := s.postService.PrivatePostAccess(userID, postID)
@@ -33,14 +33,14 @@ func (s *ServiceImages) AccessToPostImage(userID string, creatorID string, postI
 				return false, &models.ErrorJson{Status: err.Status, Error: err.Error}
 			}
 			return access, nil
-		case "almost-private", "public":
-			return  true, nil
+		case "almost private", "public":
+			return true, nil
 		}
 	case false:
 		// here I should check the privacy of the post and the profile
 		switch profileVisibility {
 		case "private":
-			return  false, nil
+			return false, nil
 		case "public":
 			switch postPrivacy {
 			case "private", "almost private":

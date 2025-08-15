@@ -107,7 +107,10 @@ export default function Page({ params }) {
         credentials: 'include',
         body: JSON.stringify({ profile_id: id }),
       })
-      
+
+      const payload = await res.json();
+      let updated = payload
+
       if (!res.ok) {
         if (updated.status === 401) {
           router.push("/login")
@@ -119,9 +122,6 @@ export default function Page({ params }) {
         }
       }
 
-      const payload = await res.json();
-      let updated = payload
-
       if (endpoint.split('/').pop() === 'follow' && payload.notification) {
         const notification = payload.notification || null;
         sendSocketMessage({
@@ -129,7 +129,7 @@ export default function Page({ params }) {
           Notification: notification,
         })
         updated = payload.data || null;
-      }     
+      }
 
       setChanged(!changed)
       setUserInfos(prev => ({
@@ -143,7 +143,7 @@ export default function Page({ params }) {
             ? prev.followers + 1
             : prev.followers,
       }))
-      
+
       if (!updated.is_follower && !updated.is_requested && isFollower) showNotification({ Content: 'You Unfollowed this profile successfully !', Status: 'success' })
       setIsFollower(updated.is_follower)
     } catch (err) {
@@ -177,14 +177,14 @@ export default function Page({ params }) {
           return
         }
       }
-      
+
       setUserInfos(prev => ({
         ...prev,
         visibility: newPrivacy,
         followers: profile.followers_count || prev.followers
       }))
 
-      showNotification({Content: `Your profile is now ${newPrivacy}`, Status: 'success'})
+      showNotification({ Content: `Your profile is now ${newPrivacy}`, Status: 'success' })
     } catch (err) {
       setError(err)
       console.error("Error:", err)

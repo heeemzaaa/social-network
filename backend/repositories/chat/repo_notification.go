@@ -9,7 +9,6 @@ import (
 
 // delete duplicate notification before insert notification with the same state
 func (repo *ChatRepository) InsertNewNotification(data models.Notification) *models.ErrorJson {
-	fmt.Printf("%#v", data)
 	notificationId := utils.NewUUID()
 	query := `
 		INSERT INTO notifications (

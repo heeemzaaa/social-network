@@ -31,13 +31,21 @@ export default function PostCard({
     const [totalComments, setTotalComments] = useState(total_comments)
     const { openModal } = useModal()
     const { showNotification } = useNotification()
+    const [totalLikes, setTotalLikes] = useState(total_likes)
     const router = useRouter()
     const initialState = {
         liked: liked && liked != 0,
         likes: total_likes,
         message: null,
     }
+
+    
+    
     const [state, formAction] = useActionState(likePostAction, initialState)
+    useEffect(()=>{
+        console.log(state.likes)
+        if (state.message) setTotalLikes(state.likes)
+    },[state])
 
     const handleCommentMessage = (msg) => {
         setTotalComments(prev => prev + 1)

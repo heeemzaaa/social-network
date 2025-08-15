@@ -144,7 +144,7 @@ export async function likePostAction(prevState, formData) {
             return
         }
 
-        const data = await res.json();
+        const data = await res.json()
         if (res.ok) {
             let state = {
                 ...prevState,
@@ -155,7 +155,7 @@ export async function likePostAction(prevState, formData) {
                 state.likes = prevState.likes + 1
             } else if (data.reaction == 0) {
                 state.likes = prevState.likes - 1
-            } else if (data.total_likes) {
+            } else if (data.total_likes || data.total_likes === 0) {
                 state.likes = data.total_likes
             }
             return state

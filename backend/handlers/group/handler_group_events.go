@@ -67,7 +67,7 @@ func (gEventHandler *GroupEventHandler) AddGroupEvent(w http.ResponseWriter, r *
 		Notification: notification,
 		Data:         event,
 	}
-	// fmt.Printf("writeDataBack: %#v", notification)
+
 
 	utils.WriteDataBack(w, data)
 }
