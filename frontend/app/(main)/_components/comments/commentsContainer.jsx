@@ -3,6 +3,7 @@ import "./comments.css"
 import Comments from './comments'
 import CommentsFooter from './commentsFooter'
 
+// comments fetching
 export default function CommentsContainer({ id, onCommentMessage }){
   const [comments, setComments] = useState([]);
 
