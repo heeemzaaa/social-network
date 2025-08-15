@@ -60,7 +60,6 @@ export default function GroupCard({
 
 
             if (requestState === 0) {
-                console.log("response data after join request", data)
                 sendSocketMessage({
                     type: "notification",
                     notification: data,

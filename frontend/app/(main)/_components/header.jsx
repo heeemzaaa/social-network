@@ -27,7 +27,7 @@ export default function Header() {
       try {
         let res = await fetch(`${API_URL}/api/notifications/`, getRequest)
         let response = await res.json()
-        if (response?.Status === true) {
+        if (response?.status === true) {
           showNotification({ Content: "You have new notifications", Status: "info" })
         }
       } catch (err) {

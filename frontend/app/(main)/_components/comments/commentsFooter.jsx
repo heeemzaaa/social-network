@@ -27,7 +27,6 @@ export default function CommentsFooter({ id, groupID = null, setComments, onComm
 
     useEffect(() => {
         let state = groupID ? groupActionState : postActionState
-        console.log("comment state: ", state)
         if (state?.message) {
             const newComment = {
                 content: state.content,
@@ -37,7 +36,6 @@ export default function CommentsFooter({ id, groupID = null, setComments, onComm
                 createdAt: new Date(),
                 imagePath: state.imagePath,
             };
-            console.log("new comment: ", state)
             setComments(prev => [newComment, ...prev]);
             showNotification({Content:state.message, Status:"success"})
 
@@ -45,7 +43,6 @@ export default function CommentsFooter({ id, groupID = null, setComments, onComm
                 onCommentMessage("A new comment was added");
             }
         } else if (state?.errors || state?.error) {
-            console.log("gggggggggggggg", state.error)
             showNotification({Content:state.error, Status:"error"})
         }
     }, [postActionState, groupActionState])

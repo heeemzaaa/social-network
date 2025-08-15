@@ -18,7 +18,6 @@ export async function commentGroupPostAction(prevState, formData) {
     const maxSize = 3 * 1024 * 1024;
     if (!commentContent && commentImg.size === 0) {
         state.error = "Can't send an empty comment"
-        console.log(state)
         return state;
     }
     if (!postID) {

@@ -26,14 +26,22 @@ func (NS *NotificationService) UpdateService(data models.Unotif, userId string) 
 		errJson = NS.UpdateGroupInvitationRequest(data, notification)
 	case "group-join":
 		errJson = NS.UpdateGroupJoinRequest(data, notification)
+
 	default:
 		return &models.ErrorJson{
 			Status: 400,
 			Error:  "invalid type",
 		}
 	}
+
 	if errJson != nil {
-		return errJson
+		if errJson.Error == "Notification not found" || errJson.Error == "Already a member!" {
+			errDelete := NS.notifRepo.DeleteNotificationById(notification.Id)
+			if errDelete != nil {
+				return &models.ErrorJson{Status: errDelete.Status, Error: errDelete.Error}
+			}
+		}
+		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}
 
 	if errJson = NS.notifRepo.UpdateStatus(notification.Id, data.Status); errJson != nil {
@@ -57,7 +65,6 @@ func (NS *NotificationService) UpdateFollowPrivateProfile(data models.Unotif, no
 
 	default:
 		return &models.ErrorJson{Status: 400, Error: "Invalid Status"}
-
 	}
 	return nil
 }
@@ -70,19 +77,25 @@ func (NS *NotificationService) UpdateGroupJoinRequest(data models.Unotif, notifi
 			return &models.ErrorJson{Status: err.Status, Error: err.Error}
 		}
 
-		// check if request exists
-		if err := NS.groupService.CancelTheInvitation(notification.TargetID, notification.GroupID, notification.SenderID); err != nil {
-			if err.Error == "Invitation not found" {
-				if err := NS.DeleteService(notification.SenderID, notification.TargetID, "group-invitation", notification.GroupID); err != nil {
-					return &models.ErrorJson{Status: err.Status, Error: err.Error}
-				}
-				return nil
-			}
-			return &models.ErrorJson{Status: err.Status, Error: err.Error}
+		members, errJson := NS.groupService.GetGroupMembers(notification.GroupID, notification.TargetID)
+		if errJson != nil {
+			return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 		}
 
-		if err := NS.DeleteService(notification.SenderID, notification.TargetID, "group-invitation", notification.GroupID); err != nil {
-			return &models.ErrorJson{Status: err.Status, Error: err.Error}
+		for _, member := range members {
+			if err := NS.groupService.CancelTheInvitation(notification.TargetID, notification.GroupID, member.Id); err != nil {
+				if err.Error == "Invitation not found" {
+					if err := NS.DeleteService(member.Id, notification.TargetID, "group-invitation", notification.GroupID); err != nil {
+						return &models.ErrorJson{Status: err.Status, Error: err.Error}
+					}
+					return nil
+				}
+				return &models.ErrorJson{Status: err.Status, Error: err.Error}
+			}
+
+			if err := NS.DeleteService(member.Id, notification.TargetID, "group-invitation", notification.GroupID); err != nil {
+				return &models.ErrorJson{Status: err.Status, Error: err.Error}
+			}
 		}
 
 	case "reject":

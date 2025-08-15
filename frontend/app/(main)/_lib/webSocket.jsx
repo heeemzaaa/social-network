@@ -22,10 +22,10 @@ export default function UserProvider({ children }) {
 
     try {
       socketRef.current.send(JSON.stringify(data));
-      console.log("✅ Socket message sent:", data);
+      console.log("Socket message sent:", data);
 
     } catch (err) {
-      console.error("❌ Socket send error:", err);
+      console.error("Socket send error:", err);
     }
   };
 

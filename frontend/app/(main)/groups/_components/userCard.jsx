@@ -36,7 +36,6 @@ export default function UserCard({ user, groupId }) {
                 if (data.error === 'Already a member!' ||
                     data.error === 'It is not from your followers!' ||
                     data.error === 'Invitation not found') {
-                    console.log('***********************************************************')
                     // console.warn(data.error)
                     showNotification({
                         Content: data.error,

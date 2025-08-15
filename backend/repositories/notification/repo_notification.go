@@ -201,7 +201,7 @@ func (repo *NotifRepository) DeleteFollowNotification(userId, authUserId, notifT
 
 	_, err = stmt.Exec(userId, authUserId)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: "faild to delete notification"}
+		return &models.ErrorJson{Status: 500, Error: "Notification not found"}
 	}
 	return nil
 }
@@ -217,6 +217,23 @@ func (repo *NotifRepository) DeleteGroupNotification(userId, authUserId, notifTy
 	defer stmt.Close()
 
 	_, err = stmt.Exec(userId, authUserId, notifType, groupId)
+	if err != nil {
+		return &models.ErrorJson{Status: 500, Error: "Notification not found"}
+	}
+	return nil
+}
+
+// delete duplicated group notification
+func (repo *NotifRepository) DeleteNotificationById(notifID string) *models.ErrorJson {
+	query := `DELETE FROM notifications WHERE notifId = ?`
+
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(notifID)
 	if err != nil {
 		return &models.ErrorJson{Status: 500, Error: "faild to delete group notification"}
 	}

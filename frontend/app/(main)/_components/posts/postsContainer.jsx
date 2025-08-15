@@ -32,7 +32,7 @@ export function PostsContainer({ post }) {
                 const data = await resp.json();
                 setPosts(data);
             } catch (error) {
-                console.log("error fetching posts", error);
+                console.error("error fetching posts", error);
             }
         }
 

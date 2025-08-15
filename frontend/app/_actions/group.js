@@ -218,7 +218,6 @@ export async function createGroupEventAction(prevState, formData) {
                 status: state.status
             };
         }
-        // console.log(data)
         let notification = data.notification
         data = data.data
 

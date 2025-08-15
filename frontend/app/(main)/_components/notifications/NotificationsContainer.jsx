@@ -35,17 +35,16 @@ export default function NotificationsPopover() {
       let data = await response.json();
       if (!data.ok) {
 
-        if (data.error === "Notification not found") {
+        if (data.error === "Notification not found" || data.error === "Invitation not found" || data.error === "Already a member!" ) {
           console.warn("Notification not found, remove from the list")
           setNotifications(prev => prev.filter(notif => notif.id !== notification.id))
           showNotification({ Content: "Notification not found, remove from the list", Status: "warn" })
           return
         }
-        showNotification({Content:"failed to update notification", Status:"error"})
+        // showNotification({Content:"failed to update notification", Status:"error"})
       }
 
       if (data.status === true ) {
-        console.log(`update notification response: ${data.message}`);
         setNotifications(prev => prev.map(notif => notif.id === notification.id ? { ...notif, status: status } : notif ))
         showNotification({ Content: `Notification ${status}ed successfully`, Status: "success"});
       }
@@ -69,11 +68,9 @@ export default function NotificationsPopover() {
 
       if (!res.ok) {
         showNotification({Content:"failed to update notification", Status:"error"})
-        console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",res.error)
       }
 
       const data = await res.json();
-      console.log("Notifications data from GET ===> :", data);
 
       const existingIds = new Set(notifications.map(notif => notif.id));
 
