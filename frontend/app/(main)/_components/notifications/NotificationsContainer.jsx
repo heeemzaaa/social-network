@@ -109,7 +109,7 @@ export default function NotificationsPopover() {
       ref={containerRef}
       onScroll={handleScroll}
       style={{ maxHeight: "350px", overflowY: "auto", width: "300px" }}
-      className="bg-white shadow p-2 rounded"
+      className="notifContainer bg-white shadow p-2 rounded"
     >
       {notifications.length === 0 && !isLoading && <img src="/no-notifications.svg" style={{width: '100%', height: '100%'}}/>}
 

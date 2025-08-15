@@ -1,8 +1,14 @@
+.notifContainer {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+
 .notification-card {
   display: flex;
   color: var(--color-dark);
-  border-radius: 8px;
-  padding: 0.5rem;
+  border-radius: 16px;
+  padding: 0.8rem;
   font-size: 14px;
   height: 4rem;
   max-width: 300px;
@@ -23,15 +29,15 @@
 }
 
 .notification-card.unseen {
-  background-color: var(--color-gray);
+  background-color: var(--color-dark);
   color: var(--color-white);
-  border: 2px solid var(--color-white);
+  border: 2px solid var(--color-light-gray);
 }
 
 .notification-card.seen {
-  background-color: var(--color-secondary);
+  background-color: var(--color-white);
   color: var(--color-dark);
-  border: 2px solid var(--color-white);
+  border: 2px solid var(--color-light-gray);
 }
 
 .action-buttons {
@@ -40,14 +46,15 @@
 }
 
 .notification-card .accept-btn {
-  background-color: var(--color-green);
-  color: var(--color-white);
+  background-color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .notification-card .reject-btn {
   background-color: var(--color-red);
-  color: var(--color-white);
+  color: var(--color-dark);
 }
+
 
 .accept-btn, .reject-btn {
   font-size: var(--font-size-sm);

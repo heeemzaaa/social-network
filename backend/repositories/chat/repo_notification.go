@@ -9,6 +9,7 @@ import (
 
 // delete duplicate notification before insert notification with the same state
 func (repo *ChatRepository) InsertNewNotification(data models.Notification) *models.ErrorJson {
+	fmt.Printf("%#v", data)
 	notificationId := utils.NewUUID()
 	query := `
 		INSERT INTO notifications (
@@ -18,14 +19,14 @@ func (repo *ChatRepository) InsertNewNotification(data models.Notification) *mod
 
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v1 ", err)}
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(notificationId, data.SenderID,
 		data.TargetID, data.Type, data.Status, data.Content, data.GroupID)
 	if err != nil {
-		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v", err)}
+		return &models.ErrorJson{Status: 500, Error: fmt.Sprintf("%v 2", err)}
 	}
 	return nil
 }

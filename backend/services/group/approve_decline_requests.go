@@ -39,18 +39,18 @@ func (gService *GroupService) Approve(userId, groupId string, userToBeAddedId st
 	// validate if wheter exists or not !!
 
 	if errJson := gService.gRepo.Approve(groupId, userToBeAddedId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return &models.ErrorJson{Status: errJson.Status,  Error: errJson.Error}
 	}
 	return nil
 }
 
 func (gService *GroupService) Decline(userId, groupId string, userToBeRejectedId string) *models.ErrorJson {
 	if errJson := gService.gRepo.GetGroupById(groupId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return &models.ErrorJson{Status: errJson.Status,  Error: errJson.Error}
 	}
 	isAdmin, errJson := gService.gRepo.IsAdmin(groupId, userId)
 	if errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return &models.ErrorJson{Status: errJson.Status,  Error: errJson.Error}
 	}
 	if !isAdmin {
 		return &models.ErrorJson{Status: 403, Error: "ERROR!! Access Forbidden"}
@@ -69,7 +69,7 @@ func (gService *GroupService) Decline(userId, groupId string, userToBeRejectedId
 		}}
 	}
 	if errJson := gService.gRepo.Decline(groupId, userToBeRejectedId); errJson != nil {
-		return &models.ErrorJson{Status: errJson.Status, Message: errJson.Message, Error: errJson.Error}
+		return &models.ErrorJson{Status: errJson.Status, Error: errJson.Error}
 	}
 	return nil
 }

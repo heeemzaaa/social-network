@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"fmt"
 	"strings"
 
 	"social-network/backend/models"
@@ -11,30 +12,25 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 	trimmedMsg := strings.TrimSpace(message.Content)
 	type_message := strings.ToLower(strings.TrimSpace(message.Type))
 
-	if type_message == "notification" {
-		// should handle notification logic separate
-		// fmt.Printf("incoming message ==> %#v", message)
-		if errJson := service.PostService(message.Notification); errJson != nil {
-			return nil, &models.ErrorJson{Status: 400, Error: errJson.Error}
-		}
-		return message, nil
-	}
-
 	if type_message != "private" && type_message != "group" && type_message != "notification" {
 		errMessage.Type = "wrong type of message"
 	}
 
-	if trimmedMsg == "" {
-		errMessage.Content = "empty message Body"
+	if type_message != "notification" {
+		if trimmedMsg == "" {
+			errMessage.Content = "empty message Body"
+		}
+		if len(trimmedMsg) > 1000 {
+			errMessage.Content = "message body too large!"
+		}
 	}
 
-	if len(trimmedMsg) > 1000 {
-		errMessage.Content = "message body too large!"
-	}
-
-	if errMessage.Content != "" || errMessage.TargetID != "" || errMessage.Type != "" {
+	if errMessage.Content != "" || errMessage.Type != "" {
 		return nil, &models.ErrorJson{Status: 400, Message: errMessage}
 	}
+
+
+
 
 	// We can go on and insert the message in the database
 	switch strings.ToLower(message.Type) {
@@ -79,6 +75,42 @@ func (service *ChatService) ValidateMessage(message *models.Message) (*models.Me
 			return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
 		}
 		return message_created, nil
+	case "notification":
+		if message.Notification == (models.Notification{}) {
+			return nil, &models.ErrorJson{Status: 400, Error: "The notification is empty"}
+		}
+		if strings.TrimSpace(message.Notification.Content) == "" {
+			return nil, &models.ErrorJson{Status: 400, Message: models.Notification{Content: "empty content!"}}
+		}
+
+		if strings.HasPrefix(message.Notification.Type, "group") {
+			fmt.Printf("%#v", message.Notification.Type)
+			exists, err := service.repo.GroupExists(message.Notification.GroupID)
+			if err != nil {
+				return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
+			}
+
+			if !exists {
+				return nil, &models.ErrorJson{Status: 400, Error: "The group doesn't exist"}
+			}
+		} else {
+			exists, err := service.repo.UserExists(message.Notification.TargetID)
+			if err != nil {
+				return nil, &models.ErrorJson{Status: err.Status, Error: err.Error}
+			}
+
+			if !exists {
+				return nil, &models.ErrorJson{Status: 400, Error: "The user doesn't exist"}
+			}
+		}
+
+		message.Notification.SenderID = message.SenderID
+
+		if errJson := service.PostService(message.Notification); errJson != nil {
+			return nil, &models.ErrorJson{Status: 400, Error: errJson.Error}
+		}
+		return message, nil
+
 	}
 	return nil, nil
 }

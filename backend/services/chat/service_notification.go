@@ -48,18 +48,12 @@ func (service *ChatService) PostService(notification models.Notification) *model
 			if userId == notification.SenderID {
 				continue
 			}
-			// SenderId:   event.EventCreator.Id,
 			notification.TargetID = userId
-			// Type:       "group-event",
-			// GroupId:    event.Group.GroupId,
-			// EventId:    event.EventId,
-			// GroupName:  event.Group.Title,
 			errJson = service.InsertNotification(notification, "none")
 			if errJson != nil {
 				errorArray = append(errorArray, errJson.PointErrorJson())
 			}
 		}
-		fmt.Println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
 		if len(errorArray) > 0 {
 			fmt.Println("ERROR EVENT LOOP:", errorArray[0])
 		}
@@ -80,6 +74,7 @@ func (service *ChatService) PostService(notification models.Notification) *model
 
 func (service *ChatService) InsertNotification(notification models.Notification, status string) *models.ErrorJson {
 	notification.Status = status
+	
 	if errJson := service.repo.InsertNewNotification(notification); errJson != nil {
 		return errJson
 	}

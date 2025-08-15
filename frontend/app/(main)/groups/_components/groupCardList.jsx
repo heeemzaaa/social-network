@@ -52,7 +52,7 @@ export default function GroupCardList({ filter }) {
                 if (result.length === 0) {
                     setHasMore(false)
                 } else {
-                    if (result.length < 3) setHasMore(false)
+                    if (result.length < 10) setHasMore(false)
                     setData((prevData) => [...prevData, ...result])
                 }
                 setIsLoading(false)

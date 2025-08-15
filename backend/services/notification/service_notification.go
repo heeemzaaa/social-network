@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"fmt"
 	"strings"
 
 	sc "social-network/backend/handlers/chat"
@@ -69,6 +70,7 @@ func (NS *NotificationService) DeleteService(targetId, senderId, notifType, grou
 			return errJson
 		}
 	} else if notifType != "group-event" {
+		fmt.Println("*****************************************************")
 		if errJson := NS.notifRepo.DeleteGroupNotification(senderId, targetId, notifType, groupId); errJson != nil {
 			return errJson
 		}
@@ -85,4 +87,3 @@ func (NS *NotificationService) IsHasSeen(userId string) (bool, *models.ErrorJson
 	}
 	return seen, nil
 }
-

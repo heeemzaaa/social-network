@@ -2,7 +2,6 @@ package notification
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"social-network/backend/middleware"
@@ -48,8 +47,6 @@ func (HUN *UpdateHandler) UpdateNotification(w http.ResponseWriter, r *http.Requ
 	}
 
 	errJson := HUN.NS.UpdateService(Data, userId.String())
-	fmt.Println("hnaaaaaa !!!!!!")
-	fmt.Printf("%#v", errJson)
 	if errJson != nil {
 		utils.WriteJsonErrors(w, models.ErrorJson{Status: errJson.Status, Error: errJson.Error})
 		return

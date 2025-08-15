@@ -131,8 +131,7 @@ func (grepo *GroupRepository) GetPosts(userId, groupId string, offset string) ([
 	%v
 	ORDER BY
 		group_posts.createdAt DESC
-	LIMIT
-		20	
+	LIMIT 10	
    `, where)
 
 	args := []any{userId, groupId}
