@@ -4,7 +4,7 @@ A full-stack **Social Network Application** built with a **Go backend** and a **
 
 ---
 
-## 🚀 Features
+##  Features
 
 ### 🔹 Authentication & Profiles
 - User registration & login with sessions and cookies
@@ -52,7 +52,7 @@ A full-stack **Social Network Application** built with a **Go backend** and a **
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ### Frontend (Next.js)
 ```
@@ -235,15 +235,15 @@ backend
 
 ---
 
-## ⚙️ Installation & Setup
+##  Installation & Setup
 
-### 1️⃣ Clone the Repository
+### 1 Clone the Repository
 ```bash
 git clone https://github.com/heeemzaaa/social-network.git
 cd social-network
 ```
 
-### 2️⃣ Run with Docker
+### 2 Run with Docker
 Ensure Docker is installed, then run:
 ```bash
 docker-compose up --build
@@ -253,13 +253,13 @@ This will spin up two containers:
 - **Backend (Go server)**
 - **Frontend (Next.js app)**
 
-### 3️⃣ Access the App
+### 3 Access the App
 - Frontend: [http://localhost:3000](http://localhost:3000)
 - Backend API: [http://localhost:8080](http://localhost:8080)
 
 ---
 
-## 📚 Learning Outcomes
+##  Learning Outcomes
 This project was designed to cover a broad range of backend and frontend concepts:
 
 - Authentication (sessions & cookies)
@@ -273,7 +273,7 @@ This project was designed to cover a broad range of backend and frontend concept
 
 ---
 
-## 🔮 Future Improvements
+##  Future Improvements
 - Better UI/UX with TailwindCSS
 - Deployment to cloud platforms (AWS, Render, Netlify, etc.)
 - Testing (unit tests & integration tests)
@@ -281,12 +281,12 @@ This project was designed to cover a broad range of backend and frontend concept
 
 ---
 
-## 📌 Repository
+##  Repository
 👉 [GitHub Repo](https://github.com/heeemzaaa/social-network)
 
 ---
 
-## 👨‍💻 Authors
+##  Authors
 - [Hamza ELKHAWLANI](https://github.com/heeemzaaa)
 - [Oumayma EL-FAHSI](https://github.com/uma-oo)
 - [Ayoub NACHTI](https://github.com/DarkMethoss)
