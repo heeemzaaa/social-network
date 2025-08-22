@@ -163,23 +163,8 @@ frontend
 │   │           └── page.jsx
 │   ├── page.module.css
 │   └── _utils
-│       └── time.js
-└── public
-    ├── error.png
-    ├── error.svg
-    ├── forbidden-posts.svg
-    ├── loading.svg
-    ├── logo.svg
-    ├── mobile-animate.svg
-    ├── no-comments.svg
-    ├── no-data-animate.svg
-    ├── noFeed.svg
-    ├── no-group.svg
-    ├── no-notifications.svg
-    ├── no-posts.svg
-    ├── no-profile.png
-    ├── search.png
-    └── social_network_logo.svg
+│   └── time.js
+|____
 ```
 
 ### Backend (Go)
@@ -205,13 +190,27 @@ backend
 │   ├── post
 │   ├── profile
 │   └── user
-├── main.go
 ├── middleware
 ├── models
 ├── repositories
+|   ├── auth
+│   ├── chat
+│   ├── group
+│   ├── notification
+│   ├── post
+│   ├── profile
+│   └── user
 ├── routes
 ├── services
+|   ├── auth
+│   ├── chat
+│   ├── group
+│   ├── notification
+│   ├── post
+│   ├── profile
+│   └── user
 ├── storage
+|── main.go
 └── utils
 ```
 
