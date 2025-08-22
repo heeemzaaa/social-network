@@ -273,22 +273,9 @@ This project was designed to cover a broad range of backend and frontend concept
 
 ---
 
-##  Future Improvements
-- Better UI/UX with TailwindCSS
-- Deployment to cloud platforms (AWS, Render, Netlify, etc.)
-- Testing (unit tests & integration tests)
-- CI/CD pipeline with GitHub Actions
-
----
-
-##  Repository
-👉 [GitHub Repo](https://github.com/heeemzaaa/social-network)
-
----
-
 ##  Authors
 - [Hamza ELKHAWLANI](https://github.com/heeemzaaa)
-- [Oumayma EL-FAHSI](https://github.com/uma-oo)
+- [uma-oo](https://github.com/uma-oo)
 - [Ayoub NACHTI](https://github.com/DarkMethoss)
 - [Ibrahim FARES](https://github.com/Faresbrahiim)
 - [Ahmed Amine MELLAGUI](https://github.com/Mellagui)
