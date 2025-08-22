@@ -20,7 +20,7 @@ export default function LoginForm() {
                 <label htmlFor='login'>
                     <HiMiniUser />
                     <span>
-                        User Name:
+                        User Name or Email:
                     </span>
                 </label>
                 <input className={`${styles.input}`}
